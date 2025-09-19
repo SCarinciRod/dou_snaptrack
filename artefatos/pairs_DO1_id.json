@@ -1,0 +1,210 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "20250915T111414Z",
+  "timestamp": "2025-09-15T11:14:51Z",
+  "params": {
+    "url": "https://www.in.gov.br/leiturajornal?data=15-09-2025&secao=DO1",
+    "dou": true,
+    "data": "15-09-2025",
+    "secao": "DO1",
+    "mapPairs": true,
+    "openCombos": false
+  },
+  "stats": {
+    "durationSec": 37.26
+  },
+  "data": {
+    "n1Label": "Selecionar Organização Principal",
+    "n2Label": "Selecionar Organização Subordinada",
+    "pairs": [
+      {
+        "n1Option": {
+          "text": "Atos do Poder Legislativo",
+          "value": "Atos do Poder Legislativo",
+          "dataValue": null,
+          "disabled": false,
+          "selected": false,
+          "dataIndex": 2
+        },
+        "n2Options": [],
+        "n2ChangeInfo": {
+          "changed": false,
+          "beforeCount": 2,
+          "afterCount": 2,
+          "hashBefore": "0fce5fd6528eb3792c9165b6bb6f03b30c49cdaca95561a598f1a9d4701f6b36",
+          "hashAfter": "0fce5fd6528eb3792c9165b6bb6f03b30c49cdaca95561a598f1a9d4701f6b36",
+          "addedCount": 0,
+          "removedCount": 0
+        }
+      },
+      {
+        "n1Option": {
+          "text": "Atos do Poder Executivo",
+          "value": "Atos do Poder Executivo",
+          "dataValue": null,
+          "disabled": false,
+          "selected": false,
+          "dataIndex": 3
+        },
+        "n2Options": [],
+        "n2ChangeInfo": {
+          "changed": false,
+          "beforeCount": 2,
+          "afterCount": 2,
+          "hashBefore": "0fce5fd6528eb3792c9165b6bb6f03b30c49cdaca95561a598f1a9d4701f6b36",
+          "hashAfter": "0fce5fd6528eb3792c9165b6bb6f03b30c49cdaca95561a598f1a9d4701f6b36",
+          "addedCount": 0,
+          "removedCount": 0
+        }
+      },
+      {
+        "n1Option": {
+          "text": "Presidência da República",
+          "value": "Presidência da República",
+          "dataValue": null,
+          "disabled": false,
+          "selected": false,
+          "dataIndex": 4
+        },
+        "n2Options": [
+          {
+            "text": "Advocacia-Geral da União",
+            "value": "Advocacia-Geral da União",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 2
+          },
+          {
+            "text": "Casa Civil",
+            "value": "Casa Civil",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 3
+          }
+        ],
+        "n2ChangeInfo": {
+          "changed": false,
+          "beforeCount": 4,
+          "afterCount": 4,
+          "hashBefore": "55f8cb179f8bc2e893ba2f02b8d8c21418d11f36f89fcbffc0d7487e879a53b7",
+          "hashAfter": "55f8cb179f8bc2e893ba2f02b8d8c21418d11f36f89fcbffc0d7487e879a53b7",
+          "addedCount": 0,
+          "removedCount": 0
+        }
+      },
+      {
+        "n1Option": {
+          "text": "Ministério da Agricultura e Pecuária",
+          "value": "Ministério da Agricultura e Pecuária",
+          "dataValue": null,
+          "disabled": false,
+          "selected": false,
+          "dataIndex": 5
+        },
+        "n2Options": [
+          {
+            "text": "Gabinete do Ministro",
+            "value": "Gabinete do Ministro",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 2
+          },
+          {
+            "text": "Secretaria Executiva",
+            "value": "Secretaria Executiva",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 3
+          },
+          {
+            "text": "Secretaria de Defesa Agropecuária",
+            "value": "Secretaria de Defesa Agropecuária",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 4
+          }
+        ],
+        "n2ChangeInfo": {
+          "changed": false,
+          "beforeCount": 5,
+          "afterCount": 5,
+          "hashBefore": "798a936f3cbe517df580b93e34fe7ed37425b3d463f1eed76a43cd6d23011bc6",
+          "hashAfter": "798a936f3cbe517df580b93e34fe7ed37425b3d463f1eed76a43cd6d23011bc6",
+          "addedCount": 0,
+          "removedCount": 0
+        }
+      },
+      {
+        "n1Option": {
+          "text": "Ministério das Cidades",
+          "value": "Ministério das Cidades",
+          "dataValue": null,
+          "disabled": false,
+          "selected": false,
+          "dataIndex": 6
+        },
+        "n2Options": [
+          {
+            "text": "Gabinete do Ministro",
+            "value": "Gabinete do Ministro",
+            "dataValue": null,
+            "disabled": false,
+            "selected": false,
+            "dataIndex": 2
+          }
+        ],
+        "n2ChangeInfo": {
+          "changed": false,
+          "beforeCount": 3,
+          "afterCount": 3,
+          "hashBefore": "497d66795ecf90671f4fe01282f5a61fc0e2f1a2a686f133617e7a42aab79c57",
+          "hashAfter": "497d66795ecf90671f4fe01282f5a61fc0e2f1a2a686f133617e7a42aab79c57",
+          "addedCount": 0,
+          "removedCount": 0
+        }
+      }
+    ],
+    "root1Meta": {
+      "id": "slcOrgs",
+      "selector": "select",
+      "label": "Selecionar Organização Principal"
+    },
+    "root2Meta": {
+      "id": "slcOrgsSubs",
+      "selector": "select",
+      "label": "Selecionar Organização Subordinada"
+    },
+    "timingSummary": [
+      {
+        "n1Text": "Atos do Poder Legislativo",
+        "elapsedMs": 4058.7,
+        "changed": false
+      },
+      {
+        "n1Text": "Atos do Poder Executivo",
+        "elapsedMs": 4032.9,
+        "changed": false
+      },
+      {
+        "n1Text": "Presidência da República",
+        "elapsedMs": 4045.4,
+        "changed": false
+      },
+      {
+        "n1Text": "Ministério da Agricultura e Pecuária",
+        "elapsedMs": 4025.3,
+        "changed": false
+      },
+      {
+        "n1Text": "Ministério das Cidades",
+        "elapsedMs": 4072.1,
+        "changed": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "schema": {
+    "name": "cascadeResult",
+    "version": "1.0"
+  },
+  "runId": "20250915T141929Z",
+  "generatedAt": "2025-09-15T14:19:29Z",
+  "source": "cascade-run",
+  "params": {
+    "data": "15-09-2025",
+    "secao": "DO1",
+    "query": "energia",
+    "scrapeDetail": true,
+    "advancedDetail": false,
+    "fallbackDateIfMissing": false,
+    "maxLinks": 5,
+    "parallel": 1,
+    "summary": true,
+    "summaryLines": 5,
+    "summaryMode": "center",
+    "summaryAdvanced": false,
+    "dedupState": null,
+    "hierarchicalSelection": {
+      "ok": true,
+      "skipped": true
+    },
+    "topic": "single"
+  },
+  "stats": {
+    "total": 5,
+    "detailFailures": 0,
+    "scrapedDetails": true,
+    "parallel": 1,
+    "durationSec": 12.6
+  },
+  "itens": [
+    {
+      "titulo": "EXTRATO DE CONTRATO Nº 20250459 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/extrato-de-contrato-n-20250459-656010911",
+      "detail_url": "https://www.in.gov.br/web/dou/-/extrato-de-contrato-n-20250459-656010911",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 293",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 293 Órgão: Prefeituras/Estado do Pará/Prefeitura Municipal de Dom Eliseu EXTRATO DE CONTRATO Nº 20250459 Publicado no quadro de avisos da PREFEITURA MUNICIPAL DE DOM ELISEU no dia 05 de setembro de 2025. ORIGEM: PREGÃO ELETRÔNICO SRP Nº 014 2025-PMDE CONTRATANTE: FUNDO MUNICIPAL DE SAÚDE, CNPJ: 11.415.068/0001-58 CONTRATADA(O): R10 ELETRICA, REFRIGERAÇÃO E ENERGIA SOLAR LTDA, CNPJ: 31.584.929/0001-39 OBJETO: CONSTITUIÇÃO DE REGISTRO DE PREÇOS PARA A FUTURA E EVENTUAL CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE INSTALAÇÃO, MANUTENÇÃO E LIMPEZA DE CENTRAL DE AR E AR-CONDICIONADO, PARA ATENDER AS DEMANDAS DA PREFEITURA MUNICIPAL DE DOM ELISEU/PA E DEMAIS SECRETARIAS DO MUNICÍPIO, CONFORME ESPECIFICAÇÕES E QUANTIDADES ESTIMADAS DESCRITAS NO TERMO DE REFERÊNCIA EM ANEXO I DO EDITAL. VALOR TOTAL: R$ 53.018,00 (cinquenta e três mil, dezoito reais) VIGÊNCIA: 04 de Setembro de 2025 a 31 de Dezembro de 2025 DATA DA ASSINATURA: 04 de Setembro de 2025 Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Prefeituras/Estado do Pará/Prefeitura Municipal de Dom Eliseu",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "293",
+      "meta": {
+        "meta[property='og:title']": "EXTRATO DE CONTRATO Nº 20250459 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "2d508f5d75ba4c976545b6452b95dc43d27f80e6"
+      },
+      "hash": "2d508f5d75ba4c976545b6452b95dc43d27f80e6",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "EDITAL DE NOTIFICAÇÃO DE AUTUAÇÃO GEAUT/SUDEG/ANTT Nº 75.248/2025/WEB/EVASÃO DE BALANÇA - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/edital-de-notificacao-de-autuacao-geaut/sudeg/antt-n-75.248/2025/web/evasao-de-balanca-656005164",
+      "detail_url": "https://www.in.gov.br/web/dou/-/edital-de-notificacao-de-autuacao-geaut/sudeg/antt-n-75.248/2025/web/evasao-de-balanca-656005164",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 206",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 206 Órgão: Ministério dos Transportes/Agência Nacional de Transportes Terrestres/Superintendência de Gestão Administrativa EDITAL DE NOTIFICAÇÃO DE AUTUAÇÃO GEAUT/SUDEG/ANTT Nº 75.248/2025/WEB/EVASÃO DE BALANÇA A AGÊNCIA NACIONAL DE TRANSPORTES TERRESTRES - ANTT, no uso de suas atribuições e para os fins previstos na Lei nº 9.503/97, Código de Trânsito Brasileiro - CTB, Resolução CONTRAN nº 918/2022 e alterações, e demais regulamentações do CONTRAN, NOTIFICA as pessoas físicas e jurídicas pelo cometimento da infração de trânsito, concedendo o prazo de 30 (trinta) dias, contados a partir do primeiro dia útil subsequente à publicação deste Edital, para apresentar Defesa da Autuação nos termos da legislação vigente, mencionando-se o número do processo e do auto de infração e dirigido à GERÊNCIA DE PROCESSAMENTO E COBRANÇA DE AUTOS DE INFRAÇÃO - GEAUT/SUDEG/ANTT, situada no SETOR DE CLUBES ESPORTIVO SUL - SCES, LOTE 10 - TRECHO 03, PROJETO ORLA POLO 8, ASA SUL, BRASILIA, de forma física ou digital em (www.sei.antt.gov.br). Conforme disposto na Resolução CONTRAN nº 547/15, caso V.S.ª não seja o (a) responsável pela infração, deverá ser efetuada a sua indicação por meio do Formulário de Identificação do Responsável Pela Infração - FIRI, disponível em (www.antt.gov.br), com todos os campos devidamente preenchidos e assinados, bem como instruído com os documentos obrigatórios e encaminhado, no prazo de 30 (trinta) dias, à GEAUT no mesmo endereço supracitado. Não sendo efetuada a identificação do responsável pela infração até o término do prazo, ou realizada em desacordo com o estabelecido no artigo 3º da Resolução CONTRAN nº 547/15 e as instruções constantes do formulário, o proprietário do veículo será considerado responsável pela infração cometida. A lista completa das penalidades e demais informações poderão ser consultadas no site da ANTT - Portal de Multas, na Área do Autuado ou nos canais de comunicação da ANTT. Total de autuações publicadas no presente Edital: 20 (vinte). BRASÍLIA, 10 de setembro de 2025. NOME DO INFRATOR, CNPJ/CPF DO AUTUADO, PLACA, AUTO DE INFRAÇÃO, CÓDIGO/DESDOBR.; SUPERGASBRAS ENERGIA LTDA, 19.791.896/0099-06, LTW3B72, FRMEV02564442025, 606-82; SUPER BOM PRECO LTDA, 52.607.329/0001-19, IXR8E45, FRMEV02617222025, 606-82; SUPERBETON CONCRETO LTDA, 10.769.918/0001-53, FUW6I76, FRMEV02639892025, 606-82; SXJ5A14, FRMEV02744822025, 606-82; TJP3I65, FRMEV02762712025, 606-82; RYP3F54, FRMEV02805862025, 606-82; MKP3C02, FRMEV03034272025, 606-82; SUPERGASBRAS ENERGIA LTDA, 19.791.896/0046-02, BDQ0G46, FRMEV02675852025, 606-82; SUPERBETON CONCRETO LTDA, 10.769.918/0002-34, RXQ2D31, FRMEV02666152025, 606-82; SUPER GRAO COMERCIO DE CEREAIS LTDA, 10.490.734/0003-11, PTQ0B57, FRMEV02645022025, 606-82; SUPER LAMINACAO DE FERRO E ACO INDUSTRIA E COMERCIO LTDA, 51.059.004/0002-67, DNT2E24, FRMEV02654902025, 606-82; DNT2E24, FRMEV02649362025, 606-82; SUPER LIDER ALIMENTOS LTDA EM RECUPERACAO JUDICIAL, 07.605.075/0005-79, SXM0A19, FRMEV02742882025, 606-82; SUPERAGRO COMERCIO E REPRESENTACAO AGROPECUARIA LTDA, 06.661.107/0001-67, RKY1B53, FRMEV02786662025, 606-82; SUPER QUADRI MATERIAIS DE CONSTRUCAO LTDA, 08.991.877/0001-01, RNO4E73, FRMEV02897202025, 606-82; SUPER BOX LUIZ & SOUZA LTDA, 10.574.104/0001-63, HIJ9J95, FRMEV02980852025, 606-82; SUPER SUL TRANSPORTE E LOGISTICA LTDA, 35.454.025/0001-40, RVC3C86, FRMEV03022802025, 606-82; SUPER PLENA LOCADORA DE VEICULOS EIRELI, 08.373.816/0001-72, LSY1496, FRMEV03029472025, 606-82; SUPER SAFRA COMERCIO DE MAQUINAS E PRODUTOS AGROPECUARIOS LTDA, 10.729.141/0001-01, RFZ8J23, FRMEV03046322025, 606-82; SUPER ATACADO MERCANTIL VITORIA LTDA, 10.328.162/0001-07, IZU5C38, FRMEV03065952025, 606-82. KARLA KELMA BASTOS SANTA ROSA DO CARMO Gerente de Processamento e Cobrança de Autos de Infração - Substituta Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Ministério dos Transportes/Agência Nacional de Transportes Terrestres/Superintendência de Gestão Administrativa",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "206",
+      "meta": {
+        "meta[property='og:title']": "EDITAL DE NOTIFICAÇÃO DE AUTUAÇÃO GEAUT/SUDEG/ANTT Nº 75.248/2025/WEB/EVASÃO DE BALANÇA - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "f1c857a1b518c75e70f5056cf27e5b51790d32b6"
+      },
+      "hash": "f1c857a1b518c75e70f5056cf27e5b51790d32b6",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "EXTRATO DE TERMO ADITIVO Nº 1/2025 - UASG 390071 - EXTRATO DE TERMO ADITIVO Nº 1/2025 - UASG 390071 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/extrato-de-termo-aditivo-n-1/2025-uasg-390071-656004897",
+      "detail_url": "https://www.in.gov.br/web/dou/-/extrato-de-termo-aditivo-n-1/2025-uasg-390071-656004897",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 219",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 219 Órgão: Ministério dos Transportes/Departamento Nacional de Infraestrutura de Transportes/Superintendência Regional no Amapá EXTRATO DE TERMO ADITIVO Nº 1/2025 - UASG 390071 Número do Contrato: 45/2025. Nº Processo: 50008.000923/2024-45. Inexigibilidade. Nº 17/2025. Contratante: SUPERINTENDENCIA RG.NO ESTADO DO AP - DNIT. Contratado: 05.965.546/0001-09 - COMPANHIA DE ELETRICIDADE DO AMAPA CEA. Objeto: Aumento da demanda contratada de consumo de energia elétrica de 65 kw para 80 kw (oitenta quilowatts), no âmbito do contrato de uso do sistema de distribuição - cusd nº 8000297611, celebrado entre a companhia de eletricidade do amapá - cea equatorial e o departamento nacional de infraestrutura de transportes - dnit, referente à unidade consumidora de instalação nº 405477.. Vigência: 10/09/2025 a 13/08/2026. Valor Total Atualizado do Contrato: R$ 240.384,83. Data de Assinatura: 10/09/2025. (COMPRASNET 4.0 - 10/09/2025). Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Ministério dos Transportes/Departamento Nacional de Infraestrutura de Transportes/Superintendência Regional no Amapá",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "219",
+      "meta": {
+        "meta[property='og:title']": "EXTRATO DE TERMO ADITIVO Nº 1/2025 - UASG 390071 - EXTRATO DE TERMO ADITIVO Nº 1/2025 - UASG 390071 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "b5b48a13b70e770dd40671ee594427b5e96f82c0"
+      },
+      "hash": "b5b48a13b70e770dd40671ee594427b5e96f82c0",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "EXTRATO DE PERMISSÃO ESPECIAL DE USO - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/extrato-de-permissao-especial-de-uso-656004740",
+      "detail_url": "https://www.in.gov.br/web/dou/-/extrato-de-permissao-especial-de-uso-656004740",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 221",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 221 Órgão: Ministério dos Transportes/Departamento Nacional de Infraestrutura de Transportes/Superintendência Regional no Rio Grande do Sul EXTRATO DE PERMISSÃO ESPECIAL DE USO PERMISSOR: DEPARTAMENTO NACIONAL DE INFRAESTRUTURA DE TRANSPORTES, representado pelo seu Superintendente Regional no Estado do Rio Grande do Sul, HIRATAN PINHEIRO DA SILVA. PERMISSIONÁRIA: CEEE D - COMPANHIA ESTADUAL DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA, inscrita no CNPJ sob o nº 08.467.115/0001- 00. INSTRUMENTO: Termo de Permissão Especial de Uso da Faixa de Domínio nº 10-195/2025. OBJETO: A área objeto da presente permissão de uso consiste na faixa de domínio da rodovia federal BR 293, no trecho AV. DUQUE DE CAXIAS (PELOTAS) ao ENTR BR290/293 (FRONT BRASIL/ARGENTINA) (PONTE INTERNACIONAL), subtrecho AV. DUQUE DE CAXIAS (PELOTAS) - ENTR BR-116/293/392/471 (P/CANGUÇU), SNV 293BRS0010, segmento no km 2+110m ao km 4+720m, lado esquerdo, numa extensão total de 2610 metros por 1,5 metros de largura, perfazendo uma área total de 3915 m2 (três mil novecentos e quinze metros quadrados), no município de Pelotas/RS, para fins de implantação de rede de distribuição de energia elétrica. FUNDAMENTO LEGAL: Art. 103 do Código Civil Brasileiro e no art. 12 da Lei nº 10.233, de 2001 e lavratura devidamente autorizada no despacho do Sr. Superintendente Regional no Estado do Rio Grande do Sul, datado de 10/09/2025, através do documento SEI nº 22343525. PREÇO: A permissão será sem ônus por enquadrar- se na condição de ocupação por concessionárias de serviços públicos de energia elétrica. PRAZO: Indeterminado, conforme disposto no art. 2º do Decreto nº 84.398, de 16/01/1980, publicado no DOU de 17/01/1980. EFICÁCIA: Será considerada como data inicial de vigência e eficácia da presente permissão, a data de sua publicação em extrato no Diário Oficial da União. PROCESSO nº 50610.003631/2024-56. DATA DA ASSINATURA: 11/09/2025. Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Ministério dos Transportes/Departamento Nacional de Infraestrutura de Transportes/Superintendência Regional no Rio Grande do Sul",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "221",
+      "meta": {
+        "meta[property='og:title']": "EXTRATO DE PERMISSÃO ESPECIAL DE USO - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "7138c3917fdd831bdacc52bf70e1d99c91c43d27"
+      },
+      "hash": "7138c3917fdd831bdacc52bf70e1d99c91c43d27",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "EXTRATO DE TERMO ADITIVO Nº 3/2025 - UASG 113202 - EXTRATO DE TERMO ADITIVO Nº 3/2025 - UASG 113202 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/extrato-de-termo-aditivo-n-3/2025-uasg-113202-655991548",
+      "detail_url": "https://www.in.gov.br/web/dou/-/extrato-de-termo-aditivo-n-3/2025-uasg-113202-655991548",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 7",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 3 | Página: 7 Órgão: Ministério da Ciência, Tecnologia e Inovação/Comissão Nacional de Energia Nuclear/Diretoria Técnico-Cientifica/Instituto de Pesquisas Energéticas e Nucleares EXTRATO DE TERMO ADITIVO Nº 3/2025 - UASG 113202 Número do Contrato: 31/2022. Nº Processo: 01342.001279/2022-54. Inexigibilidade. Nº 3/2022. Contratante: COMISSAO NACIONAL DE ENERGIA NUCLEAR-IPEN. Contratado: 03.290.250/0006-06 - AGILENT TECHNOLOGIES BRASIL LTDA. Objeto: Prorrogar a vigência do contrato em referência por mais 12 (doze) meses, reajustando o seu valor com base no ipca acumulado nos últimos 12 (doze) meses de 5,3511%, passando o valor global atual do contrato de r$ 53.243,61 (cinquenta e três mil duzentos e quarenta e três reais e sessenta e um centavos), para o valor global de r$ 56.092,77 (cinquenta e seis mil noventa e dois reais e setenta e sete centavos), permanecendo as demais cláusulas contratuais pactuadas inalteradas e ratificadas.. Vigência: 15/09/2025 a 15/09/2026. Valor Total Atualizado do Contrato: R$ 56.092,77. Data de Assinatura: 10/09/2025. (COMPRASNET 4.0 - 10/09/2025). Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Ministério da Ciência, Tecnologia e Inovação/Comissão Nacional de Energia Nuclear/Diretoria Técnico-Cientifica/Instituto de Pesquisas Energéticas e Nucleares",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "7",
+      "meta": {
+        "meta[property='og:title']": "EXTRATO DE TERMO ADITIVO Nº 3/2025 - UASG 113202 - EXTRATO DE TERMO ADITIVO Nº 3/2025 - UASG 113202 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "adeba5aa05b6adb562e4f23fad1b5c0c0351cd0b"
+      },
+      "hash": "adeba5aa05b6adb562e4f23fad1b5c0c0351cd0b",
+      "data_publicacao_fallback": false
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schema": {
+    "name": "cascadeResult",
+    "version": "1.0"
+  },
+  "runId": "20250915T162542Z",
+  "generatedAt": "2025-09-15T16:25:42Z",
+  "source": "cascade-run",
+  "params": {
+    "data": "15-09-2025",
+    "secao": "DO1",
+    "query": null,
+    "scrapeDetail": true,
+    "advancedDetail": false,
+    "fallbackDateIfMissing": false,
+    "maxLinks": 3,
+    "parallel": 1,
+    "summary": true,
+    "summaryLines": 5,
+    "summaryMode": "center",
+    "summaryAdvanced": false,
+    "dedupState": null,
+    "hierarchicalSelection": {
+      "ok": true,
+      "level_fail": null,
+      "selected": {
+        "key1": "Atos do Poder Executivo",
+        "key2": "0"
+      },
+      "labels": {
+        "label1": "Selecione o dia desejado",
+        "label2": "Selecione o dia desejado"
+      }
+    },
+    "topic": "job4",
+    "_repeat": 1,
+    "_combo_index": 4,
+    "_job_index": 4
+  },
+  "stats": {
+    "total": 2,
+    "detailFailures": 0,
+    "scrapedDetails": true,
+    "parallel": 1,
+    "durationSec": 6.23
+  },
+  "itens": [
+    {
+      "titulo": "DECRETO Nº 12.620, DE 12 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/decreto-n-12.620-de-12-de-setembro-de-2025-655737850",
+      "detail_url": "https://www.in.gov.br/web/dou/-/decreto-n-12.620-de-12-de-setembro-de-2025-655737850",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 1",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 1 Órgão: Atos do Poder Executivo DECRETO Nº 12.620, DE 12 DE SETEMBRO DE 2025 Promulga o Protocolo alterando o Acordo entre o Governo da República Federativa do Brasil e o Governo da República Popular da China Destinado a Evitar a Dupla Tributação e Prevenir a Evasão Fiscal em Matéria de Impostos sobre a Renda e o seu Protocolo, firmado em Brasília e Pequim, em 23 de maio de 2022. O PRESIDENTE DA REPÚBLICA, no uso da atribuição que lhe confere o art. 84,caput, inciso IV, da Constituição, e Considerando que o Protocolo alterando o Acordo entre o Governo da República Federativa do Brasil e o Governo da República Popular da China Destinado a Evitar a Dupla Tributação e Prevenir a Evasão Fiscal em Matéria de Impostos sobre a Renda e o seu Protocolo foi firmado em Brasília e Pequim, em 23 de maio de 2022; Considerando que o Congresso Nacional aprovou o Protocolo por meio do Decreto Legislativo nº 170, de 5 de maio de 2025; e Considerando que o Acordo entrou em vigor para a República Federativa do Brasil, no plano jurídico externo, no dia 14 de junho de 2025, nos termos de seu Artigo 18; D E C R E T A: Art. 1º Fica promulgado o Protocolo alterando o Acordo entre o Governo da República Federativa do Brasil e o Governo da República Popular da China Destinado a Evitar a Dupla Tributação e Prevenir a Evasão Fiscal em Matéria de Impostos sobre a Renda e o seu Protocolo, firmado em Brasília e Pequim, em 23 de maio de 2022, anexo a este Decreto. Art. 2º São sujeitos à aprovação do Congresso Nacional atos que possam resultar em revisão do Protocolo e ajustes complementares que acarretem encargos ou compromissos gravosos ao patrimônio nacional, nos termos do art. 49,caput, inciso I, da Constituição. Art. 3º Este Decreto entra em vigor na data de sua publicação. Brasília, 12 de setembro de 2025; 204º da Independência e 137º da República. LUIZ INÁCIO LULA DA SILVA Mauro Luiz Iecker Vieira PROTOCOLO ALTERANDO O ACORDO ENTRE O GOVERNO DA REPÚBLICA FEDERATIVA DO BRASIL E O GOVERNO DA REPÚBLICA POPULAR DA CHINA DESTINADO A EVITAR A DUPLA TRIBUTAÇÃO E PREVENIR A EVASÃO FISCAL EM MATÉRIA DE IMPOSTOS SOBRE A RENDA E O SEU PROTOCOLO, CELEBRADOS EM PEQUIM, EM 5 DE AGOSTO DE 1991 O Governo da República Federativa do Brasil e o Governo da República Popular da China, Desejosos de alterar o Acordo entre o Governo da República Federativa do Brasil e o Governo da República Popular da China Destinado a Evitar a Dupla Tributação e Prevenir a Evasão Fiscal em Matéria de Impostos sobre a Renda e o seu Protocolo, celebrados em Pequim, em 5 de agosto de 1991 (doravante denominado \"o Acordo\"); Acordaram o seguinte: Artigo 1 O título do Acordo será excluído e substituído pelo seguinte: \"ACORDO ENTRE O GOVERNO DA REPÚBLICA FEDERATIVA DO BRASIL E O GOVERNO DA REPÚBLICA POPULAR DA CHINA PARA A ELIMINAÇÃO DA DUPLA TRIBUTAÇÃO EM RELAÇÃO AOS IMPOSTOS SOBRE A RENDA E A PREVENÇÃO DA EVASÃO E DA ELISÃO FISCAIS\" Artigo 2 O preâmbulo do Acordo será excluído e substituído pelo seguinte: \"O Governo da República Federativa do Brasil e o Governo da República Popular da China, Desejando continuar a desenvolver suas relações econômicas e fortalecer sua cooperação em matéria tributária, Desejosos de concluir um Acordo para a eliminação da dupla tributação em relação aos impostos sobre a renda, sem criar oportunidades para não tributação ou tributação reduzida por meio de evasão ou elisão fiscal (inclusive por meio do uso abusivo de acordos -treaty shopping- cujo objetivo seja estender os benefícios previstos neste Acordo indiretamente a residentes de terceiros Estados), Acordaram o seguinte:\" Artigo 3 O Artigo 1 do Acordo será excluído e substituído pelo seguinte: \"ARTIGO 1 PESSOAS VISADAS 1. Este Acordo se aplicará às pessoas residentes de um ou de ambos os Estados Contratantes. 2. Para os fins deste Acordo, os rendimentos obtidos por uma entidade ou arranjo, ou por seu intermédio, que seja tratado como fiscalmente transparente, total ou parcialmente, de acordo com a legislação tributária de qualquer Estado Contratante, serão considerados como rendimentos de um residente de um Estado Contratante, mas apenas na medida em que o rendimento seja tratado, para propósito de tributação por esse Estado, como o rendimento de um residente desse Estado. 3. Este Acordo não afetará a tributação, por um Estado Contratante, de seus residentes, exceto em relação aos benefícios concedidos pelo parágrafo 2 do Artigo 18 e pelos Artigos 19, 20, 21, 23, 24, 25 e 27.\" Artigo 4 O Artigo 2 do Acordo será excluído e substituído pelo seguinte: \"ARTIGO 2 IMPOSTOS VISADOS 1. Este Acordo se aplicará a impostos sobre a renda exigidos por um dos Estados Contratantes ou por suas subdivisões políticas ou autoridades locais, independentemente da maneira pela qual são cobrados. 2. Serão considerados como impostos sobre a renda todos os impostos cobrados sobre a renda total ou elementos de rendimento, incluindo impostos sobre os ganhos decorrentes da alienação de propriedade móvel ou imóvel, e impostos sobre o montante total dos salários ou ordenados pagos pelas empresas. 3. Os impostos atuais aos quais se aplicará o Acordo são: (a) no caso da China: (i) o imposto sobre a renda das pessoas físicas; (ii) o imposto sobre a renda das empresas; (doravante denominado 'imposto chinês'); (b) no caso do Brasil: o imposto federal sobre a renda (doravante denominado 'imposto brasileiro'). 4. O Acordo se aplicará também a quaisquer impostos idênticos ou substancialmente similares que forem introduzidos após a data de assinatura do Acordo, seja em adição aos impostos atuais, seja em sua substituição. As autoridades competentes dos Estados Contratantes comunicar-se-ão as modificações significativas feitas em suas respectivas legislações tributárias.\" Artigo 5 As alíneas (a), (b) e (j) do parágrafo 1 do Artigo 3 do Acordo serão excluídas e substituídas pelo seguinte: \"(a) o termo 'China' significa a República Popular da China; quando utilizado na acepção geográfica, significa todo o território da República Popular da China, inclusive seu território, águas internas, mar territorial e espaço aéreo, e qualquer área além do seu mar territorial sobre a qual a República Popular da China exerce direitos soberanos ou poderá exercer jurisdição, de acordo com o Direito Internacional e sua legislação interna, no qual se aplica a legislação tributária chinesa; (b) o termo 'Brasil' significa a República Federativa do Brasil e, quando usado em sentido geográfico, significa o território da República Federativa do Brasil, bem como a área do fundo do mar, seu subsolo e a correspondente coluna superjacente de água, adjacente ao mar territorial, em que a República Federativa do Brasil exerce direitos de soberania ou jurisdição em conformidade com o direito internacional e sua legislação nacional com o objetivo de pesquisar, explorar economicamente, conservar e manejar os recursos naturais, vivos ou não, ou para a produção de energia a partir de fontes renováveis; (j) a expressão 'autoridade competente' significa, no caso da China, a Administração Tributária Estatal ou seu representante autorizado e, no caso do Brasil, o Ministro de Estado da Economia, o Secretário Especial da Receita Federal do Brasil ou seus representantes autorizados;\" Artigo 6 O parágrafo 3 do Artigo 4 do Acordo será excluído e substituído pelo seguinte: \"3. Quando, em virtude das disposições do parágrafo 1, uma pessoa, que não seja pessoa física, for residente de ambos os Estados Contratantes, as autoridades competentes dos Estados Contratantes envidarão esforços para determinar, mediante acordo mútuo, o Estado Contratante do qual essa pessoa será considerada residente para fins do Acordo, tendo em conta a sua sede de direção efetiva, o local onde for incorporada ou de outra forma constituída e quaisquer outros fatores relevantes.",
+      "orgao": "Atos do Poder Executivo",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "1",
+      "meta": {
+        "meta[property='og:title']": "DECRETO Nº 12.620, DE 12 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "1b0fe6a7a654150f4bbb2a7e4594e21d430df090"
+      },
+      "hash": "1b0fe6a7a654150f4bbb2a7e4594e21d430df090",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "DECRETO Nº 12.619, DE 12 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/decreto-n-12.619-de-12-de-setembro-de-2025-655722067",
+      "detail_url": "https://www.in.gov.br/web/dou/-/decreto-n-12.619-de-12-de-setembro-de-2025-655722067",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 1",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 1 Órgão: Atos do Poder Executivo DECRETO Nº 12.619, DE 12 DE SETEMBRO DE 2025 Altera o Decreto nº 12.375, de 6 de fevereiro de 2025, que dispõe sobre as Cartas Patentes dos oficiais das Forças Armadas. OPRESIDENTE DA REPÚBLICA, no uso da atribuição que lhe confere o art. 84,caput, inciso IV, da Constituição, e tendo em vista o disposto no art. 19, § 1º e § 2º, da Lei nº 5.821, de 10 de novembro de 1972, e no art. 16,capute § 1º, da Lei nº 6.880, de 9 de dezembro de 1980, D E C R E T A : Art. 1º O Decreto nº 12.375, de 6 de fevereiro de 2025, passa a vigorar com as seguintes alterações: \"Art. 2º A Carta Patente é o diploma confirmatório dos postos de oficiais das Forças Armadas e das prerrogativas, direitos e deveres a eles inerentes.\" (NR) \"Art. 3º .............................................................................................................. ...................................................................................................................................... XI - a informação da data prevista para o licenciamento do serviço ativo, no caso de oficial temporário, durante a prestação do serviço militar; e ............................................................................................................................\" (NR) Art. 2º Fica revogado o parágrafo único do art. 2º do Decreto nº 12.375, de 6 de fevereiro de 2025. Art. 3º Este Decreto entra em vigor na data de sua publicação. Brasília, 12 de setembro de 2025; 204º da Independência e 137º da República. LUIZ INÁCIO LULA DA SILVA José Múcio Monteiro Filho Presidente da República Federativa do Brasil Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Atos do Poder Executivo",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "1",
+      "meta": {
+        "meta[property='og:title']": "DECRETO Nº 12.619, DE 12 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "81273c33abd8aa4fe795c4fd734841b9e7b81aa9"
+      },
+      "hash": "81273c33abd8aa4fe795c4fd734841b9e7b81aa9",
+      "data_publicacao_fallback": false
+    }
+  ]
+}

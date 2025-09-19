@@ -1,0 +1,71 @@
+{
+  "schema": {
+    "name": "cascadeResult",
+    "version": "1.0"
+  },
+  "runId": "20250915T163430Z",
+  "generatedAt": "2025-09-15T16:34:30Z",
+  "source": "cascade-run",
+  "params": {
+    "data": "15-09-2025",
+    "secao": "DO1",
+    "query": null,
+    "scrapeDetail": true,
+    "advancedDetail": false,
+    "fallbackDateIfMissing": false,
+    "maxLinks": 3,
+    "parallel": 1,
+    "summary": true,
+    "summaryLines": 5,
+    "summaryMode": "center",
+    "summaryAdvanced": false,
+    "dedupState": null,
+    "hierarchicalSelection": {
+      "ok": true,
+      "level_fail": null,
+      "selected": {
+        "key1": "Ministério das Cidades",
+        "key2": "Secretaria Executiva"
+      },
+      "labels": {
+        "label1": "Selecione o dia desejado",
+        "label2": "Selecione o dia desejado"
+      }
+    },
+    "topic": "job11",
+    "_repeat": 1,
+    "_combo_index": 11,
+    "_job_index": 11
+  },
+  "stats": {
+    "total": 1,
+    "detailFailures": 0,
+    "scrapedDetails": true,
+    "parallel": 1,
+    "durationSec": 2.81
+  },
+  "itens": [
+    {
+      "titulo": "PORTARIA MCID Nº 1.041, DE 11 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/portaria-mcid-n-1.041-de-11-de-setembro-de-2025-655739230",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-mcid-n-1.041-de-11-de-setembro-de-2025-655739230",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 19",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 19 Órgão: Ministério das Cidades/Gabinete do Ministro PORTARIA MCID Nº 1.041, DE 11 DE SETEMBRO DE 2025 Autoriza a contratação de propostas selecionadas no âmbito do Programa Minha Casa, Minha Vida Entidades - MCMV-Entidades, objeto do processo seletivo instituído pela Portaria MCID nº 862, de 4 de julho de 2023. O MINISTRO DE ESTADO DAS CIDADES, no uso das atribuições que lhe confere o art. 87, parágrafo único, incisos I e II, da Constituição Federal, e tendo em vista o disposto no art. 20 da Lei nº 14.600, de 19 de junho de 2023, no art. 1º do Anexo I do Decreto nº 12.553, de 14 de julho de 2025, nos arts. 11, inciso I, e 20 da Lei nº 14.620, de 13 de julho de 2023, na Resolução CCFDS nº 214, de 15 de dezembro de 2016, na Instrução Normativa MCID nº 28, de 4 de julho de 2023, e na Portaria MCID nº 862, de 4 de julho de 2023, resolve: Art. 1º Fica autorizada a contratação das propostas relacionadas no Anexo desta Portaria, em conformidade com a Portaria MCID nº 355, de 9 de abril de 2024, que divulgou as propostas selecionadas para contratação no âmbito do Programa Minha Casa, Minha Vida Entidades - MCMV-Entidades, objeto do processo seletivo instituído pela Portaria MCID nº 862, de 4 de julho de 2023. Parágrafo único. O Agente Operador e o Agente Financeiro deverão observar o prazo para a contratação das propostas previsto no art. 2º da Portaria MCID nº 355, de 9 de abril de 2024, e suas eventuais prorrogações, e cumprir todas as condições técnicas, institucionais e jurídicas necessárias para a formalização das contratações. Art. 2º Esta Portaria entra em vigor na data de sua publicação. JADER FONTENELLE BARBALHO FILHO ANEXO UF MUNICÍPIO Nº DE IDENTIFICAÇÃO DA PROPOSTA APF NOME DA ENTIDADE CNPJ UH ES Iúna 1229e38a-6fd2-4d2a-9ffc-bbd7b958aab8 63798165 ASSOCIACAO IUNENSE PARA DESENVOLVIMENTO SOCIAL 39.288.352/0001-20 28 MG Buritizeiro 57f943ad-6fa3-4fa2-b862-67d326af5f47 63526333 ASSOCIAÇÃO COMUNITARIA ALU FERRERA - ACAF 08.343.255/0001-69 50 Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Ministério das Cidades/Gabinete do Ministro",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "19",
+      "meta": {
+        "meta[property='og:title']": "PORTARIA MCID Nº 1.041, DE 11 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "4ddf0e4bc3fef5e029a19a1b9ceafb8f4cd18fc3"
+      },
+      "hash": "4ddf0e4bc3fef5e029a19a1b9ceafb8f4cd18fc3",
+      "data_publicacao_fallback": false
+    }
+  ]
+}

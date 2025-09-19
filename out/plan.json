@@ -1,0 +1,166 @@
+{
+  "data": "19-09-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "baseUrl": "https://www.in.gov.br/leiturajornal"
+  },
+  "query": null,
+  "dynamicN2": true,
+  "combos": [
+    {
+      "key1": "Atos do Poder Judiciário",
+      "label1": "Atos do Poder Judiciário",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Atos do Poder Legislativo",
+      "label1": "Atos do Poder Legislativo",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Presidência da República",
+      "label1": "Presidência da República",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Agricultura e Pecuária",
+      "label1": "Ministério da Agricultura e Pecuária",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério das Cidades",
+      "label1": "Ministério das Cidades",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "label1": "Ministério da Ciência, Tecnologia e Inovação",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério das Comunicações",
+      "label1": "Ministério das Comunicações",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Cultura",
+      "label1": "Ministério da Cultura",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Defesa",
+      "label1": "Ministério da Defesa",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+      "label1": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+      "label1": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "label1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Educação",
+      "label1": "Ministério da Educação",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+      "label1": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Esporte",
+      "label1": "Ministério do Esporte",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Fazenda",
+      "label1": "Ministério da Fazenda",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Gestão e da Inovação em Serviços Públicos",
+      "label1": "Ministério da Gestão e da Inovação em Serviços Públicos",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Integração e do Desenvolvimento Regional",
+      "label1": "Ministério da Integração e do Desenvolvimento Regional",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Justiça e Segurança Pública",
+      "label1": "Ministério da Justiça e Segurança Pública",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Meio Ambiente e Mudança do Clima",
+      "label1": "Ministério do Meio Ambiente e Mudança do Clima",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério de Minas e Energia",
+      "label1": "Ministério de Minas e Energia",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério de Portos e Aeroportos",
+      "label1": "Ministério de Portos e Aeroportos",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério dos Povos Indígenas",
+      "label1": "Ministério dos Povos Indígenas",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Previdência Social",
+      "label1": "Ministério da Previdência Social",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério da Saúde",
+      "label1": "Ministério da Saúde",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério do Trabalho e Emprego",
+      "label1": "Ministério do Trabalho e Emprego",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério dos Transportes",
+      "label1": "Ministério dos Transportes",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério Público da União",
+      "label1": "Ministério Público da União",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Defensoria Pública da União",
+      "label1": "Defensoria Pública da União",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Poder Judiciário",
+      "label1": "Poder Judiciário",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+      "label1": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+      "_dynamicN2": true
+    }
+  ]
+}
