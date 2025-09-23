@@ -1,20 +1,20 @@
 {
-  "data": "19-09-2025",
+  "data": "22-09-2025",
   "secaoDefault": "DO1",
   "defaults": {
-    "baseUrl": "https://www.in.gov.br/leiturajornal"
+    "baseUrl": "https://www.in.gov.br/leiturajornal?data=22-09-2025&secao=DO1"
   },
   "query": null,
   "dynamicN2": true,
   "combos": [
     {
-      "key1": "Atos do Poder Judiciário",
-      "label1": "Atos do Poder Judiciário",
+      "key1": "Atos do Congresso Nacional",
+      "label1": "Atos do Congresso Nacional",
       "_dynamicN2": true
     },
     {
-      "key1": "Atos do Poder Legislativo",
-      "label1": "Atos do Poder Legislativo",
+      "key1": "Atos do Poder Executivo",
+      "label1": "Atos do Poder Executivo",
       "_dynamicN2": true
     },
     {
@@ -58,11 +58,6 @@
       "_dynamicN2": true
     },
     {
-      "key1": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-      "label1": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-      "_dynamicN2": true
-    },
-    {
       "key1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
       "label1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
       "_dynamicN2": true
@@ -70,16 +65,6 @@
     {
       "key1": "Ministério da Educação",
       "label1": "Ministério da Educação",
-      "_dynamicN2": true
-    },
-    {
-      "key1": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-      "label1": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-      "_dynamicN2": true
-    },
-    {
-      "key1": "Ministério do Esporte",
-      "label1": "Ministério do Esporte",
       "_dynamicN2": true
     },
     {
@@ -103,23 +88,23 @@
       "_dynamicN2": true
     },
     {
-      "key1": "Ministério do Meio Ambiente e Mudança do Clima",
-      "label1": "Ministério do Meio Ambiente e Mudança do Clima",
-      "_dynamicN2": true
-    },
-    {
       "key1": "Ministério de Minas e Energia",
       "label1": "Ministério de Minas e Energia",
       "_dynamicN2": true
     },
     {
-      "key1": "Ministério de Portos e Aeroportos",
-      "label1": "Ministério de Portos e Aeroportos",
+      "key1": "Ministério da Pesca e Aquicultura",
+      "label1": "Ministério da Pesca e Aquicultura",
       "_dynamicN2": true
     },
     {
-      "key1": "Ministério dos Povos Indígenas",
-      "label1": "Ministério dos Povos Indígenas",
+      "key1": "Ministério do Planejamento e Orçamento",
+      "label1": "Ministério do Planejamento e Orçamento",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Ministério de Portos e Aeroportos",
+      "label1": "Ministério de Portos e Aeroportos",
       "_dynamicN2": true
     },
     {
@@ -143,8 +128,23 @@
       "_dynamicN2": true
     },
     {
+      "key1": "Ministério do Turismo",
+      "label1": "Ministério do Turismo",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Controladoria-Geral da União",
+      "label1": "Controladoria-Geral da União",
+      "_dynamicN2": true
+    },
+    {
       "key1": "Ministério Público da União",
       "label1": "Ministério Público da União",
+      "_dynamicN2": true
+    },
+    {
+      "key1": "Tribunal de Contas da União",
+      "label1": "Tribunal de Contas da União",
       "_dynamicN2": true
     },
     {

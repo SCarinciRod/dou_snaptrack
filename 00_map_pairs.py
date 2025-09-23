@@ -386,22 +386,62 @@ def select_by_text_or_attrs(page, root: Dict[str,Any], option: Dict[str,Any]) ->
     return False
 
 # -------------------- Mapeamento N1 -> N2 --------------------
-def wait_n2_repopulated(page, n2_root, prev_count: int, timeout_ms: int = 15_000) -> None:
-    """Espera N2 repopular (contagem mudar ou ficar estável != prev_count)."""
+# Substitua a função existente por esta
+# Substitua a função wait_n2_repopulated existente por esta
+def wait_n2_repopulated(page, n2_root, prev_count: int, timeout_ms: int = 30_000) -> None:
+    """
+    Espera N2 repopular de forma robusta:
+      - Para <select>: aguarda habilitar (enabled=True) e ter >1 option
+      - Para custom: aguarda aparecer pelo menos 1 opção não-sentinela
+      - Também sai se a contagem mudar de prev_count para outro valor > 0
+    """
+    import re, time
     start = time.time()
-    while (time.time() - start) * 1000 < timeout_ms:
-        # ler opções rapidamente (sem abrir, tenta <select>, senão abre e fecha)
-        if is_select_root(n2_root):
-            opts = read_select_options(n2_root)
-        else:
-            opened = open_dropdown(page, n2_root)
-            opts = read_open_list_options(page) if opened else []
-        cur = len(opts)
-        if cur != prev_count and cur > 0:
-            return
-        page.wait_for_timeout(120)
-    # prossegue mesmo assim
 
+    def non_sentinel_count(opts: List[Dict[str, Any]]) -> int:
+        c = 0
+        for o in opts:
+            t = (o.get("text") or "").strip()
+            v = (o.get("value") or "").strip()
+            nt = re.sub(r"\s+", " ", t.lower())
+            if not t and not v:
+                continue
+            if nt.startswith("selecionar") or nt.startswith("selecione"):
+                continue
+            if nt == "todos" or v == "0":
+                continue
+            c += 1
+        return c
+
+    while (time.time() - start) * 1000 < timeout_ms:
+        try:
+            if is_select_root(n2_root):
+                sel = n2_root["handle"]
+                try:
+                    enabled = sel.is_enabled()
+                except Exception:
+                    enabled = False
+                opts = read_select_options(n2_root)
+                cur = len(opts)
+                nn = non_sentinel_count(opts)
+                if (enabled and cur > 1) or (cur != prev_count and cur > 0) or nn > 0:
+                    return
+            else:
+                opened = open_dropdown(page, n2_root)
+                opts = read_open_list_options(page) if opened else []
+                cur = len(opts)
+                nn = non_sentinel_count(opts)
+                if (cur != prev_count and cur > 0) or nn > 0:
+                    try: page.keyboard.press("Escape")
+                    except Exception: pass
+                    return
+                try: page.keyboard.press("Escape")
+                except Exception: pass
+        except Exception:
+            pass
+        page.wait_for_timeout(120)
+    # prossegue mesmo sem mudança (pode ser N2 inexistente para alguns N1)
+    
 def map_pairs(secao: str, data: str, out_path: str,
               label1: Optional[str], label2: Optional[str],
               select1: Optional[str], pick1: Optional[str], limit1: Optional[int],

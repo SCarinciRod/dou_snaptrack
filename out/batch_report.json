@@ -1,0 +1,15 @@
+{
+  "startedAt": "2025-09-22T17:00:14.561617Z",
+  "jobs": [
+    {
+      "secao": "DO1",
+      "date": "22-09-2025",
+      "base_url": "https://www.in.gov.br/leiturajornal?data=22-09-2025&secao=DO1",
+      "combos": 1,
+      "outputs": [
+        "out\\DO1_22-09-2025_01_000.json"
+      ]
+    }
+  ],
+  "finishedAt": "2025-09-22T17:00:30.770884Z"
+}

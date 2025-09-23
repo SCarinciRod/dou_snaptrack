@@ -1,968 +1,3735 @@
 {
-  "schema": {
-    "name": "mapping",
-    "version": "1.0"
-  },
-  "runId": "20250917T142635Z",
-  "generatedAt": "2025-09-17T14:26:57Z",
-  "params": {
-    "data": "16-09-2025",
-    "secao": "DO1",
-    "mode": "all",
-    "openCustom": false,
-    "rawOptions": false,
-    "verboseLabels": false,
-    "autoDisambiguate": true
-  },
-  "data": {
-    "dropdowns": [
-      {
-        "kind": "select",
-        "rootSelector": "select",
-        "index": 0,
-        "label": "slcOrgs",
-        "info": {
-          "visible": true,
-          "box": {
-            "x": 64,
-            "y": 290.328125,
-            "width": 362.65625,
-            "height": 40
-          },
-          "attrs": {
-            "id": "slcOrgs",
-            "class": "form-control leitura-filtro",
-            "placeholder": "Selecionar Organização Principal"
-          },
-          "text": "Selecionar Organização PrincipalTodosAtos do Poder JudiciárioAtos do Poder LegislativoPresidência da RepúblicaMinistério da Agricultura e PecuáriaMinistério das CidadesMinistério da Ciência, Tecnologia e InovaçãoMinistério das ComunicaçõesMinistério da CulturaMinistério da DefesaMinistério do Desenvolvimento Agrário e Agricultura FamiliarMinistério do Desenvolvimento e Assistência Social, Família e Combate à FomeMinistério do Desenvolvimento, Indústria, Comércio e ServiçosMinistério da EducaçãoMinistério do Empreendedorismo, da Microempresa e da Empresa de Pequeno PorteMinistério do EsporteMinistério da FazendaMinistério da Gestão e da Inovação em Serviços PúblicosMinistério da Integração e do Desenvolvimento RegionalMinistério da Justiça e Segurança PúblicaMinistério do Meio Ambiente e Mudança do ClimaMinistério de Minas e EnergiaMinistério de Portos e AeroportosMinistério dos Povos IndígenasMinistério da Previdência SocialMinistério da SaúdeMinistério do Trabalho e EmpregoMinistério dos TransportesMinistério Público da UniãoDefensoria Pública da UniãoPoder JudiciárioEntidades de Fiscalização do Exercício das Profissões Liberais",
-          "cssPath": "select#slcOrgs",
-          "xpath": "//*[@id='slcOrgs']"
+  "scannedUrl": "https://www.in.gov.br/leiturajornal?data=22-09-2025&secao=DO1",
+  "timestamp": "2025-09-22T08:28:49",
+  "frames": [
+    {
+      "name": "",
+      "url": "https://www.in.gov.br/leiturajornal?data=22-09-2025&secao=DO1",
+      "isMain": true,
+      "comboboxCount": 3,
+      "selectCount": 3
+    }
+  ],
+  "dropdowns": [
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 0,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 107,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
         },
-        "options": [
-          {
-            "text": "Atos do Poder Judiciário",
-            "value": "Atos do Poder Judiciário",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 2
-          },
-          {
-            "text": "Atos do Poder Legislativo",
-            "value": "Atos do Poder Legislativo",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 3
-          },
-          {
-            "text": "Presidência da República",
-            "value": "Presidência da República",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 4
-          },
-          {
-            "text": "Ministério da Agricultura e Pecuária",
-            "value": "Ministério da Agricultura e Pecuária",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 5
-          },
-          {
-            "text": "Ministério das Cidades",
-            "value": "Ministério das Cidades",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 6
-          },
-          {
-            "text": "Ministério da Ciência, Tecnologia e Inovação",
-            "value": "Ministério da Ciência, Tecnologia e Inovação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 7
-          },
-          {
-            "text": "Ministério das Comunicações",
-            "value": "Ministério das Comunicações",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 8
-          },
-          {
-            "text": "Ministério da Cultura",
-            "value": "Ministério da Cultura",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 9
-          },
-          {
-            "text": "Ministério da Defesa",
-            "value": "Ministério da Defesa",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 10
-          },
-          {
-            "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
-            "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 11
-          },
-          {
-            "text": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-            "value": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 12
-          },
-          {
-            "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
-            "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 13
-          },
-          {
-            "text": "Ministério da Educação",
-            "value": "Ministério da Educação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 14
-          },
-          {
-            "text": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-            "value": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 15
-          },
-          {
-            "text": "Ministério do Esporte",
-            "value": "Ministério do Esporte",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 16
-          },
-          {
-            "text": "Ministério da Fazenda",
-            "value": "Ministério da Fazenda",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 17
-          },
-          {
-            "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
-            "value": "Ministério da Gestão e da Inovação em Serviços Públicos",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 18
-          },
-          {
-            "text": "Ministério da Integração e do Desenvolvimento Regional",
-            "value": "Ministério da Integração e do Desenvolvimento Regional",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 19
-          },
-          {
-            "text": "Ministério da Justiça e Segurança Pública",
-            "value": "Ministério da Justiça e Segurança Pública",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 20
-          },
-          {
-            "text": "Ministério do Meio Ambiente e Mudança do Clima",
-            "value": "Ministério do Meio Ambiente e Mudança do Clima",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 21
-          },
-          {
-            "text": "Ministério de Minas e Energia",
-            "value": "Ministério de Minas e Energia",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 22
-          },
-          {
-            "text": "Ministério de Portos e Aeroportos",
-            "value": "Ministério de Portos e Aeroportos",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 23
-          },
-          {
-            "text": "Ministério dos Povos Indígenas",
-            "value": "Ministério dos Povos Indígenas",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 24
-          },
-          {
-            "text": "Ministério da Previdência Social",
-            "value": "Ministério da Previdência Social",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 25
-          },
-          {
-            "text": "Ministério da Saúde",
-            "value": "Ministério da Saúde",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 26
-          },
-          {
-            "text": "Ministério do Trabalho e Emprego",
-            "value": "Ministério do Trabalho e Emprego",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 27
-          },
-          {
-            "text": "Ministério dos Transportes",
-            "value": "Ministério dos Transportes",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 28
-          },
-          {
-            "text": "Ministério Público da União",
-            "value": "Ministério Público da União",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 29
-          },
-          {
-            "text": "Defensoria Pública da União",
-            "value": "Defensoria Pública da União",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 30
-          },
-          {
-            "text": "Poder Judiciário",
-            "value": "Poder Judiciário",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 31
-          },
-          {
-            "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
-            "value": "Entidades de Fiscalização do Exercício das Profissões Liberais",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 32
-          }
-        ]
+        "attrs": {
+          "id": "slcOrgs",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Organização Principal"
+        },
+        "text": "Selecionar Organização PrincipalTodosAtos do Congresso NacionalAtos do Poder ExecutivoPresidência da RepúblicaMinistério da Agricultura e PecuáriaMinistério das CidadesMinistério da Ciência, Tecnologia e InovaçãoMinistério das ComunicaçõesMinistério da CulturaMinistério da DefesaMinistério do Desenvolvimento Agrário e Agricultura FamiliarMinistério do Desenvolvimento, Indústria, Comércio e ServiçosMinistério da EducaçãoMinistério da FazendaMinistério da Gestão e da Inovação em Serviços PúblicosMinistério da Integração e do Desenvolvimento RegionalMinistério da Justiça e Segurança PúblicaMinistério de Minas e EnergiaMinistério da Pesca e AquiculturaMinistério do Planejamento e OrçamentoMinistério de Portos e AeroportosMinistério da Previdência SocialMinistério da SaúdeMinistério do Trabalho e EmpregoMinistério dos TransportesMinistério do TurismoControladoria-Geral da UniãoMinistério Público da UniãoTribunal de Contas da UniãoDefensoria Pública da UniãoPoder JudiciárioEntidades de Fiscalização do Exercício das Profissões Liberais",
+        "cssPath": "select#slcOrgs",
+        "xpath": "//*[@id='slcOrgs']"
       },
-      {
-        "kind": "select",
-        "rootSelector": "select",
-        "index": 1,
-        "label": "slcOrgsSubs",
-        "info": {
-          "visible": true,
-          "box": {
-            "x": 458.65625,
-            "y": 290.328125,
-            "width": 362.65625,
-            "height": 40
-          },
-          "attrs": {
-            "id": "slcOrgsSubs",
-            "class": "form-control leitura-filtro",
-            "placeholder": "Selecionar Organização Subordinada"
-          },
-          "text": "Selecionar Organização SubordinadaTodosAgência Nacional de Aviação CivilAgência Nacional de Energia ElétricaAgência Nacional de MineraçãoAgência Nacional de Saúde SuplementarAgência Nacional de TelecomunicaçõesAgência Nacional de Transportes AquaviáriosAgência Nacional de Transportes TerrestresAgência Nacional de Vigilância SanitáriaAgência Nacional de Águas e Saneamento BásicoAgência Nacional do CinemaAgência Nacional do Petróleo, Gás Natural e BiocombustíveisCasa CivilComando da AeronáuticaComissão de Valores MobiliáriosComitê Gestor das Operações de Crédito ConsignadoConselho Administrativo de Defesa EconômicaConselho Administrativo de Recursos FiscaisConselho Federal de MedicinaConselho Nacional de Desenvolvimento Científico e TecnológicoConselho Nacional de Previdência ComplementarConselho Nacional do Meio AmbienteConselho Regional de Fisioterapia e Terapia Ocupacional da 10ª RegiãoConselho Superior da Defensoria Pública da UniãoCâmara de Comércio ExteriorCâmara de Recursos da Previdência ComplementarEstado-Maior Conjunto das Forças ArmadasFundação Cultural PalmaresFundação Nacional de SaúdeFundação Universidade Federal do PiauíFundo Nacional de Desenvolvimento da EducaçãoGabinete da MinistraGabinete do MinistroInstituto Chico Mendes de Conservação da BiodiversidadeInstituto Nacional de Colonização e Reforma AgráriaInstituto Nacional de Metrologia, Qualidade e TecnologiaInstituto Nacional de Tecnologia da InformaçãoInstituto do Patrimônio Histórico e Artístico NacionalMinistério Público do TrabalhoPolícia FederalSecretaria Especial da Receita Federal do BrasilSecretaria ExecutivaSecretaria Nacional de Direitos DigitaisSecretaria Nacional de JustiçaSecretaria Nacional de Proteção e Defesa CivilSecretaria Nacional de Segurança Alimentar e NutricionalSecretaria de Atenção Primária à SaúdeSecretaria de Ciência, Tecnologia e Inovação e do Complexo Econômico-Industrial da SaúdeSecretaria de Defesa AgropecuáriaSecretaria de Desenvolvimento Industrial, Inovação, Comércio e ServiçosSecretaria de Fomento e Incentivo à CulturaSecretaria de Inspeção do TrabalhoSecretaria de RadiodifusãoSecretaria de Regulação e Supervisão da Educação SuperiorSecretaria do Patrimônio da UniãoSecretaria do Tesouro NacionalSuperintendência da Zona Franca de ManausSuperior Tribunal de JustiçaSupremo Tribunal FederalUniversidade Federal de Juiz de ForaUniversidade Federal de Santa Catarina",
-          "cssPath": "select#slcOrgsSubs",
-          "xpath": "//*[@id='slcOrgsSubs']"
+      "options": [
+        {
+          "text": "Selecionar Organização Principal",
+          "value": "Selecionar Organização Principal",
+          "dataValue": null,
+          "dataIndex": 0
         },
-        "options": [
-          {
-            "text": "Agência Nacional de Aviação Civil",
-            "value": "Agência Nacional de Aviação Civil",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 2
-          },
-          {
-            "text": "Agência Nacional de Energia Elétrica",
-            "value": "Agência Nacional de Energia Elétrica",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 3
-          },
-          {
-            "text": "Agência Nacional de Mineração",
-            "value": "Agência Nacional de Mineração",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 4
-          },
-          {
-            "text": "Agência Nacional de Saúde Suplementar",
-            "value": "Agência Nacional de Saúde Suplementar",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 5
-          },
-          {
-            "text": "Agência Nacional de Telecomunicações",
-            "value": "Agência Nacional de Telecomunicações",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 6
-          },
-          {
-            "text": "Agência Nacional de Transportes Aquaviários",
-            "value": "Agência Nacional de Transportes Aquaviários",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 7
-          },
-          {
-            "text": "Agência Nacional de Transportes Terrestres",
-            "value": "Agência Nacional de Transportes Terrestres",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 8
-          },
-          {
-            "text": "Agência Nacional de Vigilância Sanitária",
-            "value": "Agência Nacional de Vigilância Sanitária",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 9
-          },
-          {
-            "text": "Agência Nacional de Águas e Saneamento Básico",
-            "value": "Agência Nacional de Águas e Saneamento Básico",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 10
-          },
-          {
-            "text": "Agência Nacional do Cinema",
-            "value": "Agência Nacional do Cinema",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 11
-          },
-          {
-            "text": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
-            "value": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 12
-          },
-          {
-            "text": "Casa Civil",
-            "value": "Casa Civil",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 13
-          },
-          {
-            "text": "Comando da Aeronáutica",
-            "value": "Comando da Aeronáutica",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 14
-          },
-          {
-            "text": "Comissão de Valores Mobiliários",
-            "value": "Comissão de Valores Mobiliários",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 15
-          },
-          {
-            "text": "Comitê Gestor das Operações de Crédito Consignado",
-            "value": "Comitê Gestor das Operações de Crédito Consignado",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 16
-          },
-          {
-            "text": "Conselho Administrativo de Defesa Econômica",
-            "value": "Conselho Administrativo de Defesa Econômica",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 17
-          },
-          {
-            "text": "Conselho Administrativo de Recursos Fiscais",
-            "value": "Conselho Administrativo de Recursos Fiscais",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 18
-          },
-          {
-            "text": "Conselho Federal de Medicina",
-            "value": "Conselho Federal de Medicina",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 19
-          },
-          {
-            "text": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
-            "value": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 20
-          },
-          {
-            "text": "Conselho Nacional de Previdência Complementar",
-            "value": "Conselho Nacional de Previdência Complementar",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 21
-          },
-          {
-            "text": "Conselho Nacional do Meio Ambiente",
-            "value": "Conselho Nacional do Meio Ambiente",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 22
-          },
-          {
-            "text": "Conselho Regional de Fisioterapia e Terapia Ocupacional da 10ª Região",
-            "value": "Conselho Regional de Fisioterapia e Terapia Ocupacional da 10ª Região",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 23
-          },
-          {
-            "text": "Conselho Superior da Defensoria Pública da União",
-            "value": "Conselho Superior da Defensoria Pública da União",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 24
-          },
-          {
-            "text": "Câmara de Comércio Exterior",
-            "value": "Câmara de Comércio Exterior",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 25
-          },
-          {
-            "text": "Câmara de Recursos da Previdência Complementar",
-            "value": "Câmara de Recursos da Previdência Complementar",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 26
-          },
-          {
-            "text": "Estado-Maior Conjunto das Forças Armadas",
-            "value": "Estado-Maior Conjunto das Forças Armadas",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 27
-          },
-          {
-            "text": "Fundação Cultural Palmares",
-            "value": "Fundação Cultural Palmares",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 28
-          },
-          {
-            "text": "Fundação Nacional de Saúde",
-            "value": "Fundação Nacional de Saúde",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 29
-          },
-          {
-            "text": "Fundação Universidade Federal do Piauí",
-            "value": "Fundação Universidade Federal do Piauí",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 30
-          },
-          {
-            "text": "Fundo Nacional de Desenvolvimento da Educação",
-            "value": "Fundo Nacional de Desenvolvimento da Educação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 31
-          },
-          {
-            "text": "Gabinete da Ministra",
-            "value": "Gabinete da Ministra",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 32
-          },
-          {
-            "text": "Gabinete do Ministro",
-            "value": "Gabinete do Ministro",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 33
-          },
-          {
-            "text": "Instituto Chico Mendes de Conservação da Biodiversidade",
-            "value": "Instituto Chico Mendes de Conservação da Biodiversidade",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 34
-          },
-          {
-            "text": "Instituto Nacional de Colonização e Reforma Agrária",
-            "value": "Instituto Nacional de Colonização e Reforma Agrária",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 35
-          },
-          {
-            "text": "Instituto Nacional de Metrologia, Qualidade e Tecnologia",
-            "value": "Instituto Nacional de Metrologia, Qualidade e Tecnologia",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 36
-          },
-          {
-            "text": "Instituto Nacional de Tecnologia da Informação",
-            "value": "Instituto Nacional de Tecnologia da Informação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 37
-          },
-          {
-            "text": "Instituto do Patrimônio Histórico e Artístico Nacional",
-            "value": "Instituto do Patrimônio Histórico e Artístico Nacional",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 38
-          },
-          {
-            "text": "Ministério Público do Trabalho",
-            "value": "Ministério Público do Trabalho",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 39
-          },
-          {
-            "text": "Polícia Federal",
-            "value": "Polícia Federal",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 40
-          },
-          {
-            "text": "Secretaria Especial da Receita Federal do Brasil",
-            "value": "Secretaria Especial da Receita Federal do Brasil",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 41
-          },
-          {
-            "text": "Secretaria Executiva",
-            "value": "Secretaria Executiva",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 42
-          },
-          {
-            "text": "Secretaria Nacional de Direitos Digitais",
-            "value": "Secretaria Nacional de Direitos Digitais",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 43
-          },
-          {
-            "text": "Secretaria Nacional de Justiça",
-            "value": "Secretaria Nacional de Justiça",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 44
-          },
-          {
-            "text": "Secretaria Nacional de Proteção e Defesa Civil",
-            "value": "Secretaria Nacional de Proteção e Defesa Civil",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 45
-          },
-          {
-            "text": "Secretaria Nacional de Segurança Alimentar e Nutricional",
-            "value": "Secretaria Nacional de Segurança Alimentar e Nutricional",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 46
-          },
-          {
-            "text": "Secretaria de Atenção Primária à Saúde",
-            "value": "Secretaria de Atenção Primária à Saúde",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 47
-          },
-          {
-            "text": "Secretaria de Ciência, Tecnologia e Inovação e do Complexo Econômico-Industrial da Saúde",
-            "value": "Secretaria de Ciência, Tecnologia e Inovação e do Complexo Econômico-Industrial da Saúde",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 48
-          },
-          {
-            "text": "Secretaria de Defesa Agropecuária",
-            "value": "Secretaria de Defesa Agropecuária",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 49
-          },
-          {
-            "text": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
-            "value": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 50
-          },
-          {
-            "text": "Secretaria de Fomento e Incentivo à Cultura",
-            "value": "Secretaria de Fomento e Incentivo à Cultura",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 51
-          },
-          {
-            "text": "Secretaria de Inspeção do Trabalho",
-            "value": "Secretaria de Inspeção do Trabalho",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 52
-          },
-          {
-            "text": "Secretaria de Radiodifusão",
-            "value": "Secretaria de Radiodifusão",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 53
-          },
-          {
-            "text": "Secretaria de Regulação e Supervisão da Educação Superior",
-            "value": "Secretaria de Regulação e Supervisão da Educação Superior",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 54
-          },
-          {
-            "text": "Secretaria do Patrimônio da União",
-            "value": "Secretaria do Patrimônio da União",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 55
-          },
-          {
-            "text": "Secretaria do Tesouro Nacional",
-            "value": "Secretaria do Tesouro Nacional",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 56
-          },
-          {
-            "text": "Superintendência da Zona Franca de Manaus",
-            "value": "Superintendência da Zona Franca de Manaus",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 57
-          },
-          {
-            "text": "Superior Tribunal de Justiça",
-            "value": "Superior Tribunal de Justiça",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 58
-          },
-          {
-            "text": "Supremo Tribunal Federal",
-            "value": "Supremo Tribunal Federal",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 59
-          },
-          {
-            "text": "Universidade Federal de Juiz de Fora",
-            "value": "Universidade Federal de Juiz de Fora",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 60
-          },
-          {
-            "text": "Universidade Federal de Santa Catarina",
-            "value": "Universidade Federal de Santa Catarina",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 61
-          }
-        ]
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "Atos do Congresso Nacional",
+          "value": "Atos do Congresso Nacional",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Atos do Poder Executivo",
+          "value": "Atos do Poder Executivo",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Presidência da República",
+          "value": "Presidência da República",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Ministério da Agricultura e Pecuária",
+          "value": "Ministério da Agricultura e Pecuária",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Ministério das Cidades",
+          "value": "Ministério das Cidades",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Ministério da Ciência, Tecnologia e Inovação",
+          "value": "Ministério da Ciência, Tecnologia e Inovação",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Ministério das Comunicações",
+          "value": "Ministério das Comunicações",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Ministério da Cultura",
+          "value": "Ministério da Cultura",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Ministério da Defesa",
+          "value": "Ministério da Defesa",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+          "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+          "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "Ministério da Educação",
+          "value": "Ministério da Educação",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Ministério da Fazenda",
+          "value": "Ministério da Fazenda",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
+          "value": "Ministério da Gestão e da Inovação em Serviços Públicos",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Ministério da Integração e do Desenvolvimento Regional",
+          "value": "Ministério da Integração e do Desenvolvimento Regional",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Ministério da Justiça e Segurança Pública",
+          "value": "Ministério da Justiça e Segurança Pública",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Ministério de Minas e Energia",
+          "value": "Ministério de Minas e Energia",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Ministério da Pesca e Aquicultura",
+          "value": "Ministério da Pesca e Aquicultura",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Ministério do Planejamento e Orçamento",
+          "value": "Ministério do Planejamento e Orçamento",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Ministério de Portos e Aeroportos",
+          "value": "Ministério de Portos e Aeroportos",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Ministério da Previdência Social",
+          "value": "Ministério da Previdência Social",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Ministério da Saúde",
+          "value": "Ministério da Saúde",
+          "dataValue": null,
+          "dataIndex": 23
+        },
+        {
+          "text": "Ministério do Trabalho e Emprego",
+          "value": "Ministério do Trabalho e Emprego",
+          "dataValue": null,
+          "dataIndex": 24
+        },
+        {
+          "text": "Ministério dos Transportes",
+          "value": "Ministério dos Transportes",
+          "dataValue": null,
+          "dataIndex": 25
+        },
+        {
+          "text": "Ministério do Turismo",
+          "value": "Ministério do Turismo",
+          "dataValue": null,
+          "dataIndex": 26
+        },
+        {
+          "text": "Controladoria-Geral da União",
+          "value": "Controladoria-Geral da União",
+          "dataValue": null,
+          "dataIndex": 27
+        },
+        {
+          "text": "Ministério Público da União",
+          "value": "Ministério Público da União",
+          "dataValue": null,
+          "dataIndex": 28
+        },
+        {
+          "text": "Tribunal de Contas da União",
+          "value": "Tribunal de Contas da União",
+          "dataValue": null,
+          "dataIndex": 29
+        },
+        {
+          "text": "Defensoria Pública da União",
+          "value": "Defensoria Pública da União",
+          "dataValue": null,
+          "dataIndex": 30
+        },
+        {
+          "text": "Poder Judiciário",
+          "value": "Poder Judiciário",
+          "dataValue": null,
+          "dataIndex": 31
+        },
+        {
+          "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+          "value": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+          "dataValue": null,
+          "dataIndex": 32
+        }
+      ]
+    },
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 1,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 501.65625,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
+        },
+        "attrs": {
+          "id": "slcOrgsSubs",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Organização Subordinada"
+        },
+        "text": "Selecionar Organização SubordinadaTodos2ª CâmaraAgência Nacional de Aviação CivilAgência Nacional de Energia ElétricaAgência Nacional de MineraçãoAgência Nacional de TelecomunicaçõesAgência Nacional de Transportes AquaviáriosAgência Nacional de Transportes TerrestresAgência Nacional de Vigilância SanitáriaAgência Nacional do Petróleo, Gás Natural e BiocombustíveisAutoridade Portuária de Santos S.A.Caixa Econômica FederalComando da AeronáuticaComissão Técnica Nacional de BiossegurançaComissão de Financiamentos ExternosComissão de Valores MobiliáriosConselho Administrativo de Defesa EconômicaConselho Administrativo de Recursos FiscaisConselho Federal de FarmáciaConselho Monetário NacionalConselho Nacional de Controle de Experimentação AnimalConselho Nacional de EducaçãoConselho Nacional de Política FazendáriaEstado-Maior Conjunto das Forças ArmadasFundação Universidade Federal do PampaGabinete do Defensor Público-Geral FederalGabinete do MinistroInstituto Brasileiro de MuseusInstituto Federal de Educação, Ciência e Tecnologia do Norte de Minas GeraisInstituto Federal de Educação, Ciência e Tecnologia do Sudeste de Minas GeraisInstituto Nacional de Colonização e Reforma AgráriaInstituto Nacional do Seguro SocialMinistério Público do TrabalhoPolícia FederalSecretaria Especial da Receita Federal do BrasilSecretaria ExecutivaSecretaria Nacional de Direitos DigitaisSecretaria Nacional de JustiçaSecretaria Nacional de Mobilidade UrbanaSecretaria Nacional de Proteção e Defesa CivilSecretaria Nacional de Registro, Monitoramento e Pesquisa da Pesca e AquiculturaSecretaria de Ciência e Tecnologia para Transformação DigitalSecretaria de Comércio ExteriorSecretaria de Defesa AgropecuáriaSecretaria de Fomento e Incentivo à CulturaSecretaria de Inspeção do TrabalhoSecretaria de Orçamento FederalSecretaria de Pessoal, Saúde, Desporto e Projetos SociaisSecretaria de Qualificação, Emprego e RendaSecretaria de RadiodifusãoSecretaria de Relações do TrabalhoSecretaria do Patrimônio da UniãoSecretaria do Tesouro NacionalSuperintendência Nacional de Previdência ComplementarSuperintendência da Zona Franca de ManausSuperintendência de Seguros PrivadosSuperior Tribunal de JustiçaSupremo Tribunal FederalTribunal Regional Eleitoral de RondôniaUniversidade Federal de Santa Catarina",
+        "cssPath": "select#slcOrgsSubs",
+        "xpath": "//*[@id='slcOrgsSubs']"
       },
-      {
-        "kind": "select",
-        "rootSelector": "select",
-        "index": 2,
-        "label": "slcTipo",
-        "info": {
+      "options": [
+        {
+          "text": "Selecionar Organização Subordinada",
+          "value": "Selecionar Organização Subordinada",
+          "dataValue": null,
+          "dataIndex": 0
+        },
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "2ª Câmara",
+          "value": "2ª Câmara",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Agência Nacional de Aviação Civil",
+          "value": "Agência Nacional de Aviação Civil",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Agência Nacional de Energia Elétrica",
+          "value": "Agência Nacional de Energia Elétrica",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Agência Nacional de Mineração",
+          "value": "Agência Nacional de Mineração",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Agência Nacional de Telecomunicações",
+          "value": "Agência Nacional de Telecomunicações",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Agência Nacional de Transportes Aquaviários",
+          "value": "Agência Nacional de Transportes Aquaviários",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Agência Nacional de Transportes Terrestres",
+          "value": "Agência Nacional de Transportes Terrestres",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Agência Nacional de Vigilância Sanitária",
+          "value": "Agência Nacional de Vigilância Sanitária",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+          "value": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Autoridade Portuária de Santos S.A.",
+          "value": "Autoridade Portuária de Santos S.A.",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "Caixa Econômica Federal",
+          "value": "Caixa Econômica Federal",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "Comando da Aeronáutica",
+          "value": "Comando da Aeronáutica",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Comissão Técnica Nacional de Biossegurança",
+          "value": "Comissão Técnica Nacional de Biossegurança",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Comissão de Financiamentos Externos",
+          "value": "Comissão de Financiamentos Externos",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Comissão de Valores Mobiliários",
+          "value": "Comissão de Valores Mobiliários",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Conselho Administrativo de Defesa Econômica",
+          "value": "Conselho Administrativo de Defesa Econômica",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Conselho Administrativo de Recursos Fiscais",
+          "value": "Conselho Administrativo de Recursos Fiscais",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Conselho Federal de Farmácia",
+          "value": "Conselho Federal de Farmácia",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Conselho Monetário Nacional",
+          "value": "Conselho Monetário Nacional",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Conselho Nacional de Controle de Experimentação Animal",
+          "value": "Conselho Nacional de Controle de Experimentação Animal",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Conselho Nacional de Educação",
+          "value": "Conselho Nacional de Educação",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Conselho Nacional de Política Fazendária",
+          "value": "Conselho Nacional de Política Fazendária",
+          "dataValue": null,
+          "dataIndex": 23
+        },
+        {
+          "text": "Estado-Maior Conjunto das Forças Armadas",
+          "value": "Estado-Maior Conjunto das Forças Armadas",
+          "dataValue": null,
+          "dataIndex": 24
+        },
+        {
+          "text": "Fundação Universidade Federal do Pampa",
+          "value": "Fundação Universidade Federal do Pampa",
+          "dataValue": null,
+          "dataIndex": 25
+        },
+        {
+          "text": "Gabinete do Defensor Público-Geral Federal",
+          "value": "Gabinete do Defensor Público-Geral Federal",
+          "dataValue": null,
+          "dataIndex": 26
+        },
+        {
+          "text": "Gabinete do Ministro",
+          "value": "Gabinete do Ministro",
+          "dataValue": null,
+          "dataIndex": 27
+        },
+        {
+          "text": "Instituto Brasileiro de Museus",
+          "value": "Instituto Brasileiro de Museus",
+          "dataValue": null,
+          "dataIndex": 28
+        },
+        {
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia do Norte de Minas Gerais",
+          "value": "Instituto Federal de Educação, Ciência e Tecnologia do Norte de Minas Gerais",
+          "dataValue": null,
+          "dataIndex": 29
+        },
+        {
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia do Sudeste de Minas Gerais",
+          "value": "Instituto Federal de Educação, Ciência e Tecnologia do Sudeste de Minas Gerais",
+          "dataValue": null,
+          "dataIndex": 30
+        },
+        {
+          "text": "Instituto Nacional de Colonização e Reforma Agrária",
+          "value": "Instituto Nacional de Colonização e Reforma Agrária",
+          "dataValue": null,
+          "dataIndex": 31
+        },
+        {
+          "text": "Instituto Nacional do Seguro Social",
+          "value": "Instituto Nacional do Seguro Social",
+          "dataValue": null,
+          "dataIndex": 32
+        },
+        {
+          "text": "Ministério Público do Trabalho",
+          "value": "Ministério Público do Trabalho",
+          "dataValue": null,
+          "dataIndex": 33
+        },
+        {
+          "text": "Polícia Federal",
+          "value": "Polícia Federal",
+          "dataValue": null,
+          "dataIndex": 34
+        },
+        {
+          "text": "Secretaria Especial da Receita Federal do Brasil",
+          "value": "Secretaria Especial da Receita Federal do Brasil",
+          "dataValue": null,
+          "dataIndex": 35
+        },
+        {
+          "text": "Secretaria Executiva",
+          "value": "Secretaria Executiva",
+          "dataValue": null,
+          "dataIndex": 36
+        },
+        {
+          "text": "Secretaria Nacional de Direitos Digitais",
+          "value": "Secretaria Nacional de Direitos Digitais",
+          "dataValue": null,
+          "dataIndex": 37
+        },
+        {
+          "text": "Secretaria Nacional de Justiça",
+          "value": "Secretaria Nacional de Justiça",
+          "dataValue": null,
+          "dataIndex": 38
+        },
+        {
+          "text": "Secretaria Nacional de Mobilidade Urbana",
+          "value": "Secretaria Nacional de Mobilidade Urbana",
+          "dataValue": null,
+          "dataIndex": 39
+        },
+        {
+          "text": "Secretaria Nacional de Proteção e Defesa Civil",
+          "value": "Secretaria Nacional de Proteção e Defesa Civil",
+          "dataValue": null,
+          "dataIndex": 40
+        },
+        {
+          "text": "Secretaria Nacional de Registro, Monitoramento e Pesquisa da Pesca e Aquicultura",
+          "value": "Secretaria Nacional de Registro, Monitoramento e Pesquisa da Pesca e Aquicultura",
+          "dataValue": null,
+          "dataIndex": 41
+        },
+        {
+          "text": "Secretaria de Ciência e Tecnologia para Transformação Digital",
+          "value": "Secretaria de Ciência e Tecnologia para Transformação Digital",
+          "dataValue": null,
+          "dataIndex": 42
+        },
+        {
+          "text": "Secretaria de Comércio Exterior",
+          "value": "Secretaria de Comércio Exterior",
+          "dataValue": null,
+          "dataIndex": 43
+        },
+        {
+          "text": "Secretaria de Defesa Agropecuária",
+          "value": "Secretaria de Defesa Agropecuária",
+          "dataValue": null,
+          "dataIndex": 44
+        },
+        {
+          "text": "Secretaria de Fomento e Incentivo à Cultura",
+          "value": "Secretaria de Fomento e Incentivo à Cultura",
+          "dataValue": null,
+          "dataIndex": 45
+        },
+        {
+          "text": "Secretaria de Inspeção do Trabalho",
+          "value": "Secretaria de Inspeção do Trabalho",
+          "dataValue": null,
+          "dataIndex": 46
+        },
+        {
+          "text": "Secretaria de Orçamento Federal",
+          "value": "Secretaria de Orçamento Federal",
+          "dataValue": null,
+          "dataIndex": 47
+        },
+        {
+          "text": "Secretaria de Pessoal, Saúde, Desporto e Projetos Sociais",
+          "value": "Secretaria de Pessoal, Saúde, Desporto e Projetos Sociais",
+          "dataValue": null,
+          "dataIndex": 48
+        },
+        {
+          "text": "Secretaria de Qualificação, Emprego e Renda",
+          "value": "Secretaria de Qualificação, Emprego e Renda",
+          "dataValue": null,
+          "dataIndex": 49
+        },
+        {
+          "text": "Secretaria de Radiodifusão",
+          "value": "Secretaria de Radiodifusão",
+          "dataValue": null,
+          "dataIndex": 50
+        },
+        {
+          "text": "Secretaria de Relações do Trabalho",
+          "value": "Secretaria de Relações do Trabalho",
+          "dataValue": null,
+          "dataIndex": 51
+        },
+        {
+          "text": "Secretaria do Patrimônio da União",
+          "value": "Secretaria do Patrimônio da União",
+          "dataValue": null,
+          "dataIndex": 52
+        },
+        {
+          "text": "Secretaria do Tesouro Nacional",
+          "value": "Secretaria do Tesouro Nacional",
+          "dataValue": null,
+          "dataIndex": 53
+        },
+        {
+          "text": "Superintendência Nacional de Previdência Complementar",
+          "value": "Superintendência Nacional de Previdência Complementar",
+          "dataValue": null,
+          "dataIndex": 54
+        },
+        {
+          "text": "Superintendência da Zona Franca de Manaus",
+          "value": "Superintendência da Zona Franca de Manaus",
+          "dataValue": null,
+          "dataIndex": 55
+        },
+        {
+          "text": "Superintendência de Seguros Privados",
+          "value": "Superintendência de Seguros Privados",
+          "dataValue": null,
+          "dataIndex": 56
+        },
+        {
+          "text": "Superior Tribunal de Justiça",
+          "value": "Superior Tribunal de Justiça",
+          "dataValue": null,
+          "dataIndex": 57
+        },
+        {
+          "text": "Supremo Tribunal Federal",
+          "value": "Supremo Tribunal Federal",
+          "dataValue": null,
+          "dataIndex": 58
+        },
+        {
+          "text": "Tribunal Regional Eleitoral de Rondônia",
+          "value": "Tribunal Regional Eleitoral de Rondônia",
+          "dataValue": null,
+          "dataIndex": 59
+        },
+        {
+          "text": "Universidade Federal de Santa Catarina",
+          "value": "Universidade Federal de Santa Catarina",
+          "dataValue": null,
+          "dataIndex": 60
+        }
+      ]
+    },
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 2,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 896.3125,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
+        },
+        "attrs": {
+          "id": "slcTipo",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Tipo do Ato"
+        },
+        "text": "Selecionar Tipo do AtoTodosAlvaráAtaAtoAto DeclaratórioAto NormativoAutorizaçãoCircularDecisãoDecreto LegislativoDecreto numeradoDeliberaçãoDespachoExtrato da AtaExtrato de Parecer TécnicoInstrução NormativaMensagemPautaPortariaResoluçãoRetificaçãoSolução de ConsultaSúmula",
+        "cssPath": "select#slcTipo",
+        "xpath": "//*[@id='slcTipo']"
+      },
+      "options": [
+        {
+          "text": "Selecionar Tipo do Ato",
+          "value": "Selecionar Tipo do Ato",
+          "dataValue": null,
+          "dataIndex": 0
+        },
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "Alvará",
+          "value": "Alvará",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Ata",
+          "value": "Ata",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Ato",
+          "value": "Ato",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Ato Declaratório",
+          "value": "Ato Declaratório",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Ato Normativo",
+          "value": "Ato Normativo",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Autorização",
+          "value": "Autorização",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Circular",
+          "value": "Circular",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Decisão",
+          "value": "Decisão",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Decreto Legislativo",
+          "value": "Decreto Legislativo",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Decreto numerado",
+          "value": "Decreto numerado",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "Deliberação",
+          "value": "Deliberação",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "Despacho",
+          "value": "Despacho",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Extrato da Ata",
+          "value": "Extrato da Ata",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Extrato de Parecer Técnico",
+          "value": "Extrato de Parecer Técnico",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Instrução Normativa",
+          "value": "Instrução Normativa",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Mensagem",
+          "value": "Mensagem",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Pauta",
+          "value": "Pauta",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Portaria",
+          "value": "Portaria",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Resolução",
+          "value": "Resolução",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Retificação",
+          "value": "Retificação",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Solução de Consulta",
+          "value": "Solução de Consulta",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Súmula",
+          "value": "Súmula",
+          "dataValue": null,
+          "dataIndex": 23
+        }
+      ]
+    }
+  ],
+  "elements": {
+    "searchbox": {
+      "count": 0,
+      "sampled": 0,
+      "items": []
+    },
+    "textbox": {
+      "count": 2,
+      "sampled": 2,
+      "items": [
+        {
           "visible": true,
           "box": {
-            "x": 853.3125,
-            "y": 290.328125,
-            "width": 362.65625,
-            "height": 40
+            "x": 117,
+            "y": -491.046875,
+            "width": 1132,
+            "height": 60
           },
           "attrs": {
-            "id": "slcTipo",
-            "class": "form-control leitura-filtro",
-            "placeholder": "Selecionar Tipo do Ato"
+            "id": "search-bar",
+            "name": "search-bar",
+            "class": "form-control",
+            "placeholder": "Informe o termo que deseja pesquisar nas Edições do Diário Oficial",
+            "value": " "
           },
-          "text": "Selecionar Tipo do AtoTodosAcórdãoAlvaráAtaAtoAto DeclaratórioAutorizaçãoAviso de Consulta PúblicaAção Direta de Inconstitucionalidade e Ação Declaratória de ConstitucionalidadeDecisãoDeliberaçãoDespachoLeiMensagemPautaPortariaPortaria InterministerialResoluçãoRetificação",
-          "cssPath": "select#slcTipo",
-          "xpath": "//*[@id='slcTipo']"
+          "text": null,
+          "cssPath": "input#search-bar",
+          "xpath": "//*[@id='search-bar']"
         },
-        "options": [
-          {
-            "text": "Acórdão",
-            "value": "Acórdão",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 2
+        {
+          "visible": true,
+          "box": {
+            "x": 598,
+            "y": -14.265625,
+            "width": 129,
+            "height": 38
           },
-          {
-            "text": "Alvará",
-            "value": "Alvará",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 3
+          "attrs": {
+            "id": "data-secao",
+            "class": "form-control input-group-inset input-group-inset-after hasDatepicker",
+            "aria-label": "Data"
           },
-          {
-            "text": "Ata",
-            "value": "Ata",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 4
+          "text": null,
+          "cssPath": "input#data-secao",
+          "xpath": "//*[@id='data-secao']"
+        }
+      ]
+    },
+    "button": {
+      "count": 5,
+      "sampled": 5,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 1091.046875,
+            "y": -472.296875,
+            "width": 136.953125,
+            "height": 18.5
           },
-          {
-            "text": "Ato",
-            "value": "Ato",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 5
+          "attrs": {
+            "id": "toggle-search-advanced",
+            "role": "button"
           },
-          {
-            "text": "Ato Declaratório",
-            "value": "Ato Declaratório",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 6
+          "text": "PESQUISA AVANÇADA Ícone",
+          "cssPath": "a#toggle-search-advanced",
+          "xpath": "//*[@id='toggle-search-advanced']"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 799.96875,
+            "y": 219.328125,
+            "width": 155.25,
+            "height": 21.5
           },
-          {
-            "text": "Autorização",
-            "value": "Autorização",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 7
+          "attrs": {
+            "id": "viewMenuOptionList",
+            "class": "view-menu-choice"
           },
-          {
-            "text": "Aviso de Consulta Pública",
-            "value": "Aviso de Consulta Pública",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 8
+          "text": "VISUALIZAR EM LISTA",
+          "cssPath": "button#viewMenuOptionList",
+          "xpath": "//*[@id='viewMenuOptionList']"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 958.9375,
+            "y": 216.328125,
+            "width": 156.796875,
+            "height": 24.5
           },
-          {
-            "text": "Ação Direta de Inconstitucionalidade e Ação Declaratória de Constitucionalidade",
-            "value": "Ação Direta de Inconstitucionalidade e Ação Declaratória de Constitucionalidade",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 9
+          "attrs": {
+            "class": "btn-versao-certificada"
           },
-          {
-            "text": "Decisão",
-            "value": "Decisão",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 10
+          "text": "VERSÃO CERTIFICADA",
+          "cssPath": "section#portlet_leituradou_INSTANCE_GKE7NRmaCXgl > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > button:nth-of-type(3)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[1]/div[3]/button[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1119.453125,
+            "y": 216.328125,
+            "width": 140.546875,
+            "height": 24.5
           },
-          {
-            "text": "Deliberação",
-            "value": "Deliberação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 11
+          "attrs": {
+            "class": "btn-diario-completo"
           },
-          {
-            "text": "Despacho",
-            "value": "Despacho",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 12
+          "text": "DIÁRIO COMPLETO",
+          "cssPath": "section#portlet_leituradou_INSTANCE_GKE7NRmaCXgl > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > button:nth-of-type(4)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[1]/div[3]/button[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1147.28125,
+            "y": 346.328125,
+            "width": 112.71875,
+            "height": 21
           },
-          {
-            "text": "Lei",
-            "value": "Lei",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 13
+          "attrs": {
+            "class": "btn-retrair-tudo"
           },
-          {
-            "text": "Mensagem",
-            "value": "Mensagem",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 14
+          "text": "RETRAIR TUDO",
+          "cssPath": "section#portlet_leituradou_INSTANCE_GKE7NRmaCXgl > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > button:nth-of-type(2)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[3]/div/button[2]"
+        }
+      ]
+    },
+    "link": {
+      "count": 514,
+      "sampled": 120,
+      "items": [
+        {
+          "visible": false,
+          "box": {
+            "x": 0,
+            "y": -884,
+            "width": 0,
+            "height": 0
           },
-          {
-            "text": "Pauta",
-            "value": "Pauta",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 15
+          "attrs": {},
+          "text": "Ir para o conteúdo",
+          "cssPath": "ul#quick-access-nav > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/ul/li[1]/a"
+        },
+        {
+          "visible": false,
+          "box": {
+            "x": 0,
+            "y": -884,
+            "width": 0,
+            "height": 0
           },
-          {
-            "text": "Portaria",
-            "value": "Portaria",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 16
+          "attrs": {},
+          "text": "Ir para o rodapé",
+          "cssPath": "ul#quick-access-nav > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 106,
+            "y": -868,
+            "width": 137,
+            "height": 50
           },
-          {
-            "text": "Portaria Interministerial",
-            "value": "Portaria Interministerial",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 17
+          "attrs": {
+            "class": "logo-gov-br"
           },
-          {
-            "text": "Resolução",
-            "value": "Resolução",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 18
+          "text": "",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 577.15625,
+            "y": -852,
+            "width": 126.71875,
+            "height": 19
           },
-          {
-            "text": "Retificação",
-            "value": "Retificação",
-            "dataValue": null,
-            "disabled": false,
-            "selected": false,
-            "dataIndex": 19
-          }
-        ]
-      }
-    ]
+          "attrs": {},
+          "text": "Órgãos do Governo",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 719.875,
+            "y": -852,
+            "width": 136.5625,
+            "height": 19
+          },
+          "attrs": {},
+          "text": "Acesso à Informação",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 872.4375,
+            "y": -852,
+            "width": 70.765625,
+            "height": 19
+          },
+          "attrs": {},
+          "text": "Legislação",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 959.203125,
+            "y": -852,
+            "width": 94.875,
+            "height": 19
+          },
+          "attrs": {},
+          "text": "Acessibilidade",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1070.078125,
+            "y": -852,
+            "width": 14,
+            "height": 19
+          },
+          "attrs": {
+            "class": "alto-contraste link-contraste"
+          },
+          "text": "Mudar para o modo de alto contraste",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1100.078125,
+            "y": -864,
+            "width": 151.921875,
+            "height": 43
+          },
+          "attrs": {
+            "class": "link-acesso"
+          },
+          "text": "Acesso GOV.BR",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[1]/div/div/ul/li[8]/a"
+        },
+        {
+          "visible": false,
+          "box": {
+            "x": 106,
+            "y": -793.046875,
+            "width": 0,
+            "height": 0
+          },
+          "attrs": {
+            "class": "logo default-logo"
+          },
+          "text": "",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[2]/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 106,
+            "y": -787.046875,
+            "width": 18.375,
+            "height": 22
+          },
+          "attrs": {
+            "id": "toggle-mega-menu"
+          },
+          "text": "Abrir Mega-menu",
+          "cssPath": "a#toggle-mega-menu",
+          "xpath": "//*[@id='toggle-mega-menu']"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 124.375,
+            "y": -789.046875,
+            "width": 218.28125,
+            "height": 24
+          },
+          "attrs": {},
+          "text": "Imprensa Nacional",
+          "cssPath": "header#banner > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/div[1]/div/div[2]/div/div/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 106,
+            "y": -727.546875,
+            "width": 20.25,
+            "height": 18
+          },
+          "attrs": {
+            "class": "home"
+          },
+          "text": "",
+          "cssPath": "nav#breadcrumbs > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[1]/nav/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 149.390625,
+            "y": -729.046875,
+            "width": 143.046875,
+            "height": 21
+          },
+          "attrs": {},
+          "text": "Diário Oficial da União",
+          "cssPath": "div#_com_liferay_site_navigation_breadcrumb_web_portlet_SiteNavigationBreadcrumbPortlet_breadcrumbs-defaultScreen > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[1]/nav/div/section/div/div[2]/div/div/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1078.734375,
+            "y": -423.046875,
+            "width": 170.265625,
+            "height": 18
+          },
+          "attrs": {},
+          "text": "Verificação de autenticidade",
+          "cssPath": "section#portlet_br_com_seatecnologia_in_buscadou_BuscaDouPortlet > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[1]/section/div/div[2]/div/div/div[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 388.921875,
+            "y": -198.265625,
+            "width": 173.75,
+            "height": 49
+          },
+          "attrs": {
+            "class": "button secao_1_hover"
+          },
+          "text": "SEÇÃO 1",
+          "cssPath": "div#lista-botoes-edd > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[2]/section/div/div[2]/div/div[2]/div/div/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 592.671875,
+            "y": -198.265625,
+            "width": 176.15625,
+            "height": 49
+          },
+          "attrs": {
+            "class": "button secao_2_hover"
+          },
+          "text": "SEÇÃO 2",
+          "cssPath": "div#lista-botoes-edd > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[2]/section/div/div[2]/div/div[2]/div/div/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 798.828125,
+            "y": -198.265625,
+            "width": 175.90625,
+            "height": 49
+          },
+          "attrs": {
+            "class": "button secao_3_hover"
+          },
+          "text": "SEÇÃO 3",
+          "cssPath": "div#lista-botoes-edd > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[2]/section/div/div[2]/div/div[2]/div/div/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 166,
+            "y": 395.328125,
+            "width": 327.046875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DECRETO LEGISLATIVO Nº 203, DE 2025 (*)",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[1]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 166,
+            "y": 456.328125,
+            "width": 385.640625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DECRETO Nº 12.630, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 166,
+            "y": 517.328125,
+            "width": 331.390625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DESPACHO DO PRESIDENTE DA REPÚBLICA",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[3]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 626.328125,
+            "width": 336.234375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria Nº 31, de 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 650.328125,
+            "width": 338.125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria Nº 32, de 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 674.328125,
+            "width": 337.765625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria Nº 33, de 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 698.328125,
+            "width": 337.78125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria Nº 34, de 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 722.328125,
+            "width": 337.5,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria Nº 35, de 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[1]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 770.328125,
+            "width": 345.953125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria nº 1.002, de 16 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 818.328125,
+            "width": 489.21875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria SFA-SP/SE/MAPA nº 922, dE 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[3]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 866.328125,
+            "width": 444.21875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria SFA-ES/MAPA nº 435, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[4]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 914.328125,
+            "width": 505,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SFA-MA/SE/MAPA Nº 57, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[1]/ul/li[5]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 962.328125,
+            "width": 433.1875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria SDA/MAPA nº 1.369, de 18 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[2]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 986.328125,
+            "width": 421.8125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "portaria sda/mapa nº 1.360, de 8 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[2]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1010.328125,
+            "width": 428.203125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "portaria sda/mapa nº 1.366, de 16 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[2]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1034.328125,
+            "width": 415.546875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "portaria sda/mapa nº 92, DE 8 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[2]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 356,
+            "y": 1106.328125,
+            "width": 349.703125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DECISÃO Nº 90, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[4]/ul/li[2]/ul/ul/li/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1191.328125,
+            "width": 424.78125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCID Nº 1.086, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(5) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[5]/ul/li[1]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1239.328125,
+            "width": 490.828125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEMOB/MCID Nº 1.072, DE 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(5) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[5]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1324.328125,
+            "width": 363.34375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "EXTRATO DE PARECER TÉCNICO Nº 9.734/2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[1]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1372.328125,
+            "width": 396.65625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "EXTRATO DE PARECER CONCEA/MCTI Nº 133/2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[2]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1396.328125,
+            "width": 396.671875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "EXTRATO DE PARECER CONCEA/MCTI Nº 134/2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[2]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1444.328125,
+            "width": 482.578125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.419, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1468.328125,
+            "width": 485.96875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.420, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1492.328125,
+            "width": 482.59375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.421, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1516.328125,
+            "width": 484.125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.423, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1540.328125,
+            "width": 484.140625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.424, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1564.328125,
+            "width": 484.46875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.426, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1588.328125,
+            "width": 482.890625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.427, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1612.328125,
+            "width": 484.421875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.428, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1636.328125,
+            "width": 484.46875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.429, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(9) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[9]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1660.328125,
+            "width": 485.609375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SETAD/MCTI Nº 9.430, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(10) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[6]/ul/li[3]/ul/li[10]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1745.328125,
+            "width": 418.9375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCOM Nº 19.336, DE 11 DE AGOSTO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1769.328125,
+            "width": 422.46875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCOM Nº 19.546, DE 26 DE AGOSTO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1793.328125,
+            "width": 422.140625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCOM Nº 19.585, DE 29 DE AGOSTO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1817.328125,
+            "width": 422.75,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCOM Nº 19.586, DE 29 DE AGOSTO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1828.328125,
+            "width": 422.453125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MCOM Nº 19.593, DE 29 DE AGOSTO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[1]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 1789.328125,
+            "width": 358.84375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 16.956, DE 17 DE MARÇO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 1837.328125,
+            "width": 386.984375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 11.024, DE 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[2]/ul/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 396,
+            "y": 1885.328125,
+            "width": 391.375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 19.600, DE 16 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[2]/ul/ul/li/ul/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 1981.328125,
+            "width": 341.40625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.190, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2005.328125,
+            "width": 338.03125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.191, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2029.328125,
+            "width": 339.921875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.192, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2053.328125,
+            "width": 339.5625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.193, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2077.328125,
+            "width": 339.578125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.194, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2101.328125,
+            "width": 339.296875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.195, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2125.328125,
+            "width": 339.90625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.196, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2149.328125,
+            "width": 271,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[1]/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2197.328125,
+            "width": 270.953125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2245.328125,
+            "width": 323.875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.218, de 18 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[3]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2269.328125,
+            "width": 327.3125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.220, de 18 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[3]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2293.328125,
+            "width": 339.921875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 13.281, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[3]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2341.328125,
+            "width": 271,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[1]/ul/li[4]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2413.328125,
+            "width": 341.890625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATO Nº 12.649, DE 12 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2437.328125,
+            "width": 272.5,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 10 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2461.328125,
+            "width": 269.125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 11 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2485.328125,
+            "width": 271,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 16 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2509.328125,
+            "width": 270.296875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 17 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 2533.328125,
+            "width": 271,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "ATOS DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[2]/ul/li/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 2581.328125,
+            "width": 304.3125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DESPACHO DECISÓRIO Nº 6/2025/SRC",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(7) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[7]/ul/li[3]/ul/li[3]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2666.328125,
+            "width": 467.46875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEFIC/MINC Nº 638, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(8) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[8]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2690.328125,
+            "width": 467.515625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEFIC/MINC Nº 639, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(8) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[8]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2714.328125,
+            "width": 469.109375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEFIC/MINC Nº 640, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(8) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[8]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2738.328125,
+            "width": 465.734375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEFIC/MINC Nº 641, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(8) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[8]/ul/li[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2786.328125,
+            "width": 399.265625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria ibram Nº 3.706, DE 19 DE setembro DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(8) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[8]/ul/li[2]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2871.328125,
+            "width": 424.46875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GM-MD Nº 4.190, de 15 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2895.328125,
+            "width": 423.796875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GM-MD Nº 4.274, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 2919.328125,
+            "width": 423.921875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GM-MD Nº 4.275, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3015.328125,
+            "width": 317.59375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIAS DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[1]/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 366,
+            "y": 3111.328125,
+            "width": 470.078125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GAP-SP Nº 267/ARC, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[2]/ul/li/ul/li/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 366,
+            "y": 3135.328125,
+            "width": 471.546875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GAP-SP Nº 268/ARC, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[2]/ul/li/ul/li/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 366,
+            "y": 3159.328125,
+            "width": 471.59375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GAP-SP Nº 269/ARC, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[2]/ul/li/ul/li/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 366,
+            "y": 3183.328125,
+            "width": 472.21875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GAP-SP Nº 270/ARC, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[2]/ul/li/ul/li/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 366,
+            "y": 3207.328125,
+            "width": 469.015625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA GAP-SP Nº 271/ARC, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[2]/ul/li[2]/ul/li/ul/li/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3303.328125,
+            "width": 458.296875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.264, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3327.328125,
+            "width": 458.03125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.265, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3351.328125,
+            "width": 458.640625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.266, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3375.328125,
+            "width": 457.046875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.267, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3399.328125,
+            "width": 458.578125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.268, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 3423.328125,
+            "width": 458.640625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA CGGMA-MD Nº 4.269, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[3]/ul/li/ul/li/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3471.328125,
+            "width": 459.625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SEPESD-MD Nº 4.252, de 18 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[9]/ul/li[4]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3556.328125,
+            "width": 377.3125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 1.354, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3580.328125,
+            "width": 377.046875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 1.355, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3628.328125,
+            "width": 410.890625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 41, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3652.328125,
+            "width": 412.78125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 42, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3676.328125,
+            "width": 412.40625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 43, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3700.328125,
+            "width": 412.421875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 44, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3724.328125,
+            "width": 412.15625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 45, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3748.328125,
+            "width": 412.765625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 46, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3772.328125,
+            "width": 411.171875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 47, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 306,
+            "y": 3796.328125,
+            "width": 412.703125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "RESOLUÇÃO - CD Nº 48, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(10) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[10]/ul/li/ul/ul/li/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3881.328125,
+            "width": 357.140625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "CIRCULAR Nº 71, DE 19 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(11) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[11]/ul/li[1]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3929.328125,
+            "width": 458.921875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA SUFRAMA Nº 2.168, DE 16 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(11) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[11]/ul/li[2]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 3953.328125,
+            "width": 426.03125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria SUFRAMA Nº 2.171, DE 17 DE setembro DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(11) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[11]/ul/li[2]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 4038.328125,
+            "width": 298.109375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "DECISÃO DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 4062.328125,
+            "width": 404,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MEC Nº 655, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 4086.328125,
+            "width": 404.609375,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MEC Nº 656, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 4110.328125,
+            "width": 403.03125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA MEC Nº 657, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 4182.328125,
+            "width": 186.53125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "SÚMULA DE PARECERES",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[2]/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 266,
+            "y": 4254.328125,
+            "width": 380.6875,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 3.540, DE 18 DE SETEMBRO DE 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[3]/ul/li/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 216,
+            "y": 4302.328125,
+            "width": 522.203125,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "Portaria GABREITOR/IFSUDMG nº 1.096, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(4) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[4]/ul/li/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 316,
+            "y": 4398.328125,
+            "width": 402.890625,
+            "height": 22
+          },
+          "attrs": {},
+          "text": "PORTARIA Nº 1.313/DDP, de 19 de setembro de 2025",
+          "cssPath": "div#hierarchy_content > ul:nth-of-type(1) > li:nth-of-type(12) > ul:nth-of-type(1) > li:nth-of-type(5) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[4]/div[2]/ul/li[12]/ul/li[5]/ul/li/ul/li/ul/li[1]/a"
+        }
+      ]
+    },
+    "listbox": {
+      "count": 0,
+      "sampled": 0,
+      "items": []
+    },
+    "option": {
+      "count": 115,
+      "sampled": 115,
+      "items": [
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "0"
+          },
+          "text": "Todos",
+          "cssPath": "select#slcOrgs > option:nth-of-type(2)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[2]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Atos do Congresso Nacional"
+          },
+          "text": "Atos do Congresso Nacional",
+          "cssPath": "select#slcOrgs > option:nth-of-type(3)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[3]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Atos do Poder Executivo"
+          },
+          "text": "Atos do Poder Executivo",
+          "cssPath": "select#slcOrgs > option:nth-of-type(4)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[4]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Presidência da República"
+          },
+          "text": "Presidência da República",
+          "cssPath": "select#slcOrgs > option:nth-of-type(5)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[5]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Agricultura e Pecuária"
+          },
+          "text": "Ministério da Agricultura e Pecuária",
+          "cssPath": "select#slcOrgs > option:nth-of-type(6)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[6]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério das Cidades"
+          },
+          "text": "Ministério das Cidades",
+          "cssPath": "select#slcOrgs > option:nth-of-type(7)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[7]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Ciência, Tecnologia e Inovação"
+          },
+          "text": "Ministério da Ciência, Tecnologia e Inovação",
+          "cssPath": "select#slcOrgs > option:nth-of-type(8)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[8]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério das Comunicações"
+          },
+          "text": "Ministério das Comunicações",
+          "cssPath": "select#slcOrgs > option:nth-of-type(9)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[9]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Cultura"
+          },
+          "text": "Ministério da Cultura",
+          "cssPath": "select#slcOrgs > option:nth-of-type(10)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[10]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Defesa"
+          },
+          "text": "Ministério da Defesa",
+          "cssPath": "select#slcOrgs > option:nth-of-type(11)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[11]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar"
+          },
+          "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+          "cssPath": "select#slcOrgs > option:nth-of-type(12)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[12]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+          },
+          "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+          "cssPath": "select#slcOrgs > option:nth-of-type(13)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[13]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Educação"
+          },
+          "text": "Ministério da Educação",
+          "cssPath": "select#slcOrgs > option:nth-of-type(14)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[14]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Fazenda"
+          },
+          "text": "Ministério da Fazenda",
+          "cssPath": "select#slcOrgs > option:nth-of-type(15)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[15]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Gestão e da Inovação em Serviços Públicos"
+          },
+          "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
+          "cssPath": "select#slcOrgs > option:nth-of-type(16)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[16]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Integração e do Desenvolvimento Regional"
+          },
+          "text": "Ministério da Integração e do Desenvolvimento Regional",
+          "cssPath": "select#slcOrgs > option:nth-of-type(17)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[17]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Justiça e Segurança Pública"
+          },
+          "text": "Ministério da Justiça e Segurança Pública",
+          "cssPath": "select#slcOrgs > option:nth-of-type(18)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[18]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério de Minas e Energia"
+          },
+          "text": "Ministério de Minas e Energia",
+          "cssPath": "select#slcOrgs > option:nth-of-type(19)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[19]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Pesca e Aquicultura"
+          },
+          "text": "Ministério da Pesca e Aquicultura",
+          "cssPath": "select#slcOrgs > option:nth-of-type(20)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[20]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério do Planejamento e Orçamento"
+          },
+          "text": "Ministério do Planejamento e Orçamento",
+          "cssPath": "select#slcOrgs > option:nth-of-type(21)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[21]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério de Portos e Aeroportos"
+          },
+          "text": "Ministério de Portos e Aeroportos",
+          "cssPath": "select#slcOrgs > option:nth-of-type(22)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[22]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Previdência Social"
+          },
+          "text": "Ministério da Previdência Social",
+          "cssPath": "select#slcOrgs > option:nth-of-type(23)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[23]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério da Saúde"
+          },
+          "text": "Ministério da Saúde",
+          "cssPath": "select#slcOrgs > option:nth-of-type(24)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[24]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério do Trabalho e Emprego"
+          },
+          "text": "Ministério do Trabalho e Emprego",
+          "cssPath": "select#slcOrgs > option:nth-of-type(25)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[25]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério dos Transportes"
+          },
+          "text": "Ministério dos Transportes",
+          "cssPath": "select#slcOrgs > option:nth-of-type(26)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[26]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério do Turismo"
+          },
+          "text": "Ministério do Turismo",
+          "cssPath": "select#slcOrgs > option:nth-of-type(27)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[27]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Controladoria-Geral da União"
+          },
+          "text": "Controladoria-Geral da União",
+          "cssPath": "select#slcOrgs > option:nth-of-type(28)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[28]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério Público da União"
+          },
+          "text": "Ministério Público da União",
+          "cssPath": "select#slcOrgs > option:nth-of-type(29)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[29]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Tribunal de Contas da União"
+          },
+          "text": "Tribunal de Contas da União",
+          "cssPath": "select#slcOrgs > option:nth-of-type(30)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[30]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Defensoria Pública da União"
+          },
+          "text": "Defensoria Pública da União",
+          "cssPath": "select#slcOrgs > option:nth-of-type(31)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[31]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Poder Judiciário"
+          },
+          "text": "Poder Judiciário",
+          "cssPath": "select#slcOrgs > option:nth-of-type(32)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[32]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Entidades de Fiscalização do Exercício das Profissões Liberais"
+          },
+          "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+          "cssPath": "select#slcOrgs > option:nth-of-type(33)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[1]/div/select/option[33]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "0"
+          },
+          "text": "Todos",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(2)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[2]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "2ª Câmara"
+          },
+          "text": "2ª Câmara",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(3)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[3]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Aviação Civil"
+          },
+          "text": "Agência Nacional de Aviação Civil",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(4)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[4]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Energia Elétrica"
+          },
+          "text": "Agência Nacional de Energia Elétrica",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(5)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[5]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Mineração"
+          },
+          "text": "Agência Nacional de Mineração",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(6)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[6]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Telecomunicações"
+          },
+          "text": "Agência Nacional de Telecomunicações",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(7)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[7]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Transportes Aquaviários"
+          },
+          "text": "Agência Nacional de Transportes Aquaviários",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(8)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[8]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Transportes Terrestres"
+          },
+          "text": "Agência Nacional de Transportes Terrestres",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(9)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[9]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional de Vigilância Sanitária"
+          },
+          "text": "Agência Nacional de Vigilância Sanitária",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(10)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[10]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis"
+          },
+          "text": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(11)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[11]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Autoridade Portuária de Santos S.A."
+          },
+          "text": "Autoridade Portuária de Santos S.A.",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(12)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[12]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Caixa Econômica Federal"
+          },
+          "text": "Caixa Econômica Federal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(13)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[13]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Comando da Aeronáutica"
+          },
+          "text": "Comando da Aeronáutica",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(14)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[14]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Comissão Técnica Nacional de Biossegurança"
+          },
+          "text": "Comissão Técnica Nacional de Biossegurança",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(15)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[15]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Comissão de Financiamentos Externos"
+          },
+          "text": "Comissão de Financiamentos Externos",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(16)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[16]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Comissão de Valores Mobiliários"
+          },
+          "text": "Comissão de Valores Mobiliários",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(17)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[17]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Administrativo de Defesa Econômica"
+          },
+          "text": "Conselho Administrativo de Defesa Econômica",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(18)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[18]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Administrativo de Recursos Fiscais"
+          },
+          "text": "Conselho Administrativo de Recursos Fiscais",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(19)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[19]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Federal de Farmácia"
+          },
+          "text": "Conselho Federal de Farmácia",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(20)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[20]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Monetário Nacional"
+          },
+          "text": "Conselho Monetário Nacional",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(21)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[21]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Nacional de Controle de Experimentação Animal"
+          },
+          "text": "Conselho Nacional de Controle de Experimentação Animal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(22)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[22]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Nacional de Educação"
+          },
+          "text": "Conselho Nacional de Educação",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(23)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[23]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Conselho Nacional de Política Fazendária"
+          },
+          "text": "Conselho Nacional de Política Fazendária",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(24)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[24]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Estado-Maior Conjunto das Forças Armadas"
+          },
+          "text": "Estado-Maior Conjunto das Forças Armadas",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(25)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[25]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Fundação Universidade Federal do Pampa"
+          },
+          "text": "Fundação Universidade Federal do Pampa",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(26)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[26]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Gabinete do Defensor Público-Geral Federal"
+          },
+          "text": "Gabinete do Defensor Público-Geral Federal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(27)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[27]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Gabinete do Ministro"
+          },
+          "text": "Gabinete do Ministro",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(28)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[28]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instituto Brasileiro de Museus"
+          },
+          "text": "Instituto Brasileiro de Museus",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(29)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[29]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instituto Federal de Educação, Ciência e Tecnologia do Norte de Minas Gerais"
+          },
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia do Norte de Minas Gerais",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(30)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[30]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instituto Federal de Educação, Ciência e Tecnologia do Sudeste de Minas Gerais"
+          },
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia do Sudeste de Minas Gerais",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(31)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[31]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instituto Nacional de Colonização e Reforma Agrária"
+          },
+          "text": "Instituto Nacional de Colonização e Reforma Agrária",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(32)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[32]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instituto Nacional do Seguro Social"
+          },
+          "text": "Instituto Nacional do Seguro Social",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(33)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[33]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ministério Público do Trabalho"
+          },
+          "text": "Ministério Público do Trabalho",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(34)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[34]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Polícia Federal"
+          },
+          "text": "Polícia Federal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(35)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[35]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Especial da Receita Federal do Brasil"
+          },
+          "text": "Secretaria Especial da Receita Federal do Brasil",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(36)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[36]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Executiva"
+          },
+          "text": "Secretaria Executiva",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(37)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[37]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Nacional de Direitos Digitais"
+          },
+          "text": "Secretaria Nacional de Direitos Digitais",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(38)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[38]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Nacional de Justiça"
+          },
+          "text": "Secretaria Nacional de Justiça",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(39)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[39]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Nacional de Mobilidade Urbana"
+          },
+          "text": "Secretaria Nacional de Mobilidade Urbana",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(40)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[40]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Nacional de Proteção e Defesa Civil"
+          },
+          "text": "Secretaria Nacional de Proteção e Defesa Civil",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(41)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[41]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria Nacional de Registro, Monitoramento e Pesquisa da Pesca e Aquicultura"
+          },
+          "text": "Secretaria Nacional de Registro, Monitoramento e Pesquisa da Pesca e Aquicultura",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(42)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[42]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Ciência e Tecnologia para Transformação Digital"
+          },
+          "text": "Secretaria de Ciência e Tecnologia para Transformação Digital",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(43)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[43]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Comércio Exterior"
+          },
+          "text": "Secretaria de Comércio Exterior",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(44)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[44]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Defesa Agropecuária"
+          },
+          "text": "Secretaria de Defesa Agropecuária",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(45)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[45]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Fomento e Incentivo à Cultura"
+          },
+          "text": "Secretaria de Fomento e Incentivo à Cultura",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(46)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[46]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Inspeção do Trabalho"
+          },
+          "text": "Secretaria de Inspeção do Trabalho",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(47)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[47]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Orçamento Federal"
+          },
+          "text": "Secretaria de Orçamento Federal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(48)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[48]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Pessoal, Saúde, Desporto e Projetos Sociais"
+          },
+          "text": "Secretaria de Pessoal, Saúde, Desporto e Projetos Sociais",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(49)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[49]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Qualificação, Emprego e Renda"
+          },
+          "text": "Secretaria de Qualificação, Emprego e Renda",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(50)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[50]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Radiodifusão"
+          },
+          "text": "Secretaria de Radiodifusão",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(51)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[51]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria de Relações do Trabalho"
+          },
+          "text": "Secretaria de Relações do Trabalho",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(52)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[52]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria do Patrimônio da União"
+          },
+          "text": "Secretaria do Patrimônio da União",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(53)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[53]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Secretaria do Tesouro Nacional"
+          },
+          "text": "Secretaria do Tesouro Nacional",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(54)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[54]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Superintendência Nacional de Previdência Complementar"
+          },
+          "text": "Superintendência Nacional de Previdência Complementar",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(55)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[55]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Superintendência da Zona Franca de Manaus"
+          },
+          "text": "Superintendência da Zona Franca de Manaus",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(56)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[56]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Superintendência de Seguros Privados"
+          },
+          "text": "Superintendência de Seguros Privados",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(57)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[57]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Superior Tribunal de Justiça"
+          },
+          "text": "Superior Tribunal de Justiça",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(58)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[58]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Supremo Tribunal Federal"
+          },
+          "text": "Supremo Tribunal Federal",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(59)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[59]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Tribunal Regional Eleitoral de Rondônia"
+          },
+          "text": "Tribunal Regional Eleitoral de Rondônia",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(60)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[60]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Universidade Federal de Santa Catarina"
+          },
+          "text": "Universidade Federal de Santa Catarina",
+          "cssPath": "select#slcOrgsSubs > option:nth-of-type(61)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[2]/div/select/option[61]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "0"
+          },
+          "text": "Todos",
+          "cssPath": "select#slcTipo > option:nth-of-type(2)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[2]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Alvará"
+          },
+          "text": "Alvará",
+          "cssPath": "select#slcTipo > option:nth-of-type(3)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[3]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ata"
+          },
+          "text": "Ata",
+          "cssPath": "select#slcTipo > option:nth-of-type(4)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[4]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ato"
+          },
+          "text": "Ato",
+          "cssPath": "select#slcTipo > option:nth-of-type(5)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[5]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ato Declaratório"
+          },
+          "text": "Ato Declaratório",
+          "cssPath": "select#slcTipo > option:nth-of-type(6)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[6]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Ato Normativo"
+          },
+          "text": "Ato Normativo",
+          "cssPath": "select#slcTipo > option:nth-of-type(7)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[7]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Autorização"
+          },
+          "text": "Autorização",
+          "cssPath": "select#slcTipo > option:nth-of-type(8)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[8]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Circular"
+          },
+          "text": "Circular",
+          "cssPath": "select#slcTipo > option:nth-of-type(9)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[9]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Decisão"
+          },
+          "text": "Decisão",
+          "cssPath": "select#slcTipo > option:nth-of-type(10)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[10]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Decreto Legislativo"
+          },
+          "text": "Decreto Legislativo",
+          "cssPath": "select#slcTipo > option:nth-of-type(11)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[11]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Decreto numerado"
+          },
+          "text": "Decreto numerado",
+          "cssPath": "select#slcTipo > option:nth-of-type(12)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[12]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Deliberação"
+          },
+          "text": "Deliberação",
+          "cssPath": "select#slcTipo > option:nth-of-type(13)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[13]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Despacho"
+          },
+          "text": "Despacho",
+          "cssPath": "select#slcTipo > option:nth-of-type(14)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[14]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Extrato da Ata"
+          },
+          "text": "Extrato da Ata",
+          "cssPath": "select#slcTipo > option:nth-of-type(15)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[15]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Extrato de Parecer Técnico"
+          },
+          "text": "Extrato de Parecer Técnico",
+          "cssPath": "select#slcTipo > option:nth-of-type(16)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[16]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Instrução Normativa"
+          },
+          "text": "Instrução Normativa",
+          "cssPath": "select#slcTipo > option:nth-of-type(17)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[17]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Mensagem"
+          },
+          "text": "Mensagem",
+          "cssPath": "select#slcTipo > option:nth-of-type(18)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[18]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Pauta"
+          },
+          "text": "Pauta",
+          "cssPath": "select#slcTipo > option:nth-of-type(19)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[19]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Portaria"
+          },
+          "text": "Portaria",
+          "cssPath": "select#slcTipo > option:nth-of-type(20)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[20]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Resolução"
+          },
+          "text": "Resolução",
+          "cssPath": "select#slcTipo > option:nth-of-type(21)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[21]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Retificação"
+          },
+          "text": "Retificação",
+          "cssPath": "select#slcTipo > option:nth-of-type(22)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[22]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Solução de Consulta"
+          },
+          "text": "Solução de Consulta",
+          "cssPath": "select#slcTipo > option:nth-of-type(23)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[23]"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "value": "Súmula"
+          },
+          "text": "Súmula",
+          "cssPath": "select#slcTipo > option:nth-of-type(24)",
+          "xpath": "/html/body/div[1]/div[1]/main/div[2]/div/div[2]/div/div/div/div[4]/section/div/div[2]/div/div[2]/div[3]/div/select/option[24]"
+        }
+      ]
+    },
+    "haspopup": {
+      "count": 2,
+      "sampled": 2,
+      "items": [
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "id": "dropdownAlignment1",
+            "class": "link-contraste dropdown-toggle",
+            "aria-haspopup": "true",
+            "aria-expanded": "false"
+          },
+          "text": "",
+          "cssPath": "a#dropdownAlignment1",
+          "xpath": "//*[@id='dropdownAlignment1']"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "role": "menuitem",
+            "aria-haspopup": "true"
+          },
+          "text": "Leitura do Jornal",
+          "cssPath": "li#layout_471 > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/nav/div/div/div/ul/li[2]/ul/li[2]/a"
+        }
+      ]
+    },
+    "expanded": {
+      "count": 2,
+      "sampled": 2,
+      "items": [
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "id": "dropdownAlignment1",
+            "class": "link-contraste dropdown-toggle",
+            "aria-haspopup": "true",
+            "aria-expanded": "false"
+          },
+          "text": "",
+          "cssPath": "a#dropdownAlignment1",
+          "xpath": "//*[@id='dropdownAlignment1']"
+        },
+        {
+          "visible": false,
+          "box": null,
+          "attrs": {
+            "role": "menuitem",
+            "aria-expanded": "false"
+          },
+          "text": "Diário Oficial da União",
+          "cssPath": "li#layout_486 > a:nth-of-type(1)",
+          "xpath": "/html/body/div[1]/div[1]/header/div/div/nav/div/div/div/ul/li[2]/a"
+        }
+      ]
+    }
   }
 }

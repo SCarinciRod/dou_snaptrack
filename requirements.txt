@@ -1,2 +1,0 @@
-﻿playwright==1.46.0
-python-docx
