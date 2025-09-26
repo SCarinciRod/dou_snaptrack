@@ -64,11 +64,14 @@ try:
     # Planejamento a partir de mapa/pares
     from dou_utils.services.planning_service import PlanFromMapService, PlanFromPairsService
     from dou_utils.services.edition_runner_service import EditionRunnerService, EditionRunParams
+    from dou_utils.services.dropdown_listing_service import DropdownListingService, ListLevelParams
 except Exception:
     PlanFromMapService = None
     PlanFromPairsService = None
     EditionRunnerService = None
     EditionRunParams = None
+    DropdownListingService = None
+    ListLevelParams = None
 
 try:
     from dou_utils.selectors import DROPDOWN_ROOT_SELECTORS, LISTBOX_SELECTORS, OPTION_SELECTORS
@@ -103,6 +106,12 @@ except Exception:
         "[data-value]",
         "[data-index]",
     )
+
+try:
+    # Descoberta centralizada de dropdown roots
+    from dou_utils.core.dropdown_discovery import discover_dropdown_roots as _discover_dropdown_roots
+except Exception:
+    _discover_dropdown_roots = None
 
 def _setup_summary_globals(args):
     """
@@ -375,15 +384,55 @@ def find_best_frame(context):
             best = fr
     return best
 
-def collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
+def discover_roots_compat(frame) -> List[Dict[str, Any]]:
     """
-    Coleta raízes de dropdown (combobox/select/heurísticas), DEDUPLICA por id (quando houver),
-    e prioriza select > combobox > unknown. Mantém ordenação por (y,x).
+    Usa a descoberta centralizada (se disponível) e adapta para o formato antigo
+    (lista de dicts com keys: kind, selector, index, handle, y, x, label).
+    Fallback: heurística local mínima se o módulo central não estiver acessível.
     """
+    if _discover_dropdown_roots:
+        try:
+            roots = _discover_dropdown_roots(frame)  # DropdownRoot objects
+            out: List[Dict[str, Any]] = []
+            for r in roots:
+                try:
+                    lbl = getattr(r, "label", "") or ""
+                except Exception:
+                    lbl = ""
+                out.append({
+                    "kind": getattr(r, "kind", ""),
+                    "selector": getattr(r, "selector", ""),
+                    "index": getattr(r, "index", 0),
+                    "handle": getattr(r, "handle", None),
+                    "y": getattr(r, "y", 0.0),
+                    "x": getattr(r, "x", 0.0),
+                    "label": lbl,
+                })
+            return out
+        except Exception:
+            pass
+
+    # Fallback local mínimo
     roots = []
     seen = set()
 
-    def _maybe_add(sel: str, kind: str, loc):
+    # Candidatos: combobox, select e heurísticos
+    locs = []
+    try:
+        locs.append(("combobox", "role=combobox", frame.get_by_role("combobox")))
+    except Exception:
+        pass
+    try:
+        locs.append(("select", "select", frame.locator("select")))
+    except Exception:
+        pass
+    for sel in DROPDOWN_ROOT_SELECTORS:
+        try:
+            locs.append(("unknown", sel, frame.locator(sel)))
+        except Exception:
+            pass
+
+    for kind, sel, loc in locs:
         try:
             cnt = loc.count()
         except Exception:
@@ -392,43 +441,32 @@ def collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
             h = loc.nth(i)
             try:
                 box = h.bounding_box()
-                if not box: 
+                if not box:
                     continue
-                key = (sel, i, round(box["y"],2), round(box["x"],2))
+                key = (sel, i, round(box["y"], 2), round(box["x"], 2))
                 if key in seen:
                     continue
                 seen.add(key)
-                roots.append({"selector": sel, "kind": kind, "index": i, "handle": h, "y": box["y"], "x": box["x"]})
+                roots.append({
+                    "selector": sel, "kind": kind, "index": i, "handle": h, "y": box["y"], "x": box["x"]
+                })
             except Exception:
                 continue
 
-    # 1) ARIA combobox
-    _maybe_add("role=combobox", "combobox", frame.get_by_role("combobox"))
-    # 2) <select>
-    _maybe_add("select", "select", frame.locator("select"))
-    # 3) Heurísticas extras
-    for sel in DROPDOWN_ROOT_SELECTORS:
-        _maybe_add(sel, "unknown", frame.locator(sel))
-
-    def _priority(kind:str)->int:
+    # Dedupe por id ou posição
+    def _priority(kind: str) -> int:
         return {"select": 3, "combobox": 2, "unknown": 1}.get(kind, 0)
 
-    enriched = []
+    by_key = {}
     for r in roots:
-        h = r["handle"]
         try:
-            el_id = h.get_attribute("id")
+            el_id = r["handle"].get_attribute("id")
         except Exception:
             el_id = None
-        enriched.append({**r, "id_attr": el_id})
-
-    # DEDUPE por id; se sem id, usa (pos,selector)
-    by_key = {}
-    for r in enriched:
-        if r.get("id_attr"):
-            k = ("id", r["id_attr"])
+        if el_id:
+            k = ("id", el_id)
         else:
-            k = ("pos", round(r["y"],1), round(r["x"],1), r["selector"])
+            k = ("pos", round(r["y"], 1), round(r["x"], 1), r["selector"])
         best = by_key.get(k)
         if not best or _priority(r["kind"]) > _priority(best["kind"]):
             by_key[k] = r
@@ -1407,74 +1445,33 @@ def flow_list(
     key1, key1_type, key2, key2_type,
     out_path, debug_dump, label1=None, label2=None, label3=None
 ):
-    page = context.pages[0]
-    goto(page, data, secao)
-    frame = find_best_frame(context)
-    roots = collect_dropdown_roots(frame)
-    if not roots:
-        print("[Erro] Nenhum dropdown detectado.")
-        if debug_dump:
-            dump_debug(page, "debug_list_no_roots")
+    if not DropdownListingService or not ListLevelParams:
+        raise RuntimeError("DropdownListingService indisponível. Verifique dou_utils.services.dropdown_listing_service.")
+    svc = DropdownListingService(context)
+    res = svc.list_level(ListLevelParams(
+        date=str(data), secao=str(secao), level=int(level),
+        key1=str(key1) if key1 else None, key1_type=str(key1_type) if key1_type else None,
+        key2=str(key2) if key2 else None, key2_type=str(key2_type) if key2_type else None,
+        label1=label1, label2=label2, label3=label3
+    ))
+    if not res.get("ok"):
+        reason = res.get("reason") or "unknown"
+        print(f"[Erro] Falha no list level={level}: {reason}")
         sys.exit(1)
-
-    # --- Nível 1 ---
-    r1 = resolve_dropdown(1, frame, page, roots, label1)
-    lab1 = label_for_control(frame, r1)
-    opts1 = read_dropdown_options(frame, r1)
-    print_list(lab1, 1, opts1)
-
-    if level >= 2:
-        if not key1 or not key1_type:
-            print("[Erro] Para listar nível 2, informe --key1-type e --key1.")
-            sys.exit(1)
-        if not select_by_key(frame, r1, str(key1), str(key1_type)):
-            print(f"[Erro] Nível 1: não consegui selecionar {key1_type}='{key1}'.")
-            if debug_dump:
-                dump_debug(page, "debug_list_select1_fail")
-            sys.exit(1)
-        page.wait_for_load_state("networkidle", timeout=90_000)
-        roots = collect_dropdown_roots(frame)
-        if len(roots) < 1:
-            print("[Erro] Nível 2 não apareceu após selecionar o nível 1.")
-            if debug_dump:
-                dump_debug(page, "debug_list_no_level2")
-            sys.exit(1)
-        r2 = resolve_dropdown(2, frame, page, roots, label2)
-        lab2 = label_for_control(frame, r2)
-        opts2 = read_dropdown_options(frame, r2)
-        print_list(lab2, 2, opts2)
-
-    if level >= 3:
-        if not key2 or not key2_type:
-            print("[Erro] Para listar nível 3, informe --key2-type e --key2.")
-            sys.exit(1)
-        if not select_by_key(frame, r2, str(key2), str(key2_type)):
-            print(f"[Erro] Nível 2: não consegui selecionar {key2_type}='{key2}'.")
-            if debug_dump:
-                dump_debug(page, "debug_list_select2_fail")
-            sys.exit(1)
-        page.wait_for_load_state("networkidle", timeout=90_000)
-        roots = collect_dropdown_roots(frame)
-        if len(roots) < 1:
-            print("[Erro] Nível 3 não apareceu após selecionar o nível 2.")
-            if debug_dump:
-                dump_debug(page, "debug_list_no_level3")
-            sys.exit(1)
-        r3 = resolve_dropdown(3, frame, page, roots, label3)
-        lab3 = label_for_control(frame, r3)
-        opts3 = read_dropdown_options(frame, r3)
-        print_list(lab3, 3, opts3)
-
+    # Impressão e payload compatíveis
     payload = {"data": data, "secao": secao}
     if level == 1:
-        payload.update({"level": 1, "label": lab1, "options": opts1})
+        print_list(res.get("label", ""), 1, res.get("options") or [])
+        payload.update({"level": 1, "label": res.get("label"), "options": res.get("options") or []})
     elif level == 2:
-        payload.update({"level": 2, "label1": lab1, "label2": lab2,
-                        "key1": key1, "key1_type": key1_type, "options": opts2})
+        print_list(res.get("label2", ""), 2, res.get("options") or [])
+        payload.update({"level": 2, "label1": res.get("label1"), "label2": res.get("label2"),
+                        "key1": key1, "key1_type": key1_type, "options": res.get("options") or []})
     else:
-        payload.update({"level": 3, "label1": lab1, "label2": lab2, "label3": lab3,
+        print_list(res.get("label3", ""), 3, res.get("options") or [])
+        payload.update({"level": 3, "label1": res.get("label1"), "label2": res.get("label2"), "label3": res.get("label3"),
                         "key1": key1, "key1_type": key1_type, "key2": key2, "key2_type": key2_type,
-                        "options": opts3})
+                        "options": res.get("options") or []})
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n[OK] Opções do nível {level} salvas em: {out_path}")
 
@@ -1920,7 +1917,7 @@ def plan_live(p, args) -> Dict[str, Any]:
         frame = find_best_frame(context)
 
         # 2) Encontra roots
-        roots = collect_dropdown_roots(frame)
+        roots = discover_roots_compat(frame)
         if not roots:
             raise RuntimeError("Nenhum dropdown detectado.")
         r1 = resolve_dropdown(1, frame, page, roots, args.label1)
@@ -1950,7 +1947,7 @@ def plan_live(p, args) -> Dict[str, Any]:
                 break
 
             # (re)garante referências atuais de roots (DOM pode ter mudado)
-            roots = collect_dropdown_roots(frame)
+            roots = discover_roots_compat(frame)
             r1 = resolve_dropdown(1, frame, page, roots, args.label1)
 
             if not r1 or not select_by_key(frame, r1, k1, getattr(args, "key1_type_default", "text")):
@@ -1960,7 +1957,7 @@ def plan_live(p, args) -> Dict[str, Any]:
             page.wait_for_load_state("networkidle", timeout=90_000)
 
             # Após selecionar N1, refaça roots e encontre N2
-            roots = collect_dropdown_roots(frame)
+            roots = discover_roots_compat(frame)
             r2 = resolve_dropdown(2, frame, page, roots, args.label2)
             if not r2:
                 if v: print(f"[plan-live][skip] N2 não encontrado após N1='{k1}'.")
@@ -2448,7 +2445,7 @@ def flow_batch(p, args):
                             _apply_summary_overrides_from_job(job)
 
                             # --- Seleciona N1 ---
-                            roots = collect_dropdown_roots(frame)
+                            roots = discover_roots_compat(frame)
                             r1 = resolve_dropdown(1, frame, page, roots, job.get("label1"))
                             if r1:
                                 reset_dropdown(frame, r1)
@@ -2458,7 +2455,7 @@ def flow_batch(p, args):
                             page.wait_for_load_state("networkidle", timeout=90_000)
 
                             # --- Seleciona N2 ---
-                            roots = collect_dropdown_roots(frame)
+                            roots = discover_roots_compat(frame)
                             r2 = resolve_dropdown(2, frame, page, roots, job.get("label2"))
                             if not r2 or not select_by_key(frame, r2, key2, key2_type):
                                 print(f"[Info] N2 falhou: {key2_type}='{key2}' — {topic}")
@@ -2632,7 +2629,7 @@ def flow_batch(p, args):
                     goto(page, data, secao)
                     frame = find_best_frame(context)
 
-                    roots = collect_dropdown_roots(frame)
+                    roots = discover_roots_compat(frame)
                     r1 = resolve_dropdown(1, frame, page, roots, label1)
                     if r1:
                         reset_dropdown(frame, r1)
@@ -2640,7 +2637,7 @@ def flow_batch(p, args):
                         raise RuntimeError(f"N1 falhou: {key1_type}='{key1}'")
                     page.wait_for_load_state("networkidle", timeout=90_000)
 
-                    roots = collect_dropdown_roots(frame)
+                    roots = discover_roots_compat(frame)
                     r2 = resolve_dropdown(2, frame, page, roots, label2)
                     if not r2 or not select_by_key(frame, r2, str(key2), str(key2_type)):
                         raise RuntimeError(f"N2 falhou: {key2_type}='{key2}'")
