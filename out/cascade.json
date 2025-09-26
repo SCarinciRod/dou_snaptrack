@@ -1,0 +1,80 @@
+{
+  "schema": {
+    "name": "cascadeResult",
+    "version": "1.0"
+  },
+  "generatedAt": "2025-09-19T11:26:06Z",
+  "planMeta": {
+    "dynamicN2": true,
+    "originalCombos": 31
+  },
+  "summary": {
+    "totalCombosPlanned": 31,
+    "totalExecuted": 3,
+    "ok": 0,
+    "empty": 2,
+    "error": 1,
+    "durationSec": 67.925
+  },
+  "results": [
+    {
+      "combo": {
+        "key1": "Atos do Poder Judiciário",
+        "key2": "",
+        "key3": null
+      },
+      "status": "error",
+      "timings": {
+        "start": "2025-09-19T11:25:00Z",
+        "end": "2025-09-19T11:26:01Z",
+        "durationMs": 61331
+      },
+      "counts": {
+        "items": 0
+      },
+      "itemsSample": [],
+      "errors": [
+        "Locator.select_option: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"select\").nth(1)\n    - locator resolved to <select id=\"slcOrgsSubs\" class=\"form-control leitura-filtro\" placeholder=\"Selecionar Organização Subordinada\">…</select>\n  - attempting select option action\n    2 × waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n    - waiting 20ms\n    2 × waiting for element to be visible and enabled\n      - did not find some options\n    - retrying select option action\n      - waiting 100ms\n    59 × waiting for element to be visible and enabled\n       - did not find some options\n     - retrying select option action\n       - waiting 500ms\n"
+      ],
+      "dynamicExpansion": null
+    },
+    {
+      "combo": {
+        "key1": "Atos do Poder Judiciário",
+        "key2": "0",
+        "key3": null
+      },
+      "status": "empty",
+      "timings": {
+        "start": "2025-09-19T11:26:01Z",
+        "end": "2025-09-19T11:26:03Z",
+        "durationMs": 2461
+      },
+      "counts": {
+        "items": 0
+      },
+      "itemsSample": [],
+      "errors": [],
+      "dynamicExpansion": null
+    },
+    {
+      "combo": {
+        "key1": "Atos do Poder Judiciário",
+        "key2": "Supremo Tribunal Federal",
+        "key3": null
+      },
+      "status": "empty",
+      "timings": {
+        "start": "2025-09-19T11:26:03Z",
+        "end": "2025-09-19T11:26:06Z",
+        "durationMs": 2455
+      },
+      "counts": {
+        "items": 0
+      },
+      "itemsSample": [],
+      "errors": [],
+      "dynamicExpansion": null
+    }
+  ]
+}

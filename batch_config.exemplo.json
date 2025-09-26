@@ -1,0 +1,40 @@
+{
+  "data": "08-09-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": true,
+    "fallback_date_if_missing": true,
+    "max_links": 200,
+    "max_scrolls": 80,
+    "scroll_pause_ms": 300,
+    "stable_rounds": 3,
+    "label1": "Órgão",
+    "label2": "Secretaria|Unidade",
+    "label3": "Tipo do Ato",
+    "debug_dump": false,
+    "bulletin": "html",
+    "bulletin_out": "boletim_{secao}_{date}_{idx}.html"
+  },
+  "topics": [
+    { "name": "Inovacao", "query": "inovação OR política industrial" }
+  ],
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "key2_type": "text",
+      "key2": "Secretaria de Ciência e Tecnologia para Transformação Digital",
+      "key3_type": "text",
+      "key3": "Portaria",
+      "label1": "Órgão",
+      "label2": "Secretaria/Unidade",
+      "label3": "Tipo do Ato"
+    }
+  ],
+  "state_file": "estado_dou.jsonl",
+  "output": {
+    "pattern": "{secao}_{date}_{idx}.json",
+    "bulletin": "boletim_{secao}_{date}_{idx}.html",
+    "report": "batch_report.json"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schema": {
+    "name": "batchConfig",
+    "version": "1.0"
+  },
+  "generatedAt": "2025-09-15T16:19:30Z",
+  "source": "plan-builder",
+  "data": "15-09-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": true,
+    "max_links": 30
+  },
+  "query": null,
+  "combos": [
+    {
+      "key1": "Atos do Poder Legislativo",
+      "key2": "0",
+      "label1": "Atos do Poder Legislativo",
+      "label2": "Todos"
+    },
+    {
+      "key1": "Atos do Poder Legislativo",
+      "key2": "Advocacia-Geral da União",
+      "label1": "Atos do Poder Legislativo",
+      "label2": "Advocacia-Geral da União"
+    },
+    {
+      "key1": "Atos do Poder Legislativo",
+      "key2": "Agência Nacional de Aviação Civil",
+      "label1": "Atos do Poder Legislativo",
+      "label2": "Agência Nacional de Aviação Civil"
+    },
+    {
+      "key1": "Atos do Poder Executivo",
+      "key2": "0",
+      "label1": "Atos do Poder Executivo",
+      "label2": "Todos"
+    },
+    {
+      "key1": "Presidência da República",
+      "key2": "0",
+      "label1": "Presidência da República",
+      "label2": "Todos"
+    },
+    {
+      "key1": "Ministério da Agricultura e Pecuária",
+      "key2": "0",
+      "label1": "Ministério da Agricultura e Pecuária",
+      "label2": "Todos"
+    },
+    {
+      "key1": "Ministério da Agricultura e Pecuária",
+      "key2": "Advocacia-Geral da União",
+      "label1": "Ministério da Agricultura e Pecuária",
+      "label2": "Advocacia-Geral da União"
+    },
+    {
+      "key1": "Ministério da Agricultura e Pecuária",
+      "key2": "Casa Civil",
+      "label1": "Ministério da Agricultura e Pecuária",
+      "label2": "Casa Civil"
+    },
+    {
+      "key1": "Ministério das Cidades",
+      "key2": "0",
+      "label1": "Ministério das Cidades",
+      "label2": "Todos"
+    },
+    {
+      "key1": "Ministério das Cidades",
+      "key2": "Gabinete do Ministro",
+      "label1": "Ministério das Cidades",
+      "label2": "Gabinete do Ministro"
+    },
+    {
+      "key1": "Ministério das Cidades",
+      "key2": "Secretaria Executiva",
+      "label1": "Ministério das Cidades",
+      "label2": "Secretaria Executiva"
+    }
+  ]
+}
