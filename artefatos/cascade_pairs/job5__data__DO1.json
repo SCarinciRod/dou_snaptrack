@@ -1,0 +1,115 @@
+{
+  "schema": {
+    "name": "cascadeResult",
+    "version": "1.0"
+  },
+  "runId": "20250915T162709Z",
+  "generatedAt": "2025-09-15T16:27:09Z",
+  "source": "cascade-run",
+  "params": {
+    "data": "15-09-2025",
+    "secao": "DO1",
+    "query": null,
+    "scrapeDetail": true,
+    "advancedDetail": false,
+    "fallbackDateIfMissing": false,
+    "maxLinks": 3,
+    "parallel": 1,
+    "summary": true,
+    "summaryLines": 5,
+    "summaryMode": "center",
+    "summaryAdvanced": false,
+    "dedupState": null,
+    "hierarchicalSelection": {
+      "ok": true,
+      "level_fail": null,
+      "selected": {
+        "key1": "Presidência da República",
+        "key2": "0"
+      },
+      "labels": {
+        "label1": "Selecione o dia desejado",
+        "label2": "Selecione o dia desejado"
+      }
+    },
+    "topic": "job5",
+    "_repeat": 1,
+    "_combo_index": 5,
+    "_job_index": 5
+  },
+  "stats": {
+    "total": 3,
+    "detailFailures": 0,
+    "scrapedDetails": true,
+    "parallel": 1,
+    "durationSec": 9.13
+  },
+  "itens": [
+    {
+      "titulo": "DESPACHOS DO PRESIDENTE DA REPÚBLICA - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/despachos-do-presidente-da-republica-655722792",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despachos-do-presidente-da-republica-655722792",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 5",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 5 Órgão: Presidência da República DESPACHOS DO PRESIDENTE DA REPÚBLICA MENSAGEM Nº 1.295, de 12 de setembro de 2025. Restituição ao Congresso Nacional de autógrafo do projeto de lei que, sancionado, se transforma na Lei nº 15.205, de 12 de setembro de 2025. Nº 1.296, de 12 de setembro de 2025. Restituição ao Congresso Nacional de autógrafo do projeto de lei que, sancionado, se transforma na Lei nº 15.206, de 12 de setembro de 2025. Nº 1.297, de 12 de setembro de 2025. Restituição ao Congresso Nacional de autógrafo do projeto de lei que, sancionado, se transforma na Lei nº 15.207, de 12 de setembro de 2025. Nº 1.298, de 12 de setembro de 2025. Encaminhamento ao Senado Federal, para apreciação, do nome da Senhora RENATA LÚCIA MEDEIROS DE ALBUQUERQUE EMERENCIANO, para exercer o cargo de Ouvidora da Agência Nacional de Águas e Saneamento Básico - ANA, na vaga decorrente do término do mandato de Ricardo Medeiros de Andrade. Nº 1.299, de 12 de setembro de 2025. Encaminhamento ao Congresso Nacional do texto do Acordo de Segurança Relativo à Troca de Informações Classificadas e Protegidas entre o Governo da República Federativa do Brasil e o Governo da República Francesa, assinado em Brasília, em 28 de março de 2024. Nº 1.300, de 12 de setembro de 2025. Encaminhamento ao Congresso Nacional do texto do Acordo entre o Governo da República Federativa do Brasil e o Governo da República Eslovaca sobre Cooperação na Área da Defesa, assinado em Brasília, em 10 de dezembro de 2024. Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Presidência da República",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "5",
+      "meta": {
+        "meta[property='og:title']": "DESPACHOS DO PRESIDENTE DA REPÚBLICA - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "411106e7753bd9e08a0e6c73cf42912a8d3f5659"
+      },
+      "hash": "411106e7753bd9e08a0e6c73cf42912a8d3f5659",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "RESOLUÇÃO Nº 24, de 8 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/resolucao-n-24-de-8-de-setembro-de-2025-655731771",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-n-24-de-8-de-setembro-de-2025-655731771",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 5",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 5 Órgão: Presidência da República/Casa Civil/Câmara-Executiva Federal de Identificação do Cidadão RESOLUÇÃO Nº 24, de 8 DE SETEMBRO DE 2025 Institui o Modelo Informacional da Carteira de Identidade Nacional - MI-CIN, no âmbito dos Órgãos de Identificação Civil - OICs das unidades federativas e dos órgãos federais executores do Serviço de Identificação do Cidadão - SIC; Revoga o art. 2º da Resolução nº 9, de 7 de novembro de 2022, Câmara Executiva Federal de Identificação do Cidadão - Cefic, a Resolução nº 20, de 9 de setembro de 2024, da Cefic, a Resolução nº 23, de 5 de maio de 2025, da Cefic; O COORDENADOR DA CÂMARA-EXECUTIVA FEDERAL DE IDENTIFICAÇÃO DO CIDADÃO - CEFIC, no uso das atribuições que lhe confere o art. 6º, § 1º, inciso IV, do Regimento Interno da Cefic, aprovado pela Resolução nº 10, de 6 de abril de 2023, e considerando o disposto no art. 10 do Decreto nº 11.797, de 27 de novembro de 2023, bem como a deliberação da Cefic em reunião realizada em 15 de agosto de 2025, resolve: Art. 1º Fica instituído o Modelo Informacional da Carteira de Identidade Nacional - MI-CIN, como requisito de segurança, integridade e interoperabilidade do Serviço de Identificação do Cidadão - SIC. Parágrafo único. O conteúdo e as estruturas das informações que compõem o MI-CIN constam do Anexo desta resolução. Art. 2º O MI-CIN será de adoção obrigatória e atuação integrada para o compartilhamento de dados entre os Órgãos de Identificação Civil - OICs das unidades federativas e os órgãos executores do Serviço de Identificação do Cidadão - SIC. Art. 3º O MI-CIN será de adoção obrigatória e atuação integrada para o compartilhamento de dados entre os Órgãos de Identificação Civil - OICs das unidades federativas e os órgãos executores do Serviço de Identificação do Cidadão - SIC. § 1º A Secretaria-Executiva da Cefic prestará apoio técnico e fará o monitoramento da execução do cronograma de que trata o caput. § 2º O cronograma de implementação deverá ser executado na data limite de 5 de novembro de 2025, para cumprimento do disposto no art. 2º. Art. 4º Art. 4º Ficam revogados: I - o art. 2º da Resolução nº 9, de 7 de novembro de 2022, da Cefic; II - a Resolução nº 20, de 9 de setembro de 2024, da Cefic; e III - a Resolução nº 23, de 5 de maio de 2025, da Cefic. Art. 5º Esta Resolução entra em vigor na data da sua publicação. PEDRO HELENA PONTUAL MACHADO ANEXO MODELO INFORMACIONAL DA CARTEIRA DE IDENTIDADE NACIONAL - MI-CIN - Versão 1.0 Tabela I - Modelo Informacional da Carteira de Identidade Nacional - MI-CIN - Versão 1.0 Nível Ocorrência Seção/Item Tipo de Dado Conceito/Observações/Regras de negócio CIN física - papele cartão CIN digital - Wallet Gov.br Bases Legais 1 [1..1] Identificação do órgão expedidor Seção 2 [1..1] Órgão Expedidor / Card Texto Codificado Indica o nome do órgão que expede a CIN, conforme padrão da coluna \"Representação Texto variável, 37 caracteres por linha, máximo 2 linhas; Texto variável, 37 caracteres por linha, máximo 2 linhas; Art. 3º, c, da Lei nº 7.116/83;Art. 11, III, do Decreto Issuer na CIN\" da Tabela II. Fonte: Tahoma Bold 5pt; Cor Preta. Fonte: Tahoma Bold 4.8pt; Cor Preta. nº 10.977/2022;Art. 8°, III, da Lei Complementar nº 123/2006. 2 [0..1] Cargo do dirigente do órgão expedidor Caracteres alfanuméricos Nome do cargo do dirigente do órgão expedidor. Texto variável, máximo 18 caracteres; Fonte: Arial Regular 5pt; Cor Preta. Texto variável, máximo 18 caracteres; Fonte: Arial Regular 3.5pt; Cor Preta. 2 [1..1] Assinatura do Expedidor Imagem Imagem da assinatura do dirigente responsável pelo órgão expedidor (Tabela Imagem base64; Cor 500.000 caracteres Art. 3º, g, da Lei nº 7.116/83;Art. 11, VIII, do / Card Issuer Signature II). Preta. (png em base64). Decreto nº 10.977/22;Art. 3º-A, § 1º, IV, da Lei nº 13.977/2020. 1 [1..1] Caracterização da expedição Seção 2 [1..1] Ente federativo Texto codificado Indica o ente federativo que expediu a CIN, conforme padrão da coluna \"Representação Texto variável, máximo 29 caracteres; Fonte: Texto variável, máximo 29 caracteres; Fonte: Art. 3º, b, da Lei nº 7.116/83;Art. 11, II, do Decreto na CIN\" da Tabela III. Arial Bold 6pt, Cor Preta. Arial Bold 6pt, Cor Preta. nº 10.977/2022;Art. 3º-A, § 1º, IV, da Lei nº 13.977/2020. 2 [1..1] Data de Emissão / Issue Data Data de emissão/expedição da CIN, no Texto variável, no formato DD/MM/AAAA, máximo 10 caracteres; Texto variável, no formato DD/MM/AAAA, máximo 10 caracteres; Art. 3º, d, da Lei nº 7.116/83;Art. 11, X, do Decreto nº 10.977/2022. Date formato AAAA/MM/DD, conforme ISO 8601. Fonte: Tahoma Bold 5.5pt (papel); 5pt (cartão); Cor Preta. Fonte: Tahoma Bold 5pt; Cor Preta. 2 [1..1] Local / Place of Issue Texto codificado Código de 7 dígitos do município de expedição, conforme IBGE. Sem representação. Sem representação. Art 3º, d, da Lei nº 7.116/1983;Art. 11, X do Decreto nº 10.977/2022. 3 [1..1] Nome do município de Texto codificado Nome do município de expedição sem Texto variável, máximo 36 caracteres, em até 2 linhas; Fonte: Tahoma Bold; Tamanho da Fonte: Texto variável, máximo 36 caracteres, em até 2 linhas; Fonte: Tahoma Bold 5pt; Cor Preta. Art 3º, d, da Lei nº 7.116/1983;Art. 11, X, do Decreto nº 10.977/2022. expedição referência à UF, conforme descrição do código na Tabela do IBGE. 5pt; Cor Preta.Para municípios com mais de 36 caracteres, o elemento deve ser abreviado. 2 [0..1] Data de Validade / Date Data Data de validade do documento, no formato AAAA/MM/DD, conforme ISO 8601.Regra Negocial: A data de validade deve ser verificada com a data de nascimento. Para Texto variável, no formato DD/MM/AAAA, máximo 14 caracteres; Fonte: Tahoma Bold; Texto variável, no formato DD/MM/AAAA, máximo 14 caracteres; Fonte: Tahoma Bold Art. 3º, d, da Lei nº 7.116/1983;Art. 11, X, do Decreto nº 10.977/2022. of Expiry titulares maiores de 60 (sessenta) anos, indicar validade como \"Indeterminada\".Para os casos de \"Inexistência de Data de Nascimento na Certidão\", será indicada a validade de 5 anos. Tamanho da Fonte: 5pt; Cor Preta. 5pt; Cor Preta. 3 [0..1] Validade Indeterminada Booleano Indica a validade indeterminada para o titular maior de 60 (sessenta) anos. Texto variável, máximo 14 caracteres; Fonte: Tahoma Bold 5pt; Cor Preta. Texto variável, máximo 14 caracteres; Fonte: Tahoma Bold 5pt; Cor Preta. Art. 3º, d, da Lei nº 7.116/1983;Art. 11, X, do Decreto nº 10.977/2022. 2 [1..1] Identificador do Espelho Caracteres numéricos Identificador da CIN física, por um Texto variável, máximo 12 caracteres; Fonte: Sem representação. Manual da Carteira de Identidade Nacional - Projeto Gráfico e Elementos de sequencial alfanumérico de controle. Arial Bold 5pt; Cor Preta. Segurança - Ministério da Justiça e Segurança Pública. 1 [1..1] Identificador nacional Seção 2 [1..1] Registro Geral-CPF / Caracteres numéricos O identificador do cidadão é o número de inscrição do titular no CPF. Texto variável, máximo 14 caracteres; Fonte: Tahoma Bold 7.5pt; Cor Preta. Texto variável, máximo 14 caracteres, Fonte: Tahoma Bold 7.5pt; Cor Preta. Art.3º, h e seu § 1º, da Lei nº 7.116/83;Art. 3º do Decreto nº 10.977/2022; Personal Number Regra Negocial: Caso o cidadão não tenha CPF, ou necessita atualizar seus dados biográficos, os órgãos de identificação civil devem inscrever ou alterar CPF no Cadastro. CPF - Dígitos com mascaramento: xxx.xxx.xxx-xx CPF - Dígitos com mascaramento: xxx.xxx.xxx-xx Art.5° do Decreto nº 11.797/2023. 1 [1..1] Informações biográficas do titular Seção 2 [1..1] Prenome / Given names Caracteres alfanuméricos, alfabeto latino, padrão Indica o \"nome individual\" do titular.Regras Negociais:- O conjunto de caracteres válidos para nome consta na Tabela IV; Representação do nome completo. Representação do nome completo. ICAO 9303-4;Art. 11, XII, do Decreto nº 10.977/2022;Art. 148 da Lei nº 6.",
+      "orgao": "Presidência da República/Casa Civil/Câmara-Executiva Federal de Identificação do Cidadão",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "5",
+      "meta": {
+        "meta[property='og:title']": "RESOLUÇÃO Nº 24, de 8 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "f5dcb8dfdc789caea719c476abab523428fc4078"
+      },
+      "hash": "f5dcb8dfdc789caea719c476abab523428fc4078",
+      "data_publicacao_fallback": false
+    },
+    {
+      "titulo": "RESOLUÇÃO Nº 25, de 8 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+      "link": "/web/dou/-/resolucao-n-25-de-8-de-setembro-de-2025-655735204",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-n-25-de-8-de-setembro-de-2025-655735204",
+      "ementa": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 15",
+      "texto": "Publicado em: 15/09/2025 | Edição: 175 | Seção: 1 | Página: 15 Órgão: Presidência da República/Casa Civil/Câmara-Executiva Federal de Identificação do Cidadão RESOLUÇÃO Nº 25, de 8 DE SETEMBRO DE 2025 Institui e define a composição e as atribuições do Grupo de Trabalho Técnico 1 (GTT 1), para elaborar o planejamento das ações da Câmara-Executiva Federal de Identificação do Cidadão - Cefic. O COORDENADOR DA CÂMARA-EXECUTIVA FEDERAL DE IDENTIFICAÇÃO DO CIDADÃO - CEFIC, no uso das atribuições que lhe confere o art. 6º, § 1º, inciso IV, do Regimento Interno da Cefic, aprovado pela Resolução nº 10, de 6 de abril de 2023, e considerando o disposto no art. 10 do Decreto nº 11.797, de 27 de novembro de 2023, bem como a deliberação da Cefic em reunião realizada em 15 de agosto de 2025, resolve: Art. 1º Fica instituído o Grupo de Trabalho Técnico 1 (GTT 1), ao qual compete elaborar o planejamento das ações no âmbito da Cefic. Parágrafo único. O conteúdo e as estruturas das informações que compõem o MI-CIN constam do Anexo desta resolução. Art. 2º O GTT 1 será composto por representantes dos seguintes órgãos: I - um da Secretaria de Governo Digital do Ministério da Gestão e da Inovação em Serviços Públicos, que exercerá a coordenação; II - um do Instituto Nacional de Tecnologia da Informação, autarquia vinculada ao Ministério da Gestão e da Inovação em Serviços Públicos, que exercerá a suplência da coordenação; III - um do Ministério da Justiça e Segurança Pública; IV - um da Secretaria Especial da Receita Federal do Brasil, do Ministério da Fazenda; V - um do Ministério dos Direitos Humanos e da Cidadania; e VI - um do Ministério da Saúde. § 1º Cada membro do GTT 1 terá um suplente, que o substituirá em suas ausências e impedimentos. § 2º Os membros do GTT 1 e seus respectivos suplentes serão indicados pelos titulares dos órgãos que representam e designados em ato do Secretário de Governo Digital. Art. 3º O GTT 1 se reunirá mediante convocação do seu Coordenador. Parágrafo único. O quórum de reunião do GTT 1 é de maioria absoluta e o de aprovação, de maioria simples. Art. 4º O Coordenador do GTT 1 poderá convidar para participar de suas reuniões representantes dos órgãos e das entidades da administração pública federal, de outras instituições públicas e da sociedade civil, incluídos especialistas, sem direito a voto. Art. 5º A Secretaria-Executiva do GTT 1 será exercida pela Secretaria de Governo Digital do Ministério da Gestão e da Inovação em Serviços Públicos. Art. 6º O GTT 1 terá o prazo de seis meses, contado da data de publicação desta Resolução, para apresentação de planejamento ao Coordenador da Cefic. Art. 7º A participação no GTT 1 será considerada prestação de serviço público relevante, não remunerada. Art. 8º Esta Resolução entra em vigor na data de sua publicação. PEDRO HELENA PONTUAL MACHADO Este conteúdo não substitui o publicado na versão certificada.",
+      "orgao": "Presidência da República/Casa Civil/Câmara-Executiva Federal de Identificação do Cidadão",
+      "tipo_ato": null,
+      "secao": "Ícone Diário Completo",
+      "data_publicacao_raw": null,
+      "data_publicacao": null,
+      "pdf_url": null,
+      "edicao": "175",
+      "pagina": "15",
+      "meta": {
+        "meta[property='og:title']": "RESOLUÇÃO Nº 25, de 8 DE SETEMBRO DE 2025 - DOU - Imprensa Nacional",
+        "data_publicacao_fallback": false,
+        "hash": "ffbcd866f334b80adfd6147e1495412914f9960b"
+      },
+      "hash": "ffbcd866f334b80adfd6147e1495412914f9960b",
+      "data_publicacao_fallback": false
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+[
+  {
+    "hash": "bd02b9a7d71dac67a21b2758f11975bc491cc834c22edd9fa598fed97405aaa9",
+    "n2Count": 1,
+    "n1Count": 2,
+    "n1List": [
+      "Atos do Poder Legislativo",
+      "Atos do Poder Executivo"
+    ]
+  },
+  {
+    "hash": "5b85571ef0c7a1da413e532e2011e71b3a14b4c32f4b5c265fc0999af1b2cb89",
+    "n2Count": 2,
+    "n1Count": 5,
+    "n1List": [
+      "Ministério das Cidades",
+      "Ministério da Pesca e Aquicultura",
+      "Ministério da Previdência Social",
+      "Ministério das Relações Exteriores",
+      "Controladoria-Geral da União"
+    ]
+  },
+  {
+    "hash": "ccf6db36e7df52176aaacde1e9ef8d5d2fe02b1a9f6b2fe756dbbd0e31e2b197",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Defesa"
+    ]
+  },
+  {
+    "hash": "ce822428ed4705fde1a8fc02f71a5d6bcefa5032f1947f2ee4a8e71a400a1eb4",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério do Desenvolvimento Agrário e Agricultura Familiar"
+    ]
+  },
+  {
+    "hash": "fd87c8c60da2f909fbbdc3729e5519f491af71d44ff5707bcd6b72af74365cd0",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério do Meio Ambiente e Mudança do Clima"
+    ]
+  },
+  {
+    "hash": "8660938779ac139229a63e3d188ee0a835f2313909a31c0815542219d7e7a2c3",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério do Planejamento e Orçamento"
+    ]
+  },
+  {
+    "hash": "edeb8e030800ad1c4679d5bb4a64985505e4f0fd30c6efadd3953bbba8044453",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério Público da União"
+    ]
+  },
+  {
+    "hash": "cd6f8a1fb105039025a7e9ad35a8a76d160085053a99979aee7abae56e9632ce",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Tribunal de Contas da União"
+    ]
+  },
+  {
+    "hash": "34cb963ff87508eecd29ad648c94aa90d6c7dbdee5a7cfe581003c9a928a16d5",
+    "n2Count": 2,
+    "n1Count": 1,
+    "n1List": [
+      "Poder Judiciário"
+    ]
+  },
+  {
+    "hash": "d0c74e7add5c99f9f77690fa3573993dcc458cef1c27def04e13a4058ad8b3f4",
+    "n2Count": 3,
+    "n1Count": 1,
+    "n1List": [
+      "Presidência da República"
+    ]
+  },
+  {
+    "hash": "95ed0d68bbe9177690991bb496078e3a12b46e32f5ecd6689c0b88d177391ebc",
+    "n2Count": 3,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério de Portos e Aeroportos"
+    ]
+  },
+  {
+    "hash": "c6a146834d1d30669267206e375166c36ab323cc2b103716c575e35fa18bcb5b",
+    "n2Count": 3,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério dos Transportes"
+    ]
+  },
+  {
+    "hash": "aae9c554d4b330bd56cf073a6f7aed21641faa3c17d9f76944a4b38fdcd86b11",
+    "n2Count": 3,
+    "n1Count": 1,
+    "n1List": [
+      "Banco Central do Brasil"
+    ]
+  },
+  {
+    "hash": "1dafee2992315b1988f12081da6de1c63792631ed9f34f633d6a9c796ae009ea",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Agricultura e Pecuária"
+    ]
+  },
+  {
+    "hash": "ce180174924342c4b352f9aea437a22497f76f035fa89bb4fe0d98965e9b3c19",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Ciência, Tecnologia e Inovação"
+    ]
+  },
+  {
+    "hash": "8a2679845d47497588be8f4635b3aa74d39e93eba7d5f6b650c30e2c11418aa7",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+    ]
+  },
+  {
+    "hash": "72a64c809d1f9b195cac2a8ce1948eaa7a8cb1256cdac2a4e798b79ae8aa40d0",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Gestão e da Inovação em Serviços Públicos"
+    ]
+  },
+  {
+    "hash": "0003e685d67013ce626a067ba52b595819fd85fc0458b16be2ab06b70a6b0ac6",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Saúde"
+    ]
+  },
+  {
+    "hash": "0a485d78039342b5ceaa971d1b548208170ade40cd68816a80eb9e5cd9c0a14a",
+    "n2Count": 4,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério do Trabalho e Emprego"
+    ]
+  },
+  {
+    "hash": "2c5857e2d8557749f28867d591a8cd5e7ed65ad775d1931e0359d7c7eb9c6ec7",
+    "n2Count": 5,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Cultura"
+    ]
+  },
+  {
+    "hash": "a5c95eaf99a3c4a379e8ccc715b55fb141e81d37a39b5b035b36f709896b6915",
+    "n2Count": 5,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Integração e do Desenvolvimento Regional"
+    ]
+  },
+  {
+    "hash": "2d3cfade03e164fb062449e42990af1718a9ee160ed851ea54635513d1e08bce",
+    "n2Count": 5,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Justiça e Segurança Pública"
+    ]
+  },
+  {
+    "hash": "ee26b0108cb1fdc970a98eb7ec37bfdc4086880f29c8c88ac221a862f1675529",
+    "n2Count": 5,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério de Minas e Energia"
+    ]
+  },
+  {
+    "hash": "a8a3a780b79406777b6d57e304132ba0b19a40ea4682dba2f8b112a91cc68ad1",
+    "n2Count": 6,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério das Comunicações"
+    ]
+  },
+  {
+    "hash": "94741b10f514591a598baaf6917d8d9d50d2c4c70e8247b7ba07268555881abd",
+    "n2Count": 6,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Fazenda"
+    ]
+  },
+  {
+    "hash": "b1c7166b9dc221c6be3ca0c9f3f44c2fdee68ed16536c7ab6f80d5b222692495",
+    "n2Count": 7,
+    "n1Count": 1,
+    "n1List": [
+      "Entidades de Fiscalização do Exercício das Profissões Liberais"
+    ]
+  },
+  {
+    "hash": "e9444a04f93e41360aef106f91e9621afbcf6535563bf569c312a6712b8a6c46",
+    "n2Count": 13,
+    "n1Count": 1,
+    "n1List": [
+      "Ministério da Educação"
+    ]
+  },
+  {
+    "hash": "4e7d36444f40f8f12f44ee1a066cd525bf381f0e386473aa59563e3799754ff5",
+    "n2Count": 68,
+    "n1Count": 1,
+    "n1List": [
+      "Todos"
+    ]
+  }
+]

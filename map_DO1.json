@@ -1,0 +1,909 @@
+{
+  "scannedUrl": "https://www.in.gov.br/leiturajornal?data=12-09-2025&secao=DO1",
+  "timestamp": "2025-09-12T10:30:47",
+  "dropdowns": [
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 0,
+      "label": "Selecione o dia desejado",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 107,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
+        },
+        "attrs": {
+          "id": "slcOrgs",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Organização Principal"
+        },
+        "text": "Selecionar Organização PrincipalTodosAtos do Poder LegislativoAtos do Congresso NacionalAtos do Senado FederalPresidência da RepúblicaMinistério da Agricultura e PecuáriaMinistério das CidadesMinistério da Ciência, Tecnologia e InovaçãoMinistério das ComunicaçõesMinistério da CulturaMinistério da DefesaMinistério do Desenvolvimento Agrário e Agricultura FamiliarMinistério do Desenvolvimento e Assistência Social, Família e Combate à FomeMinistério do Desenvolvimento, Indústria, Comércio e ServiçosMinistério da EducaçãoMinistério do Empreendedorismo, da Microempresa e da Empresa de Pequeno PorteMinistério do EsporteMinistério da FazendaMinistério da Gestão e da Inovação em Serviços PúblicosMinistério da Igualdade RacialMinistério da Integração e do Desenvolvimento RegionalMinistério da Justiça e Segurança PúblicaMinistério do Meio Ambiente e Mudança do ClimaMinistério de Minas e EnergiaMinistério do Planejamento e OrçamentoMinistério de Portos e AeroportosMinistério da Previdência SocialMinistério da SaúdeMinistério do Trabalho e EmpregoMinistério dos TransportesBanco Central do BrasilControladoria-Geral da UniãoConselho Nacional do Ministério PúblicoMinistério Público da UniãoTribunal de Contas da UniãoEntidades de Fiscalização do Exercício das Profissões Liberais",
+        "cssPath": "select#slcOrgs",
+        "xpath": "//*[@id='slcOrgs']"
+      },
+      "options": [
+        {
+          "text": "Selecionar Organização Principal",
+          "value": "Selecionar Organização Principal",
+          "dataValue": null,
+          "dataIndex": 0
+        },
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "Atos do Poder Legislativo",
+          "value": "Atos do Poder Legislativo",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Atos do Congresso Nacional",
+          "value": "Atos do Congresso Nacional",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Atos do Senado Federal",
+          "value": "Atos do Senado Federal",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Presidência da República",
+          "value": "Presidência da República",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Ministério da Agricultura e Pecuária",
+          "value": "Ministério da Agricultura e Pecuária",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Ministério das Cidades",
+          "value": "Ministério das Cidades",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Ministério da Ciência, Tecnologia e Inovação",
+          "value": "Ministério da Ciência, Tecnologia e Inovação",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Ministério das Comunicações",
+          "value": "Ministério das Comunicações",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Ministério da Cultura",
+          "value": "Ministério da Cultura",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Ministério da Defesa",
+          "value": "Ministério da Defesa",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+          "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+          "value": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+          "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Ministério da Educação",
+          "value": "Ministério da Educação",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+          "value": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Ministério do Esporte",
+          "value": "Ministério do Esporte",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Ministério da Fazenda",
+          "value": "Ministério da Fazenda",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
+          "value": "Ministério da Gestão e da Inovação em Serviços Públicos",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Ministério da Igualdade Racial",
+          "value": "Ministério da Igualdade Racial",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Ministério da Integração e do Desenvolvimento Regional",
+          "value": "Ministério da Integração e do Desenvolvimento Regional",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Ministério da Justiça e Segurança Pública",
+          "value": "Ministério da Justiça e Segurança Pública",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Ministério do Meio Ambiente e Mudança do Clima",
+          "value": "Ministério do Meio Ambiente e Mudança do Clima",
+          "dataValue": null,
+          "dataIndex": 23
+        },
+        {
+          "text": "Ministério de Minas e Energia",
+          "value": "Ministério de Minas e Energia",
+          "dataValue": null,
+          "dataIndex": 24
+        },
+        {
+          "text": "Ministério do Planejamento e Orçamento",
+          "value": "Ministério do Planejamento e Orçamento",
+          "dataValue": null,
+          "dataIndex": 25
+        },
+        {
+          "text": "Ministério de Portos e Aeroportos",
+          "value": "Ministério de Portos e Aeroportos",
+          "dataValue": null,
+          "dataIndex": 26
+        },
+        {
+          "text": "Ministério da Previdência Social",
+          "value": "Ministério da Previdência Social",
+          "dataValue": null,
+          "dataIndex": 27
+        },
+        {
+          "text": "Ministério da Saúde",
+          "value": "Ministério da Saúde",
+          "dataValue": null,
+          "dataIndex": 28
+        },
+        {
+          "text": "Ministério do Trabalho e Emprego",
+          "value": "Ministério do Trabalho e Emprego",
+          "dataValue": null,
+          "dataIndex": 29
+        },
+        {
+          "text": "Ministério dos Transportes",
+          "value": "Ministério dos Transportes",
+          "dataValue": null,
+          "dataIndex": 30
+        },
+        {
+          "text": "Banco Central do Brasil",
+          "value": "Banco Central do Brasil",
+          "dataValue": null,
+          "dataIndex": 31
+        },
+        {
+          "text": "Controladoria-Geral da União",
+          "value": "Controladoria-Geral da União",
+          "dataValue": null,
+          "dataIndex": 32
+        },
+        {
+          "text": "Conselho Nacional do Ministério Público",
+          "value": "Conselho Nacional do Ministério Público",
+          "dataValue": null,
+          "dataIndex": 33
+        },
+        {
+          "text": "Ministério Público da União",
+          "value": "Ministério Público da União",
+          "dataValue": null,
+          "dataIndex": 34
+        },
+        {
+          "text": "Tribunal de Contas da União",
+          "value": "Tribunal de Contas da União",
+          "dataValue": null,
+          "dataIndex": 35
+        },
+        {
+          "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+          "value": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+          "dataValue": null,
+          "dataIndex": 36
+        }
+      ]
+    },
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 1,
+      "label": "Selecione o dia desejado",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 501.65625,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
+        },
+        "attrs": {
+          "id": "slcOrgsSubs",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Organização Subordinada"
+        },
+        "text": "Selecionar Organização SubordinadaTodos2ª CâmaraAgência Nacional de Energia ElétricaAgência Nacional de MineraçãoAgência Nacional de TelecomunicaçõesAgência Nacional de Transportes AquaviáriosAgência Nacional de Transportes TerrestresAgência Nacional de Vigilância SanitáriaAgência Nacional do CinemaAgência Nacional do Petróleo, Gás Natural e BiocombustíveisAtos do Procurador-Geral da RepúblicaCONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃOCONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBACaixa Econômica FederalComando da AeronáuticaComando do ExércitoComissão Intergestores Tripartite do Sistema Único de Assistência SocialComissão Técnica Nacional de BiossegurançaComissão de Valores MobiliáriosComitê Nacional de Manejo Integrado do FogoConselho Administrativo de Defesa EconômicaConselho Administrativo de Recursos FiscaisConselho Federal de Fisioterapia e Terapia OcupacionalConselho Federal de Medicina VeterináriaConselho Federal de OdontologiaConselho Federal de Profissionais de Relações PúblicasConselho Nacional de Controle de Experimentação AnimalConselho Nacional de Desenvolvimento Científico e TecnológicoConselho Nacional de SaúdeConselho Regional de Contabilidade do Espírito SantoConselho de GovernoCorregedoria Nacional do Ministério PúblicoCâmara de Comércio ExteriorDepartamento Nacional de Infraestrutura de TransportesDepartamento Nacional de Obras Contra as SecasEscola SuperiorFundo Nacional de Desenvolvimento da EducaçãoGabinete da MinistraGabinete do MinistroInstituto Brasileiro do Meio Ambiente e dos Recursos Naturais RenováveisInstituto Chico Mendes de Conservação da BiodiversidadeInstituto Federal de Educação, Ciência e Tecnologia de Mato GrossoInstituto Federal de Educação, Ciência e Tecnologia de RondôniaInstituto Nacional de Colonização e Reforma AgráriaInstituto Nacional de Estudos e Pesquisas Educacionais Anísio TeixeiraInstituto Nacional de Tecnologia da InformaçãoInstituto Nacional do Seguro SocialInstituto do Patrimônio Histórico e Artístico NacionalMinistério Público MilitarMinistério Público do TrabalhoPolícia FederalSecretaria Especial da Receita Federal do BrasilSecretaria ExecutivaSecretaria Nacional de JustiçaSecretaria Nacional de Microempresa e Empresa de Pequeno PorteSecretaria Nacional de Petróleo, Gás Natural e BiocombustíveisSecretaria Nacional de Proteção e Defesa CivilSecretaria Nacional de Transição Energética e PlanejamentoSecretaria de Desenvolvimento Industrial, Inovação, Comércio e ServiçosSecretaria de Inspeção do TrabalhoSecretaria de Orçamento FederalSecretaria de Prêmios e ApostasSecretaria de Qualificação, Emprego e RendaSecretaria de Regulação e Supervisão da Educação SuperiorSecretaria de Relações do TrabalhoSecretaria do Patrimônio da UniãoSecretaria do Tesouro NacionalSuperintendência Nacional de Previdência ComplementarSuperintendência da Zona Franca de ManausSuperintendência do Desenvolvimento do NordesteUniversidade Federal do Espírito SantoÁrea de AdministraçãoÁrea de Regulação",
+        "cssPath": "select#slcOrgsSubs",
+        "xpath": "//*[@id='slcOrgsSubs']"
+      },
+      "options": [
+        {
+          "text": "Selecionar Organização Subordinada",
+          "value": "Selecionar Organização Subordinada",
+          "dataValue": null,
+          "dataIndex": 0
+        },
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "2ª Câmara",
+          "value": "2ª Câmara",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Agência Nacional de Energia Elétrica",
+          "value": "Agência Nacional de Energia Elétrica",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Agência Nacional de Mineração",
+          "value": "Agência Nacional de Mineração",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Agência Nacional de Telecomunicações",
+          "value": "Agência Nacional de Telecomunicações",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Agência Nacional de Transportes Aquaviários",
+          "value": "Agência Nacional de Transportes Aquaviários",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Agência Nacional de Transportes Terrestres",
+          "value": "Agência Nacional de Transportes Terrestres",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Agência Nacional de Vigilância Sanitária",
+          "value": "Agência Nacional de Vigilância Sanitária",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Agência Nacional do Cinema",
+          "value": "Agência Nacional do Cinema",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+          "value": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Atos do Procurador-Geral da República",
+          "value": "Atos do Procurador-Geral da República",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
+          "value": "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
+          "value": "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Caixa Econômica Federal",
+          "value": "Caixa Econômica Federal",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Comando da Aeronáutica",
+          "value": "Comando da Aeronáutica",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Comando do Exército",
+          "value": "Comando do Exército",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Comissão Intergestores Tripartite do Sistema Único de Assistência Social",
+          "value": "Comissão Intergestores Tripartite do Sistema Único de Assistência Social",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Comissão Técnica Nacional de Biossegurança",
+          "value": "Comissão Técnica Nacional de Biossegurança",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Comissão de Valores Mobiliários",
+          "value": "Comissão de Valores Mobiliários",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Comitê Nacional de Manejo Integrado do Fogo",
+          "value": "Comitê Nacional de Manejo Integrado do Fogo",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Conselho Administrativo de Defesa Econômica",
+          "value": "Conselho Administrativo de Defesa Econômica",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Conselho Administrativo de Recursos Fiscais",
+          "value": "Conselho Administrativo de Recursos Fiscais",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Conselho Federal de Fisioterapia e Terapia Ocupacional",
+          "value": "Conselho Federal de Fisioterapia e Terapia Ocupacional",
+          "dataValue": null,
+          "dataIndex": 23
+        },
+        {
+          "text": "Conselho Federal de Medicina Veterinária",
+          "value": "Conselho Federal de Medicina Veterinária",
+          "dataValue": null,
+          "dataIndex": 24
+        },
+        {
+          "text": "Conselho Federal de Odontologia",
+          "value": "Conselho Federal de Odontologia",
+          "dataValue": null,
+          "dataIndex": 25
+        },
+        {
+          "text": "Conselho Federal de Profissionais de Relações Públicas",
+          "value": "Conselho Federal de Profissionais de Relações Públicas",
+          "dataValue": null,
+          "dataIndex": 26
+        },
+        {
+          "text": "Conselho Nacional de Controle de Experimentação Animal",
+          "value": "Conselho Nacional de Controle de Experimentação Animal",
+          "dataValue": null,
+          "dataIndex": 27
+        },
+        {
+          "text": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
+          "value": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
+          "dataValue": null,
+          "dataIndex": 28
+        },
+        {
+          "text": "Conselho Nacional de Saúde",
+          "value": "Conselho Nacional de Saúde",
+          "dataValue": null,
+          "dataIndex": 29
+        },
+        {
+          "text": "Conselho Regional de Contabilidade do Espírito Santo",
+          "value": "Conselho Regional de Contabilidade do Espírito Santo",
+          "dataValue": null,
+          "dataIndex": 30
+        },
+        {
+          "text": "Conselho de Governo",
+          "value": "Conselho de Governo",
+          "dataValue": null,
+          "dataIndex": 31
+        },
+        {
+          "text": "Corregedoria Nacional do Ministério Público",
+          "value": "Corregedoria Nacional do Ministério Público",
+          "dataValue": null,
+          "dataIndex": 32
+        },
+        {
+          "text": "Câmara de Comércio Exterior",
+          "value": "Câmara de Comércio Exterior",
+          "dataValue": null,
+          "dataIndex": 33
+        },
+        {
+          "text": "Departamento Nacional de Infraestrutura de Transportes",
+          "value": "Departamento Nacional de Infraestrutura de Transportes",
+          "dataValue": null,
+          "dataIndex": 34
+        },
+        {
+          "text": "Departamento Nacional de Obras Contra as Secas",
+          "value": "Departamento Nacional de Obras Contra as Secas",
+          "dataValue": null,
+          "dataIndex": 35
+        },
+        {
+          "text": "Escola Superior",
+          "value": "Escola Superior",
+          "dataValue": null,
+          "dataIndex": 36
+        },
+        {
+          "text": "Fundo Nacional de Desenvolvimento da Educação",
+          "value": "Fundo Nacional de Desenvolvimento da Educação",
+          "dataValue": null,
+          "dataIndex": 37
+        },
+        {
+          "text": "Gabinete da Ministra",
+          "value": "Gabinete da Ministra",
+          "dataValue": null,
+          "dataIndex": 38
+        },
+        {
+          "text": "Gabinete do Ministro",
+          "value": "Gabinete do Ministro",
+          "dataValue": null,
+          "dataIndex": 39
+        },
+        {
+          "text": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
+          "value": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
+          "dataValue": null,
+          "dataIndex": 40
+        },
+        {
+          "text": "Instituto Chico Mendes de Conservação da Biodiversidade",
+          "value": "Instituto Chico Mendes de Conservação da Biodiversidade",
+          "dataValue": null,
+          "dataIndex": 41
+        },
+        {
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
+          "value": "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
+          "dataValue": null,
+          "dataIndex": 42
+        },
+        {
+          "text": "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
+          "value": "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
+          "dataValue": null,
+          "dataIndex": 43
+        },
+        {
+          "text": "Instituto Nacional de Colonização e Reforma Agrária",
+          "value": "Instituto Nacional de Colonização e Reforma Agrária",
+          "dataValue": null,
+          "dataIndex": 44
+        },
+        {
+          "text": "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
+          "value": "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
+          "dataValue": null,
+          "dataIndex": 45
+        },
+        {
+          "text": "Instituto Nacional de Tecnologia da Informação",
+          "value": "Instituto Nacional de Tecnologia da Informação",
+          "dataValue": null,
+          "dataIndex": 46
+        },
+        {
+          "text": "Instituto Nacional do Seguro Social",
+          "value": "Instituto Nacional do Seguro Social",
+          "dataValue": null,
+          "dataIndex": 47
+        },
+        {
+          "text": "Instituto do Patrimônio Histórico e Artístico Nacional",
+          "value": "Instituto do Patrimônio Histórico e Artístico Nacional",
+          "dataValue": null,
+          "dataIndex": 48
+        },
+        {
+          "text": "Ministério Público Militar",
+          "value": "Ministério Público Militar",
+          "dataValue": null,
+          "dataIndex": 49
+        },
+        {
+          "text": "Ministério Público do Trabalho",
+          "value": "Ministério Público do Trabalho",
+          "dataValue": null,
+          "dataIndex": 50
+        },
+        {
+          "text": "Polícia Federal",
+          "value": "Polícia Federal",
+          "dataValue": null,
+          "dataIndex": 51
+        },
+        {
+          "text": "Secretaria Especial da Receita Federal do Brasil",
+          "value": "Secretaria Especial da Receita Federal do Brasil",
+          "dataValue": null,
+          "dataIndex": 52
+        },
+        {
+          "text": "Secretaria Executiva",
+          "value": "Secretaria Executiva",
+          "dataValue": null,
+          "dataIndex": 53
+        },
+        {
+          "text": "Secretaria Nacional de Justiça",
+          "value": "Secretaria Nacional de Justiça",
+          "dataValue": null,
+          "dataIndex": 54
+        },
+        {
+          "text": "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte",
+          "value": "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte",
+          "dataValue": null,
+          "dataIndex": 55
+        },
+        {
+          "text": "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
+          "value": "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
+          "dataValue": null,
+          "dataIndex": 56
+        },
+        {
+          "text": "Secretaria Nacional de Proteção e Defesa Civil",
+          "value": "Secretaria Nacional de Proteção e Defesa Civil",
+          "dataValue": null,
+          "dataIndex": 57
+        },
+        {
+          "text": "Secretaria Nacional de Transição Energética e Planejamento",
+          "value": "Secretaria Nacional de Transição Energética e Planejamento",
+          "dataValue": null,
+          "dataIndex": 58
+        },
+        {
+          "text": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
+          "value": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
+          "dataValue": null,
+          "dataIndex": 59
+        },
+        {
+          "text": "Secretaria de Inspeção do Trabalho",
+          "value": "Secretaria de Inspeção do Trabalho",
+          "dataValue": null,
+          "dataIndex": 60
+        },
+        {
+          "text": "Secretaria de Orçamento Federal",
+          "value": "Secretaria de Orçamento Federal",
+          "dataValue": null,
+          "dataIndex": 61
+        },
+        {
+          "text": "Secretaria de Prêmios e Apostas",
+          "value": "Secretaria de Prêmios e Apostas",
+          "dataValue": null,
+          "dataIndex": 62
+        },
+        {
+          "text": "Secretaria de Qualificação, Emprego e Renda",
+          "value": "Secretaria de Qualificação, Emprego e Renda",
+          "dataValue": null,
+          "dataIndex": 63
+        },
+        {
+          "text": "Secretaria de Regulação e Supervisão da Educação Superior",
+          "value": "Secretaria de Regulação e Supervisão da Educação Superior",
+          "dataValue": null,
+          "dataIndex": 64
+        },
+        {
+          "text": "Secretaria de Relações do Trabalho",
+          "value": "Secretaria de Relações do Trabalho",
+          "dataValue": null,
+          "dataIndex": 65
+        },
+        {
+          "text": "Secretaria do Patrimônio da União",
+          "value": "Secretaria do Patrimônio da União",
+          "dataValue": null,
+          "dataIndex": 66
+        },
+        {
+          "text": "Secretaria do Tesouro Nacional",
+          "value": "Secretaria do Tesouro Nacional",
+          "dataValue": null,
+          "dataIndex": 67
+        },
+        {
+          "text": "Superintendência Nacional de Previdência Complementar",
+          "value": "Superintendência Nacional de Previdência Complementar",
+          "dataValue": null,
+          "dataIndex": 68
+        },
+        {
+          "text": "Superintendência da Zona Franca de Manaus",
+          "value": "Superintendência da Zona Franca de Manaus",
+          "dataValue": null,
+          "dataIndex": 69
+        },
+        {
+          "text": "Superintendência do Desenvolvimento do Nordeste",
+          "value": "Superintendência do Desenvolvimento do Nordeste",
+          "dataValue": null,
+          "dataIndex": 70
+        },
+        {
+          "text": "Universidade Federal do Espírito Santo",
+          "value": "Universidade Federal do Espírito Santo",
+          "dataValue": null,
+          "dataIndex": 71
+        },
+        {
+          "text": "Área de Administração",
+          "value": "Área de Administração",
+          "dataValue": null,
+          "dataIndex": 72
+        },
+        {
+          "text": "Área de Regulação",
+          "value": "Área de Regulação",
+          "dataValue": null,
+          "dataIndex": 73
+        }
+      ]
+    },
+    {
+      "kind": "select",
+      "rootSelector": "select",
+      "roleIndex": 2,
+      "label": "Selecione o dia desejado",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 896.3125,
+          "y": 290.328125,
+          "width": 362.65625,
+          "height": 40
+        },
+        "attrs": {
+          "id": "slcTipo",
+          "class": "form-control leitura-filtro",
+          "placeholder": "Selecionar Tipo do Ato"
+        },
+        "text": "Selecionar Tipo do AtoTodosAcórdãoAlvaráAtaAtoAto DeclaratórioAutorizaçãoAviso de Consulta PúblicaCircularDecisãoDecreto LegislativoDeliberaçãoDespachoExtrato da AtaExtrato de Parecer TécnicoInstrução NormativaLeiMensagemPautaPortariaPortaria ConjuntaPortaria InterministerialRecomendaçãoResoluçãoRetificaçãoSolução de Consulta",
+        "cssPath": "select#slcTipo",
+        "xpath": "//*[@id='slcTipo']"
+      },
+      "options": [
+        {
+          "text": "Selecionar Tipo do Ato",
+          "value": "Selecionar Tipo do Ato",
+          "dataValue": null,
+          "dataIndex": 0
+        },
+        {
+          "text": "Todos",
+          "value": "0",
+          "dataValue": null,
+          "dataIndex": 1
+        },
+        {
+          "text": "Acórdão",
+          "value": "Acórdão",
+          "dataValue": null,
+          "dataIndex": 2
+        },
+        {
+          "text": "Alvará",
+          "value": "Alvará",
+          "dataValue": null,
+          "dataIndex": 3
+        },
+        {
+          "text": "Ata",
+          "value": "Ata",
+          "dataValue": null,
+          "dataIndex": 4
+        },
+        {
+          "text": "Ato",
+          "value": "Ato",
+          "dataValue": null,
+          "dataIndex": 5
+        },
+        {
+          "text": "Ato Declaratório",
+          "value": "Ato Declaratório",
+          "dataValue": null,
+          "dataIndex": 6
+        },
+        {
+          "text": "Autorização",
+          "value": "Autorização",
+          "dataValue": null,
+          "dataIndex": 7
+        },
+        {
+          "text": "Aviso de Consulta Pública",
+          "value": "Aviso de Consulta Pública",
+          "dataValue": null,
+          "dataIndex": 8
+        },
+        {
+          "text": "Circular",
+          "value": "Circular",
+          "dataValue": null,
+          "dataIndex": 9
+        },
+        {
+          "text": "Decisão",
+          "value": "Decisão",
+          "dataValue": null,
+          "dataIndex": 10
+        },
+        {
+          "text": "Decreto Legislativo",
+          "value": "Decreto Legislativo",
+          "dataValue": null,
+          "dataIndex": 11
+        },
+        {
+          "text": "Deliberação",
+          "value": "Deliberação",
+          "dataValue": null,
+          "dataIndex": 12
+        },
+        {
+          "text": "Despacho",
+          "value": "Despacho",
+          "dataValue": null,
+          "dataIndex": 13
+        },
+        {
+          "text": "Extrato da Ata",
+          "value": "Extrato da Ata",
+          "dataValue": null,
+          "dataIndex": 14
+        },
+        {
+          "text": "Extrato de Parecer Técnico",
+          "value": "Extrato de Parecer Técnico",
+          "dataValue": null,
+          "dataIndex": 15
+        },
+        {
+          "text": "Instrução Normativa",
+          "value": "Instrução Normativa",
+          "dataValue": null,
+          "dataIndex": 16
+        },
+        {
+          "text": "Lei",
+          "value": "Lei",
+          "dataValue": null,
+          "dataIndex": 17
+        },
+        {
+          "text": "Mensagem",
+          "value": "Mensagem",
+          "dataValue": null,
+          "dataIndex": 18
+        },
+        {
+          "text": "Pauta",
+          "value": "Pauta",
+          "dataValue": null,
+          "dataIndex": 19
+        },
+        {
+          "text": "Portaria",
+          "value": "Portaria",
+          "dataValue": null,
+          "dataIndex": 20
+        },
+        {
+          "text": "Portaria Conjunta",
+          "value": "Portaria Conjunta",
+          "dataValue": null,
+          "dataIndex": 21
+        },
+        {
+          "text": "Portaria Interministerial",
+          "value": "Portaria Interministerial",
+          "dataValue": null,
+          "dataIndex": 22
+        },
+        {
+          "text": "Recomendação",
+          "value": "Recomendação",
+          "dataValue": null,
+          "dataIndex": 23
+        },
+        {
+          "text": "Resolução",
+          "value": "Resolução",
+          "dataValue": null,
+          "dataIndex": 24
+        },
+        {
+          "text": "Retificação",
+          "value": "Retificação",
+          "dataValue": null,
+          "dataIndex": 25
+        },
+        {
+          "text": "Solução de Consulta",
+          "value": "Solução de Consulta",
+          "dataValue": null,
+          "dataIndex": 26
+        }
+      ]
+    }
+  ]
+}
