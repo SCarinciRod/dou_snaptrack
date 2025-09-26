@@ -3,11 +3,6 @@
 # Melhorias: seleção por rótulo, scroll robusto, captura edicao/pagina, faixa de datas,
 # dedup (state-file), boletim HTML/MD, e novo modo PLAN para gerar batch a partir do mapa (00).
 
-
-from docx import Document
-from docx.shared import Pt, RGBColor
-from docx.oxml.shared import OxmlElement, qn
-from docx.enum.text import WD_UNDERLINE
 import argparse
 import json
 import re
@@ -26,38 +21,88 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
-# ===== Seletores padrões usados ao mapear/abrir dropdowns =====
-DROPDOWN_ROOT_SELECTORS = [
-    "[role=combobox]",
-    "select",
-    "[aria-haspopup=listbox]",
-    "[aria-expanded][role=button]",
-    "div[class*=select]",
-    "div[class*=dropdown]",
-    "div[class*=combobox]",
-]
+# ==== Modular imports (refactor) ====
+# Preferir utilitários existentes no pacote dou_utils para reduzir duplicação.
+try:
+    # Resumo e normalização
+    from dou_utils.summary_utils import summarize_text as _summarize_text, normalize_text as _normalize_text
+except Exception:
+    _summarize_text = None
+    def _normalize_text(s: str) -> str:
+        s = unicodedata.normalize("NFKD", s)
+        s = s.encode("ascii", "ignore").decode("ascii")
+        return re.sub(r"\s+", " ", (s or "").strip().lower())
 
-LISTBOX_SELECTORS = [
-    "[role=listbox]",
-    "ul[role=listbox]",
-    "div[role=listbox]",
-    "ul[role=menu]",
-    "div[role=menu]",
-    ".ng-dropdown-panel",
-    ".p-dropdown-items",
-    ".select2-results__options",
-    ".rc-virtual-list",
-]
+try:
+    # Navegação básica de página e seleção de melhor frame
+    from dou_utils.page_utils import goto as _page_goto, close_cookies as _page_close_cookies, find_best_frame as _page_find_best_frame
+except Exception:
+    _page_goto = None
+    _page_close_cookies = None
+    _page_find_best_frame = None
 
-OPTION_SELECTORS = [
-    "[role=option]",
-    "li[role=option]",
-    ".ng-option",
-    ".p-dropdown-item",
-    ".select2-results__option",
-    "[data-value]",
-    "[data-index]",
-]
+try:
+    # Busca e coleta de links
+    from dou_utils.query_utils import apply_query as _apply_query_util, collect_links as _collect_links_util
+except Exception:
+    _apply_query_util = None
+    _collect_links_util = None
+
+try:
+    # Scraping de detalhe estruturado
+    from dou_utils.detail_utils import scrape_detail as _scrape_detail_util
+except Exception:
+    _scrape_detail_util = None
+
+try:
+    # Geração de boletim
+    from dou_utils.bulletin_utils import generate_bulletin as _generate_bulletin
+except Exception:
+    _generate_bulletin = None
+
+try:
+    # Planejamento a partir de mapa/pares
+    from dou_utils.services.planning_service import PlanFromMapService, PlanFromPairsService
+    from dou_utils.services.edition_runner_service import EditionRunnerService, EditionRunParams
+except Exception:
+    PlanFromMapService = None
+    PlanFromPairsService = None
+    EditionRunnerService = None
+    EditionRunParams = None
+
+try:
+    from dou_utils.selectors import DROPDOWN_ROOT_SELECTORS, LISTBOX_SELECTORS, OPTION_SELECTORS
+except Exception:
+    # Fallback local mínimo se módulo central não existir
+    DROPDOWN_ROOT_SELECTORS = (
+        "[role=combobox]",
+        "select",
+        "[aria-haspopup=listbox]",
+        "[aria-expanded][role=button]",
+        "div[class*=select]",
+        "div[class*=dropdown]",
+        "div[class*=combobox]",
+    )
+    LISTBOX_SELECTORS = (
+        "[role=listbox]",
+        "ul[role=listbox]",
+        "div[role=listbox]",
+        "ul[role=menu]",
+        "div[role=menu]",
+        ".ng-dropdown-panel",
+        ".p-dropdown-items",
+        ".select2-results__options",
+        ".rc-virtual-list",
+    )
+    OPTION_SELECTORS = (
+        "[role=option]",
+        "li[role=option]",
+        ".ng-option",
+        ".p-dropdown-item",
+        ".select2-results__option",
+        "[data-value]",
+        "[data-index]",
+    )
 
 def _setup_summary_globals(args):
     """
@@ -143,6 +188,13 @@ def fmt_date(date_str: Optional[str] = None) -> str:
     return datetime.now().strftime("%d-%m-%Y")
 
 def close_cookies(page) -> None:
+    """Delegado para dou_utils.page_utils.close_cookies quando disponível."""
+    if _page_close_cookies:
+        try:
+            return _page_close_cookies(page)
+        except Exception:
+            pass
+    # Fallback local (antigo)
     for texto in ["ACEITO", "ACEITAR", "OK", "ENTENDI", "CONCORDO", "FECHAR", "ACEITO TODOS"]:
         try:
             btn = page.get_by_role("button", name=re.compile(texto, re.I))
@@ -153,13 +205,18 @@ def close_cookies(page) -> None:
             pass
 
 def goto(page, data: str, secao: str) -> None:
-    # Monta URL de forma determinística (sem depender de BASE global)
+    """Abre a edição/Seção desejada usando utilitários centralizados quando possível."""
     url = f"https://www.in.gov.br/leiturajornal?data={data}&secao={secao}"
+    if _page_goto:
+        try:
+            return _page_goto(page, url)
+        except Exception:
+            pass
+    # Fallback local
     print(f"\n[Abrindo] {url}")
     page.goto(url, wait_until="domcontentloaded", timeout=90_000)
     page.wait_for_load_state("networkidle", timeout=90_000)
     close_cookies(page)
-    # Tentar "Visualizar em Lista" OU "Visualizar em Sumário" (regex correta)
     try:
         btn = page.get_by_role("button", name=re.compile(r"(lista|sum[aá]rio)", re.I))
         if btn.count() > 0 and btn.first.is_visible():
@@ -169,36 +226,15 @@ def goto(page, data: str, secao: str) -> None:
         pass
 
 def normalize_text(s: str) -> str:
-    if s is None:
-        return ""
-    s = unicodedata.normalize("NFKD", s)
-    s = s.encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"\s+", " ", s.strip().lower())
-
-def _best_key_for_option(opt: Dict[str, Any]) -> Tuple[str, Optional[str]]:
-    """
-    Decide a chave mais estável da opção para selecionar no site.
-    Preferência:
-      1) value
-      2) dataValue
-      3) id
-      4) dataId
-      5) dataIndex
-      6) text
-    Retorna (key_type, key_value).
-    """
-    if opt.get("value") not in (None, ""):
-        return ("value", str(opt["value"]))
-    if opt.get("dataValue") not in (None, ""):
-        return ("dataValue", str(opt["dataValue"]))
-    if opt.get("id"):
-        return ("id", opt["id"])
-    if opt.get("dataId"):
-        return ("dataId", opt["dataId"])
-    if opt.get("dataIndex") not in (None, ""):
-        return ("dataIndex", str(opt["dataIndex"]))
-    return ("text", (opt.get("text") or "").strip())
-
+    """Normalização delegada para dou_utils.summary_utils.normalize_text."""
+    try:
+        return _normalize_text(s)
+    except Exception:
+        if s is None:
+            return ""
+        s = unicodedata.normalize("NFKD", s)
+        s = s.encode("ascii", "ignore").decode("ascii")
+        return re.sub(r"\s+", " ", s.strip().lower())
 
 def _css_escape(s: str) -> str:
     # escape mínimo para IDs arbitrários
@@ -262,7 +298,7 @@ def _locate_root_by_id(frame, page, id_):
         pass
     return None
 
-def resolve_dropdown(level: int, frame, page, roots, label_regex: str = None, prefer_ids: list[str] | None = None):
+def resolve_dropdown(level: int, frame, page, roots, label_regex: Optional[str] = None, prefer_ids: Optional[List[str]] = None):
     """
     Resolve o dropdown do 'level' (1,2,3) com máxima robustez:
       1) IDs preferidos (frame e page) -> retorna root;
@@ -307,7 +343,7 @@ def origin_of(url: str) -> str:
     except Exception:
         return "https://www.in.gov.br"
 
-def abs_url(base_or_page_url: str, href: str) -> str:
+def abs_url(base_or_page_url: str, href: Optional[str]) -> str:
     if not href:
         return ""
     if href.startswith("http://") or href.startswith("https://"):
@@ -317,6 +353,13 @@ def abs_url(base_or_page_url: str, href: str) -> str:
 
 # ------------------------- Frames e roots -------------------------
 def find_best_frame(context):
+    """Usa utilitário padronizado quando disponível."""
+    if _page_find_best_frame:
+        try:
+            return _page_find_best_frame(context)
+        except Exception:
+            pass
+    # Fallback heurístico local
     page = context.pages[0]
     best = page.main_frame
     best_score = -1
@@ -580,14 +623,21 @@ def read_open_list_options(frame) -> List[Dict[str, Any]]:
     return uniq
 
 # ------------------------- <select> helpers -------------------------
-def is_select_root(root: Dict[str, Any]) -> bool:
+def is_select_root(root: Optional[Dict[str, Any]]) -> bool:
+    if not root:
+        return False
     try:
-        tag = root["handle"].evaluate("el => el.tagName && el.tagName.toLowerCase()")
-        if tag == "select":
-            return True
+        h = root.get("handle") if isinstance(root, dict) else None
+        if h is not None:
+            tag = h.evaluate("el => el.tagName && el.tagName.toLowerCase()")
+            if tag == "select":
+                return True
     except Exception:
         pass
-    return root.get("selector") == "select"
+    try:
+        return bool(isinstance(root, dict) and root.get("selector") == "select")
+    except Exception:
+        return False
 
 def read_select_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
     sel = root["handle"]
@@ -605,7 +655,7 @@ def read_select_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
     except Exception:
         return []
 
-def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -> bool:
+def select_by_key_select(frame, root: Optional[Dict[str, Any]], key: str, key_type: str) -> bool:
     """
     Seleciona opção em <select> nativo com robustez máxima:
       - Rebusca o elemento por id (frame e page) – o DOM pode ser recriado após N1/N2.
@@ -617,11 +667,15 @@ def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -
       - Fallback final: abre dropdown e clica em 'option' como se fosse combobox custom.
     """
     page = frame.page
+    if not root or not root.get("handle"):
+        return False
     target = "" if key is None else str(key)
     nkey = normalize_text(target)
 
     # (Re)descobrir o <select> por id (root pode estar stale)
     sel = root.get("handle")
+    if not sel:
+        return False
     try:
         _id = sel.get_attribute("id")
     except Exception:
@@ -649,11 +703,13 @@ def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -
     ref = _refetch_by_id(_id) if _id else None
     if ref is not None:
         sel = ref
+    if sel is None:
+        return False
 
     # Lê opções
     def _read_opts():
         try:
-            return sel.evaluate("""
+            return sel.evaluate(r"""
                 el => Array.from(el.options || []).map((o,i) => ({
                     text: (o.label || o.textContent || '').trim(),
                     value: o.value,
@@ -727,17 +783,17 @@ def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -
                 except Exception:
                     pass
 
-        # 4) Fallback JS (selectedIndex + change)
-        idx = -1
-        try:
-            idx = sel.evaluate(
-                """
+                # 4) Fallback JS (selectedIndex + change)
+                idx = -1
+                try:
+                        idx = sel.evaluate(
+                                r"""
                 (el, wnorm) => {
                   const opts = Array.from(el.options || []);
                   const norm = s => (s || '').normalize('NFKD')
                     .replace(/[^\x00-\x7F]/g,'')
                     .toLowerCase()
-                    .replace(/\s+/g,' ')
+                                        .replace(/\s+/g,' ')
                     .trim();
                   let found = -1;
                   for (let i=0; i<opts.length; i++){
@@ -752,11 +808,11 @@ def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -
                   }
                   return -1;
                 }
-                """,
-                nkey
-            )
-        except Exception:
-            idx = -1
+                                """,
+                                nkey
+                        )
+                except Exception:
+                        idx = -1
         if idx is not None and int(idx) >= 0:
             page.wait_for_load_state("networkidle", timeout=60_000)
             return True
@@ -808,8 +864,12 @@ def select_by_key_select(frame, root: Dict[str, Any], key: str, key_type: str) -
     return False
 
 # ------------------------- API unificada -------------------------
-def label_for_control(frame, root: Dict[str, Any]) -> str:
-    h = root["handle"]
+def label_for_control(frame, root: Optional[Dict[str, Any]]) -> str:
+    if not root or not isinstance(root, dict) or "handle" not in root or root.get("handle") is None:
+        return ""
+    h = root.get("handle")
+    if not h:
+        return ""
     try:
         aria = h.get_attribute("aria-label")
         if aria:
@@ -909,14 +969,16 @@ def find_dropdown_by_label(frame, roots, label_regex: Optional[str]):
 
     return None
 
-def read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
+def read_dropdown_options(frame, root: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if not root:
+        return []
     if is_select_root(root):
         return read_select_options(frame, root)
     if not open_dropdown(frame, root):
         return []
     return read_open_list_options(frame)
 
-def select_by_key(frame, root: Dict[str, Any], key: str, key_type: str) -> bool:
+def select_by_key(frame, root: Optional[Dict[str, Any]], key: str, key_type: str) -> bool:
     """
     Seleciona por chave em qualquer tipo de dropdown:
 
@@ -936,8 +998,8 @@ def select_by_key(frame, root: Dict[str, Any], key: str, key_type: str) -> bool:
             return True
         # fallback: tratar como custom
         try:
-            h = root["handle"]
-            if open_dropdown(frame, h):
+            h = root.get("handle") if isinstance(root, dict) else None
+            if h is not None and open_dropdown(frame, h):
                 container = get_listbox_container(frame) or get_listbox_container(page)
                 if container:
                     # usa o mesmo fluxo do custom logo abaixo
@@ -951,7 +1013,7 @@ def select_by_key(frame, root: Dict[str, Any], key: str, key_type: str) -> bool:
         return False
 
     # 2) Combobox custom
-    if not open_dropdown(frame, root["handle"]):
+    if not root or not open_dropdown(frame, root):
         return False
     container = get_listbox_container(frame) or get_listbox_container(page)
     if not container:
@@ -1073,6 +1135,13 @@ def _select_in_custom_from_options(frame, container, options: List[Dict[str, Any
 
 # ------------------------- Busca (query) -------------------------
 def apply_query(frame, query: Optional[str]) -> None:
+    """Aplica busca usando utilitário compartilhado quando disponível."""
+    if _apply_query_util:
+        try:
+            return _apply_query_util(frame, query or "")
+        except Exception:
+            pass
+    # Fallback local (mantém compatibilidade)
     if not query:
         return
     locs = [
@@ -1103,7 +1172,7 @@ def apply_query(frame, query: Optional[str]) -> None:
         pass
     try:
         sb.fill(query)
-    except PWTimeout:
+    except Exception:
         sb.evaluate(
             "(el, val) => { el.value = val; el.dispatchEvent(new Event('input',{bubbles:true})); }",
             query
@@ -1127,6 +1196,13 @@ def collect_links(
     scroll_pause_ms: int = 350,
     stable_rounds: int = 3,
 ) -> List[Dict[str, str]]:
+    """Coleta links usando utilitário compartilhado quando disponível."""
+    if _collect_links_util:
+        try:
+            return _collect_links_util(frame, max_links=max_links, max_scrolls=max_scrolls, scroll_pause_ms=scroll_pause_ms, stable_rounds=stable_rounds)
+        except Exception:
+            pass
+    # Fallback local
     page = frame.page
     container = page.locator("#hierarchy_content")
     anchors = container.locator('a[href*="/web/dou/"]') if container.count() > 0 else page.locator('a[href*="/web/dou/"]')
@@ -1151,20 +1227,20 @@ def collect_links(
         except Exception:
             pass
         page.wait_for_timeout(scroll_pause_ms)
-
+    items = []
     try:
-        items = page.evaluate(f"""
-            () => {{
-                const root = document.querySelector('#hierarchy_content') || document;
-                const anchors = Array.from(root.querySelectorAll('a[href*="/web/dou/"]'));
-                return anchors.slice(0, {max_links}).map(a => ({{
-                    titulo: (a.textContent || '').trim(),
-                    link: a.getAttribute('href') || ''
-                }})).filter(x => x.titulo && x.link);
-            }}
-        """)
+        total = anchors.count()
     except Exception:
-        items = []
+        total = 0
+    for i in range(min(total, max_links)):
+        a = anchors.nth(i)
+        try:
+            titulo = (a.text_content() or "").strip()
+            link = a.get_attribute("href") or ""
+            if titulo and link:
+                items.append({"titulo": titulo, "link": link})
+        except Exception:
+            continue
     return items
 
 # ------------------------- Detalhamento -------------------------
@@ -1261,165 +1337,44 @@ def collect_article_text(page, max_chars: int = 6000) -> str:
 
 
 def scrape_detail(context, url: str, timeout_ms: int = 60_000) -> Dict[str, Any]:
-    page = context.new_page()
-    data = {
-        "detail_url": url,
-        "titulo": None,
-        "ementa": None,
-        "orgao": None,
-        "tipo_ato": None,
-        "secao": None,
-        "data_publicacao": None,
-        "pdf_url": None,
-        "edicao": None,
-        "pagina": None,
-    }
+    """Scraping de detalhe delegado para dou_utils.detail_utils.scrape_detail.
+
+    Mantém o contrato de retorno esperado neste CLI, preenchendo 'hash' no topo
+    quando possível, e mantendo campos principais.
+    """
+    if _scrape_detail_util:
+        try:
+            data = _scrape_detail_util(context, url, timeout_ms=timeout_ms, capture_meta=True, advanced=True)
+            # Garantir 'hash' no nível raiz
+            h = None
+            try:
+                h = ((data.get("meta") or {}).get("hash"))
+            except Exception:
+                h = None
+            if not h:
+                base = (url or "") + "\n\n" + (data.get("titulo") or "")
+                h = hashlib.sha1(base.encode("utf-8")).hexdigest()
+            data["hash"] = h
+            return data
+        except Exception:
+            pass
+    # Fallback: nenhum util disponível -> retornar esqueleto mínimo
+    page = None
     try:
+        page = context.new_page()
         page.set_default_timeout(timeout_ms)
         page.goto(url, wait_until="domcontentloaded")
         page.wait_for_load_state("networkidle", timeout=timeout_ms)
-        close_cookies(page)
-
-        # Título
-        title_candidates = [
-            lambda: meta_content(page, 'meta[property="og:title"]'),
-            lambda: meta_content(page, 'meta[name="dc.title"]'),
-        ]
-        titulo = None
-        for get in title_candidates:
-            titulo = get()
-            if titulo:
-                break
-        if not titulo:
-            for sel in [
-                "article h1", "main article h1", "h1",
-                "article h2", "main article h2", "h2",
-                "[class*=titulo] h1, [class*=title] h1", "[class*=titulo], [class*=title]"
-            ]:
-                t = text_of(page.locator(sel))
-                if t:
-                    titulo = t
-                    break
-        if not titulo:
-            titulo = (page.title() or "").strip() or None
-        data["titulo"] = titulo
-
-        # Data de publicação
-        date_candidates = [
-            lambda: meta_content(page, 'meta[property="article:published_time"]'),
-            lambda: meta_content(page, 'meta[name="publicationDate"]'),
-            lambda: meta_content(page, 'meta[name="dc.date"]'),
-        ]
-        pub = None
-        for get in date_candidates:
-            pub = get()
-            if pub:
-                break
-        if not pub:
-            time_el = page.locator("time[datetime]").first
-            if time_el and time_el.count() > 0:
-                try:
-                    pub = time_el.get_attribute("datetime")
-                except Exception:
-                    pass
-        def norm_date(s: Optional[str]) -> Optional[str]:
-            if not s:
-                return None
-            ss = s.strip()
-            m = re.match(r"(\d{4})-(\d{2})-(\d{2})", ss)
-            if m:
-                return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
-            m = re.match(r"(\d{2})/(\d{2})/(\d{4})", ss)
-            if m:
-                return f"{m.group(3)}-{m.group(2)}-{m.group(1)}"
-            return ss
-
-        data["data_publicacao"] = norm_date(pub)
-
-        # Órgão / Tipo do ato
-        if not data["orgao"]:
-            data["orgao"] = find_dt_dd_value(page, r"(Órgão|Orgao)")
-        if not data["tipo_ato"]:
-            data["tipo_ato"] = find_dt_dd_value(page, r"(Tipo|Tipo do Ato)")
-
-        # Seção
-        if not data["secao"]:
-            try:
-                sec_link = page.locator('a[href*="secao=DO"]').first
-                stext = text_of(sec_link)
-                if stext:
-                    data["secao"] = stext
-            except Exception:
-                pass
-        if not data["secao"]:
-            alt = meta_content(page, 'meta[name="dc.subject"]')
-            if alt and re.search(r"DO[123]", alt):
-                data["secao"] = alt
-
-        # Ementa
-        for sel in ["article .texto p", "article p", "main article p", "div[class*=materia] p", "main p"]:
-            p = text_of(page.locator(sel))
-            if p and len(p) > 0:
-                data["ementa"] = p
-            # Texto completo (para resumo)
-            try:
-                full_txt = collect_article_text(page, max_chars=8000)
-                if full_txt and (not data.get("ementa") or len(full_txt) > len(data["ementa"])):
-                    data["texto"] = full_txt
-                else:
-                    data["texto"] = data.get("ementa") or ""
-            except Exception:
-                data["texto"] = data.get("ementa") or ""
-                break
-        # PDF
-        pdf = None
-        try:
-            pdfs = page.locator("a[href$='.pdf'], a[href*='.pdf?']")
-            kk = pdfs.count()
-        except Exception:
-            kk = 0
-        for i in range(min(kk, 30)):
-            a = pdfs.nth(i)
-            try:
-                href = a.get_attribute("href")
-                if href and (href.lower().endswith(".pdf") or ".pdf?" in href.lower()):
-                    pdf = abs_url(page.url, href)
-                    break
-            except Exception:
-                pass
-        if not pdf:
-            try:
-                vc = page.get_by_role("link", name=re.compile("VERS(Ã|A)O CERTIFICADA", re.I)).first
-                if vc and vc.count() > 0 and vc.is_visible():
-                    href = vc.get_attribute("href")
-                    if href:
-                        pdf = abs_url(page.url, href)
-            except Exception:
-                pass
-        data["pdf_url"] = pdf
-
-        # Edicao/Pagina
-        try:
-            body_text = text_of(page.locator("article")) or text_of(page.locator("main")) or (page.inner_text("body") or "")
-            m_ed = re.search(r"Edi[cç][aã]o\s*:\s*(\d+)", body_text, re.I)
-            m_pg = re.search(r"P[aá]gina\s*:\s*(\d+)", body_text, re.I)
-            if m_ed:
-                data["edicao"] = m_ed.group(1)
-            if m_pg:
-                data["pagina"] = m_pg.group(1)
-        except Exception:
-            pass
     except Exception:
         pass
     finally:
         try:
-            page.close()
+            if page:
+                page.close()
         except Exception:
             pass
-
-    base = (url or "") + "\n\n" + (data.get("titulo") or "")
-    data["hash"] = hashlib.sha1(base.encode("utf-8")).hexdigest()
-    return data
+    base = (url or "")
+    return {"detail_url": url, "titulo": None, "hash": hashlib.sha1(base.encode("utf-8")).hexdigest()}
 
 # ------------------------- Debug -------------------------
 def dump_debug(page, prefix="debug") -> None:
@@ -1472,7 +1427,7 @@ def flow_list(
         if not key1 or not key1_type:
             print("[Erro] Para listar nível 2, informe --key1-type e --key1.")
             sys.exit(1)
-        if not select_by_key(frame, r1, key1, key1_type):
+        if not select_by_key(frame, r1, str(key1), str(key1_type)):
             print(f"[Erro] Nível 1: não consegui selecionar {key1_type}='{key1}'.")
             if debug_dump:
                 dump_debug(page, "debug_list_select1_fail")
@@ -1493,7 +1448,7 @@ def flow_list(
         if not key2 or not key2_type:
             print("[Erro] Para listar nível 3, informe --key2-type e --key2.")
             sys.exit(1)
-        if not select_by_key(frame, r2, key2, key2_type):
+        if not select_by_key(frame, r2, str(key2), str(key2_type)):
             print(f"[Erro] Nível 2: não consegui selecionar {key2_type}='{key2}'.")
             if debug_dump:
                 dump_debug(page, "debug_list_select2_fail")
@@ -1533,290 +1488,77 @@ def flow_run(
     max_scrolls: int = 40, scroll_pause_ms: int = 350, stable_rounds: int = 3,
     state_file: Optional[str] = None, bulletin: Optional[str] = None, bulletin_out: Optional[str] = None
 ):
-    """Execução completa; resolve L1/L2/L3 com o mesmo algoritmo; L3 opcional; binds por ID no frame e na page."""
-    page = context.pages[-1] if context.pages else context.new_page()
-    result = {
-        "data": data,
-        "secao": secao,
-        "selecoes": [
-            {"level": 1, "type": key1_type, "key": key1},
-            {"level": 2, "type": key2_type, "key": key2},
-            {"level": 3, "type": key3_type, "key": key3},
-        ],
-        "query": query,
-        "total": 0,
-        "itens": [],
-        "enriquecido": False,
-    }
+    """Execução completa delegada para EditionRunnerService; este CLI apenas orquestra I/O."""
+    # Preparar summarizer adapter se disponível
+    summarizer = None
+    if _summarize_text:
+        _sum = _summarize_text
+        def _adapter(text: str, max_lines: int, mode: str, keywords: Optional[List[str]] = None) -> str:
+            return _sum(text, max_lines=max_lines, keywords=keywords, mode=mode)
+        summarizer = _adapter
 
-    def _save_and_return():
-        # garantir pasta do JSON
-        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(out_path).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"[OK] Links salvos em: {out_path} (total={result['total']})")
+    if not EditionRunnerService or not EditionRunParams:
+        raise RuntimeError("EditionRunnerService indisponível. Verifique dou_utils.services.edition_runner_service.")
 
-    try:
-        goto(page, data, secao)
-        frame = find_best_frame(context)
-        roots = collect_dropdown_roots(frame)
-        if len(roots) < 1:
-            print(f"[Info] Nenhuma edição/roots detectados para {data} {secao}. Pulando.")
-            _save_and_return(); return
+    runner = EditionRunnerService(context)
+    params = EditionRunParams(
+        date=str(data), secao=str(secao),
+        key1=str(key1), key1_type=str(key1_type),
+        key2=str(key2), key2_type=str(key2_type),
+        key3=str(key3) if key3 else None, key3_type=str(key3_type) if key3_type else None,
+        label1=label1, label2=label2, label3=label3,
+        query=query or "",
+        max_links=int(max_links),
+        max_scrolls=int(max_scrolls), scroll_pause_ms=int(scroll_pause_ms), stable_rounds=int(stable_rounds),
+        scrape_detail=bool(scrape_details), detail_timeout=int(detail_timeout),
+        fallback_date_if_missing=bool(fallback_date_if_missing),
+        dedup_state_file=state_file,
+        summary=bool(SUMMARY_LINES and SUMMARY_LINES > 0),
+        summary_lines=int(SUMMARY_LINES), summary_mode=str(SUMMARY_MODE), summary_keywords=SUMMARY_KEYWORDS,
+    )
 
-        # --- Nível 1 ---
-        roots = collect_dropdown_roots(frame)
-        r1 = resolve_dropdown(1, frame, page, roots, label1)
-        if not r1 or not select_by_key(frame, r1, key1, key1_type):
-            print(f"[Info] Nível 1: não consegui selecionar {key1_type}='{key1}'. Pulando.")
-            _save_and_return(); return
-        page.wait_for_load_state("networkidle", timeout=90_000)
+    result = runner.run(params, summarizer_fn=summarizer)
 
-        # --- Nível 2 ---
-        roots = collect_dropdown_roots(frame)
-        if len(roots) < 1:
-            print("[Info] Nível 2: roots ausentes após N1. Pulando.")
-            _save_and_return(); return
-        r2 = resolve_dropdown(2, frame, page, roots, label2)
-        if not r2 or not select_by_key(frame, r2, key2, key2_type):
-            print(f"[Info] Nível 2: não consegui selecionar {key2_type}='{key2}'. Pulando.")
-            _save_and_return(); return
-        page.wait_for_load_state("networkidle", timeout=90_000)
+    # Persistir resultado
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_path).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[OK] Links salvos em: {out_path} (total={result.get('total', 0)})")
 
-        # --- Nível 3 (OPCIONAL) ---
-        if key3 and key3_type:
-            roots = collect_dropdown_roots(frame)
-            r3 = resolve_dropdown(3, frame, page, roots, label3)
-            if r3:
-                if not select_by_key(frame, r3, key3, key3_type):
-                    print(f"[Info] Nível 3: não consegui selecionar {key3_type}='{key3}'. Pulando N3 e seguindo.")
-                else:
-                    page.wait_for_load_state("networkidle", timeout=90_000)
-            else:
-                print("[Info] Nível 3: root não encontrado. Pulando N3 e seguindo.")
-        else:
-            print("[Info] Nível 3 não informado — executando com L1+L2 apenas.")
-
-        # --- Query + coleta ---
-        apply_query(frame, query)
-        itens = collect_links(frame, max_links, max_scrolls=max_scrolls, scroll_pause_ms=scroll_pause_ms, stable_rounds=stable_rounds)
-
-        # --- Enriquecimento ---
-        enriched = itens
-        if scrape_details:
-            print(f"[Info] Enriquecendo {len(itens)} itens (timeout={detail_timeout} ms cada)...")
-            enriched = []
-            for it in itens:
-                detail_url = abs_url(page.url, it.get("link"))
-                try:
-                    meta = scrape_detail(context, detail_url, timeout_ms=detail_timeout)
-                except Exception:
-                    meta = {"detail_url": detail_url}
-
-                def is_bad_site_title(t: str) -> bool:
-                    return normalize_text(t) in {"imprensa nacional", ""}
-
-                titulo_list = it.get("titulo") or ""
-                titulo_det = (meta.get("titulo") or "").strip()
-                final_title = titulo_det if not is_bad_site_title(titulo_det) else titulo_list
-
-                data_pub = meta.get("data_publicacao")
-                if not data_pub and fallback_date_if_missing:
-                    try:
-                        dt = datetime.strptime(data, "%d-%m-%Y").date()
-                        data_pub = dt.strftime("%Y-%m-%d")
-                    except Exception:
-                        pass
-
-                enriched.append({
-                    **it, **meta,
-                    "titulo_listagem": titulo_list,
-                    "titulo_detalhe": titulo_det,
-                    "titulo": final_title,
-                    "detail_url": detail_url,
-                    "data_publicacao": data_pub or meta.get("data_publicacao"),
-                    "data_publicacao_fallback": (not meta.get("data_publicacao")) if scrape_details else False,
-                })
-
-        # --- Dedup ---
-        filtered = enriched
-        if state_file:
-            seen = set()
-            state_path = Path(state_file)
-            try:
-                if state_path.exists():
-                    for line in state_path.read_text(encoding="utf-8").splitlines():
-                        try:
-                            obj = json.loads(line)
-                            if "hash" in obj: seen.add(obj["hash"])
-                        except Exception: pass
-            except Exception: pass
-
-            new_items = []
-            for it in enriched:
-                h = it.get("hash")
-                if h and h in seen: continue
-                new_items.append(it)
-                if h: seen.add(h)
-            filtered = new_items
-
-            try:
-                if filtered:
-                    with state_path.open("a", encoding="utf-8") as f:
-                        for it in filtered:
-                            if it.get("hash"):
-                                f.write(json.dumps({"hash": it["hash"]}, ensure_ascii=False) + "\n")
-            except Exception:
-                pass
-
-        # --- Finaliza ---
-        result["total"] = len(filtered)
-        result["itens"] = filtered
-        result["enriquecido"] = bool(scrape_details)
-
-        _save_and_return()
-
-        if bulletin and bulletin_out:
-            # garantir pasta do boletim
-            Path(bulletin_out).parent.mkdir(parents=True, exist_ok=True)
-            try:
-                gen_bulletin(result, bulletin, bulletin_out)
-                print(f"[OK] Boletim gerado: {bulletin_out}")
-            except Exception as e:
-                print(f"[Aviso] Falha ao gerar boletim: {e}")
-
-    except Exception as e:
-        print(f"[Aviso] Falha inesperada no run: {e}")
-        if debug_dump:
-            try: dump_debug(page, "debug_run_unexpected")
-            except Exception: pass
-        _save_and_return()
+    # Boletim se solicitado
+    if bulletin and bulletin_out:
+        try:
+            gen_bulletin(result, bulletin, bulletin_out)
+            print(f"[OK] Boletim gerado: {bulletin_out}")
+        except Exception as e:
+            print(f"[Aviso] Falha ao gerar boletim: {e}")
 
 # ------------------------- Boletim -------------------------
 def gen_bulletin(result: Dict[str, Any], kind: str, out_path: str) -> None:
-    """
-    Gera boletim agrupado por órgão/tipo.
-    Suporta: "md", "html" e "docx".
-    """
-    from collections import defaultdict
-    from pathlib import Path
+    """Geração de boletim delegada para dou_utils.bulletin_utils.generate_bulletin.
 
-    # garantir pasta do boletim
+    Usa os parâmetros globais de resumo (SUMMARY_*)."""
+    if not _generate_bulletin:
+        raise RuntimeError("Geração de boletim requer dou_utils.bulletin_utils disponível.")
+    # garantir pasta
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-
-    groups = defaultdict(list)
-    for it in result.get("itens", []):
-        key = (it.get("orgao") or "Sem órgão", it.get("tipo_ato") or "Sem tipo")
-        groups[key].append(it)
-
-    date = result.get("data") or ""
-    secao = result.get("secao") or ""
-
-    def _mk_suffix(it: Dict[str, Any]) -> str:
-        extra = []
-        if it.get("data_publicacao"): extra.append(it["data_publicacao"])
-        if it.get("secao"): extra.append(it["secao"])
-        if it.get("edicao"): extra.append(f"Edição {it['edicao']}")
-        if it.get("pagina"): extra.append(f"p. {it['pagina']}")
-        return (" — " + " • ".join(extra)) if extra else ""
-
-    # ---- DOCX ----
-    if kind == "docx":
-        try:
-            from docx import Document
-            from docx.oxml import OxmlElement
-            from docx.oxml.ns import qn
-            from docx.opc.constants import RELATIONSHIP_TYPE as RT
-        except Exception as e:
-            raise RuntimeError("Saída DOCX requer o pacote 'python-docx'. Instale com: pip install python-docx") from e
-
-        def _add_hyperlink(paragraph, url: str, text: str, color="0000FF", underline=True):
-            r_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
-            hyperlink = OxmlElement('w:hyperlink')
-            hyperlink.set(qn('r:id'), r_id)
-            new_run = OxmlElement('w:r')
-            rPr = OxmlElement('w:rPr')
-            if color:
-                c = OxmlElement('w:color'); c.set(qn('w:val'), color); rPr.append(c)
-            if underline:
-                u = OxmlElement('w:u'); u.set(qn('w:val'), 'single'); rPr.append(u)
-            new_run.append(rPr)
-            t = OxmlElement('w:t'); t.text = text; new_run.append(t)
-            hyperlink.append(new_run)
-            paragraph._p.append(hyperlink)
-
-        doc = Document()
-        doc.add_heading(f"Boletim DOU — {date} ({secao})", 0)
-        for (org, tipo), arr in groups.items():
-            doc.add_heading(f"{org} — {tipo}", level=1)
-            for it in arr:
-                titulo = it.get("titulo") or it.get("titulo_listagem") or "Sem título"
-                durl = it.get("detail_url") or it.get("link") or ""
-                pdf = it.get("pdf_url") or ""
-                suffix = _mk_suffix(it)
-
-                p = doc.add_paragraph(style="List Bullet")
-                if durl: _add_hyperlink(p, durl, titulo)
-                else: p.add_run(titulo)
-                if pdf:
-                    p.add_run(" ["); _add_hyperlink(p, pdf, "PDF"); p.add_run("]")
-                if suffix: p.add_run(suffix)
-
-                base_text = it.get("texto") or it.get("ementa") or ""
-                if base_text:
-                    try:
-                        snippet = summarize_text(base_text, max_lines=SUMMARY_LINES, keywords=SUMMARY_KEYWORDS, mode=SUMMARY_MODE)
-                    except Exception:
-                        snippet = base_text
-                    snippet = (snippet or "").strip()
-                    if snippet:
-                        pr = doc.add_paragraph()
-                        r = pr.add_run("Resumo: "); r.bold = True
-                        pr.add_run(snippet)
-        doc.save(out_path)
-        return
-    
-    # ---- MARKDOWN ----
-    if kind == "md":
-        lines = [f"# Boletim DOU — {date} ({secao})", ""]
-        for (org, tipo), arr in groups.items():
-            lines += [f"## {org} — {tipo}", ""]
-            for it in arr:
-                t = it.get("titulo") or it.get("titulo_listagem") or ""
-                durl = it.get("detail_url") or it.get("link") or ""
-                pdf = it.get("pdf_url") or ""
-                suffix = _mk_suffix(it)
-                pdfpart = f" · PDF" if pdf else ""
-                link = f"{t}" if durl else t
-                lines.append(f"- {link}{pdfpart}{suffix}")
-                base_text = it.get("texto") or it.get("ementa") or ""
-                if base_text:
-                    try:
-                        snippet = summarize_text(base_text, max_sentences=SUMMARY_SENTENCES, keywords=SUMMARY_KEYWORDS)
-                    except Exception:
-                        snippet = base_text
-                    snippet = (snippet or "").strip()
-                    if snippet:
-                        lines.append(f"  \n _Resumo:_ {snippet}")
-                lines.append("")
-        Path(out_path).write_text("\n".join(lines), encoding="utf-8")
-        return
-    # ---- HTML ----
-    import html as htmllib
-    parts = [f"<h1>Boletim DOU — {htmllib.escape(date)} ({htmllib.escape(secao)})</h1>"]
-    for (org, tipo), arr in groups.items():
-        parts.append(f"<h2>{htmllib.escape(org)} — {htmllib.escape(tipo)}</h2><ul>")
-        for it in arr:
-            t = it.get("titulo") or it.get("titulo_listagem") or ""
-            durl = it.get("detail_url") or it.get("link") or ""
-            pdf = it.get("pdf_url") or ""
-            suffix = _mk_suffix(it)
-            title = htmllib.escape(t)
-            link = f'{htmllib.escape(durl)}{title}</a>' if durl else title
-            pdfhtml = f' · {htmllib.escape(pdf)}PDF</a>' if pdf else ""
-            parts.append(f"<li>{link}{pdfhtml}{htmllib.escape(suffix)}</li>")
-        parts.append("</ul>")
-    Path(out_path).write_text("\n".join(parts), encoding="utf-8")
-    return
+    summarize = True
+    # Adapter para alinhar a assinatura esperada (text, max_lines, mode, keywords)
+    summarizer = None
+    if _summarize_text:
+        _sum = _summarize_text  # capture non-Optional local
+        def _adapter(text: str, max_lines: int, mode: str, keywords: Optional[List[str]] = None) -> str:
+            return _sum(text, max_lines=max_lines, keywords=keywords, mode=mode)
+        summarizer = _adapter
+    _generate_bulletin(
+        result,
+        out_path,
+        kind=kind,
+        summarize=summarize,
+        summarizer=summarizer,
+        keywords=SUMMARY_KEYWORDS,
+        max_lines=SUMMARY_LINES,
+        mode=SUMMARY_MODE,
+    )
     
 # ------------------------- PLANEJAMENTO A PARTIR DO MAPA (00) -------------------------
 def _parse_secao_data_from_url(url: str) -> Tuple[Optional[str], Optional[str]]:
@@ -1978,14 +1720,9 @@ def plan_from_map(map_file: str, args) -> Dict[str, Any]:
       - Suporta --max-combos: corta o produto L1×L2 no limite desejado.
       - Diagnóstico (--plan-verbose): mostra roots/contagens/combos.
     """
-    mp = json.loads(Path(map_file).read_text(encoding="utf-8"))
-    scanned = mp.get("scannedUrl") or ""
-    secao_from_map, data_from_map = _parse_secao_data_from_url(scanned)
-    dropdowns = mp.get("dropdowns") or []
-    if not dropdowns:
-        raise RuntimeError("Mapa sem 'dropdowns'. Rode a 00 com --open-combos para capturar opções.")
-
-    v = bool(getattr(args, "plan_verbose", False))
+    # Esta função foi substituída pelo PlanFromMapService no modo plan.
+    # Mantida apenas por compatibilidade; caso chamada, orienta usar o serviço.
+    raise RuntimeError("plan_from_map foi substituída. Use PlanFromMapService via mode=plan.")
 
 def plan_from_pairs(pairs_file: str, args) -> Dict[str, Any]:
     """
@@ -2358,7 +2095,7 @@ def _clean_text_for_summary(text: str) -> str:
     return t.strip()
 
 def summarize_text(text: str,
-                   max_lines: int = None,
+                   max_lines: int = 7,
                    keywords: Optional[List[str]] = None,
                    mode: str = "center") -> str:
     """
@@ -2694,7 +2431,7 @@ def flow_batch(p, args):
                             scroll_pause  = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 350))
                             stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 3))
                             debug_dump    = bool(_get(job, "debug_dump", "debug_dump", False))
-                            scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", False))
+                            do_scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", False))
                             detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000))
                             fallback_date  = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
 
@@ -2740,7 +2477,7 @@ def flow_batch(p, args):
 
                             # --- Enriquecimento (opcional) ---
                             enriched = itens
-                            if scrape_detail:
+                            if do_scrape_detail:
                                 print(f"[Info] Enriquecendo {len(itens)} itens (timeout={detail_timeout} ms cada)...")
                                 enriched = []
                                 for it in itens:
@@ -2820,7 +2557,7 @@ def flow_batch(p, args):
                                 "query": job.get("query", ""),
                                 "total": len(filtered),
                                 "itens": filtered,
-                                "enriquecido": bool(scrape_detail),
+                                        "enriquecido": bool(do_scrape_detail),
                             }
                             out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
                             print(f"[OK] {out_path}")
@@ -2864,7 +2601,7 @@ def flow_batch(p, args):
                 label1 = job.get("label1"); label2 = job.get("label2")
 
                 max_links = int(_get(job, "max_links", "max_links", 30))
-                scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", True))
+                do_scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", True))
                 detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000))
                 fallback_date = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
                 debug_dump = bool(_get(job, "debug_dump", "debug_dump", False))
@@ -2899,13 +2636,13 @@ def flow_batch(p, args):
                     r1 = resolve_dropdown(1, frame, page, roots, label1)
                     if r1:
                         reset_dropdown(frame, r1)
-                    if not r1 or not select_by_key(frame, r1, key1, key1_type):
+                    if not r1 or not select_by_key(frame, r1, str(key1), str(key1_type)):
                         raise RuntimeError(f"N1 falhou: {key1_type}='{key1}'")
                     page.wait_for_load_state("networkidle", timeout=90_000)
 
                     roots = collect_dropdown_roots(frame)
                     r2 = resolve_dropdown(2, frame, page, roots, label2)
-                    if not r2 or not select_by_key(frame, r2, key2, key2_type):
+                    if not r2 or not select_by_key(frame, r2, str(key2), str(key2_type)):
                         raise RuntimeError(f"N2 falhou: {key2_type}='{key2}'")
                     page.wait_for_load_state("networkidle", timeout=90_000)
 
@@ -2919,7 +2656,7 @@ def flow_batch(p, args):
                     )
 
                     enriched = itens
-                    if scrape_detail:
+                    if do_scrape_detail:
                         print(f"[Info] Enriquecendo {len(itens)} itens (timeout={detail_timeout} ms cada)...")
                         enriched = []
                         for it in itens:
@@ -2996,7 +2733,7 @@ def flow_batch(p, args):
                         "query": query,
                         "total": len(filtered),
                         "itens": filtered,
-                        "enriquecido": bool(scrape_detail),
+                        "enriquecido": bool(do_scrape_detail),
                     }
                     out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
                     print(f"[OK] {out_path}")
@@ -3036,7 +2773,7 @@ def flow_batch(p, args):
     rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
 
-def flow_report(in_dir: str, kind: str, out_path: str, date_label: str = None, secao_label: str = None):
+def flow_report(in_dir: str, kind: str, out_path: str, date_label: Optional[str] = None, secao_label: Optional[str] = None):
     """
     Consolida todos os JSONs de 'in_dir' e gera um único boletim (docx/md/html).
     Usa gen_bulletin(result, kind, out_path).
@@ -3322,15 +3059,53 @@ def main():
             if args.mode == "plan":
                 if not args.map_file:
                     print("[Erro] --map-file obrigatório em mode=plan"); sys.exit(1)
-                # Se você já implementou plan_from_map(), descomente:
-                # cfg = plan_from_map(args.map_file, args)
-                # Path(args.plan_out).parent.mkdir(parents=True, exist_ok=True)
-                # Path(args.plan_out).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-                # print(f"[OK] Plano (map) gerado em: {args.plan_out} (combos={len(cfg.get('combos', []))})")
-                # if args.execute_plan:
-                #     args.config = args.plan_out
-                #     flow_batch(p, args)
-                print("[Aviso] plan_from_map ainda não está finalizado neste arquivo.")
+                if not PlanFromMapService:
+                    print("[Erro] Serviço de planejamento indisponível."); sys.exit(1)
+                try:
+                    svc = PlanFromMapService(args.map_file)
+                    # defaults básicos herdados dos argumentos atuais
+                    defaults = {
+                        "scrape_detail": bool(args.scrape_detail),
+                        "summary_lines": int(getattr(args, "summary_lines", 5) or 5),
+                        "summary_mode": getattr(args, "summary_mode", "center") or "center",
+                        "bulletin": args.bulletin or "docx",
+                        "bulletin_out": args.bulletin_out or "boletim_{secao}_{date}_{idx}.docx",
+                    }
+                    date_label = fmt_date(args.data)
+                    cfg = svc.build(
+                        label1_regex=args.label1,
+                        label2_regex=args.label2,
+                        select1=args.select1,
+                        pick1=args.pick1,
+                        limit1=args.limit1,
+                        select2=args.select2,
+                        pick2=args.pick2,
+                        limit2=args.limit2,
+                        max_combos=args.max_combos,
+                        secao=args.secao,
+                        date=date_label,
+                        defaults=defaults,
+                        query=args.query,
+                        enable_level3=bool(args.key3_type_default or args.select3 or args.pick3 or args.limit3),
+                        label3_regex=args.label3,
+                        select3=args.select3,
+                        pick3=args.pick3,
+                        limit3=args.limit3,
+                        filter_sentinels=True,
+                        dynamic_n2=False,
+                    )
+                    Path(args.plan_out).parent.mkdir(parents=True, exist_ok=True)
+                    Path(args.plan_out).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+                    print(f"[OK] Plano (map) gerado em: {args.plan_out} (combos={len(cfg.get('combos', []))})")
+                    if args.execute_plan:
+                        print("[Exec] Rodando batch com o plano recém-gerado...")
+                        args.config = args.plan_out
+                        flow_batch(p, args)
+                except Exception as e:
+                    print(f"[ERRO][plan] {e}")
+                    if getattr(args, "plan_verbose", False):
+                        raise
+                    sys.exit(1)
                 return
 
             print(f"[Erro] Modo desconhecido: {args.mode}")

@@ -15,7 +15,20 @@ import threading
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
-from .settings import SETTINGS
+try:
+    from .settings import SETTINGS  # optional
+except Exception:
+    class _LoggingFallback:
+        level = "INFO"
+        json = False
+        log_file = "logs/dou.log"
+        max_bytes = 1_048_576
+        backup_count = 3
+
+    class _SettingsFallback:
+        logging = _LoggingFallback()
+
+    SETTINGS = _SettingsFallback()
 
 _LOCK = threading.Lock()
 _CONFIGURED = False

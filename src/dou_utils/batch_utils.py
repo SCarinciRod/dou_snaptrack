@@ -27,11 +27,11 @@ logger = get_logger(__name__)
 # Configurações padrão caso SETTINGS não esteja disponível
 DEFAULT_MAX_FILENAME_LEN = 100
 
-# Tenta importar configurações globais
+# Tenta importar configurações globais (opcional)
 try:
-    from .settings import SETTINGS
+    from .settings import SETTINGS  # optional
     MAX_FILENAME_LEN = getattr(getattr(SETTINGS, "files", object()), "sanitize_max_filename_len", DEFAULT_MAX_FILENAME_LEN)
-except ImportError:
+except Exception:
     MAX_FILENAME_LEN = DEFAULT_MAX_FILENAME_LEN
 
 
@@ -59,7 +59,7 @@ def sanitize_filename(name: str, max_len: Optional[int] = None) -> str:
     ascii_name = ascii_name.strip()
 
     # Aplicar comprimento máximo (prioridade: argumento > config > default)
-    max_len = max_len or MAX_FILENAME_LEN
+    max_len = int(max_len) if isinstance(max_len, int) else int(MAX_FILENAME_LEN)
 
     # Substituir caracteres inválidos por underscore
     cleaned = _filename_re.sub("_", ascii_name)
@@ -88,7 +88,7 @@ def make_unique(name: str, existing: Set[str], max_len: Optional[int] = None) ->
     Returns:
         Nome único garantido
     """
-    max_len = max_len or MAX_FILENAME_LEN
+    max_len = int(max_len) if isinstance(max_len, int) else int(MAX_FILENAME_LEN)
     base = name
     
     # Se já é único, retornar diretamente

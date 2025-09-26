@@ -34,7 +34,13 @@ from ..element_utils import elem_common_info, label_for_control
 from ..dropdown_utils import _read_select_options, _is_select
 from ..selectors import DROPDOWN_ROOT_SELECTORS
 from ..log_utils import get_logger
-from ..settings import SETTINGS
+try:
+    from ..settings import SETTINGS  # optional
+except Exception:
+    class _DropdownFallback:
+        class dropdown:
+            max_per_type = 50
+    SETTINGS = _DropdownFallback()
 
 logger = get_logger(__name__)
 
