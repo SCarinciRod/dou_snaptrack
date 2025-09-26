@@ -1,0 +1,3 @@
+[console_scripts]
+dou-map-pairs = dou_snaptrack.cli.map_pairs:main
+dou-scan-page = dou_snaptrack.cli.map_page:main

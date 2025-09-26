@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: dou-snaptrack
+Version: 0.1.0
+Summary: Scanner e mapeadores do DOU (modularizados)
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: playwright>=1.45.0

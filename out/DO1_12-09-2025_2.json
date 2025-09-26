@@ -1,0 +1,29 @@
+{
+  "data": "12-09-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Presidência da República"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Câmara de Comércio Exterior"
+    }
+  ],
+  "query": "",
+  "total": 2,
+  "itens": [
+    {
+      "titulo": "RESOLUÇÃO GECEX Nº 787, DE 10 DE SETEMBRO DE 2025 (*)",
+      "link": "/web/dou/-/resolucao-gecex-n-787-de-10-de-setembro-de-2025-*-655166066"
+    },
+    {
+      "titulo": "RESOLUÇÃO GECEX Nº 788, DE 10 DE SETEMBRO DE 2025 (*)",
+      "link": "/web/dou/-/resolucao-gecex-n-788-de-10-de-setembro-de-2025-*-655227586"
+    }
+  ],
+  "enriquecido": false
+}

@@ -1,0 +1,65 @@
+{
+  "data": "12-09-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério da Agricultura e Pecuária"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Secretaria Executiva"
+    }
+  ],
+  "query": "",
+  "total": 11,
+  "itens": [
+    {
+      "titulo": "PORTARIA SFA-PB Nº 82, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sfa-pb-n-82-de-10-de-setembro-de-2025-655227502"
+    },
+    {
+      "titulo": "PORTARIA SFA-PB Nº 83, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sfa-pb-n-83-de-10-de-setembro-de-2025-655161023"
+    },
+    {
+      "titulo": "PORTARIA SFA-PB Nº 84, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sfa-pb-n-84-de-10-de-setembro-de-2025-655217817"
+    },
+    {
+      "titulo": "PORTARIA SFA-PB Nº 85, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sfa-pb-n-85-de-10-de-setembro-de-2025-655219257"
+    },
+    {
+      "titulo": "PORTARIA SFA-PB Nº 86, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sfa-pb-n-86-de-10-de-setembro-de-2025-655229729"
+    },
+    {
+      "titulo": "PORTARIA MAPA Nº 128, DE 9 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mapa-n-128-de-9-de-setembro-de-2025-655227268"
+    },
+    {
+      "titulo": "Portaria nº 995, de 9 de setembro de 2025",
+      "link": "/web/dou/-/portaria-n-995-de-9-de-setembro-de-2025-655222072"
+    },
+    {
+      "titulo": "Portaria nº 996, de 9 de setembro de 2025",
+      "link": "/web/dou/-/portaria-n-996-de-9-de-setembro-de-2025-655176306"
+    },
+    {
+      "titulo": "Portaria nº 997, de 9 de setembro de 2025",
+      "link": "/web/dou/-/portaria-n-997-de-9-de-setembro-de-2025-655228616"
+    },
+    {
+      "titulo": "PORTARIAS SFA-PR/MAPA DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portarias-sfa-pr/mapa-de-10-de-setembro-de-2025-655168740"
+    },
+    {
+      "titulo": "PORTARIAS SFA-PR/MAPA DE 11 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portarias-sfa-pr/mapa-de-11-de-setembro-de-2025-655220083"
+    }
+  ],
+  "enriquecido": false
+}

@@ -1,0 +1,29 @@
+{
+  "data": "12-09-2025",
+  "secao": "DO1",
+  "level": 2,
+  "label1": "Selecione o dia desejado",
+  "label2": "Selecione o dia desejado",
+  "key1": "Ministério das Cidades",
+  "key1_type": "text",
+  "options": [
+    {
+      "text": "Selecionar Organização Subordinada",
+      "value": "Selecionar Organização Subordinada",
+      "dataValue": null,
+      "dataIndex": 0
+    },
+    {
+      "text": "Todos",
+      "value": "0",
+      "dataValue": null,
+      "dataIndex": 1
+    },
+    {
+      "text": "Gabinete do Ministro",
+      "value": "Gabinete do Ministro",
+      "dataValue": null,
+      "dataIndex": 2
+    }
+  ]
+}

@@ -1,0 +1,2240 @@
+{
+  "scannedUrl": "https://www.gov.br/pt-br",
+  "timestamp": "2025-09-26T09:20:44",
+  "frames": [
+    {
+      "name": "",
+      "url": "https://www.gov.br/pt-br",
+      "isMain": true,
+      "comboboxCount": 1,
+      "selectCount": 0
+    },
+    {
+      "name": "",
+      "url": "https://agenciagov.ebc.com.br/embedgov_view",
+      "isMain": false,
+      "comboboxCount": 0,
+      "selectCount": 0
+    },
+    {
+      "name": "",
+      "url": "https://agenciagov.ebc.com.br/embedgov_view",
+      "isMain": false,
+      "comboboxCount": 0,
+      "selectCount": 0
+    },
+    {
+      "name": "",
+      "url": "",
+      "isMain": false,
+      "comboboxCount": 0,
+      "selectCount": 0
+    },
+    {
+      "name": "",
+      "url": "",
+      "isMain": false,
+      "comboboxCount": 0,
+      "selectCount": 0
+    }
+  ],
+  "dropdowns": [
+    {
+      "kind": "combobox",
+      "rootSelector": "role=combobox",
+      "roleIndex": 0,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 127,
+          "y": 214,
+          "width": 1112,
+          "height": 64
+        },
+        "attrs": {
+          "class": "aa-Autocomplete",
+          "role": "combobox",
+          "aria-haspopup": "listbox",
+          "aria-expanded": "false"
+        },
+        "text": "",
+        "cssPath": "div#govbr-busca-input > div:nth-of-type(2)",
+        "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]"
+      },
+      "options": []
+    },
+    {
+      "kind": "unknown",
+      "rootSelector": "[role=combobox]",
+      "roleIndex": 0,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 127,
+          "y": 214,
+          "width": 1112,
+          "height": 64
+        },
+        "attrs": {
+          "class": "aa-Autocomplete",
+          "role": "combobox",
+          "aria-haspopup": "listbox",
+          "aria-expanded": "false"
+        },
+        "text": "",
+        "cssPath": "div#govbr-busca-input > div:nth-of-type(2)",
+        "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]"
+      },
+      "options": []
+    },
+    {
+      "kind": "unknown",
+      "rootSelector": "[aria-haspopup=listbox]",
+      "roleIndex": 0,
+      "label": "",
+      "info": {
+        "visible": true,
+        "box": {
+          "x": 127,
+          "y": 214,
+          "width": 1112,
+          "height": 64
+        },
+        "attrs": {
+          "class": "aa-Autocomplete",
+          "role": "combobox",
+          "aria-haspopup": "listbox",
+          "aria-expanded": "false"
+        },
+        "text": "",
+        "cssPath": "div#govbr-busca-input > div:nth-of-type(2)",
+        "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]"
+      },
+      "options": []
+    }
+  ],
+  "elements": {
+    "searchbox": {
+      "count": 1,
+      "sampled": 1,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 128,
+            "y": 1,
+            "width": 1048,
+            "height": 62
+          },
+          "attrs": {
+            "id": "searchtext-input",
+            "class": "aa-Input",
+            "placeholder": "O que você procura?"
+          },
+          "text": null,
+          "cssPath": "input#searchtext-input",
+          "xpath": "//*[@id='searchtext-input']"
+        }
+      ]
+    },
+    "textbox": {
+      "count": 0,
+      "sampled": 0,
+      "items": []
+    },
+    "button": {
+      "count": 16,
+      "sampled": 16,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 1186,
+            "y": 11,
+            "width": 42,
+            "height": 42
+          },
+          "attrs": {
+            "class": "aa-SubmitButton"
+          },
+          "text": null,
+          "cssPath": "div#govbr-busca-input > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]/form/div[1]/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1150.25,
+            "y": 11,
+            "width": 37.75,
+            "height": 40
+          },
+          "attrs": {
+            "class": "btn-busca-por-voz",
+            "aria-label": "Pesquisar por voz"
+          },
+          "text": "",
+          "cssPath": "div#govbr-busca-input > div:nth-of-type(2) > form:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]/form/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1207,
+            "y": 848,
+            "width": 42,
+            "height": 42
+          },
+          "attrs": {
+            "class": "swiper-button-next",
+            "aria-label": "Próximo"
+          },
+          "text": "Próximo",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > button:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/button[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 117,
+            "y": 848,
+            "width": 42,
+            "height": 42
+          },
+          "attrs": {
+            "class": "swiper-button-prev swiper-button-disabled",
+            "aria-label": "Anterior"
+          },
+          "text": "Anterior",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > button:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/button[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 655,
+            "y": 1011.84375,
+            "width": 8,
+            "height": 8
+          },
+          "attrs": {
+            "class": "swiper-pagination-bullet swiper-pagination-bullet-active",
+            "role": "button",
+            "aria-label": "Go to slide 1"
+          },
+          "text": null,
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > span:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[2]/span[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 671,
+            "y": 1011.84375,
+            "width": 8,
+            "height": 8
+          },
+          "attrs": {
+            "class": "swiper-pagination-bullet",
+            "role": "button",
+            "aria-label": "Go to slide 2"
+          },
+          "text": null,
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > span:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[2]/span[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 687,
+            "y": 1011.84375,
+            "width": 8,
+            "height": 8
+          },
+          "attrs": {
+            "class": "swiper-pagination-bullet",
+            "role": "button",
+            "aria-label": "Go to slide 3"
+          },
+          "text": null,
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > span:nth-of-type(3)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[2]/span[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 703,
+            "y": 1011.84375,
+            "width": 8,
+            "height": 8
+          },
+          "attrs": {
+            "class": "swiper-pagination-bullet",
+            "role": "button",
+            "aria-label": "Go to slide 4"
+          },
+          "text": null,
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > span:nth-of-type(4)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[2]/span[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 854,
+            "y": 220,
+            "width": 25,
+            "height": 25
+          },
+          "attrs": {
+            "class": "br-button close circle small float-right",
+            "aria-label": "Cancelar"
+          },
+          "text": null,
+          "cssPath": "body:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/html/body/div[5]/div/div/div/div/div[1]/div[1]/div[1]/div/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 504,
+            "y": 640,
+            "width": 120,
+            "height": 30
+          },
+          "attrs": {
+            "class": "br-button secondary small reject-all",
+            "aria-label": "Rejeitar cookies"
+          },
+          "text": "Rejeitar cookies",
+          "cssPath": "body:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button:nth-of-type(2)",
+          "xpath": "/html/body/div[5]/div/div/div/div/div[2]/button[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 742,
+            "y": 640,
+            "width": 120,
+            "height": 30
+          },
+          "attrs": {
+            "class": "br-button secondary small btn-accept",
+            "aria-label": "Salvar"
+          },
+          "text": "Salvar",
+          "cssPath": "body:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > button:nth-of-type(3)",
+          "xpath": "/html/body/div[5]/div/div/div/div/div[2]/button[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 913.234375,
+            "y": -91.484375,
+            "width": 32,
+            "height": 32
+          },
+          "attrs": {
+            "class": "br-button circle small false langue-button svelte-18ap8dw",
+            "aria-label": "Alterar idioma"
+          },
+          "text": null,
+          "cssPath": "div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/div/header/div/div/div[2]/div[2]/div[1]/div/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 947.234375,
+            "y": -88.515625,
+            "width": 32,
+            "height": 32
+          },
+          "attrs": {
+            "class": "br-button circle small false false cookies svelte-ippqk1",
+            "aria-label": "Cookies"
+          },
+          "text": null,
+          "cssPath": "div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/div/header/div/div/div[2]/div[2]/div[2]/div/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 981.234375,
+            "y": -88.515625,
+            "width": 32,
+            "height": 32
+          },
+          "attrs": {
+            "class": "br-button circle small false false contrast-button svelte-ippqk1",
+            "aria-label": "Alto contraste"
+          },
+          "text": null,
+          "cssPath": "div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/div/header/div/div/div[2]/div[2]/div[3]/div/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1015.234375,
+            "y": -88.515625,
+            "width": 32,
+            "height": 32
+          },
+          "attrs": {
+            "class": "br-button circle small false false slideBarAnonima svelte-ippqk1",
+            "aria-label": "Sistemas."
+          },
+          "text": null,
+          "cssPath": "div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/div/header/div/div/div[2]/div[2]/div[4]/div/button"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1063.234375,
+            "y": -94,
+            "width": 195.765625,
+            "height": 40
+          },
+          "attrs": {
+            "class": "br-sign-in primary ml-2 false svelte-7keokj"
+          },
+          "text": "",
+          "cssPath": "div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+          "xpath": "/div/header/div/div/div[2]/div[3]/div/div/button"
+        }
+      ]
+    },
+    "link": {
+      "count": 154,
+      "sampled": 120,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 299.078125,
+            "y": -45,
+            "width": 150.09375,
+            "height": 40
+          },
+          "attrs": {},
+          "text": "Ir para o\n      Conteúdo\n      1",
+          "cssPath": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/nav/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 449.171875,
+            "y": -45,
+            "width": 177.265625,
+            "height": 40
+          },
+          "attrs": {},
+          "text": "Ir para a\n      Página Inicial\n      2",
+          "cssPath": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/nav/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 626.4375,
+            "y": -45,
+            "width": 157.546875,
+            "height": 40
+          },
+          "attrs": {},
+          "text": "Ir para o menu de\n      Navegação\n      3",
+          "cssPath": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(3)",
+          "xpath": "/html/body/nav/a[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 783.984375,
+            "y": -45,
+            "width": 113.6875,
+            "height": 40
+          },
+          "attrs": {},
+          "text": "Ir para a\n      Busca\n      4",
+          "cssPath": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(4)",
+          "xpath": "/html/body/nav/a[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 897.671875,
+            "y": -45,
+            "width": 169.25,
+            "height": 40
+          },
+          "attrs": {},
+          "text": "Ir para o\n      Mapa do site\n      5",
+          "cssPath": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(5)",
+          "xpath": "/html/body/nav/a[5]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 101.5,
+            "y": 28,
+            "width": 32,
+            "height": 32
+          },
+          "attrs": {
+            "class": "ico-navegacao toggle-main-navigation"
+          },
+          "text": "Abrir menu principal de navegação",
+          "cssPath": "header#site-header > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/header/div[2]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 137.5,
+            "y": 30,
+            "width": 360.65625,
+            "height": 30
+          },
+          "attrs": {},
+          "text": "Serviços e Informações do Brasil",
+          "cssPath": "header#site-header > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > h1:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/header/div[2]/div/div/h1/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 284,
+            "width": 514,
+            "height": 41
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "1\n                            \n                            \n                                Consultar Meu Imposto de Renda",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 340,
+            "width": 514,
+            "height": 41
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "2\n                            \n                            \n                                Assinatura Eletrônica",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 396,
+            "width": 514,
+            "height": 41
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "3\n                            \n                            \n                                Consultar restituição do imposto de renda",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(3)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 452,
+            "width": 514,
+            "height": 41
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "4\n                            \n                            \n                                Entregar Meu Imposto de Renda",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(4)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 508,
+            "width": 514,
+            "height": 41
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "5\n                            \n                            \n                                Consultar CPF",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(5)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[5]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 132,
+            "y": 564,
+            "width": 514,
+            "height": 20
+          },
+          "attrs": {
+            "class": "item-tile-servico-mais-acessados"
+          },
+          "text": "6\n                            \n                            \n                                Consultar dados do Cadastro Único",
+          "cssPath": "div#d8878bf7-f068-4bd0-aa20-283e0508ccad > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(6)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[1]/div/div/div[2]/a[6]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 720,
+            "y": 284,
+            "width": 514,
+            "height": 67
+          },
+          "attrs": {
+            "class": "item-tile-servico-destaque"
+          },
+          "text": "Trabalho, Emprego e Previdência\n                                \n\n                                \n                            \n\n                            \n                                Concurso Público Nacional Unificado 2\n                                \n                                 (CPNU2)",
+          "cssPath": "div#c0dad21a-5f08-443e-8df0-f191f16aa9df > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[2]/div/div/div[2]/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 720,
+            "y": 366,
+            "width": 514,
+            "height": 67
+          },
+          "attrs": {
+            "class": "item-tile-servico-destaque"
+          },
+          "text": "Agricultura e Pecuária\n                                \n\n                                Novo\n                            \n\n                            \n                                Consultar dados de imóveis rurais na plataforma Meu Imóvel Rural",
+          "cssPath": "div#c0dad21a-5f08-443e-8df0-f191f16aa9df > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[2]/div/div/div[2]/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 720,
+            "y": 448,
+            "width": 514,
+            "height": 67
+          },
+          "attrs": {
+            "class": "item-tile-servico-destaque"
+          },
+          "text": "Justiça e Segurança\n                                \n\n                                \n                            \n\n                            \n                                Celular Seguro",
+          "cssPath": "div#c0dad21a-5f08-443e-8df0-f191f16aa9df > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(3)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[2]/div/div/div[2]/a[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 720,
+            "y": 530,
+            "width": 514,
+            "height": 67
+          },
+          "attrs": {
+            "class": "item-tile-servico-destaque"
+          },
+          "text": "Educação e Pesquisa\n                                \n\n                                \n                            \n\n                            \n                                Fazer o Exame Nacional do Ensino Médio\n                                \n                                 (Enem)",
+          "cssPath": "div#c0dad21a-5f08-443e-8df0-f191f16aa9df > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(4)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[2]/div/div/div[2]/a[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 720,
+            "y": 612,
+            "width": 514,
+            "height": 51
+          },
+          "attrs": {
+            "class": "item-tile-servico-destaque"
+          },
+          "text": "Finanças, Impostos e Gestão Pública\n                                \n\n                                \n                            \n\n                            \n                                CONTRATA+BRASIL",
+          "cssPath": "div#c0dad21a-5f08-443e-8df0-f191f16aa9df > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(5)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[3]/div/div[2]/div/div/div[2]/a[5]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 167,
+            "y": 785,
+            "width": 344,
+            "height": 198.84375
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide swiper-slide-active"
+          },
+          "text": "Agricultor",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 511,
+            "y": 785,
+            "width": 344,
+            "height": 198.84375
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide swiper-slide-next"
+          },
+          "text": "Turista",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 855,
+            "y": 785,
+            "width": 344,
+            "height": 198.84375
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide"
+          },
+          "text": "Aposentado",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(3)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1199,
+            "y": 785,
+            "width": 344,
+            "height": 198
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide"
+          },
+          "text": "Empreendedor",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(4)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1543,
+            "y": 785,
+            "width": 344,
+            "height": 198
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide"
+          },
+          "text": "Trabalhador",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(5)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[5]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1887,
+            "y": 785,
+            "width": 344,
+            "height": 198
+          },
+          "attrs": {
+            "class": "item-tile-perfil-usuario swiper-slide"
+          },
+          "text": "Motorista",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > a:nth-of-type(6)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[1]/a[6]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 585.640625,
+            "y": 1051.84375,
+            "width": 194.71875,
+            "height": 38
+          },
+          "attrs": {
+            "class": "outstanding-link"
+          },
+          "text": "Todos os Perfis",
+          "cssPath": "div#bd1d3567-0b01-4c52-b1fc-27811db7399e > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[4]/div/div/div/div/div[2]/div[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 1113.84375,
+            "width": 1152,
+            "height": 414.71875
+          },
+          "attrs": {},
+          "text": "",
+          "cssPath": "div#bdcbeacd-00ee-44e7-b1e6-9682ba72a5a0 > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[6]/div/div/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 1552.5625,
+            "width": 1152,
+            "height": 414.71875
+          },
+          "attrs": {},
+          "text": "",
+          "cssPath": "div#f51ad801-b9ba-414a-bf50-033924c20d97 > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[9]/div/div/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 1991.28125,
+            "width": 564,
+            "height": 148.40625
+          },
+          "attrs": {},
+          "text": "",
+          "cssPath": "div#b5d73c53-a395-4e8a-8cce-b600b42e51ef > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[17]/div/div[1]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 695,
+            "y": 1991.28125,
+            "width": 564,
+            "height": 148.40625
+          },
+          "attrs": {},
+          "text": "",
+          "cssPath": "div#e3e952ff-5941-4f7b-b4c9-dc0869a8542e > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[17]/div/div[2]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 119,
+            "y": 2163.6875,
+            "width": 360,
+            "height": 237.59375
+          },
+          "attrs": {
+            "class": "imag"
+          },
+          "text": "",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[1]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 119,
+            "y": 2436.28125,
+            "width": 330.0625,
+            "height": 84
+          },
+          "attrs": {},
+          "text": "Lula instala Conselho Federal de Participação Social da Bacia do Rio Doce nesta sexta",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[1]/div/div/h2/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 503,
+            "y": 2163.6875,
+            "width": 360,
+            "height": 237.59375
+          },
+          "attrs": {
+            "class": "imag"
+          },
+          "text": "",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[2]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 503,
+            "y": 2436.28125,
+            "width": 333.984375,
+            "height": 84
+          },
+          "attrs": {},
+          "text": "Iphan libera R$ 15 milhões via Novo PAC para restaurar monumentos históricos em Recife",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[2]/div/div/h2/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 887,
+            "y": 2163.6875,
+            "width": 360,
+            "height": 237.59375
+          },
+          "attrs": {
+            "class": "imag"
+          },
+          "text": "",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[3]/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 887,
+            "y": 2436.28125,
+            "width": 333.21875,
+            "height": 84
+          },
+          "attrs": {},
+          "text": "Federal e Ibama desmontam grupo de extração ilegal de madeira em terra indígena",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > h2:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[3]/div/div/h2/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 582.609375,
+            "y": 2564.28125,
+            "width": 200.765625,
+            "height": 44
+          },
+          "attrs": {
+            "class": "outstanding-link"
+          },
+          "text": "Mais Notícias",
+          "cssPath": "div#dacff9dc-fc5a-4cb2-b977-b8f7cd356639 > div:nth-of-type(1) > div:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[18]/div/div/div/div/div[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 137,
+            "y": 2802.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Agricultura e Pecuária\n                            \n                                Serviços relacionados ao apoio e promoção à produção agrícola no país, exportação dos produtos agrícolas, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 421,
+            "y": 2802.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Assistência Social\n                            \n                                Serviços relacionados à proteção e assistência a indivíduos e comunidades em situação de vulnerabilidade, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 705,
+            "y": 2802.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Ciência e Tecnologia\n                            \n                                Serviços relacionados à assistência para pesquisas e empresas, fiscalização e promoção da ciência e tecnologia.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(3)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[3]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 989,
+            "y": 2802.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Comunicações e Transparência Pública\n                            \n                                Serviços relacionados à fiscalização e regulamentação do setor de telecomunicações, transparência e comunicação pública.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(4)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[4]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 137,
+            "y": 3086.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Cultura, Artes, História e Esportes\n                            \n                                Serviços relacionados ao apoio e promoção às artes e a cultura, a regularização do esporte, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(5)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[5]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 421,
+            "y": 3086.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Defesa Civil e Defesa Nacional\n                            \n                                Serviços relacionados ao alistamento e outras formas de ingresso na carreira militar, defesa civil, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(6)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[6]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 705,
+            "y": 3086.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Educação e Pesquisa\n                            \n                                Serviços destinados a quem deseja estudar no ensino superior, a servidores da educação pública, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(7)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[7]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 989,
+            "y": 3086.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Empresa, Indústria e Comércio\n                            \n                                Serviços relacionados a autorizações, cadastro e programas de apoio a empresas e indústrias, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(8)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[8]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 137,
+            "y": 3370.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Energia, Minerais e Combustíveis\n                            \n                                Serviços relacionados à prestação de energia elétrica, comercialização de minerais, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(9)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[9]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 421,
+            "y": 3370.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Finanças, Impostos e Gestão Pública\n                            \n                                Serviços relacionados a cadastro financeiros, fornecimento de bens e serviços à administração pública, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(10)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[10]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 705,
+            "y": 3370.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Justiça e Segurança\n                            \n                                Serviços relacionados ao controle de entrada no Brasil, policiamento de competência federal, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(11)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[11]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 989,
+            "y": 3370.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Meio Ambiente e Clima\n                            \n                                Serviços relacionados à proteção e cuidado com o meio ambiente, assim como ensino e pesquisas na área.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(12)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[12]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 137,
+            "y": 3654.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Saúde e Vigilância Sanitária\n                            \n                                Serviços relacionados ao apoio no atendimento e prevenção a problemas de saúde, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(13)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[13]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 421,
+            "y": 3654.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Trabalho, Emprego e Previdência\n                            \n                                Serviços relacionados à fiscalização e regulamentação do mercado de trabalho, benefícios previdenciários, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(14)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[14]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 705,
+            "y": 3654.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Infraestrutura, Trânsito e Transportes\n                            \n                                Serviços relacionados a infraestrutura, trânsito e transporte de pessoas e mercadorias por vias de administração federal, entre outros.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(15)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[15]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 989,
+            "y": 3654.78125,
+            "width": 240,
+            "height": 240
+          },
+          "attrs": {
+            "class": "list-item"
+          },
+          "text": "Viagens e Turismo\n                            \n                                Serviços relacionados a viagens e turismo, apoio a estrangeiros no Brasil e brasileiros no exterior.",
+          "cssPath": "div#ce5a7782-de6f-41a6-b0ab-7481622bd7d5 > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(16)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[21]/div/div/div/div/div[2]/a[16]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 586.28125,
+            "y": 4242.28125,
+            "width": 177.4375,
+            "height": 50
+          },
+          "attrs": {
+            "class": "btn-branco"
+          },
+          "text": "Mais Indicadores",
+          "cssPath": "div#d8978afb-92bd-4785-84df-1b1fc9d995fb > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[22]/div/div/div/div/div[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299.5,
+            "y": 4482.28125,
+            "width": 240,
+            "height": 248
+          },
+          "attrs": {
+            "class": "app-toggle-trigger"
+          },
+          "text": "",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 323.5,
+            "y": 4593.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "ios"
+          },
+          "text": "Baixar Meu SUS Digital na App Store",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[1]/div/div/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 323.5,
+            "y": 4639.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "android"
+          },
+          "text": "Meu SUS Digital disponível no Google Play",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[1]/div/div/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 563,
+            "y": 4482.28125,
+            "width": 240,
+            "height": 248
+          },
+          "attrs": {
+            "class": "app-toggle-trigger"
+          },
+          "text": "",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 587,
+            "y": 4545.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "ios"
+          },
+          "text": "Baixar gov.br na App Store",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[2]/div/div/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 587,
+            "y": 4591.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "android"
+          },
+          "text": "gov.br disponível no Google Play",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[2]/div/div/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 826.5,
+            "y": 4482.28125,
+            "width": 240,
+            "height": 248
+          },
+          "attrs": {
+            "class": "app-toggle-trigger"
+          },
+          "text": "",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 850.5,
+            "y": 4617.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "ios"
+          },
+          "text": "Baixar Carteira Digital de Trânsito na App Store",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[3]/div/div/a[1]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 850.5,
+            "y": 4663.28125,
+            "width": 144,
+            "height": 42
+          },
+          "attrs": {
+            "class": "android"
+          },
+          "text": "Carteira Digital de Trânsito disponível no Google Play",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[1]/div[3]/div/div/a[2]"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 551.8125,
+            "y": 4762.28125,
+            "width": 246.375,
+            "height": 50
+          },
+          "attrs": {
+            "class": "outstanding-link"
+          },
+          "text": "GALERIA DE APLICATIVOS",
+          "cssPath": "div#dd0f9931-b903-4237-8627-aee14f0e38ba > div:nth-of-type(1) > div:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[23]/div/div/div/div/div[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 125.4375,
+            "y": 5018.28125,
+            "width": 264.953125,
+            "height": 230
+          },
+          "attrs": {},
+          "text": "Denúncia",
+          "cssPath": "div#bf1d4e45-75d1-45ed-aeeb-13240c9bb1c2 > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[24]/div/div/div/div/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 408.828125,
+            "y": 5018.28125,
+            "width": 264.953125,
+            "height": 230
+          },
+          "attrs": {},
+          "text": "Solicitação",
+          "cssPath": "div#bf1d4e45-75d1-45ed-aeeb-13240c9bb1c2 > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[24]/div/div/div/div/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 692.21875,
+            "y": 5018.28125,
+            "width": 264.953125,
+            "height": 230
+          },
+          "attrs": {},
+          "text": "Elogio",
+          "cssPath": "div#bf1d4e45-75d1-45ed-aeeb-13240c9bb1c2 > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[24]/div/div/div/div/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 975.609375,
+            "y": 5018.28125,
+            "width": 264.953125,
+            "height": 230
+          },
+          "attrs": {},
+          "text": "Reclamações",
+          "cssPath": "div#bf1d4e45-75d1-45ed-aeeb-13240c9bb1c2 > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[24]/div/div/div/div/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 5276.28125,
+            "width": 1152,
+            "height": 234.1875
+          },
+          "attrs": {},
+          "text": "",
+          "cssPath": "div#fc0c81ee-bdfd-4bbb-b376-3fb4fe03e99e > div:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[25]/div/div/div/div/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Serviços",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 5794.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-protected hasDropDown"
+          },
+          "text": "Buscar serviços por",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[1]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 5824.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-protected hasDropDown"
+          },
+          "text": "Serviços por público alvo",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Temas em Destaque",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5794.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Orçamento Nacional",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5824.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Redes de Atendimento do Governo Federal",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5876.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Proteção de Dados Pessoais",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5928.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Serviços para Imigrantes",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 5958.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Política e Orçamento Educacionais",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6010.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Educação Profissional e Tecnológica",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6062.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Educação Profissional para Jovens e Adultos",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6114.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Trabalho e Emprego",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6144.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Serviços para Pessoas com Deficiência",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(9) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[9]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6196.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Combate à Discriminação Racial",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(10) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[10]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6248.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Política de Proteção Social",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(11) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[11]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6278.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Política para Mulheres",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(12) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[12]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6308.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Saúde Reprodutiva da Mulher",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(13) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[13]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6360.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Cuidados na Primeira Infância",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(14) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[14]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6412.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Habitação Popular",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(15) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[15]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6442.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Controle de Poluição e Resíduos Sólidos",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(2) > ul:nth-of-type(1) > li:nth-of-type(16) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[2]/ul/li[16]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Notícias",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5794.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Serviços para o cidadão",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5824.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Saúde",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5854.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Agricultura e Pecuária",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5884.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Cidadania e Assistência Social",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5936.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Ciência e Tecnologia",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5966.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Comunicação",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 5996.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Cultura e Esporte",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6026.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Economia e Gestão Pública",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6056.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Educação e Pesquisa",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(9) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[9]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6086.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Energia",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(10) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[10]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6116.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Forças Armadas e Defesa Civil",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(11) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[11]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6168.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Infraestrutura",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(12) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[12]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6198.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Justiça e Segurança",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(13) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[13]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6228.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Meio Ambiente",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(14) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[14]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6258.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Trabalho e Previdência",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(15) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[15]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6288.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Turismo",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(3) > ul:nth-of-type(1) > li:nth-of-type(16) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[3]/ul/li[16]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 683,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Galeria de Aplicativos",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 875,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Acompanhe o Planalto",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1067,
+            "y": 5746.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Navegação",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[6]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1067,
+            "y": 5794.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Acessibilidade",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[6]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1067,
+            "y": 5824.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Mapa do Site",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[6]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 1067,
+            "y": 5854.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Termo de Uso e Aviso de Privacidade",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(6) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[6]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 107,
+            "y": 6518.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Consultar minhas solicitações",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(7) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[7]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 299,
+            "y": 6518.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Órgãos do Governo",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(8) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[8]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6518.46875,
+            "width": 184,
+            "height": 48
+          },
+          "attrs": {
+            "class": "plain"
+          },
+          "text": "Por dentro do Gov.br",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6566.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Dúvidas Frequentes em relação ao Portal gov.br",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(1) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[1]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6618.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Dúvidas Frequentes da conta gov.br",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(2) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[2]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6670.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Ajuda para Navegar o Portal",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(3) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[3]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6700.46875,
+            "width": 184,
+            "height": 44
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Conheça os elementos do Portal",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(4) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[4]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6752.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Política de e-participação",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(5) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[5]/a"
+        },
+        {
+          "visible": true,
+          "box": {
+            "x": 491,
+            "y": 6782.46875,
+            "width": 184,
+            "height": 22
+          },
+          "attrs": {
+            "class": "state-published"
+          },
+          "text": "Termos de Uso",
+          "cssPath": "footer#portal-footer > div:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(9) > ul:nth-of-type(1) > li:nth-of-type(6) > a:nth-of-type(1)",
+          "xpath": "/html/body/div[2]/footer/div[1]/ul/li[9]/ul/li[6]/a"
+        }
+      ]
+    },
+    "listbox": {
+      "count": 0,
+      "sampled": 0,
+      "items": []
+    },
+    "option": {
+      "count": 0,
+      "sampled": 0,
+      "items": []
+    },
+    "haspopup": {
+      "count": 1,
+      "sampled": 1,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 127,
+            "y": 0,
+            "width": 1112,
+            "height": 64
+          },
+          "attrs": {
+            "class": "aa-Autocomplete",
+            "role": "combobox",
+            "aria-haspopup": "listbox",
+            "aria-expanded": "false"
+          },
+          "text": "",
+          "cssPath": "div#govbr-busca-input > div:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]"
+        }
+      ]
+    },
+    "expanded": {
+      "count": 1,
+      "sampled": 1,
+      "items": [
+        {
+          "visible": true,
+          "box": {
+            "x": 127,
+            "y": 0,
+            "width": 1112,
+            "height": 64
+          },
+          "attrs": {
+            "class": "aa-Autocomplete",
+            "role": "combobox",
+            "aria-haspopup": "listbox",
+            "aria-expanded": "false"
+          },
+          "text": "",
+          "cssPath": "div#govbr-busca-input > div:nth-of-type(2)",
+          "xpath": "/html/body/div[2]/div[1]/main/div[2]/div/div[1]/div/div/div/div/div/div/div[2]"
+        }
+      ]
+    }
+  }
+}

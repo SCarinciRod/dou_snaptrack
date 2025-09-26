@@ -1,0 +1,25 @@
+{
+  "data": "12-09-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Presidência da República"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Conselho de Governo"
+    }
+  ],
+  "query": "",
+  "total": 1,
+  "itens": [
+    {
+      "titulo": "DECISÕES DE 10 de Setembro de 2025",
+      "link": "/web/dou/-/decisoes-de-10-de-setembro-de-2025-655217894"
+    }
+  ],
+  "enriquecido": false
+}

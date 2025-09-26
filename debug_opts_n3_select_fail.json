@@ -1,0 +1,224 @@
+[
+  {
+    "text": "Selecionar Organização Principal",
+    "value": "Selecionar Organização Principal",
+    "dataValue": null,
+    "dataIndex": 0
+  },
+  {
+    "text": "Todos",
+    "value": "0",
+    "dataValue": null,
+    "dataIndex": 1
+  },
+  {
+    "text": "Atos do Poder Legislativo",
+    "value": "Atos do Poder Legislativo",
+    "dataValue": null,
+    "dataIndex": 2
+  },
+  {
+    "text": "Atos do Congresso Nacional",
+    "value": "Atos do Congresso Nacional",
+    "dataValue": null,
+    "dataIndex": 3
+  },
+  {
+    "text": "Atos do Senado Federal",
+    "value": "Atos do Senado Federal",
+    "dataValue": null,
+    "dataIndex": 4
+  },
+  {
+    "text": "Presidência da República",
+    "value": "Presidência da República",
+    "dataValue": null,
+    "dataIndex": 5
+  },
+  {
+    "text": "Ministério da Agricultura e Pecuária",
+    "value": "Ministério da Agricultura e Pecuária",
+    "dataValue": null,
+    "dataIndex": 6
+  },
+  {
+    "text": "Ministério das Cidades",
+    "value": "Ministério das Cidades",
+    "dataValue": null,
+    "dataIndex": 7
+  },
+  {
+    "text": "Ministério da Ciência, Tecnologia e Inovação",
+    "value": "Ministério da Ciência, Tecnologia e Inovação",
+    "dataValue": null,
+    "dataIndex": 8
+  },
+  {
+    "text": "Ministério das Comunicações",
+    "value": "Ministério das Comunicações",
+    "dataValue": null,
+    "dataIndex": 9
+  },
+  {
+    "text": "Ministério da Cultura",
+    "value": "Ministério da Cultura",
+    "dataValue": null,
+    "dataIndex": 10
+  },
+  {
+    "text": "Ministério da Defesa",
+    "value": "Ministério da Defesa",
+    "dataValue": null,
+    "dataIndex": 11
+  },
+  {
+    "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+    "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+    "dataValue": null,
+    "dataIndex": 12
+  },
+  {
+    "text": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+    "value": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
+    "dataValue": null,
+    "dataIndex": 13
+  },
+  {
+    "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+    "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+    "dataValue": null,
+    "dataIndex": 14
+  },
+  {
+    "text": "Ministério da Educação",
+    "value": "Ministério da Educação",
+    "dataValue": null,
+    "dataIndex": 15
+  },
+  {
+    "text": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+    "value": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
+    "dataValue": null,
+    "dataIndex": 16
+  },
+  {
+    "text": "Ministério do Esporte",
+    "value": "Ministério do Esporte",
+    "dataValue": null,
+    "dataIndex": 17
+  },
+  {
+    "text": "Ministério da Fazenda",
+    "value": "Ministério da Fazenda",
+    "dataValue": null,
+    "dataIndex": 18
+  },
+  {
+    "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
+    "value": "Ministério da Gestão e da Inovação em Serviços Públicos",
+    "dataValue": null,
+    "dataIndex": 19
+  },
+  {
+    "text": "Ministério da Igualdade Racial",
+    "value": "Ministério da Igualdade Racial",
+    "dataValue": null,
+    "dataIndex": 20
+  },
+  {
+    "text": "Ministério da Integração e do Desenvolvimento Regional",
+    "value": "Ministério da Integração e do Desenvolvimento Regional",
+    "dataValue": null,
+    "dataIndex": 21
+  },
+  {
+    "text": "Ministério da Justiça e Segurança Pública",
+    "value": "Ministério da Justiça e Segurança Pública",
+    "dataValue": null,
+    "dataIndex": 22
+  },
+  {
+    "text": "Ministério do Meio Ambiente e Mudança do Clima",
+    "value": "Ministério do Meio Ambiente e Mudança do Clima",
+    "dataValue": null,
+    "dataIndex": 23
+  },
+  {
+    "text": "Ministério de Minas e Energia",
+    "value": "Ministério de Minas e Energia",
+    "dataValue": null,
+    "dataIndex": 24
+  },
+  {
+    "text": "Ministério do Planejamento e Orçamento",
+    "value": "Ministério do Planejamento e Orçamento",
+    "dataValue": null,
+    "dataIndex": 25
+  },
+  {
+    "text": "Ministério de Portos e Aeroportos",
+    "value": "Ministério de Portos e Aeroportos",
+    "dataValue": null,
+    "dataIndex": 26
+  },
+  {
+    "text": "Ministério da Previdência Social",
+    "value": "Ministério da Previdência Social",
+    "dataValue": null,
+    "dataIndex": 27
+  },
+  {
+    "text": "Ministério da Saúde",
+    "value": "Ministério da Saúde",
+    "dataValue": null,
+    "dataIndex": 28
+  },
+  {
+    "text": "Ministério do Trabalho e Emprego",
+    "value": "Ministério do Trabalho e Emprego",
+    "dataValue": null,
+    "dataIndex": 29
+  },
+  {
+    "text": "Ministério dos Transportes",
+    "value": "Ministério dos Transportes",
+    "dataValue": null,
+    "dataIndex": 30
+  },
+  {
+    "text": "Banco Central do Brasil",
+    "value": "Banco Central do Brasil",
+    "dataValue": null,
+    "dataIndex": 31
+  },
+  {
+    "text": "Controladoria-Geral da União",
+    "value": "Controladoria-Geral da União",
+    "dataValue": null,
+    "dataIndex": 32
+  },
+  {
+    "text": "Conselho Nacional do Ministério Público",
+    "value": "Conselho Nacional do Ministério Público",
+    "dataValue": null,
+    "dataIndex": 33
+  },
+  {
+    "text": "Ministério Público da União",
+    "value": "Ministério Público da União",
+    "dataValue": null,
+    "dataIndex": 34
+  },
+  {
+    "text": "Tribunal de Contas da União",
+    "value": "Tribunal de Contas da União",
+    "dataValue": null,
+    "dataIndex": 35
+  },
+  {
+    "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+    "value": "Entidades de Fiscalização do Exercício das Profissões Liberais",
+    "dataValue": null,
+    "dataIndex": 36
+  }
+]

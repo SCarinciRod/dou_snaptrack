@@ -1,0 +1,18 @@
+{
+  "total_jobs": 10,
+  "ok": 10,
+  "fail": 0,
+  "items_total": 69,
+  "outputs": [
+    "out\\DO1_12-09-2025_1.json",
+    "out\\DO1_12-09-2025_2.json",
+    "out\\DO1_12-09-2025_3.json",
+    "out\\DO1_12-09-2025_4.json",
+    "out\\DO1_12-09-2025_5.json",
+    "out\\DO1_12-09-2025_6.json",
+    "out\\DO1_12-09-2025_7.json",
+    "out\\DO1_12-09-2025_8.json",
+    "out\\DO1_12-09-2025_9.json",
+    "out\\DO1_12-09-2025_10.json"
+  ]
+}

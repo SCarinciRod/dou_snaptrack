@@ -1,0 +1,134 @@
+{
+  "data": "12-09-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": false,
+    "fallback_date_if_missing": false,
+    "max_links": 30,
+    "max_scrolls": 40,
+    "scroll_pause_ms": 350,
+    "stable_rounds": 3,
+    "label1": null,
+    "label2": null,
+    "label3": null,
+    "debug_dump": false,
+    "summary_lines": 3,
+    "summary_mode": "center"
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Presidência da República",
+      "key2_type": "text",
+      "key2": "Conselho de Governo",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Presidência da República",
+      "key2_type": "text",
+      "key2": "Câmara de Comércio Exterior",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Agricultura e Pecuária",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Agricultura e Pecuária",
+      "key2_type": "text",
+      "key2": "Secretaria Executiva",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Cidades",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "key2_type": "text",
+      "key2": "Comissão Técnica Nacional de Biossegurança",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "key2_type": "text",
+      "key2": "Conselho Nacional de Controle de Experimentação Animal",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "key2_type": "text",
+      "key2": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Comunicações",
+      "key2_type": "text",
+      "key2": "Agência Nacional de Telecomunicações",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Cultura",
+      "key2_type": "text",
+      "key2": "Agência Nacional do Cinema",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    }
+  ],
+  "output": {
+    "pattern": "{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  }
+}

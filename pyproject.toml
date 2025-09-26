@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dou-snaptrack"
+version = "0.1.0"
+description = "Scanner e mapeadores do DOU (modularizados)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "playwright>=1.45.0",
+]
+
+[project.scripts]
+# Gera os comandos de terminal:
+# - dou-scan-page -> chama dou_snaptrack.cli.map_page:main
+# - dou-map-pairs -> chama dou_snaptrack.cli.map_pairs:main
+dou-scan-page = "dou_snaptrack.cli.map_page:main"
+dou-map-pairs = "dou_snaptrack.cli.map_pairs:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,65 @@
+{
+  "data": "12-09-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério das Cidades"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Gabinete do Ministro"
+    }
+  ],
+  "query": "",
+  "total": 11,
+  "itens": [
+    {
+      "titulo": "Instrução Normativa Nº 25, de 1º de agosto de 2025",
+      "link": "/web/dou/-/instrucao-normativa-n-25-de-1-de-agosto-de-2025-655227342"
+    },
+    {
+      "titulo": "Instrução Normativa Nº 30, de 8 de setembro de 2025",
+      "link": "/web/dou/-/instrucao-normativa-n-30-de-8-de-setembro-de-2025-655228451"
+    },
+    {
+      "titulo": "Instrução Normativa Nº 31, de 8 de setembro de 2025",
+      "link": "/web/dou/-/instrucao-normativa-n-31-de-8-de-setembro-de-2025-655176168"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.025, DE 8 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.025-de-8-de-setembro-de-2025-655164483"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.032, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.032-de-10-de-setembro-de-2025-655160927"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.033, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.033-de-10-de-setembro-de-2025-655227426"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.034, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.034-de-10-de-setembro-de-2025-655228540"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.035, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.035-de-10-de-setembro-de-2025-655164562"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 1.036, DE 10 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-1.036-de-10-de-setembro-de-2025-655160870"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 665, DE 7 DE JULHO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-665-de-7-de-julho-de-2025-655230291"
+    },
+    {
+      "titulo": "PORTARIA MCID Nº 877, DE 1º DE AGOSTO DE 2025",
+      "link": "/web/dou/-/portaria-mcid-n-877-de-1-de-agosto-de-2025-655219997"
+    }
+  ],
+  "enriquecido": false
+}
