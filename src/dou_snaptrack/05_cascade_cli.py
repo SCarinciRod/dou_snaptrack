@@ -108,6 +108,27 @@ except Exception:
     )
 
 try:
+    # Ações centrais de dropdown e seleção
+    from dou_utils.core.dropdown_actions import (
+        open_dropdown as _open_dropdown_core,
+        collect_native_options as _collect_native_options,
+        ensure_open_then_collect_custom as _ensure_open_collect,
+        select_by_text as _select_by_text,
+        select_by_value as _select_by_value,
+    )
+except Exception:
+    _open_dropdown_core = None
+    _collect_native_options = None
+    _ensure_open_collect = None
+    _select_by_text = None
+    _select_by_value = None
+
+try:
+    # Label centralizado por <label for>, aria-label, etc.
+    from dou_utils.element_utils import label_for_control as _label_for_control_util
+except Exception:
+    _label_for_control_util = None
+try:
     # Descoberta centralizada de dropdown roots
     from dou_utils.core.dropdown_discovery import discover_dropdown_roots as _discover_dropdown_roots
 except Exception:
@@ -598,67 +619,15 @@ def scroll_listbox_all(container, frame) -> None:
             frame.wait_for_timeout(80)
 
 def read_open_list_options(frame) -> List[Dict[str, Any]]:
-    """
-    Lê as opções do listbox aberto, varre provedores conhecidos,
-    rola até o final, e CAPTURA também 'id' e 'data-id' quando existirem,
-    além de text/value/dataValue/dataIndex.
-    """
-    container = get_listbox_container(frame)
-    if not container:
-        return []
-
-    # rola para materializar itens virtualizados
-    scroll_listbox_all(container, frame)
-
-    options = []
-    for sel in OPTION_SELECTORS:
+    """Delegado para utilitário central quando disponível."""
+    if _ensure_open_collect:
         try:
-            opts = container.locator(sel)
-            k = opts.count()
+            # Tenta coletar do listbox aberto; utilitário central cuida de abrir se necessário.
+            # Aqui, só coletamos se já estiver aberto.
+            return _ensure_open_collect(frame, None)  # handle None: implementações ignoram e usam aberto
         except Exception:
-            k = 0
-
-        for i in range(k):
-            o = opts.nth(i)
-            try:
-                if not o.is_visible():
-                    continue
-                text = (o.text_content() or "").strip()
-                val  = o.get_attribute("value")
-                dv   = o.get_attribute("data-value")
-                di   = o.get_attribute("data-index") or o.get_attribute("data-option-index") or str(i)
-                oid  = o.get_attribute("id")
-                did  = o.get_attribute("data-id") or o.get_attribute("data-key") or o.get_attribute("data-code")
-
-                # guarda tudo que acharmos
-                if text or val or dv or di or oid or did:
-                    options.append({
-                        "text": text,
-                        "value": val,
-                        "dataValue": dv,
-                        "dataIndex": di,
-                        "id": oid,
-                        "dataId": did
-                    })
-            except Exception:
-                pass
-
-    # dedupe por (id, dataId, text, value, dataValue, dataIndex)
-    seen = set()
-    uniq = []
-    for o in options:
-        key = (o.get("id"), o.get("dataId"), o.get("text"), o.get("value"), o.get("dataValue"), o.get("dataIndex"))
-        if key in seen:
-            continue
-        seen.add(key)
-        uniq.append(o)
-
-    try:
-        frame.page.keyboard.press("Escape")
-        frame.wait_for_timeout(100)
-    except Exception:
-        pass
-    return uniq
+            pass
+    return []
 
 # ------------------------- <select> helpers -------------------------
 def is_select_root(root: Optional[Dict[str, Any]]) -> bool:
@@ -776,6 +745,11 @@ def select_by_key_select(frame, root: Optional[Dict[str, Any]], key: str, key_ty
     # Tentativas
     try:
         if key_type == "value":
+            if _select_by_value:
+                ok = _select_by_value(sel, target)
+                if ok:
+                    page.wait_for_load_state("networkidle", timeout=60_000)
+                    return True
             sel.select_option(value=target)
             page.wait_for_load_state("networkidle", timeout=60_000)
             return True
@@ -798,6 +772,9 @@ def select_by_key_select(frame, root: Optional[Dict[str, Any]], key: str, key_ty
         if key_type == "text":
             # 1) label "exata"
             try:
+                if _select_by_text and _select_by_text(sel, target):
+                    page.wait_for_load_state("networkidle", timeout=60_000)
+                    return True
                 sel.select_option(label=target)
                 page.wait_for_load_state("networkidle", timeout=60_000)
                 return True
@@ -953,11 +930,15 @@ def find_dropdown_by_label(frame, roots, label_regex: Optional[str]):
     pat = re.compile(label_regex, re.I)
     want_norm = normalize_text(label_regex)
 
-    # 1) label formal (<label>)
-    for r in roots:
-        lab = label_for_control(frame, r) or ""
-        if pat.search(lab):
-            return r
+    # 1) label formal (<label>) usando utilitário central
+    if _label_for_control_util:
+        for r in roots:
+            try:
+                lab = _label_for_control_util(frame, r["handle"]) or ""
+            except Exception:
+                lab = ""
+            if pat.search(lab):
+                return r
 
     # 2) atributos do root
     def _attrs_text(h):
@@ -1008,12 +989,32 @@ def find_dropdown_by_label(frame, roots, label_regex: Optional[str]):
     return None
 
 def read_dropdown_options(frame, root: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Coleta opções de um dropdown, preferindo utilitários centrais."""
     if not root:
         return []
+    handle = root.get("handle") if isinstance(root, dict) else root
+    if _collect_native_options and _ensure_open_collect:
+        try:
+            opts = _collect_native_options(handle) or []
+            if opts:
+                return opts
+            return _ensure_open_collect(frame, handle) or []
+        except Exception:
+            pass
+    # Fallback local
     if is_select_root(root):
         return read_select_options(frame, root)
-    if not open_dropdown(frame, root):
-        return []
+    # Abrir via central se possível
+    if _open_dropdown_core:
+        if not _open_dropdown_core(frame, handle):
+            return []
+    else:
+        # Sem central, usar local caso ainda exista (compat)
+        try:
+            if not open_dropdown(frame, root):
+                return []
+        except Exception:
+            return []
     return read_open_list_options(frame)
 
 def select_by_key(frame, root: Optional[Dict[str, Any]], key: str, key_type: str) -> bool:
