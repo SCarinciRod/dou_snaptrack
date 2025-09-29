@@ -45,9 +45,12 @@ class EditionRunParams:
 class EditionRunnerService:
     def __init__(self, context):
         self.context = context
+        # Optional hooks for page reuse (set by caller)
+        self._precreated_page = None
+        self._keep_page_open = False
 
     def run(self, params: EditionRunParams, summarizer_fn: Optional[Callable] = None) -> Dict[str, Any]:
-        page = self.context.new_page()
+        page = self._precreated_page or self.context.new_page()
         page.set_default_timeout(60_000)
         page.set_default_navigation_timeout(60_000)
 
@@ -136,8 +139,9 @@ class EditionRunnerService:
             result["total"] = len(items)
             result["enriquecido"] = False
 
-        try:
-            page.close()
-        except Exception:
-            pass
+        if not self._keep_page_open:
+            try:
+                page.close()
+            except Exception:
+                pass
         return result

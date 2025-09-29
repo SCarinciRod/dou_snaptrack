@@ -27,7 +27,8 @@ def run_once(context, date: str, secao: str,
              label1: Optional[str], label2: Optional[str], label3: Optional[str],
              max_scrolls: int, scroll_pause_ms: int, stable_rounds: int,
              state_file: Optional[str], bulletin: Optional[str], bulletin_out: Optional[str],
-             summary: SummaryConfig) -> Dict[str, Any]:
+             summary: SummaryConfig,
+             page=None, keep_page_open: bool = False) -> Dict[str, Any]:
 
     try:
         EditionRunnerService, EditionRunParams = get_edition_runner()
@@ -52,6 +53,14 @@ def run_once(context, date: str, secao: str,
         summary_lines=int(summary.lines), summary_mode=str(summary.mode), summary_keywords=summary.keywords,
     )
 
+    # If page reuse is requested, inject the existing page into the service if it supports it.
+    # Our EditionRunnerService opens/closes its own page; to reuse, we can set a duck-typed attribute the service checks.
+    if page is not None:
+        try:
+            setattr(runner, "_precreated_page", page)
+            setattr(runner, "_keep_page_open", bool(keep_page_open))
+        except Exception:
+            pass
     result = runner.run(params, summarizer_fn=summarizer)
 
     # Persist JSON
