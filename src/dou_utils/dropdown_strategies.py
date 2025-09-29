@@ -50,7 +50,7 @@ def _listbox_present(frame) -> bool:
     return False
 
 
-def open_dropdown_robust(frame, locator, strategy_order: Iterable[str] = None, delay_ms: int = 120) -> bool:
+def open_dropdown_robust(frame, locator, strategy_order: Optional[Iterable[str]] = None, delay_ms: int = 120) -> bool:
     """
     Try multiple strategies to open a dropdown-like widget.
 

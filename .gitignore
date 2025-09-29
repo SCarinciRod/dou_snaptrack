@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# VS Code
+.vscode/
+
+# Environments
+.venv/
+.env
+
+# Playwright
+playwright-report/
+playwright/.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local outputs and logs
+logs/
+out_*/
+*.json
+boletim.md
+
+# Cache
+*.cache/
+*.log
+
+# Project-specific
+src/dou_snaptrack.egg-info/

@@ -2,18 +2,39 @@ from __future__ import annotations
 from typing import Dict, Any, Optional
 import re
 
+# Prefer dou_utils implementations when available, fallback to local
+try:
+    from dou_utils.page_utils import find_best_frame as _du_find_best_frame  # type: ignore
+except Exception:
+    _du_find_best_frame = None
+
+try:
+    from dou_utils.dropdown_utils import _is_select as _du_is_select, _read_select_options as _du_read_select_options  # type: ignore
+except Exception:
+    _du_is_select = None
+    _du_read_select_options = None
+
+
 def find_best_frame(context):
+    if _du_find_best_frame:
+        return _du_find_best_frame(context)
     page = context.pages[0]
     best = page.main_frame
     best_score = -1
     for fr in page.frames:
         score = 0
-        try: score += fr.get_by_role("combobox").count()
-        except Exception: pass
-        try: score += fr.locator("select").count()
-        except Exception: pass
-        try: score += fr.get_by_role("textbox").count()
-        except Exception: pass
+        try:
+            score += fr.get_by_role("combobox").count()
+        except Exception:
+            pass
+        try:
+            score += fr.locator("select").count()
+        except Exception:
+            pass
+        try:
+            score += fr.get_by_role("textbox").count()
+        except Exception:
+            pass
         if score > best_score:
             best_score = score
             best = fr
@@ -127,6 +148,11 @@ def elem_common_info(frame, locator) -> Dict[str, Any]:
     return info
 
 def is_select(locator) -> bool:
+    if _du_is_select:
+        try:
+            return _du_is_select(locator)
+        except Exception:
+            pass
     try:
         tag = locator.evaluate("el => el && el.tagName && el.tagName.toLowerCase()")
         return tag == "select"
@@ -134,14 +160,21 @@ def is_select(locator) -> bool:
         return False
 
 def read_select_options(locator):
+    if _du_read_select_options:
+        try:
+            return _du_read_select_options(locator)
+        except Exception:
+            pass
     try:
-        return locator.evaluate("""
+        return locator.evaluate(
+            """
             el => Array.from(el.options || []).map((o,i) => ({
                 text: (o.textContent || '').trim(),
                 value: o.value,
                 dataValue: o.getAttribute('data-value'),
                 dataIndex: i
             }))
-        """) or []
+            """
+        ) or []
     except Exception:
         return []
