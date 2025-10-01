@@ -108,6 +108,17 @@ def _get_listbox_container(frame):
 
 
 def _read_open_list_options(frame) -> List[Dict[str, Any]]:
+    def _is_placeholder_text(t: str) -> bool:
+        nt = normalize_text(t or "")
+        if not nt:
+            return True
+        placeholders = [
+            "selecionar", "selecione", "escolha",
+            "todos", "todas", "todas as", "todos os",
+            "selecionar organizacao subordinada",
+            "selecione uma opcao", "selecione a unidade", "selecione um orgao",
+        ]
+        return any(nt == p or nt.startswith(p + " ") for p in placeholders)
     container = _get_listbox_container(frame)
     if not container:
         return []
@@ -124,6 +135,9 @@ def _read_open_list_options(frame) -> List[Dict[str, Any]]:
                 if not o.is_visible():
                     continue
                 text = (o.text_content() or "").strip()
+                # descartar placeholders genéricos (ex.: "Selecionar organização subordinada")
+                if _is_placeholder_text(text):
+                    continue
                 val = o.get_attribute("value")
                 dv = o.get_attribute("data-value")
                 di = o.get_attribute("data-index") or o.get_attribute("data-option-index") or str(i)
@@ -152,8 +166,30 @@ def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
     h = root.get("handle")
     if h is None:
         return []
+    def _is_placeholder_text(t: str) -> bool:
+        nt = normalize_text(t or "")
+        if not nt:
+            return True
+        placeholders = [
+            "selecionar", "selecione", "escolha",
+            "todos", "todas", "todas as", "todos os",
+            "selecionar organizacao subordinada",
+            "selecione uma opcao", "selecione a unidade", "selecione um orgao",
+        ]
+        return any(nt == p or nt.startswith(p + " ") for p in placeholders)
     if is_select(h):
-        return read_select_options(h)
+        opts = read_select_options(h)
+        # Filtrar placeholders em listas nativas <select>
+        out = []
+        for o in opts or []:
+            try:
+                t = (o.get("text") or "").strip()
+                if _is_placeholder_text(t):
+                    continue
+                out.append(o)
+            except Exception:
+                out.append(o)
+        return out
     try:
         h.click(timeout=2000)
         frame.wait_for_timeout(120)
@@ -278,11 +314,13 @@ def build_plan_live(p, args) -> Dict[str, Any]:
     import os
     from pathlib import Path
     browser = None
+    headful = bool(getattr(args, "headful", False))
+    slowmo = int(getattr(args, "slowmo", 0) or 0)
     try:
-        browser = p.chromium.launch(channel="chrome", headless=not args.headful, slow_mo=args.slowmo)
+        browser = p.chromium.launch(channel="chrome", headless=not headful, slow_mo=slowmo)
     except Exception:
         try:
-            browser = p.chromium.launch(channel="msedge", headless=not args.headful, slow_mo=args.slowmo)
+            browser = p.chromium.launch(channel="msedge", headless=not headful, slow_mo=slowmo)
         except Exception:
             # tentar via caminho explícito
             exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
@@ -297,11 +335,11 @@ def build_plan_live(p, args) -> Dict[str, Any]:
                         exe = c; break
             if exe and Path(exe).exists():
                 try:
-                    browser = p.chromium.launch(executable_path=exe, headless=not args.headful, slow_mo=args.slowmo)
+                    browser = p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
                 except Exception:
-                    browser = p.chromium.launch(headless=not args.headful, slow_mo=args.slowmo)
+                    browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
             else:
-                browser = p.chromium.launch(headless=not args.headful, slow_mo=args.slowmo)
+                browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
 
     context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
     page = context.new_page()

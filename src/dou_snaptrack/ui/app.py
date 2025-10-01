@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date as _date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import io, zipfile
 
 import streamlit as st
 
@@ -28,6 +29,9 @@ class PlanState:
 
 
 def _ensure_state():
+    # Pastas base
+    PLANS_DIR = Path("planos"); PLANS_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR = Path("resultados"); RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     if "plan" not in st.session_state:
         st.session_state.plan = PlanState(
             date=_date.today().strftime("%d-%m-%Y"),
@@ -109,6 +113,8 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
                 key3_type_default="text",
                 plan_verbose=False,
                 query=None,
+                headful=False,
+                slowmo=0,
             )
             cfg = build_plan_live(p, args)
             combos = cfg.get("combos", [])
@@ -184,7 +190,8 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
                 texts = []
                 for o in opts:
                     t = (o.get("text") or "").strip()
-                    if not t or t.lower() == "todos":
+                    nt = (t or "").strip().lower()
+                    if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
                         continue
                     texts.append(t)
                 uniq = sorted({t for t in texts})
@@ -225,47 +232,64 @@ def _run_batch_with_cfg(cfg_path: Path, parallel: int) -> Dict[str, Any]:
         from playwright.sync_api import sync_playwright  # type: ignore
         from dou_snaptrack.cli.batch import run_batch
         from dou_snaptrack.cli.summary_config import SummaryConfig
+        # Determinar pasta de saída por data do plano
+        try:
+            cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+            plan_date = (cfg.get("data") or "").strip() or _date.today().strftime("%d-%m-%Y")
+        except Exception:
+            plan_date = _date.today().strftime("%d-%m-%Y")
+        out_dir_path = Path("resultados") / plan_date
+        out_dir_path.mkdir(parents=True, exist_ok=True)
+        out_dir_str = str(out_dir_path)
         with sync_playwright() as p:
             class Args:
                 config = str(cfg_path)
-                out_dir = "."
+                out_dir = out_dir_str
                 headful = False
                 slowmo = 0
                 state_file = None
                 reuse_page = False
                 parallel = parallel
             run_batch(p, Args, SummaryConfig(lines=4, mode="center", keywords=None))
-        rep = json.loads(Path("batch_report.json").read_text(encoding="utf-8")) if Path("batch_report.json").exists() else {}
+        rep_path = out_dir_path / "batch_report.json"
+        rep = json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
         return rep
     except Exception as e:
         st.error(f"Falha ao executar batch: {e}")
         return {}
 
 
-def _run_report(in_dir: Path, kind: str, out_path: Path, split_by_n1: bool, date_label: str, secao_label: str,
-                summary_lines: int, summary_mode: str):
+def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by_n1: bool, date_label: str, secao_label: str,
+                summary_lines: int, summary_mode: str) -> List[Path]:
+    out_dir.mkdir(parents=True, exist_ok=True)
     try:
         if split_by_n1:
             from dou_snaptrack.cli.reporting import split_and_report_by_n1
+            # Gravar diretamente dentro de out_dir
+            pattern = out_dir / f"boletim_{{n1}}_{date_label}.{kind}"
             split_and_report_by_n1(
-                str(in_dir), kind, str(out_path), "boletim_{n1}_{date}.docx",
+                str(in_dir), kind, str(out_dir / "unused"), str(pattern),
                 date_label=date_label, secao_label=secao_label,
                 summary_lines=summary_lines, summary_mode=summary_mode,
             )
+            files = sorted(out_dir.glob(f"boletim_*_{date_label}.{kind}"))
         else:
             from dou_snaptrack.cli.reporting import consolidate_and_report
+            out_path = out_dir / base_name
             consolidate_and_report(
                 str(in_dir), kind, str(out_path),
                 date_label=date_label, secao_label=secao_label,
                 summary_lines=summary_lines, summary_mode=summary_mode,
             )
-        st.success("Boletim gerado!")
+            files = [out_path]
+        return files
     except Exception as e:
         st.error(f"Falha ao gerar boletim: {e}")
+        return []
 
 
 # ---------------- UI ----------------
-st.set_page_config(page_title="SnapTrack DOU • UI", layout="wide")
+st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
 st.title("SnapTrack DOU — Interface")
 _ensure_state()
 
@@ -275,7 +299,6 @@ with st.sidebar:
     st.session_state.plan.secao = st.selectbox("Seção", ["DO1", "DO2", "DO3"], index=0)
     st.markdown("- Padrão: hoje; altere se necessário.")
 
-    st.info("A execução usa preferencialmente o Chrome/Edge instalados (canal 'chrome'); se indisponível, cai para o Chromium do Playwright.")
 
     with st.expander("Diagnóstico do ambiente"):
         try:
@@ -315,40 +338,29 @@ with st.sidebar:
 tab1, tab2, tab3 = st.tabs(["Explorar e montar plano", "Executar plano", "Gerar boletim"])
 
 with tab1:
-    st.subheader("Explorar N1/N2 e montar plano")
-    source = st.radio("Fonte das opções", ["Arquivo de pares (rápido)", "Descoberta ao vivo (plan-live)"], index=0)
-    pairs_map: Dict[str, List[str]] = {}
-    if source == "Arquivo de pares (rápido)":
-        default_pairs = Path("artefatos/pairs_DO1_full.json")
-        pairs_file = st.text_input("Arquivo de pares (JSON)", str(default_pairs if default_pairs.exists() else ""))
-        if pairs_file:
-            pairs_map = _load_pairs_file(Path(pairs_file))
-        n1_list = sorted(pairs_map.keys())
-        n1 = st.selectbox("Nível 1 (Órgão)", n1_list) if n1_list else None
-        n2_list = pairs_map.get(n1, []) if n1 else []
+    st.subheader("Monte sua Pesquisa")
+    # Descoberta ao vivo: primeiro carrega lista de N1, depois carrega N2 para o N1 selecionado
+    if st.button("Carregar"):
+        with st.spinner("Obtendo lista de Orgãos do DOU…"):
+            n1_candidates = _plan_live_fetch_n1_options(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""))
+        st.session_state["live_n1"] = n1_candidates
+
+    n1_list = st.session_state.get("live_n1", [])
+    if n1_list:
+        n1 = st.selectbox("Nível 1 (Órgão)", n1_list, key="sel_n1_live")
     else:
-        # Descoberta ao vivo: primeiro carrega lista de N1, depois carrega N2 para o N1 selecionado
-        if st.button("Carregar N1 (ao vivo)"):
-            with st.spinner("Obtendo lista de N1 do DOU…"):
-                n1_candidates = _plan_live_fetch_n1_options(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""))
-            st.session_state["live_n1"] = n1_candidates
+        n1 = None
+        st.info("Clique em 'Carregar' para listar os órgãos.")
 
-        n1_list = st.session_state.get("live_n1", [])
-        if n1_list:
-            n1 = st.selectbox("Nível 1 (Órgão)", n1_list, key="sel_n1_live")
-        else:
-            n1 = None
-            st.info("Clique em 'Carregar N1 (ao vivo)' para listar os órgãos.")
-
-        # Carregar N2 conforme N1 escolhido
-        n2_list = []
-        can_load_n2 = bool(n1)
-        if st.button("Carregar N2 para o N1 selecionado") and can_load_n2:
-            with st.spinner("Obtendo lista de N2 do DOU…"):
-                n2_list = _plan_live_fetch_n2(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""), str(n1))
-            st.session_state["live_n2_for_" + str(n1)] = n2_list
-        if n1:
-            n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
+    # Carregar N2 conforme N1 escolhido
+    n2_list: List[str] = []
+    can_load_n2 = bool(n1)
+    if st.button("Carregar Organizações Subordinadas") and can_load_n2:
+        with st.spinner("Obtendo lista do DOU…"):
+            n2_list = _plan_live_fetch_n2(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""), str(n1))
+        st.session_state["live_n2_for_" + str(n1)] = n2_list
+    if n1:
+        n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
 
     sel_n2 = st.multiselect("Nível 2 (Unidade)", options=n2_list)
     if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
@@ -367,7 +379,10 @@ with tab1:
 
     st.divider()
     st.subheader("Salvar plano")
-    plan_path = st.text_input("Salvar como (ex.: batch_today.json)", "batch_today.json")
+    # Salvar sempre em ./planos
+    plans_dir = Path("planos"); plans_dir.mkdir(parents=True, exist_ok=True)
+    suggested = plans_dir / f"plan_{str(st.session_state.plan.date or '').replace('/', '-').replace(' ', '_')}.json"
+    plan_path = st.text_input("Salvar como", str(suggested))
     if st.button("Salvar plano"):
         cfg = {
             "data": st.session_state.plan.date,
@@ -376,32 +391,117 @@ with tab1:
             "combos": st.session_state.plan.combos,
             "output": {"pattern": "{topic}_{secao}_{date}_{idx}.json", "report": "batch_report.json"}
         }
-        Path(plan_path).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+        ppath = Path(plan_path); ppath.parent.mkdir(parents=True, exist_ok=True)
+        ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
         st.success(f"Plano salvo em {plan_path}")
 
 with tab2:
-    st.subheader("Executar plano (batch)")
-    plan_to_run = st.text_input("Arquivo do plano (JSON)", "batch_today.json")
-    parallel = st.number_input("Parallel workers", min_value=1, max_value=8, value=4, step=1)
+    st.subheader("Escolha o plano de pesquisa")
+    # Listar planos exclusivamente de ./planos
+    plans_dir = Path("planos"); plans_dir.mkdir(parents=True, exist_ok=True)
+    plan_candidates = []
+    try:
+        for p in plans_dir.glob("*.json"):
+            try:
+                txt = p.read_text(encoding="utf-8", errors="ignore")
+                if any(k in txt for k in ('"combos"', '"secaoDefault"', '"output"')):
+                    plan_candidates.append(p)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    plan_candidates = sorted(set(plan_candidates))
+    if not plan_candidates:
+        st.info("Nenhum plano salvo ainda. Informe um caminho válido abaixo.")
+        plan_to_run = st.text_input("Arquivo do plano (JSON)", "batch_today.json")
+        selected_path = Path(plan_to_run)
+    else:
+        labels = [str(p) for p in plan_candidates]
+        choice = st.selectbox("Selecione o plano salvo", labels, index=0)
+        selected_path = Path(choice)
+
+    # Paralelismo automático: usar até N jobs (limite máximo) para não desperdiçar workers
+    max_workers = 6
+    auto_parallel = st.checkbox("Definir paralelismo automaticamente", value=True, help=f"Usa min(nº de jobs, {max_workers}).")
+    user_parallel = st.number_input("Parallel workers (opcional)", min_value=1, max_value=12, value=4, step=1, disabled=auto_parallel)
+
     if st.button("Executar batch"):
-        if not Path(plan_to_run).exists():
+        if not selected_path.exists():
             st.error("Plano não encontrado.")
         else:
-            with st.spinner("Executando…"):
-                rep = _run_batch_with_cfg(Path(plan_to_run), int(parallel))
+            # Descobrir número de jobs do plano
+            try:
+                cfg = json.loads(selected_path.read_text(encoding="utf-8"))
+                combos = cfg.get("combos") or []
+                topics = cfg.get("topics") or []
+                # Estimação rápida de jobs (sem repetir): se houver topics, cada combo cruza com topic
+                est_jobs = len(combos) * max(1, len(topics) or 1)
+            except Exception:
+                est_jobs = 1
+
+            parallel = int(min(max_workers, max(1, est_jobs))) if auto_parallel else int(user_parallel)
+            with st.spinner(f"Executando…"):
+                rep = _run_batch_with_cfg(selected_path, int(parallel))
             st.write(rep or {"info": "Sem relatório"})
 
 with tab3:
     st.subheader("Gerar boletim")
-    in_dir = st.text_input("Pasta de entrada (JSONs)", "out_batch")
+    # Selecionar pasta do dia em ./resultados
+    results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
+    day_dirs = []
+    try:
+        for d in results_root.iterdir():
+            if d.is_dir():
+                day_dirs.append(d)
+    except Exception:
+        pass
+    day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
+    if day_dirs:
+        labels = [p.name for p in day_dirs]
+        choice = st.selectbox("Selecione a pasta do dia (em resultados)", labels, index=0)
+        selected_in_dir = results_root / choice
+    else:
+        st.info("Nenhuma pasta encontrada em 'resultados'. Crie um plano e execute-o para gerar uma pasta do dia.")
+        selected_in_dir = results_root
     kind = st.selectbox("Formato", ["docx", "md", "html"], index=0)
     split = st.checkbox("Gerar um arquivo por N1", value=False)
-    base_tpl = "logs/boletim_{secao}_{date}.docx" if not split else "logs/run/unused.docx"
-    base_tpl = base_tpl.replace("{date}", str(st.session_state.plan.date or "")).replace("{secao}", str(st.session_state.plan.secao or ""))
-    out_path = st.text_input("Destino do boletim", base_tpl)
+    chosen_date = selected_in_dir.name if selected_in_dir and selected_in_dir.exists() else str(st.session_state.plan.date or "")
+    secao_cur = str(st.session_state.plan.secao or "")
+    # Nome sugerido (apenas nome do arquivo, não caminho)
+    if not split:
+        default_name = f"boletim_{secao_cur}_{chosen_date}.{kind}"
+        base_name = st.text_input("Nome do arquivo", default_name)
+        zip_name = None
+    else:
+        base_name = None
+        default_zip = f"boletins_{secao_cur}_{chosen_date}.zip"
+        zip_name = st.text_input("Nome do pacote (.zip)", default_zip)
     summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=4)
     summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
-    if st.button("Gerar boletim"):
+    if st.button("Gerar e baixar"):
         with st.spinner("Gerando…"):
-            _run_report(Path(str(in_dir or "")), kind, Path(str(out_path or "")), split, str(st.session_state.plan.date or ""), str(st.session_state.plan.secao or ""),
-                        int(summary_lines), str(summary_mode))
+            files = _run_report(
+                selected_in_dir, kind, selected_in_dir,
+                base_name or (zip_name or "out.zip"), split,
+                chosen_date, secao_cur,
+                int(summary_lines), str(summary_mode)
+            )
+        if files:
+            if not split:
+                fpath = files[0]
+                try:
+                    data = fpath.read_bytes()
+                    st.download_button("Baixar boletim", data=data, file_name=(base_name or fpath.name))
+                except Exception as e:
+                    st.error(f"Falha ao preparar download: {e}")
+            else:
+                # Empacotar múltiplos arquivos em zip em memória
+                try:
+                    buf = io.BytesIO()
+                    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+                        for fp in files:
+                            zf.write(fp, arcname=fp.name)
+                    buf.seek(0)
+                    st.download_button("Baixar boletins (zip)", data=buf.getvalue(), file_name=(zip_name or "boletins.zip"))
+                except Exception as e:
+                    st.error(f"Falha ao empacotar boletins: {e}")

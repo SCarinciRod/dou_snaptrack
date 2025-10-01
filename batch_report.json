@@ -1,13 +1,11 @@
 {
-  "total_jobs": 5,
-  "ok": 5,
+  "total_jobs": 3,
+  "ok": 3,
   "fail": 0,
-  "items_total": 30,
+  "items_total": 14,
   "outputs": [
-    "DO1_29-09-2025_4.json",
-    "DO1_29-09-2025_3.json",
-    "DO1_29-09-2025_2.json",
-    "DO1_29-09-2025_1.json",
-    "DO1_29-09-2025_5.json"
+    "job1_DO1_01-10-2025_1.json",
+    "job3_DO1_01-10-2025_3.json",
+    "job2_DO1_01-10-2025_2.json"
   ]
 }
