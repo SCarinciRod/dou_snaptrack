@@ -8,7 +8,7 @@
 #define MyAppExeName "launch_ui.vbs"
 
 [Setup]
-AppId={{9C2B3A9D-33B6-4C7F-9F61-8E4B6A0D0D47}
+AppId={{9C2B3A9D-33B6-4C7F-9F61-8E4B6A0D0D47}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
