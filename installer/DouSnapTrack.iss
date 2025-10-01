@@ -13,12 +13,13 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
-DefaultDirName={localappdata}\dou_snaptrack
+DefaultDirName={code:GetAppDir}
 DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename=DouSnapTrack-Setup
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
@@ -41,7 +42,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingD
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; WorkingDir: "{app}"
 
 [Tasks]
-Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho"; GroupDescription: "Atalhos:"; Flags: unchecked
+Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho"; GroupDescription: "Atalhos:"; Flags: checkedonce
 
 [Run]
 ; Run the silent installer wrapper after files are copied
@@ -50,3 +51,13 @@ Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Fil
 [UninstallDelete]
 ; Optional: remove venv to save space
 Type: filesandordirs; Name: "{app}\.venv"
+
+[Code]
+function GetAppDir(Param: string): string;
+begin
+	// If running elevated (admin), install under Program Files; otherwise LocalAppData
+	if IsAdminLoggedOn then
+		Result := ExpandConstant('{autopf}') + '\\Dou SnapTrack'
+	else
+		Result := ExpandConstant('{localappdata}') + '\\dou_snaptrack';
+end;
