@@ -5,7 +5,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "SCarinciRod"
 #define MyAppURL "https://github.com/SCarinciRod/dou_snaptrack"
-#define MyAppExeName "launch_ui.vbs"
+#define MyAppExeName "launch_ui_managed.vbs"
 
 [Setup]
 AppId={{9C2B3A9D-33B6-4C7F-9F61-8E4B6A0D0D47}}
@@ -33,6 +33,8 @@ Source: "..\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 ; Ensure installer auxiliaries are present (relative to this .iss file)
 Source: ".\run_silent_install.ps1"; DestDir: "{app}\installer"; Flags: ignoreversion
 Source: ".\launch_ui.vbs"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\launch_ui_managed.vbs"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\scripts\run-ui-managed.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
