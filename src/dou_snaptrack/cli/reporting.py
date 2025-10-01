@@ -1,18 +1,52 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import urllib.request
+import urllib.error
+import re
 from ..adapters.utils import generate_bulletin as _generate_bulletin
+from ..adapters.utils import summarize_text as _summarize_text
 
 
-def consolidate_and_report(in_dir: str, kind: str, out_path: str, date_label: str = "", secao_label: str = "") -> None:
+def consolidate_and_report(
+    in_dir: str,
+    kind: str,
+    out_path: str,
+    date_label: str = "",
+    secao_label: str = "",
+    summary_lines: int = 0,
+    summary_mode: str = "center",
+    summary_keywords: Optional[List[str]] = None,
+    enrich_missing: bool = True,
+    fetch_parallel: int = 8,
+    fetch_timeout_sec: int = 10,
+) -> None:
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     agg = []
     for f in sorted(Path(in_dir).glob("*.json")):
         try:
             data = __import__('json').loads(f.read_text(encoding="utf-8"))
-            agg.extend(data.get("itens", []))
+            items = data.get("itens", [])
+            # Normalizar links para absolutos quando possível
+            for it in items:
+                durl = it.get("detail_url") or ""
+                if not durl:
+                    link = it.get("link") or ""
+                    if link:
+                        if link.startswith("http"):
+                            durl = link
+                        elif link.startswith("/"):
+                            durl = f"https://www.in.gov.br{link}"
+                if durl:
+                    it["detail_url"] = durl
+            agg.extend(items)
         except Exception:
             pass
+
+    # Enriquecer com texto (leve) apenas para itens sem texto quando for resumir
+    if summary_lines > 0 and enrich_missing and agg:
+        _enrich_missing_texts(agg, max_workers=fetch_parallel, timeout_sec=fetch_timeout_sec)
 
     result: Dict[str, Any] = {
         "data": date_label or "",
@@ -20,5 +54,198 @@ def consolidate_and_report(in_dir: str, kind: str, out_path: str, date_label: st
         "total": len(agg),
         "itens": agg,
     }
-    _generate_bulletin(result, out_path, kind=kind)
+    summarize = summary_lines > 0
+    # Adapt summarizer to expected signature
+    def _summarizer(text: str, max_lines: int, mode: str, keywords: Optional[List[str]]):
+        if not _summarize_text:
+            return text
+        return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
+
+    _generate_bulletin(
+        result,
+        out_path,
+        kind=kind,
+        summarize=summarize,
+        summarizer=_summarizer if summarize else None,
+        keywords=summary_keywords,
+        max_lines=summary_lines or 0,
+        mode=summary_mode,
+    )
     print(f"[OK] Boletim consolidado gerado: {out_path}")
+
+
+def split_and_report_by_n1(
+    in_dir: str,
+    kind: str,
+    out_root: str,
+    pattern: str,
+    date_label: str = "",
+    secao_label: str = "",
+    summary_lines: int = 0,
+    summary_mode: str = "center",
+    summary_keywords: Optional[List[str]] = None,
+    enrich_missing: bool = True,
+    fetch_parallel: int = 8,
+    fetch_timeout_sec: int = 10,
+) -> None:
+    """Gera múltiplos boletins, um por N1 (primeiro nível da seleção).
+
+    Args:
+        in_dir: pasta com JSONs de saída dos jobs
+        kind: docx|md|html
+        out_root: diretório base de saída (será criado)
+        pattern: padrão do nome do arquivo, com placeholders {n1},{date},{secao}
+        date_label: rótulo de data (opcional)
+        secao_label: rótulo de seção (opcional)
+    """
+    def _sanitize(name: str) -> str:
+        import re
+        name = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
+        return (name or "n1").strip(" _")[:120]
+
+    out_dir = Path(out_root)
+    # If a file path is passed (like logs/unused.docx), use its parent as output directory
+    if out_dir.suffix:
+        out_dir = out_dir.parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Agrupar por N1 (selecoes[0])
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    date = date_label
+    secao = secao_label
+    for f in sorted(Path(in_dir).glob("*.json")):
+        try:
+            data = __import__('json').loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        sel = (data.get("selecoes") or [])
+        n1 = None
+        if isinstance(sel, list) and len(sel) >= 1 and isinstance(sel[0], dict):
+            n1 = sel[0].get("key") or sel[0].get("label") or sel[0].get("type")
+        n1 = str(n1 or "N1")
+        items = data.get("itens", [])
+        # Normalizar links para absolutos quando possível
+        for it in items:
+            durl = it.get("detail_url") or ""
+            if not durl:
+                link = it.get("link") or ""
+                if link:
+                    if link.startswith("http"):
+                        durl = link
+                    elif link.startswith("/"):
+                        durl = f"https://www.in.gov.br{link}"
+            if durl:
+                it["detail_url"] = durl
+        groups.setdefault(n1, []).extend(items)
+        # Atualiza metadados se faltantes
+        if not date:
+            date = data.get("data") or date
+        if not secao:
+            secao = data.get("secao") or secao
+
+    total_files = 0
+    # Opcionalmente enriquecer textos ausentes nos grupos quando for resumir
+    if summary_lines > 0 and enrich_missing and groups:
+        for k, items in groups.items():
+            _enrich_missing_texts(items, max_workers=fetch_parallel, timeout_sec=fetch_timeout_sec)
+
+    # Adapt summarizer
+    summarize = summary_lines > 0
+    def _summarizer(text: str, max_lines: int, mode: str, keywords: Optional[List[str]]):
+        if not _summarize_text:
+            return text
+        return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
+
+    for n1, items in groups.items():
+        name = pattern.replace("{n1}", _sanitize(n1)).replace("{date}", _sanitize(date or "")).replace("{secao}", _sanitize(secao or ""))
+        out_path = out_dir / name
+        # Garantir que a pasta do arquivo exista, mesmo se o padrão incluir subpastas
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        result: Dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(items), "itens": items}
+        _generate_bulletin(
+            result,
+            str(out_path),
+            kind=kind,
+            summarize=summarize,
+            summarizer=_summarizer if summarize else None,
+            keywords=summary_keywords,
+            max_lines=summary_lines or 0,
+            mode=summary_mode,
+        )
+        print(f"[OK] Boletim N1 gerado: {out_path} (itens={len(items)})")
+        total_files += 1
+    print(f"[REPORT] Gerados {total_files} arquivos por N1 em: {out_dir}")
+
+
+# ----------------- helpers -----------------
+def _enrich_missing_texts(items: List[Dict[str, Any]], max_workers: int = 8, timeout_sec: int = 10) -> None:
+    """Para cada item sem 'texto' nem 'ementa', faz um GET simples e extrai o corpo da matéria.
+    Evita Playwright para não pesar; usa regex/HTML simples. Preenche item['texto'] quando possível.
+    """
+    targets = []
+    for it in items:
+        if (it.get("texto") or it.get("ementa")):
+            continue
+        url = it.get("detail_url") or it.get("link") or ""
+        if not url:
+            continue
+        if url.startswith("/"):
+            url = f"https://www.in.gov.br{url}"
+        if not url.startswith("http"):
+            continue
+        targets.append((it, url))
+
+    if not targets:
+        return
+
+    def _fetch(url: str) -> str:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Connection": "close",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+            raw = resp.read()
+            try:
+                return raw.decode("utf-8", errors="ignore")
+            except Exception:
+                try:
+                    return raw.decode("latin-1", errors="ignore")
+                except Exception:
+                    return ""
+
+    def _extract_text(html: str) -> str:
+        if not html:
+            return ""
+        # Remover scripts/styles
+        html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
+        html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
+        # Tentar article, depois main, depois body
+        m = re.search(r"<article[^>]*>([\s\S]*?)</article>", html, flags=re.I)
+        if not m:
+            m = re.search(r"<main[^>]*>([\s\S]*?)</main>", html, flags=re.I)
+        if not m:
+            m = re.search(r"<body[^>]*>([\s\S]*?)</body>", html, flags=re.I)
+        chunk = m.group(1) if m else html
+        # Remover tags
+        text = re.sub(r"<[^>]+>", " ", chunk)
+        # Normalizar espaços e reduzir tamanho
+        text = re.sub(r"\s+", " ", text).strip()
+        return text[:8000]
+
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futs = {ex.submit(_fetch, url): (it, url) for it, url in targets}
+        for fut in as_completed(futs):
+            it, url = futs[fut]
+            try:
+                html = fut.result()
+                body = _extract_text(html)
+                if body:
+                    it["texto"] = body
+            except (urllib.error.URLError, Exception):
+                # se falhar, seguimos sem texto
+                continue

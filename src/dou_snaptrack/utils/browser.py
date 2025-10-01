@@ -55,10 +55,62 @@ def try_visualizar_em_lista(page) -> bool:
     return False
 
 def launch_browser(headful: bool = False, slowmo: int = 0):
-    # Import lazy para evitar depender de Playwright quando não usado (ex.: plan/report)
-    from playwright.sync_api import sync_playwright
+    """Lança Chromium priorizando o Chrome instalado no sistema (channel),
+    evitando download de browsers em ambientes com SSL restrito.
+
+    Ordem de tentativa:
+    1) channel="chrome" (usa Chrome estável instalado no Windows)
+    2) executable_path via env PLAYWRIGHT_CHROME_PATH ou CHROME_PATH
+    3) fallback padrão (usa binário do ms-playwright, pode exigir download)
+    """
+    # Garantir loop Proactor no Windows antes de iniciar Playwright
+    try:
+        import sys as _sys, asyncio as _asyncio
+        if _sys.platform.startswith("win"):
+            _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
+            _asyncio.set_event_loop(_asyncio.new_event_loop())
+    except Exception:
+        pass
+    from playwright.sync_api import sync_playwright  # type: ignore
+    import os
+    from pathlib import Path
+
     p = sync_playwright().start()
-    browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
+    launch_args = dict(headless=not headful, slow_mo=slowmo)
+
+    # 1) Tentar canal "chrome" (requer Chrome instalado no sistema)
+    try:
+        browser = p.chromium.launch(channel="chrome", **launch_args)
+        return p, browser
+    except Exception:
+        # 1b) Tentar canal "msedge" (Edge instalado no sistema)
+        try:
+            browser = p.chromium.launch(channel="msedge", **launch_args)
+            return p, browser
+        except Exception:
+            pass
+
+    # 2) Tentar usar caminho explícito do Chrome via env
+    exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
+    if not exe:
+        # caminhos comuns no Windows
+        candidates = [
+            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        ]
+        for c in candidates:
+            if Path(c).exists():
+                exe = c
+                break
+    if exe and Path(exe).exists():
+        try:
+            browser = p.chromium.launch(executable_path=exe, **launch_args)
+            return p, browser
+        except Exception:
+            pass
+
+    # 3) Fallback padrão (pode exigir download do ms-playwright)
+    browser = p.chromium.launch(**launch_args)
     return p, browser
 
 def new_context(browser, viewport=(1366, 900)):

@@ -1,0 +1,26 @@
+{
+  "data": "29-09-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério da Fazenda"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Secretaria Especial da Receita Federal do Brasil"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 0,
+  "itens": [],
+  "enriquecido": false,
+  "_error": "selection_failed_level_1"
+}

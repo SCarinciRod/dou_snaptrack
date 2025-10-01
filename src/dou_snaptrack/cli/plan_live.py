@@ -274,7 +274,35 @@ def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
 def build_plan_live(p, args) -> Dict[str, Any]:
     """Gera um plano dinâmico L1×L2 diretamente do site (sem N3)."""
     v = bool(getattr(args, "plan_verbose", False))
-    browser = p.chromium.launch(headless=not args.headful, slow_mo=args.slowmo)
+    # Preferir usar Chrome instalado no sistema (evita download de browsers em ambientes com SSL restrito)
+    import os
+    from pathlib import Path
+    browser = None
+    try:
+        browser = p.chromium.launch(channel="chrome", headless=not args.headful, slow_mo=args.slowmo)
+    except Exception:
+        try:
+            browser = p.chromium.launch(channel="msedge", headless=not args.headful, slow_mo=args.slowmo)
+        except Exception:
+            # tentar via caminho explícito
+            exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
+            if not exe:
+                for c in (
+                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+                ):
+                    if Path(c).exists():
+                        exe = c; break
+            if exe and Path(exe).exists():
+                try:
+                    browser = p.chromium.launch(executable_path=exe, headless=not args.headful, slow_mo=args.slowmo)
+                except Exception:
+                    browser = p.chromium.launch(headless=not args.headful, slow_mo=args.slowmo)
+            else:
+                browser = p.chromium.launch(headless=not args.headful, slow_mo=args.slowmo)
+
     context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
     page = context.new_page()
     page.set_default_timeout(60_000)

@@ -28,6 +28,7 @@ def run_once(context, date: str, secao: str,
              max_scrolls: int, scroll_pause_ms: int, stable_rounds: int,
              state_file: Optional[str], bulletin: Optional[str], bulletin_out: Optional[str],
              summary: SummaryConfig,
+             detail_parallel: int = 1,
              page=None, keep_page_open: bool = False) -> Dict[str, Any]:
 
     try:
@@ -49,6 +50,7 @@ def run_once(context, date: str, secao: str,
         scrape_detail=bool(scrape_details), detail_timeout=int(detail_timeout),
         fallback_date_if_missing=bool(fallback_date_if_missing),
         dedup_state_file=state_file,
+        detail_parallel=int(detail_parallel or 1),
         summary=bool(summary.lines and summary.lines > 0),
         summary_lines=int(summary.lines), summary_mode=str(summary.mode), summary_keywords=summary.keywords,
     )

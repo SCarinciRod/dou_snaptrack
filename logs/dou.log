@@ -1,0 +1,222 @@
+[2025-09-29 11:28:26] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:26] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:26] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:26] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:47] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:47] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:47] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:47] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:28:49] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id DE6CE13D08DD38E34611663A5993F052')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id DE6CE13D08DD38E34611663A5993F052
+[2025-09-29 11:28:49] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-7' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id B957901E1E134391FBB218C9A53B20DA')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id B957901E1E134391FBB218C9A53B20DA
+[2025-09-29 11:28:49] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id 4B3392157DEB5B07696A8D3597440115')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id 4B3392157DEB5B07696A8D3597440115
+[2025-09-29 11:29:35] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:29:35] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:29:35] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:29:35] ERROR asyncio: Exception in callback SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111
+handle: <Handle SyncBase._sync.<locals>.<lambda>() at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py:111>
+Traceback (most recent call last):
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in <lambda>
+    task.add_done_callback(lambda _: g_self.switch())
+                                     ~~~~~~~~~~~~~^^
+greenlet.error: cannot switch to a different thread (which happens to have exited)
+[2025-09-29 11:29:36] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id 9F46C107C7C7CEC15432FFD6BB9296CE')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id 9F46C107C7C7CEC15432FFD6BB9296CE
+[2025-09-29 11:29:36] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id C02CD549A229C94A8B524680B82771FF')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id C02CD549A229C94A8B524680B82771FF
+[2025-09-29 11:29:36] ERROR asyncio: Task exception was never retrieved
+future: <Task finished name='Task-7' coro=<Browser.new_context() done, defined at C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py:128> exception=Error('Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id A798BFC0F29EB23C45BDCFFA207AEFBD')>
+Traceback (most recent call last):
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_browser.py", line 171, in new_context
+    channel = await self._channel.send("newContext", None, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id A798BFC0F29EB23C45BDCFFA207AEFBD
+[2025-09-29 13:24:12] ERROR dou_utils.bulletin_utils: Módulo python-docx não encontrado. Instale com: pip install python-docx
+[2025-09-29 13:24:57] ERROR dou_utils.bulletin_utils: Módulo python-docx não encontrado. Instale com: pip install python-docx
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern
+[2025-09-29 13:46:54] WARNING dou_utils.bulletin_utils: Erro ao sumarizar: look-behind requires fixed-width pattern

@@ -16,8 +16,9 @@ def split_sentences(pt_text: str) -> List[str]:
     if not pt_text:
         return []
     text = pt_text
-    text = re.sub(r"(?<=\bSr|Sra|Dr|Dra)\.", "", text)
-    text = re.sub(r"(?<=\bet al)\.", "", text, flags=re.I)
+    # Remover ponto de abreviações comuns sem usar look-behind variável
+    text = re.sub(r"\b(Sr|Sra|Dr|Dra)\.", r"\1", text)
+    text = re.sub(r"\b(et al)\.", r"\1", text, flags=re.I)
     parts = re.split(r"(?<=[\.\!\?])\s+", text)
     sents = [re.sub(r"\s+", " ", s).strip() for s in parts if s and s.strip()]
     cleaned = []

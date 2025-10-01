@@ -30,107 +30,13 @@ from dou_snaptrack.utils.browser import fmt_date
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
-# (selectors import removido; 05 apenas orquestra e não acessa DOM diretamente)
-    # Nota: helpers de navegação/DOM foram movidos para módulos em dou_snaptrack/cli e dou_utils.
-
-    # (helpers de DOM removidos deste arquivo)
-
-# (helpers de seleção removidos — agora pertencem aos módulos cli.*)
-
-
-    # (localizadores de dropdown removidos — delegados para cli e dou_utils)
-
-
-    # (sanitize_filename removido — função disponível em cli.batch/dou_utils)
-
-    # (URL helpers removidos — não utilizados aqui)
-
-# ------------------------- Frames e roots -------------------------
-    # (find_best_frame removido — responsabilidade de cli/utils)
-
-    # (coleta de roots removida — responsabilidade de cli/utils)
-
-# ------------------------- Listbox / Combobox helpers -------------------------
-    # (helpers listbox removidos)
-
-    # (helpers listbox removidos)
-
-    # (helpers de abertura de dropdown removidos)
-
-
-    # (scroll helpers removidos)
-
-    # (leitura de opções abertas removida)
-
-# ------------------------- <select> helpers -------------------------
-    # (helpers <select> removidos)
-
-    # (leitura de <select> removida)
-
-    # (seleção por <select>/custom removida)
-# ------------------------- API unificada -------------------------
-    # (helpers de rótulo removidos)
-
-    # (procura por rótulo removida)
-
-    # (leitura de opções de dropdown removida)
-
-    # (seleção por key removida)
-
-    # (seleção custom removida)
-
-# ------------------------- Busca (query) -------------------------
-    # (aplicação de query movida para dou_utils)
-
-# ------------------------- Coleta de links -------------------------
-    # (coleta de links movida para dou_utils)
-
-# ------------------------- Detalhamento -------------------------
-    # (helpers de leitura de detalhe removidos)
-
-    # (parsers de meta removidos)
-
-    # (busca por dt/dd removida)
-
-    # (coleta de artigo removida)
-
-
-    # (scrape de detalhe movido para dou_utils)
-
-# ------------------------- Debug -------------------------
-    # (dump de debug não é mais responsabilidade deste arquivo)
-# ------------------------- Impressão (list) -------------------------
-    # (impressão de listas removida)
-
-# ------------------------- Fluxos delegados (list/run via cli modules) -------------------------
-
-# ------------------------- Boletim -------------------------
-    # (boletim agora é responsabilidade de cli.runner/cli.batch)
-    
-# ------------------------- PLANEJAMENTO A PARTIR DO MAPA (00) -------------------------
-    # (parsing de URL não utilizado — removido)
-
-    # (escolha de root do mapa — removido)
-
-    # (_filter_opts removido — responsabilidade de cli/plan_live e cli/plan_from_pairs)
-
-    # (_trim_placeholders removido — responsabilidade de mapeadores)
-
-    # (_build_keys removido — responsabilidade de cli.plan_live)
-
-        # (plan_from_map removido — usar PlanFromMapService no modo plan)
-
-    # (plan_from_pairs removido — agora em dou_snaptrack.cli.plan_from_pairs)
-
-
-    # (plan_live local removido — use cli.plan_live.build_plan_live)
-
-
-    # (segmentador de sentenças removido)
-
-    # (limpeza de texto para resumo removida)
-
-    # (resumo por extração removido — centralizado em dou_utils)
+# Ajuste de loop asyncio no Windows para Playwright (subprocess)
+if _sys.platform.startswith("win"):
+    try:
+        import asyncio as _asyncio
+        _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        pass
 
 # ------------------------- Batch / Presets -------------------------
 def iter_dates(args_data: Optional[str], since: int, range_arg: Optional[str]):
@@ -216,6 +122,7 @@ def main():
     ap.add_argument("--max-scrolls", type=int, default=40, help="Máximo de scrolls para carregar resultados")
     ap.add_argument("--scroll-pause-ms", type=int, default=350, help="Pausa entre scrolls (ms)")
     ap.add_argument("--stable-rounds", type=int, default=3, help="Rodadas de estabilidade para parar scroll")
+    ap.add_argument("--detail-parallel", type=int, default=1, help="Paralelismo intra-job para enriquecimento de detalhes (default: 1)")
     ap.add_argument("--secao", default="DO1")
     ap.add_argument("--data", default=None, help="DD-MM-AAAA (default: hoje)")
     ap.add_argument("--since", type=int, default=0, help="Executa também N dias para trás (0 = apenas a data)")
@@ -237,6 +144,7 @@ def main():
     ap.add_argument("--config", help="Arquivo JSON de configuração (mode=batch)")
     ap.add_argument("--out-dir", help="Diretório base de saída para batch")
     ap.add_argument("--reuse-page", action="store_true", help="(batch) Reutiliza uma mesma aba por data/seção para todos os jobs")
+    ap.add_argument("--parallel", type=int, default=4, help="(batch) Nº de workers em paralelo para captação (default: 4)")
 
     # presets
     ap.add_argument("--save-preset", help="Nome do preset a salvar (dos args atuais de run)")
@@ -284,6 +192,8 @@ def main():
     # REPORT
     ap.add_argument("--in-dir", help="(report) Pasta com os JSONs (saídas dos jobs)")
     ap.add_argument("--report-out", help="(report) Caminho do boletim final (docx/md/html)")
+    ap.add_argument("--split-by-n1", action="store_true", help="(report) Gera múltiplos arquivos, um por N1")
+    ap.add_argument("--report-pattern", default="boletim_{n1}_{date}.docx", help="(report --split-by-n1) Padrão do nome de saída (placeholders: {n1},{date},{secao})")
 
     args = ap.parse_args()
     # Nova configuração de resumo: exigir cli.summary_config (sem globais)
@@ -311,8 +221,24 @@ def main():
     if args.mode == "report":
         if not args.in_dir or not args.report_out or not args.bulletin:
             print("[Erro] --in-dir, --report-out e --bulletin são obrigatórios no mode=report"); sys.exit(1)
-        from dou_snaptrack.cli.reporting import consolidate_and_report
-        consolidate_and_report(args.in_dir, args.bulletin, args.report_out, date_label=args.data or "", secao_label=args.secao or "")
+        if args.split_by_n1:
+            from dou_snaptrack.cli.reporting import split_and_report_by_n1
+            split_and_report_by_n1(
+                args.in_dir, args.bulletin, args.report_out, args.report_pattern,
+                date_label=args.data or "", secao_label=args.secao or "",
+                summary_lines=getattr(SUMMARY_CFG, "lines", 0) or 0,
+                summary_mode=getattr(SUMMARY_CFG, "mode", "center") or "center",
+                summary_keywords=getattr(SUMMARY_CFG, "keywords", None),
+            )
+        else:
+            from dou_snaptrack.cli.reporting import consolidate_and_report
+            consolidate_and_report(
+                args.in_dir, args.bulletin, args.report_out,
+                date_label=args.data or "", secao_label=args.secao or "",
+                summary_lines=getattr(SUMMARY_CFG, "lines", 0) or 0,
+                summary_mode=getattr(SUMMARY_CFG, "mode", "center") or "center",
+                summary_keywords=getattr(SUMMARY_CFG, "keywords", None),
+            )
         return
 
     # plan-from-pairs (não precisa Playwright; só se --execute-plan)
@@ -328,7 +254,7 @@ def main():
             if args.execute_plan:
                 print("[Exec] Rodando batch com o plano recém-gerado...")
                 args.config = args.plan_out
-                from playwright.sync_api import sync_playwright
+                from playwright.sync_api import sync_playwright  # type: ignore
                 with sync_playwright() as p:
                     from dou_snaptrack.cli.batch import run_batch
                     run_batch(p, args, SUMMARY_CFG)
@@ -343,14 +269,14 @@ def main():
     if args.mode == "batch":
         if not args.config:
             print("[Erro] --config obrigatório em mode=batch"); sys.exit(1)
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import sync_playwright  # type: ignore
         with sync_playwright() as p:
             from dou_snaptrack.cli.batch import run_batch
             run_batch(p, args, SUMMARY_CFG)
         return
 
     # Demais modos usam Playwright (list/run/plan/plan-live)
-    from playwright.sync_api import sync_playwright
+    from playwright.sync_api import sync_playwright  # type: ignore
     with sync_playwright() as p:
         # plan-live gera o plano dinâmico e opcionalmente já executa (via cli.plan_live)
         if args.mode == "plan-live":
@@ -421,7 +347,8 @@ def main():
                         label1=args.label1, label2=args.label2, label3=args.label3,
                         max_scrolls=args.max_scrolls, scroll_pause_ms=args.scroll_pause_ms, stable_rounds=args.stable_rounds,
                         state_file=args.state_file, bulletin=args.bulletin, bulletin_out=bulletin_out,
-                        summary=SUMMARY_CFG
+                        summary=SUMMARY_CFG,
+                        detail_parallel=int(getattr(args, "detail_parallel", 1) or 1)
                     )
                 return
 

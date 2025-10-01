@@ -118,6 +118,8 @@ class CascadeService:
 
     def _invoke_summarizer(self, text: str, lines: int, mode: str, keywords: Optional[List[str]]):
         """Invoca a função de resumo com compatibilidade para diferentes assinaturas"""
+        if not self.summarize_fn:
+            return None
         try:
             return self.summarize_fn(text, lines, mode, keywords)
         except TypeError:
@@ -132,7 +134,8 @@ class CascadeService:
         failures = 0
         
         for item in raw_items:
-            detail_url = abs_url(self.page.url, item.get("link"))
+            raw_link = item.get("link") or ""
+            detail_url = abs_url(self.page.url, raw_link) if raw_link else ""
             fallback_date = params.date if params.fallback_date_if_missing else None
             
             try:
@@ -141,6 +144,9 @@ class CascadeService:
                 
                 # Mescla item original com detalhes
                 record = {**item, **detail.to_dict()}
+                # Garantir detail_url absoluto no item final
+                if detail_url:
+                    record["detail_url"] = detail_url
                 
                 # Calcula hash para deduplicação
                 item_hash = record.get("meta", {}).get("hash") or stable_sha1(detail_url)
@@ -187,11 +193,14 @@ class CascadeService:
             logger.info(f"Ajustando workers para {effective_workers} (original: {params.parallel})")
 
         def _job(item):
-            detail_url = abs_url(self.page.url, item.get("link"))
+            raw_link = item.get("link") or ""
+            detail_url = abs_url(self.page.url, raw_link) if raw_link else ""
             fallback_date = params.date if params.fallback_date_if_missing else None
             
             detail = self._fetch_detail(detail_url, params, fallback_date)
             record = {**item, **detail.to_dict()}
+            if detail_url:
+                record["detail_url"] = detail_url
             
             h = record.get("meta", {}).get("hash") or stable_sha1(detail_url)
             record["hash"] = h

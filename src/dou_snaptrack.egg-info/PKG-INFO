@@ -1,7 +1,13 @@
 Metadata-Version: 2.4
 Name: dou-snaptrack
 Version: 0.1.0
-Summary: Scanner e mapeadores do DOU (modularizados)
+Summary: Ferramentas para coleta do DOU: planejamento, execução em lote e geração de boletins
+Author-email: Equipe <example@example.com>
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
-Requires-Dist: playwright>=1.45.0
+Requires-Dist: playwright>=1.44
+Requires-Dist: python-docx>=1.1.0
+Requires-Dist: streamlit>=1.37
+Requires-Dist: requests>=2.32
+Provides-Extra: ui
+Requires-Dist: streamlit>=1.37; extra == "ui"

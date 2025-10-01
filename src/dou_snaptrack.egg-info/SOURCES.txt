@@ -1,6 +1,4 @@
 pyproject.toml
-src/dou_snaptrack/00_map_page.py
-src/dou_snaptrack/00_map_pairs.py
 src/dou_snaptrack/05_cascade_cli.py
 src/dou_snaptrack/__init__.py
 src/dou_snaptrack/_init_.py
@@ -28,6 +26,8 @@ src/dou_snaptrack/mappers/__init__.py
 src/dou_snaptrack/mappers/_init_.py
 src/dou_snaptrack/mappers/page_mapper.py
 src/dou_snaptrack/mappers/pairs_mapper.py
+src/dou_snaptrack/ui/app.py
+src/dou_snaptrack/ui/launch.py
 src/dou_snaptrack/utils/__init__.py
 src/dou_snaptrack/utils/_init_.py
 src/dou_snaptrack/utils/browser.py

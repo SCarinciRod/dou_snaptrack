@@ -52,8 +52,54 @@ def apply_query(frame, query: str):
 
 def collect_links(frame, max_links: int = 30, max_scrolls: int = 40, scroll_pause_ms: int = 350, stable_rounds: int = 3):
     page = frame.page
-    container = page.locator("#hierarchy_content")
-    anchors = container.locator('a[href*="/web/dou/"]') if container.count() > 0 else page.locator('a[href*="/web/dou/"]')
+    # Aguarda breve estabilização
+    try:
+        page.wait_for_timeout(500)
+    except Exception:
+        pass
+
+    selectors = [
+        "#hierarchy_content a[href*='/web/dou/']",
+        "article a[href*='/web/dou/']",
+        "main a[href*='/web/dou/']",
+        "section a[href*='/web/dou/']",
+        "a.card__link[href*='/web/dou/']",
+        "a[href*='/web/dou/']",
+    ]
+
+    # Escolher o melhor frame + locator (primeiro tenta o frame fornecido)
+    frames = [frame] + [f for f in page.frames if f is not frame]
+    best = None
+    best_cnt = -1
+    best_frame = frame
+    for fr in frames:
+        for sel in selectors:
+            try:
+                loc = fr.locator(sel)
+                cnt = loc.count()
+                if cnt > best_cnt:
+                    best = loc
+                    best_cnt = cnt
+                    best_frame = fr
+            except Exception:
+                continue
+    anchors = best or frame.locator("a[href*='/web/dou/']")
+    active_frame = best_frame
+
+    # Tente "carregar mais"/"ver mais" dentro do frame ativo
+    for _ in range(5):
+        try:
+            btn = active_frame.get_by_role("button", name=re.compile(r"(carregar|ver).*(mais|resultados)", re.I)).first
+            if btn and btn.count() > 0 and btn.is_visible():
+                btn.click()
+                page.wait_for_load_state("networkidle", timeout=20000)
+                active_frame.wait_for_timeout(200)
+            else:
+                break
+        except Exception:
+            break
+
+    # Scroll incremental no frame e na página
     last = -1
     stable = 0
     for _ in range(max_scrolls):
@@ -71,10 +117,19 @@ def collect_links(frame, max_links: int = 30, max_scrolls: int = 40, scroll_paus
             break
         last = count
         try:
+            active_frame.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        except Exception:
+            pass
+        try:
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         except Exception:
             pass
-        page.wait_for_timeout(scroll_pause_ms)
+        try:
+            active_frame.wait_for_timeout(scroll_pause_ms)
+        except Exception:
+            pass
+
+    # Extrair itens
     items = []
     try:
         total = anchors.count()

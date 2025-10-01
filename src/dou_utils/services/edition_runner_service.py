@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, List, Callable
 from pathlib import Path
 
 from ..page_utils import goto as _goto, try_visualizar_em_lista, find_best_frame
+from ..detail_utils import abs_url as _abs_url
 from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
 from ..services.multi_level_cascade_service import MultiLevelCascadeSelector
 from ..services.cascade_service import CascadeService, CascadeParams
@@ -34,6 +35,7 @@ class EditionRunParams:
     detail_timeout: int = 60_000
     fallback_date_if_missing: bool = True
     dedup_state_file: Optional[str] = None
+    detail_parallel: int = 1
 
     # Summary is usually applied at bulletin generation; keep disabled here by default
     summary: bool = False
@@ -121,7 +123,7 @@ class EditionRunnerService:
                     max_links=params.max_links,
                     scrape_detail=True,
                     detail_timeout=params.detail_timeout,
-                    parallel=1,
+                    parallel=max(1, int(getattr(params, "detail_parallel", 1) or 1)),
                     summary=params.summary,
                     summary_lines=params.summary_lines,
                     summary_mode=params.summary_mode,
@@ -135,7 +137,18 @@ class EditionRunnerService:
             result["total"] = len(result["itens"])
             result["enriquecido"] = True
         else:
-            result["itens"] = items
+            # Sem enriquecimento: ainda assim normalize links relativos para absolutos
+            norm_items = []
+            for it in items:
+                try:
+                    link = it.get("link") or ""
+                    durl = _abs_url(page.url, link) if link else ""
+                    if durl:
+                        it = {**it, "detail_url": durl}
+                except Exception:
+                    pass
+                norm_items.append(it)
+            result["itens"] = norm_items
             result["total"] = len(items)
             result["enriquecido"] = False
 
