@@ -29,10 +29,10 @@ Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 
 [Files]
 ; Copy entire project (you can narrow this for production)
-Source: "c:\Projetos\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
-; Ensure installer auxiliares are present
-Source: "c:\Projetos\installer\run_silent_install.ps1"; DestDir: "{app}\installer"; Flags: ignoreversion
-Source: "c:\Projetos\installer\launch_ui.vbs"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+; Ensure installer auxiliaries are present (relative to this .iss file)
+Source: ".\run_silent_install.ps1"; DestDir: "{app}\installer"; Flags: ignoreversion
+Source: ".\launch_ui.vbs"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
