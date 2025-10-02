@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dou-snaptrack"
+version = "0.1.0"
+description = "Ferramentas para coleta do DOU: planejamento, execução em lote e geração de boletins"
+readme = "README.md"
+authors = [{name = "Equipe", email = "example@example.com"}]
+requires-python = ">=3.10"
+dependencies = [
+  "playwright>=1.44",
+  "python-docx>=1.1.0",
+  "streamlit>=1.37",
+  "requests>=2.32",
+]
+
+[project.scripts]
+dou-ui = "dou_snaptrack.ui.launch:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+# Para desenvolvimento e UI
+ui = [
+  "streamlit>=1.37",
+]
+
+[tool.playwright]
+# Para facilitar pós-instalação (rodar: python -m playwright install)
+install = true

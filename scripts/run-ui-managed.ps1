@@ -1,15 +1,16 @@
 param(
   [string]$VenvDir = ".venv",
-  [int]$Port = 8501
+  [int]$Port = 8501,
+  [switch]$NoBootstrap
 )
 
 $ErrorActionPreference = 'Stop'
 
-# Paths and logs
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Paths and logs (use project root = parent of scripts folder)
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = (Resolve-Path (Join-Path $scriptDir '..')).Path
 Set-Location $root
-$py = Join-Path $VenvDir "Scripts\python.exe"
-if (-not (Test-Path $py)) { Write-Error "Venv não encontrado em $VenvDir. Rode scripts\install.ps1"; exit 1 }
+$py = Join-Path (Join-Path $root $VenvDir) "Scripts\python.exe"
 
 $logs = Join-Path $root 'logs'
 if (-not (Test-Path $logs)) { New-Item -ItemType Directory -Path $logs | Out-Null }
@@ -20,6 +21,82 @@ function Write-Log($msg) {
   $ts = (Get-Date).ToString('s')
   "$ts [mgr] $msg" | Out-File -FilePath $mgrLog -Encoding UTF8 -Append
 }
+
+function Resolve-SystemPython {
+  Write-Log "Resolvendo Python do sistema..."
+  $cands = @(
+    @{ cmd = 'py'; args = '-3.11'; desc = 'py -3.11' },
+    @{ cmd = 'py'; args = '-3.12'; desc = 'py -3.12' },
+    @{ cmd = 'py'; args = '-3'; desc = 'py -3' },
+    @{ cmd = 'python'; args = ''; desc = 'python' }
+  )
+  foreach($c in $cands){
+    try {
+      $exe = & $c.cmd $c.args -c "import sys; print(sys.executable)" 2>$null
+      if ($LASTEXITCODE -eq 0 -and $exe) {
+        $v = & $c.cmd $c.args -c "import sys; print('.'.join(map(str, sys.version_info[:2])))" 2>$null
+        Write-Log "Encontrado $($c.desc): $exe (Python $v)"
+        return @{ exe = $exe.Trim(); ver = $v.Trim() }
+      }
+    } catch {}
+  }
+  return $null
+}
+
+function Ensure-Venv {
+  param([string]$VenvPath)
+  if (Test-Path (Join-Path $VenvPath 'Scripts\python.exe')) { return }
+  if ($NoBootstrap) { Write-Error "Venv não encontrado em $VenvPath e bootstrap desativado. Rode scripts\install.ps1 ou remova -NoBootstrap."; exit 1 }
+  $sys = Resolve-SystemPython
+  if (-not $sys) { Write-Error "Python não encontrado no sistema. Instale Python 3.11+ ou rode scripts\install.ps1."; exit 1 }
+  Write-Log "Criando venv em $VenvPath com: $($sys.exe)"
+  & $sys.exe -m venv $VenvPath
+  if ($LASTEXITCODE -ne 0) { Write-Error "Falha ao criar venv."; exit 1 }
+}
+
+function Pip-Ensure {
+  param([string]$PyExe)
+  Write-Log "Atualizando pip..."
+  & $PyExe -m pip install -U pip 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
+}
+
+function Dep-Installed {
+  param([string]$PyExe, [string]$module)
+  & $PyExe -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$module') else 1)" 2>$null
+  return ($LASTEXITCODE -eq 0)
+}
+
+function Ensure-Dependencies {
+  param([string]$PyExe)
+  $need = @()
+  $deps = @(
+    @{ pkg = 'streamlit';   mod = 'streamlit' },
+    @{ pkg = 'playwright';  mod = 'playwright' },
+    @{ pkg = 'python-docx'; mod = 'docx' }
+  )
+  foreach($d in $deps){ if (-not (Dep-Installed $PyExe $d.mod)) { $need += $d.pkg } }
+  if ($need.Count -gt 0) {
+    Write-Log ("Instalando dependências: " + ($need -join ', '))
+    & $PyExe -m pip install -q $need 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
+    if ($LASTEXITCODE -ne 0) {
+      Write-Log "Falha instalando dependências diretas; tentando instalar o pacote do projeto (-e .)"
+      & $PyExe -m pip install -e . 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
+      if ($LASTEXITCODE -ne 0) {
+        Write-Error "Falha ao instalar dependências. Verifique conectividade e permissões. Consulte $uiLog"; exit 1
+      }
+    }
+  } else {
+    Write-Log "Dependências básicas já presentes."
+  }
+}
+
+# Bootstrap se necessário
+Ensure-Venv -VenvPath (Join-Path $root $VenvDir)
+$py = Join-Path (Join-Path $root $VenvDir) "Scripts\python.exe"
+if (-not (Test-Path $py)) { Write-Error "Python da venv não encontrado em $py"; exit 1 }
+
+Pip-Ensure -PyExe $py
+Ensure-Dependencies -PyExe $py
 
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"
