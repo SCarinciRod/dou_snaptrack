@@ -111,6 +111,16 @@ $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true
 $psi.CreateNoWindow = $true
 
+# Ensure Python can import project packages from src/ even when launched via shortcut
+$currentPyPath = $env:PYTHONPATH
+$desiredPyPath = Join-Path $root 'src'
+if ([string]::IsNullOrEmpty($currentPyPath)) {
+  $psi.EnvironmentVariables["PYTHONPATH"] = $desiredPyPath
+} else {
+  $psi.EnvironmentVariables["PYTHONPATH"] = "$desiredPyPath;$currentPyPath"
+}
+Write-Log ("PYTHONPATH set for child: " + $psi.EnvironmentVariables["PYTHONPATH"]) 
+
 $p = New-Object System.Diagnostics.Process
 $p.StartInfo = $psi
 [void]$p.Start()
