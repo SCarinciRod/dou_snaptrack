@@ -13,13 +13,13 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
-DefaultDirName={code:GetAppDir}
+DefaultDirName={localappdata}\dou_snaptrack
 DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename=DouSnapTrack-Setup
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
+; Per-user install only, no elevation or overrides
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
@@ -47,17 +47,11 @@ Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho"; GroupDesc
 [Run]
 ; Run the silent installer wrapper after files are copied
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\run_silent_install.ps1"" -WorkDir ""{app}"""; Flags: runhidden; StatusMsg: "Configurando ambiente..."
+; Offer to run the app after installation (per-user)
+Filename: "{app}\launch_ui_managed.vbs"; Description: "Executar Dou SnapTrack agora"; Flags: postinstall nowait skipifsilent shellexec
 
 [UninstallDelete]
 ; Optional: remove venv to save space
 Type: filesandordirs; Name: "{app}\.venv"
 
-[Code]
-function GetAppDir(Param: string): string;
-begin
-	// If running elevated (admin), install under Program Files; otherwise LocalAppData
-	if IsAdminLoggedOn then
-		Result := ExpandConstant('{autopf}') + '\\Dou SnapTrack'
-	else
-		Result := ExpandConstant('{localappdata}') + '\\dou_snaptrack';
-end;
+; No custom code needed; per-user path set via DefaultDirName
