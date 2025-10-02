@@ -119,9 +119,9 @@ def main():
     # gerais
     ap.add_argument("--query", default=None)
     ap.add_argument("--max-links", type=int, default=30)
-    ap.add_argument("--max-scrolls", type=int, default=40, help="Máximo de scrolls para carregar resultados")
-    ap.add_argument("--scroll-pause-ms", type=int, default=350, help="Pausa entre scrolls (ms)")
-    ap.add_argument("--stable-rounds", type=int, default=3, help="Rodadas de estabilidade para parar scroll")
+    ap.add_argument("--max-scrolls", type=int, default=30, help="Máximo de scrolls para carregar resultados")
+    ap.add_argument("--scroll-pause-ms", type=int, default=250, help="Pausa entre scrolls (ms)")
+    ap.add_argument("--stable-rounds", type=int, default=2, help="Rodadas de estabilidade para parar scroll")
     ap.add_argument("--detail-parallel", type=int, default=1, help="Paralelismo intra-job para enriquecimento de detalhes (default: 1)")
     ap.add_argument("--secao", default="DO1")
     ap.add_argument("--data", default=None, help="DD-MM-AAAA (default: hoje)")

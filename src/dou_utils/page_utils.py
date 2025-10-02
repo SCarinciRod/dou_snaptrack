@@ -5,8 +5,13 @@ import re
 
 def goto(page, url):
     print(f"\n[Abrindo] {url}")
-    page.goto(url, wait_until="domcontentloaded", timeout=90000)
-    page.wait_for_load_state("networkidle", timeout=90000)
+    page.goto(url, wait_until="domcontentloaded", timeout=60000)
+    # avoid long networkidle; give a short settling time instead
+    try:
+        page.wait_for_load_state("load", timeout=10000)
+    except Exception:
+        pass
+    page.wait_for_timeout(200)
     close_cookies(page)
 
 def close_cookies(page):

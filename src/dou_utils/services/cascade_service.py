@@ -75,6 +75,9 @@ class CascadeService:
 
         # Determina o modo de scraping (paralelo ou sequencial)
         if params.scrape_detail and params.parallel > 1:
+            # Cap workers to avoid oversubscription that slows down Playwright+CPU
+            if params.parallel > 8:
+                params.parallel = 8
             detail_items, failures = self._scrape_parallel(raw_items, params, dedup)
         elif params.scrape_detail:
             detail_items, failures = self._scrape_sequential(raw_items, params, dedup)

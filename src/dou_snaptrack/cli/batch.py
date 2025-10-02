@@ -137,12 +137,65 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
     report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": []}
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
-        context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
+        # Prefer system Chrome/Edge (order can respect DOU_PREFER_EDGE) to avoid downloads (faster startup)
+        import os
+        from pathlib import Path as _P
+        prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
+        channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
+        browser = None
+        for ch in channels:
+            try:
+                browser = p.chromium.launch(channel=ch, headless=not headful, slow_mo=slowmo)
+                break
+            except Exception:
+                browser = None
+        if browser is None:
+            exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
+            if not exe:
+                for c in (
+                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+                ) if prefer_edge else (
+                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+                ):
+                    if _P(c).exists():
+                        exe = c; break
+            if exe:
+                try:
+                    browser = p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
+                except Exception:
+                    browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
+            else:
+                browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
+        context = browser.new_context(ignore_https_errors=True, viewport={"width": 1024, "height": 768})
+        # Block heavy resources to accelerate navigation and scrolling
+        try:
+            def _route_block_heavy(route):
+                try:
+                    req = route.request
+                    rtype = getattr(req, "resource_type", lambda: "")()
+                    if rtype in ("image", "media", "font", "stylesheet"):
+                        return route.abort()
+                    url = req.url
+                    if any(url.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".woff", ".woff2")):
+                        return route.abort()
+                except Exception:
+                    pass
+                return route.continue_()
+            context.route("**/*", _route_block_heavy)
+        except Exception:
+            pass
         page_cache: Dict[Tuple[str, str], Any] = {}
+        fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1","true","yes")
         try:
             for j_idx in indices:
                 job = jobs[j_idx - 1]
+                start_ts = time.time()
                 print(f"\n[PW{os.getpid()}] [Job {j_idx}/{len(jobs)}] {job.get('topic','')}: {job.get('query','')}")
                 out_name = render_out_filename(out_pattern, {**job, "_job_index": j_idx})
                 out_path = out_dir / out_name
@@ -158,13 +211,22 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                 detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000))
                 fallback_date = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
 
-                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 40))
-                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 350))
-                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 3))
+                # Faster defaults aligned with query_utils optimizations, with optional fast-mode overrides
+                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 30))
+                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 250))
+                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 2))
+                if fast_mode:
+                    max_scrolls = min(max_scrolls, 15)
+                    scroll_pause_ms = min(scroll_pause_ms, 150)
+                    stable_rounds = min(stable_rounds, 1)
+                    do_scrape_detail = False
                 detail_parallel = int(_get(job, "detail_parallel", "detail_parallel", 1))
 
                 bulletin = job.get("bulletin") or defaults.get("bulletin")
                 bulletin_out_pat = job.get("bulletin_out") or defaults.get("bulletin_out") or None
+                if fast_mode:
+                    bulletin = None
+                    bulletin_out_pat = None
                 bulletin_out = str(out_dir / render_out_filename(bulletin_out_pat, {**job, "_job_index": j_idx})) if (bulletin and bulletin_out_pat) else None
 
                 if not key1 or not key1_type or not key2 or not key2_type:
@@ -208,6 +270,8 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                     report["ok"] += 1
                     report["outputs"].append(str(out_path))
                     report["items_total"] += result.get("total", 0)
+                    elapsed = time.time() - start_ts
+                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={result.get('total', 0)}")
                 except Exception as e:
                     print(f"[FAIL] Job {j_idx}: {e}")
                     report["fail"] += 1
@@ -277,12 +341,25 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     parallel = int(getattr(args, "parallel", 4) or 4)
     reuse_page = bool(getattr(args, "reuse_page", False))
 
-    # Distribute jobs roughly evenly across workers
-    total = len(jobs)
-    indices = list(range(1, total + 1))
-    buckets: List[List[int]] = [[] for _ in range(max(1, parallel))]
-    for i, idx in enumerate(indices):
-        buckets[i % len(buckets)].append(idx)
+    # Distribute jobs by (date, secao), but chunk large groups across buckets to keep parallelism
+    from collections import defaultdict
+    import math
+    groups: Dict[Tuple[str, str], List[int]] = defaultdict(list)
+    for i, job in enumerate(jobs, start=1):
+        d = str(job.get("data") or cfg.get("data") or "")
+        s = str(job.get("secao") or cfg.get("secaoDefault") or "")
+        groups[(d, s)].append(i)
+    bucket_count = max(1, parallel)
+    desired_size = max(1, math.ceil(len(jobs) / bucket_count))
+    # Break each group into contiguous chunks of desired_size
+    pseudo_groups: List[List[int]] = []
+    for _, idxs in sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True):
+        for start in range(0, len(idxs), desired_size):
+            pseudo_groups.append(idxs[start:start + desired_size])
+    # Round-robin assign chunks to buckets
+    buckets: List[List[int]] = [[] for _ in range(bucket_count)]
+    for gi, chunk in enumerate(pseudo_groups):
+        buckets[gi % bucket_count].extend(chunk)
 
     try:
         with ProcessPoolExecutor(max_workers=max(1, parallel)) as ex:

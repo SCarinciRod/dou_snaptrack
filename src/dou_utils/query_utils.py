@@ -48,13 +48,22 @@ def apply_query(frame, query: str):
                 bt.first.click()
         except Exception:
             pass
-    frame.page.wait_for_load_state("networkidle", timeout=90000)
+    # Aguarde o conteúdo aparecer sem travar em "networkidle" longo
+    try:
+        frame.page.wait_for_load_state("domcontentloaded", timeout=20000)
+    except Exception:
+        pass
+    try:
+        frame.locator("a[href*='/web/dou/']").first.wait_for(state="visible", timeout=20000)
+    except Exception:
+        # se não houver âncoras visíveis, seguimos com a coleta
+        pass
 
-def collect_links(frame, max_links: int = 30, max_scrolls: int = 40, scroll_pause_ms: int = 350, stable_rounds: int = 3):
+def collect_links(frame, max_links: int = 30, max_scrolls: int = 30, scroll_pause_ms: int = 250, stable_rounds: int = 2):
     page = frame.page
     # Aguarda breve estabilização
     try:
-        page.wait_for_timeout(500)
+        page.wait_for_timeout(250)
     except Exception:
         pass
 
@@ -102,26 +111,41 @@ def collect_links(frame, max_links: int = 30, max_scrolls: int = 40, scroll_paus
     # Scroll incremental no frame e na página
     last = -1
     stable = 0
+    last_scroll_h = None
     for _ in range(max_scrolls):
+        # Obter contagem de âncoras e scrollHeight em uma única ida ao frame
         try:
-            count = anchors.count()
+            count, sh = active_frame.evaluate(
+                "() => { const c=document.querySelectorAll(\"a[href*='/web/dou/']\").length; const h=document.body.scrollHeight; return [c,h]; }"
+            )
         except Exception:
-            count = 0
+            # fallback para chamadas separadas
+            try:
+                count = anchors.count()
+            except Exception:
+                count = 0
+            try:
+                sh = active_frame.evaluate("document.body.scrollHeight")
+            except Exception:
+                sh = None
         if count >= max_links:
             break
         if count == last:
             stable += 1
         else:
             stable = 0
-        if stable >= stable_rounds:
+        if stable >= stable_rounds or (sh is not None and last_scroll_h == sh):
             break
         last = count
+        last_scroll_h = sh
         try:
             active_frame.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         except Exception:
             pass
         try:
-            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            # Só scroll na página se necessário; maioria dos sites carrega dentro do frame
+            if count < max_links:
+                page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         except Exception:
             pass
         try:
@@ -129,7 +153,28 @@ def collect_links(frame, max_links: int = 30, max_scrolls: int = 40, scroll_paus
         except Exception:
             pass
 
-    # Extrair itens
+    # Extrair itens de forma vetorizada (menos RPCs)
+    try:
+        items = active_frame.evaluate(
+            "(limit) => {\n"
+            "  const out = [];\n"
+            "  const as = Array.from(document.querySelectorAll(\"a[href*='/web/dou/']\"));\n"
+            "  for (let i=0; i<as.length && out.length < limit; i++) {\n"
+            "    const a = as[i];\n"
+            "    const href = a.getAttribute('href') || '';\n"
+            "    let text = a.textContent ? a.textContent.trim() : '';\n"
+            "    if (href && text) { out.push({titulo: text, link: href}); }\n"
+            "  }\n"
+            "  return out;\n"
+            "}",
+            max_links,
+        )
+        if isinstance(items, list) and items:
+            return items
+    except Exception:
+        pass
+
+    # Fallback seguro (menos eficiente)
     items = []
     try:
         total = anchors.count()

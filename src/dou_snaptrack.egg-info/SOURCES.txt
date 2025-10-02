@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 src/dou_snaptrack/05_cascade_cli.py
 src/dou_snaptrack/__init__.py
@@ -57,18 +58,8 @@ src/dou_utils/core/extraction_utils.py
 src/dou_utils/core/option_filter.py
 src/dou_utils/core/polling.py
 src/dou_utils/core/sentinel_utils.py
-src/dou_utils/core/tests/_init_.py
-src/dou_utils/core/tests/test_cascade_executor_fake.py
-src/dou_utils/core/tests/test_core_combos.py
-src/dou_utils/core/tests/test_option_filter.py
-src/dou_utils/core/tests/test_planning_from_pairs_refactor.py
-src/dou_utils/core/tests/test_planning_service_from_map_refactor.py
-src/dou_utils/core/tests/test_planning_service_map_basic.py
-src/dou_utils/core/tests/test_sentinel_utils.py
 src/dou_utils/services/__init__.py
-src/dou_utils/services/cascade_executor.py
 src/dou_utils/services/cascade_service.py
-src/dou_utils/services/dropdown_mapper_service.py
 src/dou_utils/services/edition_runner_service.py
 src/dou_utils/services/multi_level_cascade_service.py
 src/dou_utils/services/planning_service.py

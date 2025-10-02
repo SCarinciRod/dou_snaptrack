@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dou-snaptrack"
-version = "0.1.0"
+version = "0.1.1"
 description = "Ferramentas para coleta do DOU: planejamento, execução em lote e geração de boletins"
 readme = "README.md"
 authors = [{name = "Equipe", email = "example@example.com"}]

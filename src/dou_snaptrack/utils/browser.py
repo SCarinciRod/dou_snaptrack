@@ -78,25 +78,30 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     p = sync_playwright().start()
     launch_args = dict(headless=not headful, slow_mo=slowmo)
 
-    # 1) Tentar canal "chrome" (requer Chrome instalado no sistema)
-    try:
-        browser = p.chromium.launch(channel="chrome", **launch_args)
-        return p, browser
-    except Exception:
-        # 1b) Tentar canal "msedge" (Edge instalado no sistema)
+    # 1) Tentar canais do sistema na ordem preferida
+    prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
+    channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
+    for ch in channels:
         try:
-            browser = p.chromium.launch(channel="msedge", **launch_args)
+            browser = p.chromium.launch(channel=ch, **launch_args)
             return p, browser
         except Exception:
-            pass
+            continue
 
     # 2) Tentar usar caminho explícito do Chrome via env
     exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
     if not exe:
         # caminhos comuns no Windows
         candidates = [
+            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
             r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
             r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        ] if prefer_edge else [
+            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
         ]
         for c in candidates:
             if Path(c).exists():

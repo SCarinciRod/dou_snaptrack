@@ -48,6 +48,8 @@ def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> 
         loc = frame.locator(selroot)
         try: c = loc.count()
         except Exception: c = 0
+        if c == 0:
+            continue
         for i in range(min(c, max_per_type)):
             h = loc.nth(i)
             try:

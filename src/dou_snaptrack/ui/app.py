@@ -9,7 +9,13 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import io, zipfile
 
+# Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
+SRC_ROOT = Path(__file__).resolve().parents[2]
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import streamlit as st
+from functools import lru_cache
 
 
 # ---------------- Helpers ----------------
@@ -37,13 +43,11 @@ def _ensure_state():
             date=_date.today().strftime("%d-%m-%Y"),
             secao="DO1",
             combos=[],
-            defaults={
-                "scrape_detail": False,
-                "summary_lines": 4,
-                "summary_mode": "center",
-                "bulletin": "docx",
-                "bulletin_out": "boletim_{secao}_{date}_{idx}.docx",
-            },
+                defaults={
+                    "scrape_detail": False,
+                    "summary_lines": 4,
+                    "summary_mode": "center",
+                },
         )
 
 
@@ -53,7 +57,7 @@ def _load_pairs_file(p: Path) -> Dict[str, List[str]]:
         # Espera formato {"pairs": {"N1": ["N2", ...]}}
         pairs = data.get("pairs") or {}
         if isinstance(pairs, dict):
-            norm = {}
+            norm: Dict[str, List[str]] = {}
             for k, v in pairs.items():
                 if isinstance(v, list):
                     norm[str(k)] = [str(x) for x in v]
@@ -61,6 +65,41 @@ def _load_pairs_file(p: Path) -> Dict[str, List[str]]:
     except Exception:
         pass
     return {}
+
+
+@lru_cache(maxsize=1)
+def _find_system_browser_exe() -> Optional[str]:
+    """Resolve a system Chrome/Edge executable once and cache the result."""
+    import os
+    from pathlib import Path as _P
+    exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
+    if exe and _P(exe).exists():
+        return exe
+    prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
+    candidates = [
+        r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+        r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    ] if prefer_edge else [
+        r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+        r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    ]
+    for c in candidates:
+        if _P(c).exists():
+            return c
+    return None
+
+
+@st.cache_data(show_spinner=False)
+def _load_pairs_file_cached(path_str: str) -> Dict[str, List[str]]:
+    """Cached wrapper around _load_pairs_file for UI flows."""
+    try:
+        return _load_pairs_file(Path(path_str))
+    except Exception:
+        return {}
 
 
 def _build_combos(n1: str, n2_list: List[str], key_type: str = "text") -> List[Dict[str, Any]]:
@@ -80,6 +119,7 @@ def _build_combos(n1: str, n2_list: List[str], key_type: str = "text") -> List[D
     return out
 
 
+@st.cache_data(show_spinner=False)
 def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 20) -> List[str]:
     # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico
     try:
@@ -125,6 +165,7 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
         return []
 
 
+@st.cache_data(show_spinner=False)
 def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
     """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU)."""
     import traceback
@@ -142,32 +183,26 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
         from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options  # type: ignore
 
         with sync_playwright() as p:
-            # Preferir Chrome do sistema para evitar downloads (SSL restrito)
-            import os
-            from pathlib import Path
-            try:
-                browser = p.chromium.launch(channel="chrome", headless=True)
-            except Exception:
+            # Preferir Edge se DOU_PREFER_EDGE=1, caso contrário Chrome
+            import os as _os
+            prefer_edge = (_os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
+            channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
+            browser = None
+            for ch in channels:
                 try:
-                    browser = p.chromium.launch(channel="msedge", headless=True)
+                    browser = p.chromium.launch(channel=ch, headless=True)
+                    break
                 except Exception:
-                    exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
-                    if not exe:
-                        for c in (
-                            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                        ):
-                            if Path(c).exists():
-                                exe = c; break
-                    if exe and Path(exe).exists():
-                        try:
-                            browser = p.chromium.launch(executable_path=exe, headless=True)
-                        except Exception:
-                            browser = p.chromium.launch(headless=True)
-                    else:
+                    browser = None
+            if browser is None:
+                exe = _find_system_browser_exe()
+                if exe:
+                    try:
+                        browser = p.chromium.launch(executable_path=exe, headless=True)
+                    except Exception:
                         browser = p.chromium.launch(headless=True)
+                else:
+                    browser = p.chromium.launch(headless=True)
             try:
                 context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
                 page = context.new_page()
@@ -220,12 +255,12 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
         return []
 
 
-def _run_batch_with_cfg(cfg_path: Path, parallel: int) -> Dict[str, Any]:
+def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True) -> Dict[str, Any]:
     try:
-        import sys as _sys, asyncio as _asyncio
+        import sys as _sys, asyncio as _asyncio, os as _os
         if _sys.platform.startswith("win"):
             try:
-                _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
+                _asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
                 _asyncio.set_event_loop(_asyncio.new_event_loop())
             except Exception:
                 pass
@@ -234,21 +269,46 @@ def _run_batch_with_cfg(cfg_path: Path, parallel: int) -> Dict[str, Any]:
         from dou_snaptrack.cli.summary_config import SummaryConfig
         # Determinar pasta de saída por data do plano
         try:
-            cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-            plan_date = (cfg.get("data") or "").strip() or _date.today().strftime("%d-%m-%Y")
+            raw_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+            plan_date = (raw_cfg.get("data") or "").strip() or _date.today().strftime("%d-%m-%Y")
         except Exception:
+            raw_cfg = {}
             plan_date = _date.today().strftime("%d-%m-%Y")
         out_dir_path = Path("resultados") / plan_date
         out_dir_path.mkdir(parents=True, exist_ok=True)
         out_dir_str = str(out_dir_path)
+        # Garantir que a execução pela UI apenas capture links (sem boletim ou scrape detail)
+        cfg_obj = json.loads(json.dumps(raw_cfg)) if raw_cfg else {}
+        dfl = dict(cfg_obj.get("defaults") or {})
+        dfl.pop("bulletin", None)
+        dfl.pop("bulletin_out", None)
+        dfl["scrape_detail"] = False
+        dfl["detail_parallel"] = 1
+        cfg_obj["defaults"] = dfl
+        for key in ("jobs", "combos"):
+            seq = cfg_obj.get(key)
+            if isinstance(seq, list):
+                for j in seq:
+                    if isinstance(j, dict):
+                        j.pop("bulletin", None)
+                        j.pop("bulletin_out", None)
+                        j["scrape_detail"] = False
+                        j["detail_parallel"] = 1
+        tmp_cfg_path = out_dir_path / "_run_cfg.json"
+        tmp_cfg_path.write_text(json.dumps(cfg_obj, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Variáveis de ambiente herdadas pelos workers
+        if prefer_edge:
+            _os.environ["DOU_PREFER_EDGE"] = "1"
+        if fast_mode:
+            _os.environ["DOU_FAST_MODE"] = "1"
         with sync_playwright() as p:
             class Args:
-                config = str(cfg_path)
+                config = str(tmp_cfg_path)
                 out_dir = out_dir_str
                 headful = False
                 slowmo = 0
                 state_file = None
-                reuse_page = False
+                reuse_page = True  # reuse uma aba por (data,secao)
                 parallel = parallel
             run_batch(p, Args, SummaryConfig(lines=4, mode="center", keywords=None))
         rep_path = out_dir_path / "batch_report.json"
@@ -257,7 +317,6 @@ def _run_batch_with_cfg(cfg_path: Path, parallel: int) -> Dict[str, Any]:
     except Exception as e:
         st.error(f"Falha ao executar batch: {e}")
         return {}
-
 
 def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by_n1: bool, date_label: str, secao_label: str,
                 summary_lines: int, summary_mode: str) -> List[Path]:
@@ -347,7 +406,7 @@ with tab1:
 
     n1_list = st.session_state.get("live_n1", [])
     if n1_list:
-        n1 = st.selectbox("Nível 1 (Órgão)", n1_list, key="sel_n1_live")
+        n1 = st.selectbox("Órgão", n1_list, key="sel_n1_live")
     else:
         n1 = None
         st.info("Clique em 'Carregar' para listar os órgãos.")
@@ -362,7 +421,7 @@ with tab1:
     if n1:
         n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
 
-    sel_n2 = st.multiselect("Nível 2 (Unidade)", options=n2_list)
+    sel_n2 = st.multiselect("Organização Subordinada", options=n2_list)
     if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
         add = _build_combos(str(n1), sel_n2)
         st.session_state.plan.combos.extend(add)
@@ -422,10 +481,12 @@ with tab2:
 
     # Paralelismo automático: usar até N jobs (limite máximo) para não desperdiçar workers
     max_workers = 6
-    auto_parallel = st.checkbox("Definir paralelismo automaticamente", value=True, help=f"Usa min(nº de jobs, {max_workers}).")
-    user_parallel = st.number_input("Parallel workers (opcional)", min_value=1, max_value=12, value=4, step=1, disabled=auto_parallel)
+    st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
+    fast_mode = st.checkbox("Modo rápido (sem boletim, rolagem agressiva)", value=False,
+                            help="Desliga boletim e usa rolagem mais curta; ideal para validação rápida.")
+    st.caption("Detalhes e boletins permanecem disponíveis na aba 'Gerar boletim' após a captura dos links.")
 
-    if st.button("Executar batch"):
+    if st.button("Pesquisar Agora"):
         if not selected_path.exists():
             st.error("Plano não encontrado.")
         else:
@@ -439,10 +500,11 @@ with tab2:
             except Exception:
                 est_jobs = 1
 
-            parallel = int(min(max_workers, max(1, est_jobs))) if auto_parallel else int(user_parallel)
+            parallel = int(min(max_workers, max(1, est_jobs)))
             with st.spinner(f"Executando…"):
-                rep = _run_batch_with_cfg(selected_path, int(parallel))
+                rep = _run_batch_with_cfg(selected_path, parallel, fast_mode=bool(fast_mode), prefer_edge=True)
             st.write(rep or {"info": "Sem relatório"})
+            st.caption(f"Execução concluída com {parallel} workers automáticos.")
 
 with tab3:
     st.subheader("Gerar boletim")
@@ -459,7 +521,7 @@ with tab3:
     if day_dirs:
         labels = [p.name for p in day_dirs]
         choice = st.selectbox("Selecione a pasta do dia (em resultados)", labels, index=0)
-        selected_in_dir = results_root / choice
+        selected_in_dir = results_root / choice if choice else results_root
     else:
         st.info("Nenhuma pasta encontrada em 'resultados'. Crie um plano e execute-o para gerar uma pasta do dia.")
         selected_in_dir = results_root
