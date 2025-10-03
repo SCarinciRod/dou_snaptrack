@@ -27,9 +27,9 @@ class EditionRunParams:
 
     query: Optional[str] = None
     max_links: int = 30
-    max_scrolls: int = 40
-    scroll_pause_ms: int = 350
-    stable_rounds: int = 3
+    max_scrolls: int = 30
+    scroll_pause_ms: int = 250
+    stable_rounds: int = 2
 
     scrape_detail: bool = False
     detail_timeout: int = 60_000
@@ -50,16 +50,37 @@ class EditionRunnerService:
         # Optional hooks for page reuse (set by caller)
         self._precreated_page = None
         self._keep_page_open = False
+        # Install a global route on the context to block heavy resources (images, media, fonts)
+        try:
+            def _route_block_heavy(route):
+                try:
+                    req = route.request
+                    rtype = getattr(req, "resource_type", lambda: "")()
+                    if rtype in ("image", "media", "font", "stylesheet"):
+                        return route.abort()
+                    url = req.url
+                    if any(url.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".woff", ".woff2")):
+                        return route.abort()
+                except Exception:
+                    pass
+                return route.continue_()
+            self.context.route("**/*", _route_block_heavy)
+        except Exception:
+            pass
 
     def run(self, params: EditionRunParams, summarizer_fn: Optional[Callable] = None) -> Dict[str, Any]:
+        import time
+        t0 = time.time()
         page = self._precreated_page or self.context.new_page()
         page.set_default_timeout(60_000)
         page.set_default_navigation_timeout(60_000)
 
         url = f"https://www.in.gov.br/leiturajornal?data={params.date}&secao={params.secao}"
         _goto(page, url)
+        t_after_nav = time.time()
         try_visualizar_em_lista(page)
         frame = find_best_frame(self.context)
+        t_after_view = time.time()
 
         selector = MultiLevelCascadeSelector(frame)
         selres = selector.run(
@@ -89,6 +110,7 @@ class EditionRunnerService:
             }
 
         _apply_query(frame, params.query or "")
+        t_after_select = time.time()
         items = _collect_links(
             frame,
             max_links=params.max_links,
@@ -96,6 +118,7 @@ class EditionRunnerService:
             scroll_pause_ms=params.scroll_pause_ms,
             stable_rounds=params.stable_rounds,
         )
+        t_after_collect = time.time()
 
         result: Dict[str, Any] = {
             "data": params.date,
@@ -157,4 +180,10 @@ class EditionRunnerService:
                 page.close()
             except Exception:
                 pass
+        total_elapsed = time.time() - t0
+        print(
+            f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} "
+            f"timings: nav={t_after_nav - t0:.1f}s view={t_after_view - t_after_nav:.1f}s "
+            f"select={t_after_select - t_after_view:.1f}s collect={t_after_collect - t_after_select:.1f}s total={total_elapsed:.1f}s"
+        )
         return result

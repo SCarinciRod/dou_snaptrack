@@ -6,10 +6,12 @@ import json
 import hashlib
 import time
 import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
+import sys
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+import multiprocessing as mp
+import subprocess
 
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
-from .runner import run_once
 
 
 def sanitize_filename(name: str) -> str:
@@ -117,7 +119,25 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
             _asyncio.set_event_loop(_asyncio.new_event_loop())
     except Exception:
         pass
+    # Optional log redirection: write worker prints to a shared log file
+    _log_fp = None
+    try:
+        log_file = payload.get("log_file")
+        # Evitar redirecionar stdout quando rodando inline (thread) no processo principal
+        import multiprocessing as _mp
+        is_main_proc = (_mp.current_process().name == "MainProcess")
+        if log_file:
+            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+            _log_fp = open(log_file, "a", encoding="utf-8", buffering=1)
+            if not is_main_proc:
+                sys.stdout = _log_fp  # type: ignore
+                sys.stderr = _log_fp  # type: ignore
+            print(f"[Worker {os.getpid()}] logging to {log_file}")
+    except Exception:
+        _log_fp = None
+    # Defer heavy imports until after stdout is redirected
     from playwright.sync_api import sync_playwright  # type: ignore
+    from .runner import run_once
     jobs: List[Dict[str, Any]] = payload["jobs"]
     defaults: Dict[str, Any] = payload["defaults"]
     out_dir = Path(payload["out_dir"])  # already exists
@@ -138,14 +158,22 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     with sync_playwright() as p:
         # Prefer system Chrome/Edge (order can respect DOU_PREFER_EDGE) to avoid downloads (faster startup)
-        import os
-        from pathlib import Path as _P
         prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
         channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
         browser = None
+        launch_opts = {
+            "headless": not headful,
+            "slow_mo": slowmo,
+            "args": [
+                "--disable-background-timer-throttling",
+                "--disable-renderer-backgrounding",
+                "--disable-backgrounding-occluded-windows",
+                "--disable-features=Translate,BackForwardCache",
+            ],
+        }
         for ch in channels:
             try:
-                browser = p.chromium.launch(channel=ch, headless=not headful, slow_mo=slowmo)
+                browser = p.chromium.launch(channel=ch, **launch_opts)
                 break
             except Exception:
                 browser = None
@@ -163,23 +191,23 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                     r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
                     r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
                 ):
-                    if _P(c).exists():
+                    if Path(c).exists():
                         exe = c; break
             if exe:
                 try:
-                    browser = p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
+                    browser = p.chromium.launch(executable_path=exe, **launch_opts)
                 except Exception:
-                    browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
+                    browser = p.chromium.launch(**launch_opts)
             else:
-                browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
+                browser = p.chromium.launch(**launch_opts)
         context = browser.new_context(ignore_https_errors=True, viewport={"width": 1024, "height": 768})
-        # Block heavy resources to accelerate navigation and scrolling
+        # Block heavy resources to accelerate navigation and scrolling (keep stylesheets to avoid breaking selectors)
         try:
             def _route_block_heavy(route):
                 try:
                     req = route.request
                     rtype = getattr(req, "resource_type", lambda: "")()
-                    if rtype in ("image", "media", "font", "stylesheet"):
+                    if rtype in ("image", "media", "font"):
                         return route.abort()
                     url = req.url
                     if any(url.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".woff", ".woff2")):
@@ -211,10 +239,10 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                 detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000))
                 fallback_date = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
 
-                # Faster defaults aligned with query_utils optimizations, with optional fast-mode overrides
-                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 30))
-                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 250))
-                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 2))
+                # Leaner defaults to reduce scrolling effort; fast-mode can cut further
+                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 20))
+                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 150))
+                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 1))
                 if fast_mode:
                     max_scrolls = min(max_scrolls, 15)
                     scroll_pause_ms = min(scroll_pause_ms, 150)
@@ -245,8 +273,8 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                     page = page_cache.get(k)
                     if page is None:
                         page = context.new_page()
-                        page.set_default_timeout(60_000)
-                        page.set_default_navigation_timeout(60_000)
+                        page.set_default_timeout(20_000)
+                        page.set_default_navigation_timeout(20_000)
                         page_cache[k] = page
                     keep_open = True
 
@@ -294,10 +322,48 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                 browser.close()
             except Exception:
                 pass
+    # Ensure file buffer is flushed before returning
+    try:
+        if _log_fp:
+            _log_fp.flush()
+    except Exception:
+        pass
     return report
 
 
+def _init_worker(log_file: Optional[str] = None) -> None:
+    """Initializer for worker processes to confirm spawn and set basic policy early."""
+    try:
+        import sys as _sys, asyncio as _asyncio, os as _os
+        if _sys.platform.startswith("win"):
+            try:
+                _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
+                _asyncio.set_event_loop(_asyncio.new_event_loop())
+            except Exception:
+                pass
+        if log_file:
+            try:
+                Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+                with open(log_file, "a", encoding="utf-8") as _fp:
+                    _fp.write(f"[Init {_os.getpid()}] worker process spawned\n")
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+
 def run_batch(playwright, args, summary: SummaryConfig) -> None:
+    # Simple helper to mirror logs into provided log file (if any)
+    log_file = getattr(args, "log_file", None)
+    def _log(msg: str) -> None:
+        try:
+            print(msg)
+            if log_file:
+                Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+                with open(log_file, "a", encoding="utf-8") as _fp:
+                    _fp.write(str(msg) + "\n")
+        except Exception:
+            pass
     cfg_path = Path(args.config)
     # Aceitar UTF-8 com BOM
     txt = cfg_path.read_text(encoding="utf-8-sig")
@@ -307,7 +373,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
 
     jobs = expand_batch_config(cfg)
     if not jobs:
-        print("[Erro] Nenhum job gerado a partir do config.")
+        _log("[Erro] Nenhum job gerado a partir do config.")
         return
 
     out_pattern = (cfg.get("output") or {}).get("pattern") or "{topic}_{secao}_{date}_{idx}.json"
@@ -339,6 +405,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
             pass
 
     parallel = int(getattr(args, "parallel", 4) or 4)
+    pool_pref = os.environ.get("DOU_POOL", "process").strip().lower() or "process"
     reuse_page = bool(getattr(args, "reuse_page", False))
 
     # Distribute jobs by (date, secao), but chunk large groups across buckets to keep parallelism
@@ -349,8 +416,10 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         d = str(job.get("data") or cfg.get("data") or "")
         s = str(job.get("secao") or cfg.get("secaoDefault") or "")
         groups[(d, s)].append(i)
-    bucket_count = max(1, parallel)
-    desired_size = max(1, math.ceil(len(jobs) / bucket_count))
+    min_bucket = int(os.environ.get("DOU_BUCKET_SIZE_MIN", "2") or "2")
+    min_bucket = max(1, min_bucket)
+    bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
+    desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
     # Break each group into contiguous chunks of desired_size
     pseudo_groups: List[List[int]] = []
     for _, idxs in sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True):
@@ -361,12 +430,18 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     for gi, chunk in enumerate(pseudo_groups):
         buckets[gi % bucket_count].extend(chunk)
 
+    _log(f"[Parent] total_jobs={len(jobs)} parallel={parallel} reuse_page={reuse_page}")
+    _log(f"[Parent] buckets={len(buckets)} desired_size={desired_size}")
     try:
-        with ProcessPoolExecutor(max_workers=max(1, parallel)) as ex:
+        if pool_pref == "subprocess" and parallel > 1:
+            _log(f"[Parent] Using subprocess pool (workers={parallel})")
             futs = []
+            tmp_dir = out_dir / "_subproc"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
             for w_id, bucket in enumerate(buckets):
                 if not bucket:
                     continue
+                _log(f"[Parent] Scheduling (subproc) bucket {w_id+1}/{len(buckets)} size={len(bucket)} first_idx={bucket[0] if bucket else '-'}")
                 payload = {
                     "jobs": jobs,
                     "defaults": defaults,
@@ -378,21 +453,184 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                     "reuse_page": reuse_page,
                     "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
                     "indices": bucket,
+                    "log_file": getattr(args, "log_file", None),
                 }
-                futs.append(ex.submit(_worker_process, payload))
-            for fut in as_completed(futs):
+                payload_path = tmp_dir / f"payload_{w_id+1}.json"
+                result_path = tmp_dir / f"result_{w_id+1}.json"
+                payload_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+                # Build subprocess command using current Python
+                py = sys.executable or "python"
+                cmd = [py, "-m", "dou_snaptrack.cli.worker_entry", "--payload", str(payload_path), "--out", str(result_path)]
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=str(Path(__file__).resolve().parents[2]))
+                futs.append((p, result_path))
+            _log(f"[Parent] {len(futs)} subprocesses spawned")
+            # Collect results
+            for p, result_path in futs:
                 try:
-                    r = fut.result()
-                    report["ok"] += r.get("ok", 0)
-                    report["fail"] += r.get("fail", 0)
-                    report["items_total"] += r.get("items_total", 0)
-                    report["outputs"].extend(r.get("outputs", []))
+                    out = p.communicate(timeout=900)[0].decode("utf-8", errors="ignore") if p.stdout else ""
+                except Exception:
+                    out = ""
+                if out:
+                    _log(out.strip())
+                if result_path.exists():
+                    try:
+                        r = json.loads(result_path.read_text(encoding="utf-8"))
+                        report["ok"] += r.get("ok", 0)
+                        report["fail"] += r.get("fail", 0)
+                        report["items_total"] += r.get("items_total", 0)
+                        report["outputs"].extend(r.get("outputs", []))
+                        _log(f"[Parent] Subproc done: ok={r.get('ok',0)} fail={r.get('fail',0)} items={r.get('items_total',0)}")
+                    except Exception as e:
+                        _log(f"[Subproc parse FAIL] {e}")
+                else:
+                    _log("[Subproc FAIL] result file missing")
+        elif pool_pref == "thread" and parallel > 1:
+            _log(f"[Parent] Using ThreadPoolExecutor (workers={parallel})")
+            with ThreadPoolExecutor(max_workers=max(1, parallel)) as tpex:
+                futs = []
+                for w_id, bucket in enumerate(buckets):
+                    if not bucket:
+                        continue
+                    _log(f"[Parent] Scheduling (thread) bucket {w_id+1}/{len(buckets)} size={len(bucket)} first_idx={bucket[0] if bucket else '-'}")
+                    payload = {
+                        "jobs": jobs,
+                        "defaults": defaults,
+                        "out_dir": str(out_dir),
+                        "out_pattern": out_pattern,
+                        "headful": bool(args.headful),
+                        "slowmo": int(args.slowmo),
+                        "state_file": str(state_file_path) if state_file_path else None,
+                        "reuse_page": reuse_page,
+                        "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
+                        "indices": bucket,
+                        "log_file": getattr(args, "log_file", None),
+                    }
+                    futs.append(tpex.submit(_worker_process, payload))
+                _log(f"[Parent] {len(futs)} thread-futures scheduled")
+                for fut in as_completed(futs):
+                    try:
+                        r = fut.result()
+                        report["ok"] += r.get("ok", 0)
+                        report["fail"] += r.get("fail", 0)
+                        report["items_total"] += r.get("items_total", 0)
+                        report["outputs"].extend(r.get("outputs", []))
+                        _log(f"[Parent] Thread future done: ok={r.get('ok',0)} fail={r.get('fail',0)} items={r.get('items_total',0)}")
+                    except Exception as e:
+                        _log(f"[Worker FAIL thread] {e}")
+        elif parallel <= 1:
+            # Run inline in a separate thread to avoid Playwright Sync API inside running asyncio loop
+            _log("[Parent] Running single bucket inline (thread, no ProcessPool)")
+            for w_id, bucket in enumerate(buckets):
+                if not bucket:
+                    continue
+                _log(f"[Parent] Scheduling bucket {w_id+1}/{len(buckets)} size={len(bucket)} first_idx={bucket[0] if bucket else '-'}")
+                payload = {
+                    "jobs": jobs,
+                    "defaults": defaults,
+                    "out_dir": str(out_dir),
+                    "out_pattern": out_pattern,
+                    "headful": bool(args.headful),
+                    "slowmo": int(args.slowmo),
+                    "state_file": str(state_file_path) if state_file_path else None,
+                    "reuse_page": reuse_page,
+                    "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
+                    "indices": bucket,
+                    "log_file": getattr(args, "log_file", None),
+                }
+                try:
+                    with ThreadPoolExecutor(max_workers=1) as tpex:
+                        fut = tpex.submit(_worker_process, payload)
+                        r = fut.result()
+                        report["ok"] += r.get("ok", 0)
+                        report["fail"] += r.get("fail", 0)
+                        report["items_total"] += r.get("items_total", 0)
+                        report["outputs"].extend(r.get("outputs", []))
+                        _log(f"[Parent] Inline (thread) done: ok={r.get('ok',0)} fail={r.get('fail',0)} items={r.get('items_total',0)}")
                 except Exception as e:
-                    print(f"[Worker FAIL] {e}")
+                    _log(f"[Worker FAIL inline-thread] {e}")
+        else:
+            ctx = mp.get_context("spawn")
+            with ProcessPoolExecutor(max_workers=max(1, parallel), mp_context=ctx, initializer=_init_worker, initargs=(log_file,)) as ex:
+                _log("[Parent] ProcessPoolExecutor started")
+                futs = []
+                for w_id, bucket in enumerate(buckets):
+                    if not bucket:
+                        continue
+                    _log(f"[Parent] Scheduling bucket {w_id+1}/{len(buckets)} size={len(bucket)} first_idx={bucket[0] if bucket else '-'}")
+                    payload = {
+                        "jobs": jobs,
+                        "defaults": defaults,
+                        "out_dir": str(out_dir),
+                        "out_pattern": out_pattern,
+                        "headful": bool(args.headful),
+                        "slowmo": int(args.slowmo),
+                        "state_file": str(state_file_path) if state_file_path else None,
+                        "reuse_page": reuse_page,
+                        "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
+                        "indices": bucket,
+                        "log_file": getattr(args, "log_file", None),
+                    }
+                    futs.append(ex.submit(_worker_process, payload))
+                _log(f"[Parent] {len(futs)} futures scheduled")
+                try:
+                    # Espera algum worker completar em até 60s; caso contrário, fallback inline
+                    any_done = False
+                    for fut in as_completed(futs, timeout=60):
+                        any_done = True
+                        try:
+                            r = fut.result()
+                            report["ok"] += r.get("ok", 0)
+                            report["fail"] += r.get("fail", 0)
+                            report["items_total"] += r.get("items_total", 0)
+                            report["outputs"].extend(r.get("outputs", []))
+                            _log(f"[Parent] Future done: ok={r.get('ok',0)} fail={r.get('fail',0)} items={r.get('items_total',0)}")
+                        except Exception as e:
+                            _log(f"[Worker FAIL] {e}")
+                    if not any_done:
+                        raise TimeoutError("no worker finished within timeout")
+                except TimeoutError:
+                    _log("[Parent] Timeout aguardando workers. Fazendo fallback para execução inline…")
+                    # Cancelar e cair para thread-pool paralelo
+                    try:
+                        ex.shutdown(wait=False, cancel_futures=True)
+                    except Exception:
+                        pass
+                    with ThreadPoolExecutor(max_workers=max(1, parallel)) as tpex:
+                        futs = []
+                        for w_id, bucket in enumerate(buckets):
+                            if not bucket:
+                                continue
+                            payload = {
+                                "jobs": jobs,
+                                "defaults": defaults,
+                                "out_dir": str(out_dir),
+                                "out_pattern": out_pattern,
+                                "headful": bool(args.headful),
+                                "slowmo": int(args.slowmo),
+                                "state_file": str(state_file_path) if state_file_path else None,
+                                "reuse_page": reuse_page,
+                                "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
+                                "indices": bucket,
+                                "log_file": getattr(args, "log_file", None),
+                            }
+                            futs.append(tpex.submit(_worker_process, payload))
+                        _log(f"[Parent] {len(futs)} thread-futures scheduled (fallback)")
+                        for fut in as_completed(futs):
+                            try:
+                                r = fut.result()
+                                report["ok"] += r.get("ok", 0)
+                                report["fail"] += r.get("fail", 0)
+                                report["items_total"] += r.get("items_total", 0)
+                                report["outputs"].extend(r.get("outputs", []))
+                                _log(f"[Parent] Thread future done (fallback): ok={r.get('ok',0)} fail={r.get('fail',0)} items={r.get('items_total',0)}")
+                            except Exception as e:
+                                _log(f"[Worker FAIL thread fallback] {e}")
     finally:
         # Nothing to cleanup in parent; workers clean themselves.
         pass
 
     rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
     rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
+    final_line = f"[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}"
+    _log("")
+    _log(final_line)

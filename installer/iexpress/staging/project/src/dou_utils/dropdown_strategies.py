@@ -151,7 +151,7 @@ def collect_open_list_options(frame) -> List[Dict[str, Any]]:
 
     # scroll virtualization
     try:
-        for _ in range(80):
+        for _ in range(40):
             changed = container.evaluate(
                 "el => { const b=el.scrollTop; el.scrollTop=el.scrollHeight; return el.scrollTop !== b; }"
             )
@@ -159,7 +159,7 @@ def collect_open_list_options(frame) -> List[Dict[str, Any]]:
             if not changed:
                 break
     except Exception:
-        for _ in range(20):
+        for _ in range(10):
             try:
                 frame.page.keyboard.press("End")
             except Exception:

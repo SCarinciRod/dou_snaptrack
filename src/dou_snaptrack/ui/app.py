@@ -4,6 +4,7 @@ import json
 import sys
 import asyncio
 from dataclasses import dataclass
+import os
 from datetime import date as _date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -16,6 +17,12 @@ if str(SRC_ROOT) not in sys.path:
 
 import streamlit as st
 from functools import lru_cache
+from dou_snaptrack.ui.batch_runner import (
+    detect_other_execution,
+    terminate_other_execution,
+    detect_other_ui,
+    register_this_ui_instance,
+)
 
 
 # ---------------- Helpers ----------------
@@ -161,6 +168,12 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
             n2s = sorted({c.get("key2") for c in combos if c.get("key1") == n1 and c.get("key2")})
             return n2s
     except Exception as e:
+        # Se o plan-live não gerar combos (ex.: nenhum N2 disponível para o N1 escolhido),
+        # não trate como erro fatal: devolva lista vazia e a UI oferece a opção 'Todos'.
+        msg = str(e)
+        if "Nenhum combo válido" in msg or "nenhum combo" in msg.lower():
+            st.info("Nenhum N2 encontrado para esse órgão hoje. Você pode adicionar o N1 com N2='Todos'.")
+            return []
         st.error(f"Falha no plan-live: {e}")
         return []
 
@@ -256,64 +269,10 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
 
 
 def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True) -> Dict[str, Any]:
+    """Wrapper que delega para o runner livre de Streamlit para permitir uso headless e via UI."""
     try:
-        import sys as _sys, asyncio as _asyncio, os as _os
-        if _sys.platform.startswith("win"):
-            try:
-                _asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-                _asyncio.set_event_loop(_asyncio.new_event_loop())
-            except Exception:
-                pass
-        from playwright.sync_api import sync_playwright  # type: ignore
-        from dou_snaptrack.cli.batch import run_batch
-        from dou_snaptrack.cli.summary_config import SummaryConfig
-        # Determinar pasta de saída por data do plano
-        try:
-            raw_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-            plan_date = (raw_cfg.get("data") or "").strip() or _date.today().strftime("%d-%m-%Y")
-        except Exception:
-            raw_cfg = {}
-            plan_date = _date.today().strftime("%d-%m-%Y")
-        out_dir_path = Path("resultados") / plan_date
-        out_dir_path.mkdir(parents=True, exist_ok=True)
-        out_dir_str = str(out_dir_path)
-        # Garantir que a execução pela UI apenas capture links (sem boletim ou scrape detail)
-        cfg_obj = json.loads(json.dumps(raw_cfg)) if raw_cfg else {}
-        dfl = dict(cfg_obj.get("defaults") or {})
-        dfl.pop("bulletin", None)
-        dfl.pop("bulletin_out", None)
-        dfl["scrape_detail"] = False
-        dfl["detail_parallel"] = 1
-        cfg_obj["defaults"] = dfl
-        for key in ("jobs", "combos"):
-            seq = cfg_obj.get(key)
-            if isinstance(seq, list):
-                for j in seq:
-                    if isinstance(j, dict):
-                        j.pop("bulletin", None)
-                        j.pop("bulletin_out", None)
-                        j["scrape_detail"] = False
-                        j["detail_parallel"] = 1
-        tmp_cfg_path = out_dir_path / "_run_cfg.json"
-        tmp_cfg_path.write_text(json.dumps(cfg_obj, ensure_ascii=False, indent=2), encoding="utf-8")
-        # Variáveis de ambiente herdadas pelos workers
-        if prefer_edge:
-            _os.environ["DOU_PREFER_EDGE"] = "1"
-        if fast_mode:
-            _os.environ["DOU_FAST_MODE"] = "1"
-        with sync_playwright() as p:
-            class Args:
-                config = str(tmp_cfg_path)
-                out_dir = out_dir_str
-                headful = False
-                slowmo = 0
-                state_file = None
-                reuse_page = True  # reuse uma aba por (data,secao)
-                parallel = parallel
-            run_batch(p, Args, SummaryConfig(lines=4, mode="center", keywords=None))
-        rep_path = out_dir_path / "batch_report.json"
-        rep = json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
-        return rep
+        from dou_snaptrack.ui.batch_runner import run_batch_with_cfg as _runner
+        return _runner(cfg_path, parallel=int(parallel), fast_mode=bool(fast_mode), prefer_edge=bool(prefer_edge))
     except Exception as e:
         st.error(f"Falha ao executar batch: {e}")
         return {}
@@ -349,6 +308,28 @@ def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by
 
 # ---------------- UI ----------------
 st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
+
+# Detect another UI and register this one
+other_ui = detect_other_ui()
+if other_ui and int(other_ui.get("pid") or 0) != os.getpid():
+    st.warning(f"Outra instância da UI detectada (PID={other_ui.get('pid')} iniciada em {other_ui.get('started')}).")
+    col_ui = st.columns(2)
+    with col_ui[0]:
+        kill_ui = st.button("Encerrar a outra UI (forçar)")
+    with col_ui[1]:
+        ignore_ui = st.button("Ignorar e continuar")
+    if kill_ui:
+        ok = terminate_other_execution(int(other_ui.get("pid") or 0))
+        if ok:
+            st.success("Outra UI encerrada. Prosseguindo…")
+        else:
+            st.error("Falha ao encerrar a outra UI. Feche manualmente a janela/processo.")
+    elif not ignore_ui:
+        st.stop()
+
+# Register this UI instance for future launches
+register_this_ui_instance()
+
 st.title("SnapTrack DOU — Interface")
 _ensure_state()
 
@@ -422,10 +403,19 @@ with tab1:
         n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
 
     sel_n2 = st.multiselect("Organização Subordinada", options=n2_list)
-    if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
-        add = _build_combos(str(n1), sel_n2)
-        st.session_state.plan.combos.extend(add)
-        st.success(f"Adicionados {len(add)} combos ao plano.")
+    cols_add = st.columns(2)
+    with cols_add[0]:
+        if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
+            add = _build_combos(str(n1), sel_n2)
+            st.session_state.plan.combos.extend(add)
+            st.success(f"Adicionados {len(add)} combos ao plano.")
+    with cols_add[1]:
+        # Caso não haja N2 disponíveis, permitir adicionar somente N1 usando N2='Todos'
+        add_n1_only = (n1 and not n2_list)
+        if st.button("Adicionar N1 (Todos)", disabled=not add_n1_only):
+            add = _build_combos(str(n1), ["Todos"])  # N2='Todos' indica sem filtro de N2
+            st.session_state.plan.combos.extend(add)
+            st.success("Adicionado N1 com N2='Todos'.")
 
     st.write("Plano atual:")
     st.dataframe(st.session_state.plan.combos)
@@ -479,9 +469,17 @@ with tab2:
         choice = st.selectbox("Selecione o plano salvo", labels, index=0)
         selected_path = Path(choice)
 
-    # Paralelismo automático: usar até N jobs (limite máximo) para não desperdiçar workers
+    # Paralelismo automático com opção de compatibilidade
     max_workers = 6
-    st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
+    compat_mode = st.checkbox(
+        "Modo compatível (sem multiprocessamento)",
+        value=True,
+        help="Evita multiprocessamento na UI para máxima estabilidade (usa 1 worker). Use o CLI para paralelismo alto."
+    )
+    if compat_mode:
+        st.caption("Compatibilidade ativa: execução inline com 1 worker no processo da UI.")
+    else:
+        st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
     fast_mode = st.checkbox("Modo rápido (sem boletim, rolagem agressiva)", value=False,
                             help="Desliga boletim e usa rolagem mais curta; ideal para validação rápida.")
     st.caption("Detalhes e boletins permanecem disponíveis na aba 'Gerar boletim' após a captura dos links.")
@@ -490,6 +488,23 @@ with tab2:
         if not selected_path.exists():
             st.error("Plano não encontrado.")
         else:
+            # Concurrency guard: check if another execution is running
+            other = detect_other_execution()
+            if other:
+                st.warning(f"Outra execução detectada (PID={other.get('pid')} iniciada em {other.get('started')}).")
+                colx = st.columns(2)
+                with colx[0]:
+                    kill_it = st.button("Encerrar outra execução (forçar)")
+                with colx[1]:
+                    proceed_anyway = st.button("Prosseguir sem encerrar")
+                if kill_it:
+                    ok = terminate_other_execution(int(other.get("pid") or 0))
+                    if ok:
+                        st.success("Outra execução encerrada. Prosseguindo…")
+                    else:
+                        st.error("Falha ao encerrar a outra execução. Tente novamente manualmente.")
+                elif not proceed_anyway:
+                    st.stop()
             # Descobrir número de jobs do plano
             try:
                 cfg = json.loads(selected_path.read_text(encoding="utf-8"))
@@ -500,11 +515,36 @@ with tab2:
             except Exception:
                 est_jobs = 1
 
-            parallel = int(min(max_workers, max(1, est_jobs)))
+            auto_parallel = int(min(max_workers, max(1, est_jobs)))
+            parallel = 1 if compat_mode else auto_parallel
             with st.spinner(f"Executando…"):
-                rep = _run_batch_with_cfg(selected_path, parallel, fast_mode=bool(fast_mode), prefer_edge=True)
+                # Forçar execução para a data atual selecionada no UI (padrão: hoje)
+                try:
+                    cfg_json = json.loads(selected_path.read_text(encoding="utf-8"))
+                except Exception:
+                    cfg_json = {}
+                override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
+                cfg_json["data"] = override_date
+                # Gerar um config temporário para a execução desta sessão, sem modificar o arquivo salvo
+                out_dir_tmp = Path("resultados") / override_date
+                out_dir_tmp.mkdir(parents=True, exist_ok=True)
+                pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"
+                try:
+                    pass_cfg_path.write_text(json.dumps(cfg_json, ensure_ascii=False, indent=2), encoding="utf-8")
+                except Exception:
+                    pass
+                st.caption(f"Iniciando captura… log em resultados/{override_date}/batch_run.log")
+                if not compat_mode:
+                    st.caption("Dica: se o log travar em 'futures scheduled', ative o modo compatível ou aguarde fallback inline automático.")
+                rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=bool(fast_mode), prefer_edge=True)
             st.write(rep or {"info": "Sem relatório"})
-            st.caption(f"Execução concluída com {parallel} workers automáticos.")
+            # Hint on where to find detailed run logs
+            out_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
+            log_hint = Path("resultados") / out_date / "batch_run.log"
+            if log_hint.exists():
+                st.caption(f"Execução concluída com {parallel} workers automáticos. Log detalhado em: {log_hint}")
+            else:
+                st.caption(f"Execução concluída com {parallel} workers automáticos.")
 
 with tab3:
     st.subheader("Gerar boletim")

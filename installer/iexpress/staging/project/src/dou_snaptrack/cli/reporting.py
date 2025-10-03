@@ -22,6 +22,7 @@ def consolidate_and_report(
     fetch_parallel: int = 8,
     fetch_timeout_sec: int = 10,
 ) -> None:
+    import os
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     agg = []
     for f in sorted(Path(in_dir).glob("*.json")):
@@ -45,7 +46,8 @@ def consolidate_and_report(
             pass
 
     # Enriquecer com texto (leve) apenas para itens sem texto quando for resumir
-    if summary_lines > 0 and enrich_missing and agg:
+    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
+    if summary_lines > 0 and enrich_missing and not offline and agg:
         _enrich_missing_texts(agg, max_workers=fetch_parallel, timeout_sec=fetch_timeout_sec)
 
     result: Dict[str, Any] = {
@@ -103,6 +105,7 @@ def split_and_report_by_n1(
         name = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
         return (name or "n1").strip(" _")[:120]
 
+    import os
     out_dir = Path(out_root)
     # If a file path is passed (like logs/unused.docx), use its parent as output directory
     if out_dir.suffix:
@@ -145,7 +148,8 @@ def split_and_report_by_n1(
 
     total_files = 0
     # Opcionalmente enriquecer textos ausentes nos grupos quando for resumir
-    if summary_lines > 0 and enrich_missing and groups:
+    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
+    if summary_lines > 0 and enrich_missing and not offline and groups:
         for k, items in groups.items():
             _enrich_missing_texts(items, max_workers=fetch_parallel, timeout_sec=fetch_timeout_sec)
 

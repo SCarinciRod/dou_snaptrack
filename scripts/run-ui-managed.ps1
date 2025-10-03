@@ -16,6 +16,7 @@ $logs = Join-Path $root 'logs'
 if (-not (Test-Path $logs)) { New-Item -ItemType Directory -Path $logs | Out-Null }
 $uiLog = Join-Path $logs 'ui_streamlit.log'
 $mgrLog = Join-Path $logs 'ui_manager.log'
+$depsFlag = Join-Path $logs 'ui_deps_ok.flag'
 
 function Write-Log($msg) {
   $ts = (Get-Date).ToString('s')
@@ -54,40 +55,28 @@ function Ensure-Venv {
   if ($LASTEXITCODE -ne 0) { Write-Error "Falha ao criar venv."; exit 1 }
 }
 
-function Pip-Ensure {
-  param([string]$PyExe)
-  Write-Log "Atualizando pip..."
-  & $PyExe -m pip install -U pip 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
-}
-
 function Dep-Installed {
   param([string]$PyExe, [string]$module)
   & $PyExe -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$module') else 1)" 2>$null
   return ($LASTEXITCODE -eq 0)
 }
 
-function Ensure-Dependencies {
-  param([string]$PyExe)
+function Ensure-Dependencies-Light {
+  param([string]$PyExe, [string]$FlagPath)
+  if (Test-Path $FlagPath) { Write-Log "Pulando checagem de dependências (cache)."; return }
+  # Startup rápido: só instala o mínimo se estiver faltando; não faz upgrade de pip ou editable install
   $need = @()
-  $deps = @(
-    @{ pkg = 'streamlit';   mod = 'streamlit' },
-    @{ pkg = 'playwright';  mod = 'playwright' },
-    @{ pkg = 'python-docx'; mod = 'docx' }
-  )
-  foreach($d in $deps){ if (-not (Dep-Installed $PyExe $d.mod)) { $need += $d.pkg } }
+  if (-not (Dep-Installed $PyExe 'streamlit')) { $need += 'streamlit' }
+  if (-not (Dep-Installed $PyExe 'playwright')) { $need += 'playwright' }
+  if (-not (Dep-Installed $PyExe 'docx')) { $need += 'python-docx' }
   if ($need.Count -gt 0) {
-    Write-Log ("Instalando dependências: " + ($need -join ', '))
+    Write-Log ("Instalando rapidamente dependências ausentes: " + ($need -join ', '))
     & $PyExe -m pip install -q $need 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
-    if ($LASTEXITCODE -ne 0) {
-      Write-Log "Falha instalando dependências diretas; tentando instalar o pacote do projeto (-e .)"
-      & $PyExe -m pip install -e . 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
-      if ($LASTEXITCODE -ne 0) {
-        Write-Error "Falha ao instalar dependências. Verifique conectividade e permissões. Consulte $uiLog"; exit 1
-      }
-    }
+    if ($LASTEXITCODE -ne 0) { Write-Error "Falha ao instalar dependências mínimas. Consulte $uiLog"; exit 1 }
   } else {
     Write-Log "Dependências básicas já presentes."
   }
+  try { Set-Content -Path $FlagPath -Value ((Get-Date).ToString('s')) -Encoding UTF8 } catch {}
 }
 
 # Bootstrap se necessário
@@ -95,13 +84,65 @@ Ensure-Venv -VenvPath (Join-Path $root $VenvDir)
 $py = Join-Path (Join-Path $root $VenvDir) "Scripts\python.exe"
 if (-not (Test-Path $py)) { Write-Error "Python da venv não encontrado em $py"; exit 1 }
 
-Pip-Ensure -PyExe $py
-Ensure-Dependencies -PyExe $py
+# Startup rápido: não atualizar pip a cada execução, só instalar módulos ausentes (com cache)
+Ensure-Dependencies-Light -PyExe $py -FlagPath $depsFlag
 
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"
 
-# Start Streamlit as a child process with redirected output
+# Ensure we always use the same port by terminating any existing owner of the port
+function Get-PortOwnerPid {
+  param([int]$port)
+  try {
+    $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
+    if ($conn -and $conn.OwningProcess) { return [int]$conn.OwningProcess }
+  } catch {}
+  try {
+    $lines = netstat -ano | Select-String -Pattern (":" + $port + "\s") | Select-Object -First 1
+    if ($lines) {
+      $t = $lines.ToString().Trim() -split "\s+"
+      $pidStr = $t[-1]
+      if ($pidStr -match '^[0-9]+$') { return [int]$pidStr }
+    }
+  } catch {}
+  return $null
+}
+
+function Kill-ProcessTree {
+  param([int]$TargetPid)
+  try {
+    # Prefer taskkill to ensure child tree termination
+    & taskkill /PID $TargetPid /T /F | Out-Null
+  } catch {}
+  try { Stop-Process -Id $TargetPid -Force -ErrorAction SilentlyContinue } catch {}
+}
+
+# Try to terminate previously running UI via lock file (if present)
+$uiLock = Join-Path $root 'resultados/ui.lock'
+if (Test-Path $uiLock) {
+  try {
+    $lockData = Get-Content -Raw -Path $uiLock | ConvertFrom-Json
+    if ($lockData -and $lockData.pid) {
+      Write-Log ("Encerrando UI anterior via lock (PID=" + $lockData.pid + ")")
+  Kill-ProcessTree -TargetPid ([int]$lockData.pid)
+    }
+  } catch { Write-Log "Não foi possível ler ui.lock; seguindo." }
+}
+
+# Ensure port is free; if not, kill its owner
+for ($i=0; $i -lt 10; $i++) {
+  $owner = Get-PortOwnerPid -port $Port
+  if ($null -eq $owner) { break }
+  Write-Log ("Porta $Port ocupada por PID=$owner; encerrando processo…")
+  Kill-ProcessTree -TargetPid $owner
+  Start-Sleep -Milliseconds 400
+}
+if (Get-PortOwnerPid -port $Port) {
+  Write-Log "Falha ao liberar a porta após tentativas; encerrando."
+  exit 5
+}
+
+# Start Streamlit as a child process with redirected output (config tuned for startup)
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $py
 $psi.Arguments = "-m streamlit run src\\dou_snaptrack\\ui\\app.py --server.port=$Port --server.headless=true --browser.gatherUsageStats=false"
@@ -110,6 +151,9 @@ $psi.UseShellExecute = $false
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true
 $psi.CreateNoWindow = $true
+# Reduce Streamlit verbosity
+$psi.EnvironmentVariables["STREAMLIT_LOG_LEVEL"] = "warning"
+$psi.EnvironmentVariables["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 
 # Ensure Python can import project packages from src/ even when launched via shortcut
 $currentPyPath = $env:PYTHONPATH
@@ -117,7 +161,12 @@ $desiredPyPath = Join-Path $root 'src'
 if ([string]::IsNullOrEmpty($currentPyPath)) {
   $psi.EnvironmentVariables["PYTHONPATH"] = $desiredPyPath
 } else {
-  $psi.EnvironmentVariables["PYTHONPATH"] = "$desiredPyPath;$currentPyPath"
+  # Avoid duplicates
+  if ($currentPyPath.Split(';') -notcontains $desiredPyPath) {
+    $psi.EnvironmentVariables["PYTHONPATH"] = "$desiredPyPath;$currentPyPath"
+  } else {
+    $psi.EnvironmentVariables["PYTHONPATH"] = $currentPyPath
+  }
 }
 Write-Log ("PYTHONPATH set for child: " + $psi.EnvironmentVariables["PYTHONPATH"]) 
 
@@ -147,31 +196,33 @@ Start-Job -ScriptBlock {
   $writer.Flush()
 } -ArgumentList $p, $stderrWriter | Out-Null
 
-# Wait for server port
-function Test-Port($port) {
-  try {
-    $c = New-Object System.Net.Sockets.TcpClient
-    $ar = $c.BeginConnect('127.0.0.1', $port, $null, $null)
-    [void]$ar.AsyncWaitHandle.WaitOne(200)
-    $ok = $c.Connected
-    $c.Close()
-    return $ok
-  } catch { return $false }
-}
-
-$timeout = [DateTime]::UtcNow.AddMinutes(2)
-while (-not (Test-Port $Port)) {
-  if ([DateTime]::UtcNow -gt $timeout) { Write-Log "Timeout aguardando porta $Port"; Stop-Process -Id $p.Id -Force; exit 2 }
-  Start-Sleep -Milliseconds 300
-  if ($p.HasExited) { Write-Log "Streamlit terminou prematuramente (exit=$($p.ExitCode))"; exit $p.ExitCode }
-}
-Write-Log "Porta $Port disponível"
-
-# Launch browser (Chrome preferred, fallback Edge) in app window tied to unique profile
+# Create loader page immediately and open browser to it; it will auto-redirect when the app is ready
 $profileDir = Join-Path $logs 'ui_chrome_profile'
 if (-not (Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir | Out-Null }
 $url = "http://localhost:$Port"
+$loaderPath = Join-Path $logs 'ui_loading.html'
+$loaderHtml = @"
+<!doctype html>
+<html lang="pt-br"><head><meta charset="utf-8"/>
+<title>Carregando SnapTrack DOU…</title>
+<style>body{font-family:system-ui,Segoe UI,Arial;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:#e2e8f0} .box{max-width:520px;text-align:center} h1{font-size:20px;margin:0 0 8px} p{opacity:.8;margin:0 0 16px} .dot{display:inline-block;width:8px;height:8px;margin:0 3px;border-radius:4px;background:#38bdf8;animation:b .9s infinite;} .dot:nth-child(2){animation-delay:.15s} .dot:nth-child(3){animation-delay:.3s}@keyframes b{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}</style>
+<script>
+const target = "$url";
+async function ping(){
+  try{ await fetch(target, {cache:'no-store', mode:'no-cors'}); window.location.href = target; }catch(e){}
+}
+setInterval(ping, 500);
+setTimeout(ping, 100);
+</script>
+</head><body><div class="box">
+<h1>Iniciando a Interface…</h1>
+<p>Preparando o servidor local na porta $Port</p>
+<div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+</div></body></html>
+"@
+Set-Content -Path $loaderPath -Value $loaderHtml -Encoding UTF8
 
+# Launch browser (Chrome preferred, fallback Edge) in app window tied to unique profile
 function Find-Chrome {
   $cands = @(
     "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
@@ -201,9 +252,9 @@ if (-not $chrome -and -not $edge) {
 }
 
 $browserExe = $chrome; if (-not $browserExe) { $browserExe = $edge }
-$browserArgs = "--user-data-dir=`"$profileDir`" --new-window --app=$url"
+$browserArgs = "--user-data-dir=`"$profileDir`" --new-window --app=file:///$($loaderPath.Replace('\\', '/'))"
 
-$bp = Start-Process -FilePath $browserExe -ArgumentList $browserArgs -PassThru -WindowStyle Hidden
+$bp = Start-Process -FilePath $browserExe -ArgumentList $browserArgs -PassThru -WindowStyle Normal
 Write-Log "Browser iniciado: $($bp.Path) (PID $($bp.Id))"
 
 # Wait for browser window/process to exit, then terminate Streamlit
