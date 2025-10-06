@@ -61,6 +61,8 @@ def run_once(context, date: str, secao: str,
         try:
             setattr(runner, "_precreated_page", page)
             setattr(runner, "_keep_page_open", bool(keep_page_open))
+            # Allow in-page reuse when caller is explicitly reusing a page/tab
+            setattr(runner, "_allow_inpage_reuse", True)
         except Exception:
             pass
     result = runner.run(params, summarizer_fn=summarizer)

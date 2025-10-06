@@ -102,12 +102,77 @@ def register_this_ui_instance() -> None:
     except Exception:
         pass
 
+def _win_get_process_info(pid: int) -> dict:
+    """Fetch process info on Windows via wmic/powershell: path, command line, user.
+    Returns {} on failure.
+    """
+    try:
+        # Try PowerShell first for richer info
+        ps = (
+            "powershell",
+            "-NoProfile",
+            "-Command",
+            f"$p=Get-CimInstance Win32_Process -Filter \"ProcessId={pid}\"; if($p){{ $u=$p.GetOwner(); [Console]::Out.WriteLine(($p.ExecutablePath+'|'+$p.CommandLine+'|'+$($u.Domain+'\\'+$u.User))) }}"
+        )
+        out = subprocess.run(ps, capture_output=True, text=True, check=False, timeout=5)
+        line = (out.stdout or "").strip()
+        if line:
+            parts = line.split("|", 2)
+            exe = parts[0] if len(parts) > 0 else ""
+            cmd = parts[1] if len(parts) > 1 else ""
+            user = parts[2] if len(parts) > 2 else ""
+            return {"exe": exe, "cmd": cmd, "user": user}
+    except Exception:
+        pass
+    try:
+        # Fallback: wmic (older systems)
+        out = subprocess.run([
+            "wmic", "process", "where", f"ProcessId={pid}", "get", "ExecutablePath,CommandLine", "/FORMAT:csv"
+        ], capture_output=True, text=True, check=False, timeout=5)
+        txt = (out.stdout or "").strip().splitlines()
+        if len(txt) >= 2:
+            row = txt[-1]
+            cols = row.split(",")
+            if len(cols) >= 3:
+                exe, cmd = cols[1], cols[2]
+                return {"exe": exe, "cmd": cmd}
+    except Exception:
+        pass
+    return {}
+
+
+def _is_our_streamlit_process(info: dict) -> bool:
+    """Heuristic: ensure process points to our venv python and runs streamlit app.py within this repo.
+    """
+    try:
+        if not info:
+            return False
+        exe = (info.get("exe") or "").lower()
+        cmd = (info.get("cmd") or "").lower()
+        here = Path(__file__).resolve()
+        repo_root = here.parents[2]  # c:\Projetos
+        venv_py = (repo_root / ".venv" / "Scripts" / "python.exe").as_posix().lower().replace("/", "\\")
+        app_path = (repo_root / "src" / "dou_snaptrack" / "ui" / "app.py").as_posix().lower().replace("/", "\\")
+        # Accept either exe equals venv python or command line contains it
+        if venv_py and (venv_py in exe or venv_py in cmd):
+            # Must be running streamlit against our app
+            if "streamlit" in cmd and app_path in cmd:
+                return True
+        return False
+    except Exception:
+        return False
+
+
 def terminate_other_execution(pid: int) -> bool:
     """Attempt to terminate another running execution (process tree) on Windows.
-    Returns True if the command succeeded.
+    Only proceeds if PID appears to be our own Streamlit/runner process.
     """
     try:
         if sys.platform.startswith("win"):
+            info = _win_get_process_info(pid)
+            if not _is_our_streamlit_process(info):
+                # Refuse to kill unknown processes
+                return False
             res = subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, text=True)
             return res.returncode == 0
         else:
@@ -236,8 +301,14 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
         tmp_cfg_path.write_text(json.dumps(cfg_obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
         # Environment for workers
-        # Default to thread pool under UI unless explicitly overridden
-        os.environ.setdefault("DOU_POOL", "thread")
+        # Prefer subprocess pool when there is real parallelism; keep thread for single-worker inline stability
+        try:
+            if int(parallel) > 1:
+                os.environ["DOU_POOL"] = "subprocess"
+            else:
+                os.environ["DOU_POOL"] = "thread"
+        except Exception:
+            os.environ.setdefault("DOU_POOL", "thread")
         if prefer_edge:
             os.environ["DOU_PREFER_EDGE"] = "1"
         if fast_mode:

@@ -126,6 +126,12 @@ def goto(page, url: str) -> None:
         return _page_goto(page, url)
     # fallback mínimo
     print(f"[Abrindo] {url}")
-    page.goto(url, wait_until="domcontentloaded", timeout=90_000)
-    page.wait_for_load_state("networkidle", timeout=90_000)
+    page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+    # Prefer selector-based readiness to speed up when content is present
+    try:
+        # Header or container common in the reading page
+        page.wait_for_selector("header, .conteudo, #conteudo, iframe", timeout=30_000)
+    except Exception:
+        # Fallback to a shorter networkidle wait
+        page.wait_for_load_state("networkidle", timeout=30_000)
     close_cookies(page)

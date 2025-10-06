@@ -2,10 +2,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List, Callable
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 
 from ..page_utils import goto as _goto, try_visualizar_em_lista, find_best_frame
 from ..detail_utils import abs_url as _abs_url
 from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
+from ..enrich_utils import enrich_items_friendly_titles as _enrich_titles
 from ..services.multi_level_cascade_service import MultiLevelCascadeSelector
 from ..services.cascade_service import CascadeService, CascadeParams
 from ..bulletin_utils import generate_bulletin as _generate_bulletin  # optional, used by caller typically
@@ -50,6 +52,8 @@ class EditionRunnerService:
         # Optional hooks for page reuse (set by caller)
         self._precreated_page = None
         self._keep_page_open = False
+        # When True and a precreated page is provided, avoid navigation if already on same edition
+        self._allow_inpage_reuse = False
         # Install a global route on the context to block heavy resources (images, media, fonts)
         try:
             def _route_block_heavy(route):
@@ -76,19 +80,51 @@ class EditionRunnerService:
         page.set_default_navigation_timeout(60_000)
 
         url = f"https://www.in.gov.br/leiturajornal?data={params.date}&secao={params.secao}"
-        _goto(page, url)
+        # Decide whether to navigate or reuse current edition page
+        do_nav = True
+        inpage = False
+        try:
+            if self._precreated_page is not None and self._allow_inpage_reuse and not page.is_closed():
+                cur = page.url or ""
+                if cur:
+                    pu = urlparse(cur)
+                    qu = parse_qs(pu.query or "")
+                    # compare edition by query params (string equality on first values)
+                    same_date = (qu.get("data", [None])[0] == str(params.date))
+                    same_secao = (qu.get("secao", [None])[0] == str(params.secao))
+                    if same_date and same_secao:
+                        do_nav = False
+                        inpage = True
+        except Exception:
+            pass
+
+        if do_nav:
+            _goto(page, url)
         t_after_nav = time.time()
+        # Garantir visão em lista mesmo em reuso in-page (idempotente)
         try_visualizar_em_lista(page)
         frame = find_best_frame(self.context)
         t_after_view = time.time()
 
-        selector = MultiLevelCascadeSelector(frame)
-        selres = selector.run(
-            key1=str(params.key1), key1_type=str(params.key1_type),
-            key2=str(params.key2), key2_type=str(params.key2_type),
-            key3=str(params.key3) if params.key3 else None, key3_type=str(params.key3_type) if params.key3_type else None,
-            label1=params.label1, label2=params.label2, label3=params.label3
-        )
+        def _run_selection(_frame):
+            selector = MultiLevelCascadeSelector(_frame)
+            return selector.run(
+                key1=str(params.key1), key1_type=str(params.key1_type),
+                key2=str(params.key2), key2_type=str(params.key2_type),
+                key3=str(params.key3) if params.key3 else None, key3_type=str(params.key3_type) if params.key3_type else None,
+                label1=params.label1, label2=params.label2, label3=params.label3
+            )
+
+        selres = _run_selection(frame)
+        # If selection failed while trying in-page reuse, do a single hard refresh and retry
+        if not selres.get("ok") and inpage:
+            try:
+                page.reload(wait_until="domcontentloaded", timeout=60_000)
+                try_visualizar_em_lista(page)
+                frame = find_best_frame(self.context)
+                selres = _run_selection(frame)
+            except Exception:
+                pass
         if not selres.get("ok"):
             try:
                 page.close()
@@ -160,7 +196,7 @@ class EditionRunnerService:
             result["total"] = len(result["itens"])
             result["enriquecido"] = True
         else:
-            # Sem enriquecimento: ainda assim normalize links relativos para absolutos
+            # Sem enriquecimento: normalize links relativos e gere títulos amigáveis heurísticos
             norm_items = []
             for it in items:
                 try:
@@ -171,7 +207,10 @@ class EditionRunnerService:
                 except Exception:
                     pass
                 norm_items.append(it)
-            result["itens"] = norm_items
+            try:
+                result["itens"] = _enrich_titles(norm_items, date=params.date, secao=params.secao)
+            except Exception:
+                result["itens"] = norm_items
             result["total"] = len(items)
             result["enriquecido"] = False
 
@@ -182,7 +221,7 @@ class EditionRunnerService:
                 pass
         total_elapsed = time.time() - t0
         print(
-            f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} "
+            f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} inpage={int(inpage)} "
             f"timings: nav={t_after_nav - t0:.1f}s view={t_after_view - t_after_nav:.1f}s "
             f"select={t_after_select - t_after_view:.1f}s collect={t_after_collect - t_after_select:.1f}s total={total_elapsed:.1f}s"
         )

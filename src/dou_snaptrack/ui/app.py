@@ -126,47 +126,97 @@ def _build_combos(n1: str, n2_list: List[str], key_type: str = "text") -> List[D
     return out
 
 
-@st.cache_data(show_spinner=False)
-def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 20) -> List[str]:
-    # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico
-    try:
-        import sys as _sys, asyncio as _asyncio
-        # Garantir Proactor loop no momento do uso do Playwright (Windows)
-        if _sys.platform.startswith("win"):
+@st.cache_resource(show_spinner=False)
+def _get_cached_playwright_and_browser():
+    """Cria e mantém um Playwright+browser compartilhado na sessão para acelerar plan-live.
+
+    - Mantém o driver Playwright ativo (p = sync_playwright().start())
+    - Lança 1 browser conforme preferências (canal do sistema > caminho explícito > fallback)
+    - O browser é reaproveitado; cada chamada cria seu próprio context/page e fecha somente o context.
+    """
+    import os as _os
+    import sys as _sys, asyncio as _asyncio
+    from pathlib import Path as _P
+    from playwright.sync_api import sync_playwright  # type: ignore
+
+    # Garantir Proactor loop no Windows (subprocess usado por Playwright)
+    if _sys.platform.startswith("win"):
+        try:
+            _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
+            _asyncio.set_event_loop(_asyncio.new_event_loop())
+        except Exception:
+            pass
+
+    p = sync_playwright().start()
+    prefer_edge = (_os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
+    channels = ("msedge", "chrome") if prefer_edge else ("chrome", "msedge")
+    browser = None
+    for ch in channels:
+        try:
+            browser = p.chromium.launch(channel=ch, headless=True)
+            break
+        except Exception:
+            browser = None
+    if browser is None:
+        exe = _find_system_browser_exe()
+        if exe and _P(exe).exists():
             try:
-                _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-                _asyncio.set_event_loop(_asyncio.new_event_loop())
+                browser = p.chromium.launch(executable_path=exe, headless=True)
+            except Exception:
+                browser = None
+    if browser is None:
+        browser = p.chromium.launch(headless=True)
+
+    class _Resource:
+        def __init__(self, p, b):
+            self.p = p
+            self.browser = b
+        def __del__(self):
+            try:
+                self.browser.close()
             except Exception:
                 pass
-        from playwright.sync_api import sync_playwright  # type: ignore
+            try:
+                self.p.stop()
+            except Exception:
+                pass
+
+    return _Resource(p, browser)
+
+
+@st.cache_data(show_spinner=False)
+def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 20) -> List[str]:
+    # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico (reutilizando Playwright)
+    try:
         from types import SimpleNamespace
         from dou_snaptrack.cli.plan_live import build_plan_live
-        with sync_playwright() as p:
-            args = SimpleNamespace(
-                secao=secao,
-                data=date,
-                plan_out=None,
-                select1=None,
-                select2=None,
-                select3=None,
-                pick1=n1,
-                pick2=None,
-                pick3=None,
-                limit1=None,
-                limit2=limit2,
-                limit3=None,
-                key1_type_default="text",
-                key2_type_default="text",
-                key3_type_default="text",
-                plan_verbose=False,
-                query=None,
-                headful=False,
-                slowmo=0,
-            )
-            cfg = build_plan_live(p, args)
-            combos = cfg.get("combos", [])
-            n2s = sorted({c.get("key2") for c in combos if c.get("key1") == n1 and c.get("key2")})
-            return n2s
+        _res = _get_cached_playwright_and_browser()
+        p = _res.p
+        args = SimpleNamespace(
+            secao=secao,
+            data=date,
+            plan_out=None,
+            select1=None,
+            select2=None,
+            select3=None,
+            pick1=n1,
+            pick2=None,
+            pick3=None,
+            limit1=None,
+            limit2=limit2,
+            limit3=None,
+            key1_type_default="text",
+            key2_type_default="text",
+            key3_type_default="text",
+            plan_verbose=False,
+            query=None,
+            headful=False,
+            slowmo=0,
+        )
+        cfg = build_plan_live(p, args)
+        combos = cfg.get("combos", [])
+        n2s = sorted({c.get("key2") for c in combos if c.get("key1") == n1 and c.get("key2")})
+        return n2s
     except Exception as e:
         # Se o plan-live não gerar combos (ex.: nenhum N2 disponível para o N1 escolhido),
         # não trate como erro fatal: devolva lista vazia e a UI oferece a opção 'Todos'.
@@ -190,76 +240,57 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
                 _asyncio.set_event_loop(_asyncio.new_event_loop())
             except Exception:
                 pass
-        from playwright.sync_api import sync_playwright, TimeoutError  # type: ignore
+        from playwright.sync_api import TimeoutError  # type: ignore
         from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
         from dou_snaptrack.utils.dom import find_best_frame
         from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options  # type: ignore
-
-        with sync_playwright() as p:
-            # Preferir Edge se DOU_PREFER_EDGE=1, caso contrário Chrome
-            import os as _os
-            prefer_edge = (_os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
-            channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
-            browser = None
-            for ch in channels:
-                try:
-                    browser = p.chromium.launch(channel=ch, headless=True)
-                    break
-                except Exception:
-                    browser = None
-            if browser is None:
-                exe = _find_system_browser_exe()
-                if exe:
-                    try:
-                        browser = p.chromium.launch(executable_path=exe, headless=True)
-                    except Exception:
-                        browser = p.chromium.launch(headless=True)
-                else:
-                    browser = p.chromium.launch(headless=True)
+        # Reutiliza Playwright+browser cacheados e cria um novo contexto por chamada
+        _res = _get_cached_playwright_and_browser()
+        browser = _res.browser
+        try:
+            context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
+            page = context.new_page()
+            url = build_dou_url(date, secao)
+            goto(page, url)
             try:
-                context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
-                page = context.new_page()
-                url = build_dou_url(date, secao)
-                goto(page, url)
-                try:
-                    try_visualizar_em_lista(page)
-                except Exception:
-                    pass
-                frame = find_best_frame(context)
-                roots = _collect_dropdown_roots(frame)
-                r1 = roots[0] if roots else None
-                if not r1:
-                    st.error("[ERRO] Nenhum dropdown N1 detectado. Verifique se há publicações para a data/seção escolhidas.")
-                    return []
-                opts = _read_dropdown_options(frame, r1)
-                if not opts:
-                    st.error("[ERRO] Nenhuma opção encontrada no dropdown N1. Pode ser problema de seletores ou página vazia.")
-                    return []
-                texts = []
-                for o in opts:
-                    t = (o.get("text") or "").strip()
-                    nt = (t or "").strip().lower()
-                    if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
-                        continue
-                    texts.append(t)
-                uniq = sorted({t for t in texts})
-                if not uniq:
-                    st.error("[ERRO] Lista de N1 está vazia após filtragem. Tente outra data/seção ou revise o site.")
-                return uniq
-            except TimeoutError:
-                st.error("[ERRO] Timeout ao tentar carregar opções N1. Tente novamente ou revise a conexão.")
+                try_visualizar_em_lista(page)
+            except Exception:
+                pass
+            frame = find_best_frame(context)
+            roots = _collect_dropdown_roots(frame)
+            r1 = roots[0] if roots else None
+            if not r1:
+                st.error("[ERRO] Nenhum dropdown N1 detectado. Verifique se há publicações para a data/seção escolhidas.")
                 return []
-            except Exception as e:
-                tb = traceback.format_exc(limit=4)
-                st.error(f"[ERRO] Falha ao listar N1 ao vivo: {type(e).__name__}: {e}\n\nTraceback:\n{tb}")
-                st.info("Possíveis causas: Playwright browsers não instalados, venv não ativado, dependências faltando.\n\nPara instalar browsers, rode:")
-                st.code("python -m playwright install", language="powershell")
+            opts = _read_dropdown_options(frame, r1)
+            if not opts:
+                st.error("[ERRO] Nenhuma opção encontrada no dropdown N1. Pode ser problema de seletores ou página vazia.")
                 return []
-            finally:
-                try:
-                    browser.close()
-                except Exception:
-                    pass
+            texts = []
+            for o in opts:
+                t = (o.get("text") or "").strip()
+                nt = (t or "").strip().lower()
+                if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
+                    continue
+                texts.append(t)
+            uniq = sorted({t for t in texts})
+            if not uniq:
+                st.error("[ERRO] Lista de N1 está vazia após filtragem. Tente outra data/seção ou revise o site.")
+            return uniq
+        except TimeoutError:
+            st.error("[ERRO] Timeout ao tentar carregar opções N1. Tente novamente ou revise a conexão.")
+            return []
+        except Exception as e:
+            tb = traceback.format_exc(limit=4)
+            st.error(f"[ERRO] Falha ao listar N1 ao vivo: {type(e).__name__}: {e}\n\nTraceback:\n{tb}")
+            st.info("Possíveis causas: Playwright browsers não instalados, venv não ativado, dependências faltando.\n\nPara instalar browsers, rode:")
+            st.code("python -m playwright install", language="powershell")
+            return []
+        finally:
+            try:
+                context.close()
+            except Exception:
+                pass
     except Exception as e:
         tb = traceback.format_exc(limit=4)
         st.error(f"[ERRO] Falha Playwright/UI: {type(e).__name__}: {e}\n\nTraceback:\n{tb}")
@@ -412,7 +443,7 @@ with tab1:
     with cols_add[1]:
         # Caso não haja N2 disponíveis, permitir adicionar somente N1 usando N2='Todos'
         add_n1_only = (n1 and not n2_list)
-        if st.button("Adicionar N1 (Todos)", disabled=not add_n1_only):
+        if st.button("Orgão sem Suborganizações", disabled=not add_n1_only):
             add = _build_combos(str(n1), ["Todos"])  # N2='Todos' indica sem filtro de N2
             st.session_state.plan.combos.extend(add)
             st.success("Adicionado N1 com N2='Todos'.")

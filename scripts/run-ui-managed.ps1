@@ -117,14 +117,49 @@ function Kill-ProcessTree {
   try { Stop-Process -Id $TargetPid -Force -ErrorAction SilentlyContinue } catch {}
 }
 
+function Get-ProcessInfo {
+  param([int]$Pid)
+  try {
+    $p = Get-CimInstance Win32_Process -Filter "ProcessId=$Pid"
+    if (-not $p) { return $null }
+    $owner = $p.GetOwner()
+    return [PSCustomObject]@{
+      ExecutablePath = $p.ExecutablePath
+      CommandLine    = $p.CommandLine
+      User           = if ($owner) { "$($owner.Domain)\$($owner.User)" } else { $null }
+    }
+  } catch { return $null }
+}
+
+function Is-OurUiProcess {
+  param([int]$Pid)
+  $info = Get-ProcessInfo -Pid $Pid
+  if (-not $info) { return $false }
+  $venvPy = Join-Path (Join-Path $root $VenvDir) 'Scripts\python.exe'
+  $app = (Join-Path $root 'src\dou_snaptrack\ui\app.py')
+  $exe = ("" + $info.ExecutablePath).ToLower()
+  $cmd = ("" + $info.CommandLine).ToLower()
+  $venvPyL = $venvPy.ToLower()
+  $appL = $app.ToLower()
+  if (($exe -like "*$venvPyL*") -or ($cmd -like "*$venvPyL*")) {
+    if ($cmd -like "*streamlit*" -and $cmd -like "*$appL*") { return $true }
+  }
+  return $false
+}
+
 # Try to terminate previously running UI via lock file (if present)
 $uiLock = Join-Path $root 'resultados/ui.lock'
 if (Test-Path $uiLock) {
   try {
     $lockData = Get-Content -Raw -Path $uiLock | ConvertFrom-Json
     if ($lockData -and $lockData.pid) {
-      Write-Log ("Encerrando UI anterior via lock (PID=" + $lockData.pid + ")")
-  Kill-ProcessTree -TargetPid ([int]$lockData.pid)
+      $pidToKill = [int]$lockData.pid
+      if (Is-OurUiProcess -Pid $pidToKill) {
+        Write-Log ("Encerrando UI anterior via lock (PID=" + $pidToKill + ")")
+        Kill-ProcessTree -TargetPid $pidToKill
+      } else {
+        Write-Log ("Ignorando ui.lock: PID " + $pidToKill + " não parece ser nossa UI.")
+      }
     }
   } catch { Write-Log "Não foi possível ler ui.lock; seguindo." }
 }
@@ -133,8 +168,13 @@ if (Test-Path $uiLock) {
 for ($i=0; $i -lt 10; $i++) {
   $owner = Get-PortOwnerPid -port $Port
   if ($null -eq $owner) { break }
-  Write-Log ("Porta $Port ocupada por PID=$owner; encerrando processo…")
-  Kill-ProcessTree -TargetPid $owner
+  if (Is-OurUiProcess -Pid $owner) {
+    Write-Log ("Porta $Port ocupada por nossa UI (PID=$owner); encerrando processo…")
+    Kill-ProcessTree -TargetPid $owner
+  } else {
+    Write-Log ("Porta $Port ocupada por processo não reconhecido (PID=$owner); não será encerrado.")
+    break
+  }
   Start-Sleep -Milliseconds 400
 }
 if (Get-PortOwnerPid -port $Port) {

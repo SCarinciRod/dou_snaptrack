@@ -210,7 +210,11 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                     if rtype in ("image", "media", "font"):
                         return route.abort()
                     url = req.url
-                    if any(url.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".woff", ".woff2")):
+                    ul = url.lower()
+                    # Block common static heavy types and trackers/analytics
+                    if any(ul.endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".mp3", ".avi", ".mov", ".woff", ".woff2", ".ttf", ".otf")):
+                        return route.abort()
+                    if any(host in ul for host in ("googletagmanager.com", "google-analytics.com", "doubleclick.net", "hotjar.com", "facebook.com/tr", "stats.g.doubleclick.net")):
                         return route.abort()
                 except Exception:
                     pass
@@ -278,28 +282,54 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                         page_cache[k] = page
                     keep_open = True
 
+                def _run_with_retry(cur_page) -> Optional[Dict[str, Any]]:
+                    # Single retry path in case of closed page/context issues during reuse
+                    for attempt in (1, 2):
+                        try:
+                            return run_once(
+                                context,
+                                date=str(data), secao=str(secao),
+                                key1=str(key1), key1_type=str(key1_type),
+                                key2=str(key2), key2_type=str(key2_type),
+                                key3=None, key3_type=None,
+                                query=job.get("query", ""), max_links=max_links, out_path=str(out_path),
+                                scrape_details=do_scrape_detail, detail_timeout=detail_timeout, fallback_date_if_missing=fallback_date,
+                                label1=label1, label2=label2, label3=None,
+                                max_scrolls=max_scrolls, scroll_pause_ms=scroll_pause_ms, stable_rounds=stable_rounds,
+                                state_file=state_file,
+                                bulletin=bulletin, bulletin_out=bulletin_out,
+                                summary=SummaryConfig(lines=s_cfg.lines, mode=s_cfg.mode, keywords=s_cfg.keywords),
+                                detail_parallel=detail_parallel,
+                                page=cur_page, keep_page_open=keep_open,
+                            )
+                        except Exception as e:
+                            # On first failure, recreate page and retry once
+                            if attempt == 1:
+                                try:
+                                    if reuse_page:
+                                        # drop broken page
+                                        try:
+                                            if cur_page:
+                                                cur_page.close()
+                                        except Exception:
+                                            pass
+                                        cur_page = context.new_page()
+                                        cur_page.set_default_timeout(20_000)
+                                        cur_page.set_default_navigation_timeout(20_000)
+                                        page_cache[(str(data), str(secao))] = cur_page
+                                        continue
+                                except Exception:
+                                    pass
+                            # If retry also fails or not reusing page, raise
+                            raise
+
                 try:
-                    result = run_once(
-                        context,
-                        date=str(data), secao=str(secao),
-                        key1=str(key1), key1_type=str(key1_type),
-                        key2=str(key2), key2_type=str(key2_type),
-                        key3=None, key3_type=None,
-                        query=job.get("query", ""), max_links=max_links, out_path=str(out_path),
-                        scrape_details=do_scrape_detail, detail_timeout=detail_timeout, fallback_date_if_missing=fallback_date,
-                        label1=label1, label2=label2, label3=None,
-                        max_scrolls=max_scrolls, scroll_pause_ms=scroll_pause_ms, stable_rounds=stable_rounds,
-                        state_file=state_file,
-                        bulletin=bulletin, bulletin_out=bulletin_out,
-                        summary=SummaryConfig(lines=s_cfg.lines, mode=s_cfg.mode, keywords=s_cfg.keywords),
-                        detail_parallel=detail_parallel,
-                        page=page, keep_page_open=keep_open,
-                    )
+                    result = _run_with_retry(page)
                     report["ok"] += 1
                     report["outputs"].append(str(out_path))
-                    report["items_total"] += result.get("total", 0)
+                    report["items_total"] += (result.get("total", 0) if isinstance(result, dict) else 0)
                     elapsed = time.time() - start_ts
-                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={result.get('total', 0)}")
+                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={0 if not isinstance(result, dict) else result.get('total', 0)}")
                 except Exception as e:
                     print(f"[FAIL] Job {j_idx}: {e}")
                     report["fail"] += 1
@@ -418,17 +448,32 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         groups[(d, s)].append(i)
     min_bucket = int(os.environ.get("DOU_BUCKET_SIZE_MIN", "2") or "2")
     min_bucket = max(1, min_bucket)
-    bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
-    desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
-    # Break each group into contiguous chunks of desired_size
-    pseudo_groups: List[List[int]] = []
-    for _, idxs in sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True):
-        for start in range(0, len(idxs), desired_size):
-            pseudo_groups.append(idxs[start:start + desired_size])
-    # Round-robin assign chunks to buckets
-    buckets: List[List[int]] = [[] for _ in range(bucket_count)]
-    for gi, chunk in enumerate(pseudo_groups):
-        buckets[gi % bucket_count].extend(chunk)
+    # Strategy: prefer keeping (date,secao) groups intact, but if there is only one group with many jobs,
+    # split it into a few buckets to retain some parallelism while reusing pages within each bucket.
+    unique_groups = list(sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True))
+    if len(unique_groups) == 1:
+        only_group_idxs = unique_groups[0][1]
+        # Choose 2-3 buckets depending on job count and available parallelism
+        bucket_count = min(parallel, max(1, min(3, math.ceil(len(only_group_idxs) / max(2, min_bucket)))))
+        desired_size = max(1, math.ceil(len(only_group_idxs) / bucket_count))
+        buckets = []
+        for start in range(0, len(only_group_idxs), desired_size):
+            buckets.append(only_group_idxs[start:start + desired_size])
+    else:
+        # Multiple groups: keep each group in its own bucket when possible, otherwise chunk large groups
+        if len(unique_groups) <= max(1, parallel):
+            buckets = [idxs for (_, idxs) in unique_groups[:max(1, parallel)]]
+            desired_size = max(min_bucket, max((len(b) for b in buckets), default=1))
+        else:
+            bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
+            desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
+            pseudo_groups: List[List[int]] = []
+            for _, idxs in unique_groups:
+                for start in range(0, len(idxs), desired_size):
+                    pseudo_groups.append(idxs[start:start + desired_size])
+            buckets = [[] for _ in range(bucket_count)]
+            for gi, chunk in enumerate(pseudo_groups):
+                buckets[gi % bucket_count].extend(chunk)
 
     _log(f"[Parent] total_jobs={len(jobs)} parallel={parallel} reuse_page={reuse_page}")
     _log(f"[Parent] buckets={len(buckets)} desired_size={desired_size}")
@@ -455,13 +500,20 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                     "indices": bucket,
                     "log_file": getattr(args, "log_file", None),
                 }
-                payload_path = tmp_dir / f"payload_{w_id+1}.json"
-                result_path = tmp_dir / f"result_{w_id+1}.json"
+                payload_path = (tmp_dir / f"payload_{w_id+1}.json").resolve()
+                result_path = (tmp_dir / f"result_{w_id+1}.json").resolve()
                 payload_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
                 # Build subprocess command using current Python
                 py = sys.executable or "python"
                 cmd = [py, "-m", "dou_snaptrack.cli.worker_entry", "--payload", str(payload_path), "--out", str(result_path)]
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=str(Path(__file__).resolve().parents[2]))
+                # Use repository root as CWD to ensure module resolution and relative paths behave as expected
+                repo_root = Path(__file__).resolve().parents[3]
+                src_dir = (repo_root / "src").resolve()
+                env = os.environ.copy()
+                existing_pp = env.get("PYTHONPATH", "")
+                if str(src_dir) not in (existing_pp.split(";") if os.name == "nt" else existing_pp.split(":")):
+                    env["PYTHONPATH"] = (str(src_dir) + (";" if os.name == "nt" else ":") + existing_pp) if existing_pp else str(src_dir)
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=str(repo_root), env=env)
                 futs.append((p, result_path))
             _log(f"[Parent] {len(futs)} subprocesses spawned")
             # Collect results
