@@ -1,0 +1,87 @@
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=2 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=1
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=1 first_idx=1
+[Parent] Scheduling bucket 2/2 size=1 first_idx=2
+[Parent] 2 futures scheduled
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=1 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=1 reuse_page=True
+[Parent] buckets=1 desired_size=2
+[Parent] Running single bucket inline (no ProcessPool)
+[Parent] Scheduling bucket 1/1 size=2 first_idx=1
+[Worker 28360] logging to resultados\03-10-2025\batch_run.log
+[Worker FAIL inline] It looks like you are using Playwright Sync API inside the asyncio loop.
+Please use the Async API instead.
+[Worker FAIL inline] It looks like you are using Playwright Sync API inside the asyncio loop.
+Please use the Async API instead.
+
+
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=2 ok=0 fail=0 items=0
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=2 ok=0 fail=0 items=0
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=1 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=1 reuse_page=True
+[Parent] buckets=1 desired_size=2
+[Parent] Running single bucket inline (thread, no ProcessPool)
+[Parent] Scheduling bucket 1/1 size=2 first_idx=1
+[Parent] Inline (thread) done: ok=2 fail=0 items=7
+
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=2 ok=2 fail=0 items=7
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=2 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=1
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=1 first_idx=1
+[Parent] Scheduling bucket 2/2 size=1 first_idx=2
+[Parent] 2 futures scheduled
+[Parent] Timeout aguardando workers. Fazendo fallback para execução inline…
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=2 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=1
+[Parent] Using ThreadPoolExecutor (workers=2)
+[Parent] Scheduling (thread) bucket 1/2 size=1 first_idx=1
+[Parent] Scheduling (thread) bucket 2/2 size=1 first_idx=2
+[Parent] 2 thread-futures scheduled
+[Parent] Thread future done: ok=1 fail=0 items=0
+[Parent] Thread future done: ok=1 fail=0 items=7
+
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=2 ok=2 fail=0 items=7
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=5 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=5 desired_size=1
+[Parent] Using ThreadPoolExecutor (workers=5)
+[Parent] Scheduling (thread) bucket 1/5 size=1 first_idx=1
+[Parent] Scheduling (thread) bucket 2/5 size=1 first_idx=2
+[Parent] Scheduling (thread) bucket 3/5 size=1 first_idx=3
+[Parent] Scheduling (thread) bucket 4/5 size=1 first_idx=4
+[Parent] Scheduling (thread) bucket 5/5 size=1 first_idx=5
+[Parent] 5 thread-futures scheduled
+[Parent] Thread future done: ok=1 fail=0 items=0
+[Parent] Thread future done: ok=1 fail=0 items=0
+[Parent] Thread future done: ok=1 fail=0 items=0
+[Parent] Thread future done: ok=1 fail=0 items=2
+[Parent] Thread future done: ok=1 fail=0 items=2
+
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=5 ok=5 fail=0 items=4
+[UI] batch start: cfg=resultados\03-10-2025\_run_cfg.from_ui.json tmp=resultados\03-10-2025\_run_cfg.json out_dir=resultados\03-10-2025 parallel=1 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=1 parallel=1 reuse_page=True
+[Parent] buckets=1 desired_size=2
+[Parent] Running single bucket inline (thread, no ProcessPool)
+[Parent] Scheduling bucket 1/1 size=1 first_idx=1
+[Parent] Inline (thread) done: ok=1 fail=0 items=25
+
+[REPORT] resultados\03-10-2025\batch_report.json — jobs=1 ok=1 fail=0 items=25

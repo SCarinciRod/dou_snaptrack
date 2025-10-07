@@ -1,0 +1,42 @@
+{
+  "data": "01-10-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": false,
+    "summary_lines": 4,
+    "summary_mode": "center",
+    "detail_parallel": 1
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Pesca e Aquicultura",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério dos Povos Indígenas",
+      "key2_type": "text",
+      "key2": "Secretaria Executiva",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    }
+  ],
+  "output": {
+    "pattern": "{topic}_{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  }
+}

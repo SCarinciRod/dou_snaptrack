@@ -1,0 +1,275 @@
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using ThreadPoolExecutor (workers=5)
+[Parent] Scheduling (thread) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (thread) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (thread) bucket 3/3 size=1 first_idx=5
+[Parent] 3 thread-futures scheduled
+[Parent] Thread future done: ok=1 fail=0 items=0
+[Parent] Thread future done: ok=1 fail=1 items=0
+[Parent] Thread future done: ok=1 fail=1 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=3 fail=2 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+[worker_entry] Falha ao ler payload: [Errno 2] No such file or directory: 'resultados\\06-10-2025_smoke\\_subproc\\payload_1.json'
+[Subproc FAIL] result file missing
+[worker_entry] Falha ao ler payload: [Errno 2] No such file or directory: 'resultados\\06-10-2025_smoke\\_subproc\\payload_2.json'
+[Subproc FAIL] result file missing
+[worker_entry] Falha ao ler payload: [Errno 2] No such file or directory: 'resultados\\06-10-2025_smoke\\_subproc\\payload_3.json'
+[Subproc FAIL] result file missing
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=0 fail=0 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+C:\Projetos\.venv\Scripts\python.exe: No module named dou_snaptrack.cli.worker_entry
+[Subproc FAIL] result file missing
+C:\Projetos\.venv\Scripts\python.exe: No module named dou_snaptrack.cli.worker_entry
+[Subproc FAIL] result file missing
+C:\Projetos\.venv\Scripts\python.exe: No module named dou_snaptrack.cli.worker_entry
+[Subproc FAIL] result file missing
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=0 fail=0 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+[Worker 43580] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW43580] [Job 1/5] job1: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job1_DO1_06-10-2025_1.json (total=0)
+[PW43580] [Job 1] concludo em 39.3s  itens=0
+
+[PW43580] [Job 2/5] job2: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[FAIL] Job 2: Page.goto: Target page, context or browser has been closed
+[Parent] Subproc done: ok=1 fail=1 items=0
+[Worker 15960] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW15960] [Job 3/5] job3: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job3_DO1_06-10-2025_3.json (total=0)
+[PW15960] [Job 3] concludo em 42.2s  itens=0
+
+[PW15960] [Job 4/5] job4: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[FAIL] Job 4: Page.goto: Target page, context or browser has been closed
+[Parent] Subproc done: ok=1 fail=1 items=0
+[Worker 29852] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW29852] [Job 5/5] job5: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job5_DO1_06-10-2025_5.json (total=0)
+[PW29852] [Job 5] concludo em 26.0s  itens=0
+[Parent] Subproc done: ok=1 fail=0 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=3 fail=2 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=1 desired_size=5
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/1 size=5 first_idx=1
+[Parent] 1 subprocesses spawned
+[Worker 19012] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW19012] [Job 1/5] job1: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job1_DO1_06-10-2025_1.json (total=0)
+[PW19012] [Job 1] concludo em 26.1s  itens=0
+
+[PW19012] [Job 2/5] job2: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job2_DO1_06-10-2025_2.json (total=0)
+[PW19012] [Job 2] concludo em 21.4s  itens=0
+
+[PW19012] [Job 3/5] job3: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job3_DO1_06-10-2025_3.json (total=0)
+[PW19012] [Job 3] concludo em 21.4s  itens=0
+
+[PW19012] [Job 4/5] job4: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job4_DO1_06-10-2025_4.json (total=0)
+[PW19012] [Job 4] concludo em 4.4s  itens=0
+
+[PW19012] [Job 5/5] job5: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job5_DO1_06-10-2025_5.json (total=0)
+[PW19012] [Job 5] concludo em 5.9s  itens=0
+[Parent] Subproc done: ok=5 fail=0 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=5 fail=0 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+[Worker 47424] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW47424] [Job 1/5] job1: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job1_DO1_06-10-2025_1.json (total=0)
+[PW47424] [Job 1] concludo em 47.3s  itens=0
+
+[PW47424] [Job 2/5] job2: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job2_DO1_06-10-2025_2.json (total=0)
+[PW47424] [Job 2] concludo em 22.9s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 23516] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW23516] [Job 3/5] job3: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job3_DO1_06-10-2025_3.json (total=0)
+[PW23516] [Job 3] concludo em 46.4s  itens=0
+
+[PW23516] [Job 4/5] job4: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job4_DO1_06-10-2025_4.json (total=0)
+[PW23516] [Job 4] concludo em 6.9s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 37820] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW37820] [Job 5/5] job5: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job5_DO1_06-10-2025_5.json (total=0)
+[PW37820] [Job 5] concludo em 28.7s  itens=0
+[Parent] Subproc done: ok=1 fail=0 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=5 fail=0 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+[Worker 32648] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW32648] [Job 1/5] job1: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job1_DO1_06-10-2025_1.json (total=0)
+[PW32648] [Job 1] concludo em 37.5s  itens=0
+
+[PW32648] [Job 2/5] job2: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job2_DO1_06-10-2025_2.json (total=0)
+[PW32648] [Job 2] concludo em 24.6s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 10616] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW10616] [Job 3/5] job3: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job3_DO1_06-10-2025_3.json (total=0)
+[PW10616] [Job 3] concludo em 34.4s  itens=0
+
+[PW10616] [Job 4/5] job4: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job4_DO1_06-10-2025_4.json (total=0)
+[PW10616] [Job 4] concludo em 7.6s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 46344] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW46344] [Job 5/5] job5: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job5_DO1_06-10-2025_5.json (total=0)
+[PW46344] [Job 5] concludo em 16.9s  itens=0
+[Parent] Subproc done: ok=1 fail=0 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=5 fail=0 items=0
+[Parent] total_jobs=5 parallel=5 reuse_page=True
+[Parent] buckets=3 desired_size=2
+[Parent] Using subprocess pool (workers=5)
+[Parent] Scheduling (subproc) bucket 1/3 size=2 first_idx=1
+[Parent] Scheduling (subproc) bucket 2/3 size=2 first_idx=3
+[Parent] Scheduling (subproc) bucket 3/3 size=1 first_idx=5
+[Parent] 3 subprocesses spawned
+[Worker 3752] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW3752] [Job 1/5] job1: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job1_DO1_06-10-2025_1.json (total=0)
+[PW3752] [Job 1] concludo em 36.2s  itens=0
+
+[PW3752] [Job 2/5] job2: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job2_DO1_06-10-2025_2.json (total=0)
+[PW3752] [Job 2] concludo em 22.2s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 7952] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW7952] [Job 3/5] job3: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job3_DO1_06-10-2025_3.json (total=0)
+[PW7952] [Job 3] concludo em 35.3s  itens=0
+
+[PW7952] [Job 4/5] job4: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job4_DO1_06-10-2025_4.json (total=0)
+[PW7952] [Job 4] concludo em 6.5s  itens=0
+[Parent] Subproc done: ok=2 fail=0 items=0
+[Worker 2336] logging to resultados\06-10-2025_smoke\batch_run.log
+
+[PW2336] [Job 5/5] job5: 
+
+[Abrindo] https://www.in.gov.br/leiturajornal?data=06-10-2025&secao=DO1
+[OK] Links salvos em: resultados\06-10-2025_smoke\job5_DO1_06-10-2025_5.json (total=0)
+[PW2336] [Job 5] concludo em 22.3s  itens=0
+[Parent] Subproc done: ok=1 fail=0 items=0
+
+[REPORT] resultados\06-10-2025_smoke\batch_report.json — jobs=5 ok=5 fail=0 items=0

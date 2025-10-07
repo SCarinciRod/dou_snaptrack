@@ -1,0 +1,70 @@
+{
+  "data": "03-10-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": false,
+    "summary_lines": 4,
+    "summary_mode": "center"
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Atos do Congresso Nacional",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Atos do Poder Executivo",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Atos do Poder Legislativo",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Atos do Senado Federal",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Banco Central do Brasil",
+      "key2_type": "text",
+      "key2": "Conselho de Controle de Atividades Financeiras",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    }
+  ],
+  "output": {
+    "pattern": "{topic}_{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  }
+}

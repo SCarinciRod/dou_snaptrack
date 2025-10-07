@@ -1,0 +1,31 @@
+{
+  "data": "03-10-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Banco Central do Brasil"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Conselho de Controle de Atividades Financeiras"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 1,
+  "itens": [
+    {
+      "titulo": "PAUTA DE JULGAMENTOS",
+      "link": "/web/dou/-/pauta-de-julgamentos-660006868",
+      "detail_url": "https://www.in.gov.br/web/dou/-/pauta-de-julgamentos-660006868"
+    }
+  ],
+  "enriquecido": false
+}

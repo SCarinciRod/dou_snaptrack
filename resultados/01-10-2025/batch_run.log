@@ -1,0 +1,18 @@
+[UI] batch start: cfg=planos\teste3.json tmp=resultados\01-10-2025\_run_cfg.json out_dir=resultados\01-10-2025 parallel=2 fast_mode=False prefer_edge=True
+[UI] batch start: cfg=planos\teste2.json tmp=resultados\01-10-2025\_run_cfg.json out_dir=resultados\01-10-2025 parallel=1 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=1 parallel=1 reuse_page=True
+[Parent] buckets=1 desired_size=1
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/1 size=1 first_idx=1
+[Parent] 1 futures scheduled
+[UI] batch start: cfg=planos\teste3.json tmp=resultados\01-10-2025\_run_cfg.json out_dir=resultados\01-10-2025 parallel=2 fast_mode=False prefer_edge=True
+[UI] opening Playwright context...
+[UI] Playwright context opened. Scheduling batch...
+[Parent] total_jobs=2 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=1
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=1 first_idx=1
+[Parent] Scheduling bucket 2/2 size=1 first_idx=2
+[Parent] 2 futures scheduled

@@ -1,0 +1,9 @@
+{
+  "total_jobs": 1,
+  "ok": 1,
+  "fail": 0,
+  "items_total": 25,
+  "outputs": [
+    "resultados\\03-10-2025\\job1_DO1_03-10-2025_1.json"
+  ]
+}

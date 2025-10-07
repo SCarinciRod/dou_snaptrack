@@ -1,0 +1,31 @@
+{
+  "data": "03-10-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Atos do Senado Federal"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Todos"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 1,
+  "itens": [
+    {
+      "titulo": "RESOLUÇÃO Nº 30, DE 2025",
+      "link": "/web/dou/-/resolucao-n-30-de-2025-660011338",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-n-30-de-2025-660011338"
+    }
+  ],
+  "enriquecido": false
+}

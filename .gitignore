@@ -24,22 +24,9 @@ playwright/.cache/
 .DS_Store
 Thumbs.db
 
-# Local outputs and logs
-logs/
-out_*/
-out/
-out_batch/
-out_pairs_plan.json
-resultados/
-planos/
-*.json
-boletim.md
-boletim_*.docx
-artefatos/
-
-# Cache
-*.cache/
-*.log
+# Local outputs and logs (now tracked)
+# Intentionally allowing logs, resultados, planos, artefatos, out, JSON, DOCX to be versioned
+# Remove ignores to track these directories and files
 
 # Project-specific
 src/dou_snaptrack.egg-info/

@@ -1,0 +1,26 @@
+{
+  "data": "03-10-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Defensoria Pública da União"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Corregedoria-Geral da Defensoria Pública da União"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 0,
+  "itens": [],
+  "enriquecido": false,
+  "_error": "selection_failed_level_1"
+}

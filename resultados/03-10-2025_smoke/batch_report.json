@@ -1,0 +1,11 @@
+{
+  "total_jobs": 5,
+  "ok": 3,
+  "fail": 2,
+  "items_total": 0,
+  "outputs": [
+    "resultados\\03-10-2025_smoke\\job5_DO1_03-10-2025_5.json",
+    "resultados\\03-10-2025_smoke\\job3_DO1_03-10-2025_3.json",
+    "resultados\\03-10-2025_smoke\\job1_DO1_03-10-2025_1.json"
+  ]
+}

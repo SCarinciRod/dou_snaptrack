@@ -1,0 +1,36 @@
+{
+  "data": "03-10-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Entidades de Fiscalização do Exercício das Profissões Liberais"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Conselho Federal de Fisioterapia e Terapia Ocupacional"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 2,
+  "itens": [
+    {
+      "titulo": "RESOLUÇÃO-COFFITO Nº 632, DE 24 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/resolucao-coffito-n-632-de-24-de-setembro-de-2025-660008926",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-coffito-n-632-de-24-de-setembro-de-2025-660008926"
+    },
+    {
+      "titulo": "RESOLUÇÃO-COFFITO Nº 633, DE 24 DE SETEMBRO DE 2025",
+      "link": "/web/dou/-/resolucao-coffito-n-633-de-24-de-setembro-de-2025-660005878",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-coffito-n-633-de-24-de-setembro-de-2025-660005878"
+    }
+  ],
+  "enriquecido": false
+}
