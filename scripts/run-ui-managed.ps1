@@ -90,7 +90,11 @@ Ensure-Dependencies-Light -PyExe $py -FlagPath $depsFlag
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"
 
-# Ensure we always use the same port by terminating any existing owner of the port
+# Não encerrar UI anterior nem remover ui.lock: a decisão fica dentro do app
+$uiLock = Join-Path $root 'resultados/ui.lock'
+if (Test-Path $uiLock) { Write-Log "ui.lock presente; deixado intocado para aviso no app." }
+
+# Selecionar porta: tenta $Port e, se ocupada, tenta as próximas sem matar nada
 function Get-PortOwnerPid {
   param([int]$port)
   try {
@@ -108,79 +112,17 @@ function Get-PortOwnerPid {
   return $null
 }
 
-function Kill-ProcessTree {
-  param([int]$TargetPid)
-  try {
-    # Prefer taskkill to ensure child tree termination
-    & taskkill /PID $TargetPid /T /F | Out-Null
-  } catch {}
-  try { Stop-Process -Id $TargetPid -Force -ErrorAction SilentlyContinue } catch {}
+$basePort = [int]$Port
+$chosenPort = $null
+for ($try=0; $try -lt 10; $try++) {
+  $cand = $basePort + $try
+  $owner = Get-PortOwnerPid -port $cand
+  if ($null -eq $owner) { $chosenPort = $cand; break }
+  Write-Log ("Porta $cand ocupada (PID=$owner); tentando próxima…")
 }
-
-function Get-ProcessInfo {
-  param([int]$Pid)
-  try {
-    $p = Get-CimInstance Win32_Process -Filter "ProcessId=$Pid"
-    if (-not $p) { return $null }
-    $owner = $p.GetOwner()
-    return [PSCustomObject]@{
-      ExecutablePath = $p.ExecutablePath
-      CommandLine    = $p.CommandLine
-      User           = if ($owner) { "$($owner.Domain)\$($owner.User)" } else { $null }
-    }
-  } catch { return $null }
-}
-
-function Is-OurUiProcess {
-  param([int]$Pid)
-  $info = Get-ProcessInfo -Pid $Pid
-  if (-not $info) { return $false }
-  $venvPy = Join-Path (Join-Path $root $VenvDir) 'Scripts\python.exe'
-  $app = (Join-Path $root 'src\dou_snaptrack\ui\app.py')
-  $exe = ("" + $info.ExecutablePath).ToLower()
-  $cmd = ("" + $info.CommandLine).ToLower()
-  $venvPyL = $venvPy.ToLower()
-  $appL = $app.ToLower()
-  if (($exe -like "*$venvPyL*") -or ($cmd -like "*$venvPyL*")) {
-    if ($cmd -like "*streamlit*" -and $cmd -like "*$appL*") { return $true }
-  }
-  return $false
-}
-
-# Try to terminate previously running UI via lock file (if present)
-$uiLock = Join-Path $root 'resultados/ui.lock'
-if (Test-Path $uiLock) {
-  try {
-    $lockData = Get-Content -Raw -Path $uiLock | ConvertFrom-Json
-    if ($lockData -and $lockData.pid) {
-      $pidToKill = [int]$lockData.pid
-      if (Is-OurUiProcess -Pid $pidToKill) {
-        Write-Log ("Encerrando UI anterior via lock (PID=" + $pidToKill + ")")
-        Kill-ProcessTree -TargetPid $pidToKill
-      } else {
-        Write-Log ("Ignorando ui.lock: PID " + $pidToKill + " não parece ser nossa UI.")
-      }
-    }
-  } catch { Write-Log "Não foi possível ler ui.lock; seguindo." }
-}
-
-# Ensure port is free; if not, kill its owner
-for ($i=0; $i -lt 10; $i++) {
-  $owner = Get-PortOwnerPid -port $Port
-  if ($null -eq $owner) { break }
-  if (Is-OurUiProcess -Pid $owner) {
-    Write-Log ("Porta $Port ocupada por nossa UI (PID=$owner); encerrando processo…")
-    Kill-ProcessTree -TargetPid $owner
-  } else {
-    Write-Log ("Porta $Port ocupada por processo não reconhecido (PID=$owner); não será encerrado.")
-    break
-  }
-  Start-Sleep -Milliseconds 400
-}
-if (Get-PortOwnerPid -port $Port) {
-  Write-Log "Falha ao liberar a porta após tentativas; encerrando."
-  exit 5
-}
+if ($null -eq $chosenPort) { Write-Log "Nenhuma porta livre encontrada no range."; exit 5 }
+$Port = $chosenPort
+Write-Log ("Usando porta $Port")
 
 # Start Streamlit as a child process with redirected output (config tuned for startup)
 $psi = New-Object System.Diagnostics.ProcessStartInfo
@@ -236,31 +178,25 @@ Start-Job -ScriptBlock {
   $writer.Flush()
 } -ArgumentList $p, $stderrWriter | Out-Null
 
-# Create loader page immediately and open browser to it; it will auto-redirect when the app is ready
-$profileDir = Join-Path $logs 'ui_chrome_profile'
-if (-not (Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir | Out-Null }
-$url = "http://localhost:$Port"
-$loaderPath = Join-Path $logs 'ui_loading.html'
-$loaderHtml = @"
-<!doctype html>
-<html lang="pt-br"><head><meta charset="utf-8"/>
-<title>Carregando SnapTrack DOU…</title>
-<style>body{font-family:system-ui,Segoe UI,Arial;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:#e2e8f0} .box{max-width:520px;text-align:center} h1{font-size:20px;margin:0 0 8px} p{opacity:.8;margin:0 0 16px} .dot{display:inline-block;width:8px;height:8px;margin:0 3px;border-radius:4px;background:#38bdf8;animation:b .9s infinite;} .dot:nth-child(2){animation-delay:.15s} .dot:nth-child(3){animation-delay:.3s}@keyframes b{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}</style>
-<script>
-const target = "$url";
-async function ping(){
-  try{ await fetch(target, {cache:'no-store', mode:'no-cors'}); window.location.href = target; }catch(e){}
+# Esperar porta ficar disponível para abrir o navegador
+function Test-Port($port) {
+  try {
+    $c = New-Object System.Net.Sockets.TcpClient
+    $ar = $c.BeginConnect('127.0.0.1', $port, $null, $null)
+    [void]$ar.AsyncWaitHandle.WaitOne(200)
+    $ok = $c.Connected
+    $c.Close()
+    return $ok
+  } catch { return $false }
 }
-setInterval(ping, 500);
-setTimeout(ping, 100);
-</script>
-</head><body><div class="box">
-<h1>Iniciando a Interface…</h1>
-<p>Preparando o servidor local na porta $Port</p>
-<div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-</div></body></html>
-"@
-Set-Content -Path $loaderPath -Value $loaderHtml -Encoding UTF8
+
+$timeout = [DateTime]::UtcNow.AddMinutes(2)
+while (-not (Test-Port $Port)) {
+  if ([DateTime]::UtcNow -gt $timeout) { Write-Log "Timeout aguardando porta $Port"; try { Stop-Process -Id $p.Id -Force } catch {}; exit 2 }
+  Start-Sleep -Milliseconds 300
+  if ($p.HasExited) { Write-Log "Streamlit terminou prematuramente (exit=$($p.ExitCode))"; exit $p.ExitCode }
+}
+Write-Log "Porta $Port disponível"
 
 # Launch browser (Chrome preferred, fallback Edge) in app window tied to unique profile
 function Find-Chrome {
@@ -287,12 +223,16 @@ $edge = $null
 if (-not $chrome) { $edge = Find-Edge }
 if (-not $chrome -and -not $edge) {
   Write-Log "Chrome/Edge não encontrado. Encerrando Streamlit."
-  Stop-Process -Id $p.Id -Force
+  try { Stop-Process -Id $p.Id -Force } catch {}
   exit 3
 }
 
+$profileDir = Join-Path $logs 'ui_chrome_profile'
+if (-not (Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir | Out-Null }
+$url = "http://localhost:$Port"
+
 $browserExe = $chrome; if (-not $browserExe) { $browserExe = $edge }
-$browserArgs = "--user-data-dir=`"$profileDir`" --new-window --app=file:///$($loaderPath.Replace('\\', '/'))"
+$browserArgs = "--user-data-dir=`"$profileDir`" --new-window --app=$url"
 
 $bp = Start-Process -FilePath $browserExe -ArgumentList $browserArgs -PassThru -WindowStyle Normal
 Write-Log "Browser iniciado: $($bp.Path) (PID $($bp.Id))"
