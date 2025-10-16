@@ -19,15 +19,98 @@ from .log_utils import get_logger
 
 logger = get_logger(__name__)
 
+def _strip_legalese_preamble(text: str) -> str:
+    """Remove trechos iniciais de formalidades jurídicas e corta até a parte dispositiva.
+
+    Heurísticas:
+    - Descarta tudo até (e incluindo) marcadores como "resolve:", "resolvo:", "decide:".
+    - Remove cabeçalhos como "O MINISTRO...", "A MINISTRA...", "no uso de suas atribuições".
+    - Remove blocos iniciados por "tendo em vista", "considerando", "nos termos", "com fundamento".
+    - Normaliza "Art. 1º" para "1º" (remove o token "Art.").
+    """
+    import re
+    if not text:
+        return ""
+
+    t = text
+    # Normalizar quebras para facilitar recortes
+    t = re.sub(r"\s+", " ", t).strip()
+
+    low = t.lower()
+    markers = ["resolve:", "resolvo:", "decide:", "decido:", "torna público:", "torno público:", "torna publico:", "torno publico:"]
+    cut_idx = -1
+    for m in markers:
+        i = low.find(m)
+        if i >= 0:
+            cut_idx = max(cut_idx, i + len(m))
+            break
+    if cut_idx >= 0:
+        t = t[cut_idx:].lstrip(" -:;—")
+        low = t.lower()
+
+    # Remover preâmbulos comuns no início
+    preambles = [
+        r"^(o|a)\s+minist[roa]\s+de\s+estado.*?\b",  # O MINISTRO DE ESTADO...
+        r"no\s+uso\s+de\s+suas\s+atribui[cç][oõ]es.*?\b",
+        r"tendo\s+em\s+vista.*?\b",
+        r"considerando.*?\b",
+        r"nos\s+termos\s+do.*?\b",
+        r"com\s+fundamento\s+no.*?\b",
+        r"de\s+acordo\s+com.*?\b",
+    ]
+    for pat in preambles:
+        t = re.sub(pat, "", t, flags=re.I)
+        t = t.strip(" -:;— ")
+
+    # Normalizar "Art." prefixo antes do ordinal
+    t = re.sub(r"\bArt\.?\s*(\d+º?)", r"\1", t, flags=re.I)
+    return t.strip()
+
+def _first_sentences(text: str, max_sents: int = 2) -> str:
+    import re
+    sents = [s.strip() for s in re.split(r"[.!?]\s+", text) if s.strip()]
+    if not sents:
+        return ""
+    out = ". ".join(sents[:max_sents])
+    return out + ("" if out.endswith(".") else ".")
+
+def _make_bullet_title_from_text(text: str, max_len: int = 140) -> Optional[str]:
+    """Gera um título amigável a partir do texto já limpo de juridiquês."""
+    import re
+    if not text:
+        return None
+    head = _first_sentences(text, 1)
+    if not head:
+        return None
+    head = re.sub(r"^\d+º\s+", "", head).strip()  # remove ordinal inicial
+    return head[:max_len]
+
+def _extract_article1_section(text: str) -> str:
+    """Tenta extrair somente o conteúdo do Art. 1º (ou Artigo 1º)."""
+    import re
+    if not text:
+        return ""
+    t = re.sub(r"\s+", " ", text).strip()
+    m1 = re.search(r"\b(?:(?:Art\.?|Artigo)\s*)?1(º|o)?\b[:\-]?", t, flags=re.I)
+    if not m1:
+        return ""
+    start = m1.start()
+    rest = t[m1.end():]
+    m2 = re.search(r"\b(?:(?:Art\.?|Artigo)\s*)?2(º|o)?\b", rest, flags=re.I)
+    end = m1.end() + m2.start() if m2 else len(t)
+    return t[start:end].strip()
 
 def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=None) -> str:
     """
     Sumarizador simples fallback quando nenhum outro é fornecido.
     Extrai frases do início ou centro do texto.
     """
-    # Fallback minimalista: corta por frases
+    # Limpa juridiquês e prioriza apenas o Art. 1º, se existir
     import re
-    sents = [s.strip() for s in re.split(r"[.!?]\s+", text) if s.strip()]
+    clean = _strip_legalese_preamble(text)
+    a1 = _extract_article1_section(clean)
+    base = a1 or clean
+    sents = [s.strip() for s in re.split(r"[.!?]\s+", base) if s.strip()]
     
     if not sents:
         return ""
@@ -226,7 +309,10 @@ class DocxBulletinGenerator(BulletinGenerator):
             
             # Para cada item no grupo
             for it in arr:
-                titulo = it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                base_text = it.get("texto") or it.get("ementa") or ""
+                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
+                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
+                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
@@ -273,7 +359,10 @@ class MarkdownBulletinGenerator(BulletinGenerator):
             lines.append("")
             
             for it in arr:
-                titulo = it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                base_text = it.get("texto") or it.get("ementa") or ""
+                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
+                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
+                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
@@ -316,7 +405,10 @@ class HtmlBulletinGenerator(BulletinGenerator):
             parts.append("<ul>")
             
             for it in arr:
-                titulo = it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                base_text = it.get("texto") or it.get("ementa") or ""
+                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
+                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
+                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
