@@ -308,151 +308,179 @@ def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
 
 
 def build_plan_live(p, args) -> Dict[str, Any]:
-    """Gera um plano dinâmico L1×L2 diretamente do site (sem N3)."""
+    """Gera um plano dinâmico L1×L2 diretamente do site (sem N3).
+
+    This implementation starts a local Playwright context so all browser
+    operations happen in the same thread. The provided `p` argument is ignored
+    here to avoid cross-thread usage.
+    """
     v = bool(getattr(args, "plan_verbose", False))
-    # Preferir usar Chrome instalado no sistema (evita download de browsers em ambientes com SSL restrito)
     import os
     from pathlib import Path
-    browser = None
+    from playwright.sync_api import sync_playwright  # type: ignore
+
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)
-    try:
-        browser = p.chromium.launch(channel="chrome", headless=not headful, slow_mo=slowmo)
-    except Exception:
-        try:
-            browser = p.chromium.launch(channel="msedge", headless=not headful, slow_mo=slowmo)
-        except Exception:
-            # tentar via caminho explícito
-            exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
-            if not exe:
-                for c in (
-                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                ):
-                    if Path(c).exists():
-                        exe = c; break
-            if exe and Path(exe).exists():
-                try:
-                    browser = p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
-                except Exception:
-                    browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
-            else:
-                browser = p.chromium.launch(headless=not headful, slow_mo=slowmo)
-
-    context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
-    page = context.new_page()
-    page.set_default_timeout(60_000)
-    page.set_default_navigation_timeout(60_000)
 
     combos: List[Dict[str, Any]] = []
-    try:
-        data = fmt_date(args.data)
-        goto(page, f"https://www.in.gov.br/leiturajornal?data={data}&secao={args.secao}")
-        frame = find_best_frame(context)
+    cfg: Dict[str, Any] = {}
 
-        roots = _collect_dropdown_roots(frame)
-        if not roots:
-            raise RuntimeError("Nenhum dropdown detectado.")
-        r1 = roots[0]
-        r2 = roots[1] if len(roots) > 1 else None
-        if not r2:
-            raise RuntimeError("Dropdown de nível 2 não encontrado.")
+    with sync_playwright() as pctx:
+        # Launch browser preferring system channels, then executable path, then fallback
+        browser = None
+        try:
+            try:
+                browser = pctx.chromium.launch(channel="chrome", headless=not headful, slow_mo=slowmo)
+            except Exception:
+                try:
+                    browser = pctx.chromium.launch(channel="msedge", headless=not headful, slow_mo=slowmo)
+                except Exception:
+                    exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
+                    if not exe:
+                        for c in (
+                            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+                            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+                            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+                        ):
+                            if Path(c).exists():
+                                exe = c; break
+                    if exe and Path(exe).exists():
+                        try:
+                            browser = pctx.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
+                        except Exception:
+                            browser = pctx.chromium.launch(headless=not headful, slow_mo=slowmo)
+                    else:
+                        browser = pctx.chromium.launch(headless=not headful, slow_mo=slowmo)
 
-        # N1 candidates
-        o1 = _read_dropdown_options(frame, r1)
-        o1 = _filter_opts(o1, getattr(args, "select1", None), getattr(args, "pick1", None), getattr(args, "limit1", None))
-        k1_list = _build_keys(o1, getattr(args, "key1_type_default", "text"))
-        if not k1_list:
-            raise RuntimeError("Após filtros, N1 ficou sem opções (ajuste --select1/--pick1/--limit1).")
-        if v:
-            print(f"[plan-live] N1 candidatos: {len(k1_list)}")
+            context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
+            page = context.new_page()
+            page.set_default_timeout(60_000)
+            page.set_default_navigation_timeout(60_000)
 
-        maxc = getattr(args, "max_combos", None)
-        if isinstance(maxc, int) and maxc <= 0:
-            maxc = None
+            # Main flow: collect dropdowns and build combos
+            data = fmt_date(args.data)
+            goto(page, f"https://www.in.gov.br/leiturajornal?data={data}&secao={args.secao}")
+            frame = find_best_frame(context)
 
-        for k1 in k1_list:
-            if maxc and len(combos) >= maxc:
-                break
-
-            # Re-resolve roots (DOM may change)
             roots = _collect_dropdown_roots(frame)
+            if not roots:
+                raise RuntimeError("Nenhum dropdown detectado.")
             r1 = roots[0]
-            r2 = roots[1] if len(roots) > 1 else None
-            if not r2:
-                if v: print("[plan-live][skip] N2 não encontrado após refresh de roots.")
-                continue
+            r2 = roots[1] if len(roots) > 1 else None  # aceitar fluxo somente N1
 
-            if not _select_by_text(frame, r1, k1):
-                if v: print(f"[plan-live][skip] N1 '{k1}' não pôde ser selecionado.")
-                continue
-            page.wait_for_load_state("networkidle", timeout=90_000)
+            # N1 candidates
+            o1 = _read_dropdown_options(frame, r1)
+            o1 = _filter_opts(o1, getattr(args, "select1", None), getattr(args, "pick1", None), getattr(args, "limit1", None))
+            k1_list = _build_keys(o1, getattr(args, "key1_type_default", "text"))
+            if not k1_list:
+                raise RuntimeError("Após filtros, N1 ficou sem opções (ajuste --select1/--pick1/--limit1).")
+            if v:
+                print(f"[plan-live] N1 candidatos: {len(k1_list)}")
 
-            roots = _collect_dropdown_roots(frame)
-            r2 = roots[1] if len(roots) > 1 else None
-            if not r2:
-                if v: print(f"[plan-live][skip] N2 não encontrado após N1='{k1}'.")
-                continue
+            maxc = getattr(args, "max_combos", None)
+            if isinstance(maxc, int) and maxc <= 0:
+                maxc = None
 
-            o2 = _read_dropdown_options(frame, r2)
-            o2 = _filter_opts(o2, getattr(args, "select2", None), getattr(args, "pick2", None), getattr(args, "limit2", None))
-            k2_list = _build_keys(o2, getattr(args, "key2_type_default", "text"))
-            if v: print(f"[plan-live] N1='{k1}' => N2 válidos: {len(k2_list)}")
-            if not k2_list:
-                continue
-
-            for k2 in k2_list:
-                combos.append({
-                    "key1_type": getattr(args, "key1_type_default", "text"), "key1": k1,
-                    "key2_type": getattr(args, "key2_type_default", "text"), "key2": k2,
-                    "key3_type": None, "key3": None,
-                    "label1": label_for_control(frame, r1.get("handle")) or "",
-                    "label2": label_for_control(frame, r2.get("handle")) or "",
-                    "label3": "",
-                })
+            for k1 in k1_list:
                 if maxc and len(combos) >= maxc:
                     break
 
-        if not combos:
-            raise RuntimeError("Nenhum combo válido L1×L2 foi gerado.")
+                # Re-resolve roots (DOM may change)
+                roots = _collect_dropdown_roots(frame)
+                r1 = roots[0]
+                r2 = roots[1] if len(roots) > 1 else None
 
-        cfg = {
-            "data": data,
-            "secaoDefault": args.secao or "DO1",
-            "defaults": {
-                "scrape_detail": bool(getattr(args, "scrape_detail", False)),
-                "fallback_date_if_missing": bool(getattr(args, "fallback_date_if_missing", False)),
-                "max_links": int(getattr(args, "max_links", 30)),
-                "max_scrolls": int(getattr(args, "max_scrolls", 30)),
-                "scroll_pause_ms": int(getattr(args, "scroll_pause_ms", 250)),
-                "stable_rounds": int(getattr(args, "stable_rounds", 2)),
-                "label1": getattr(args, "label1", None),
-                "label2": getattr(args, "label2", None),
-                "label3": None,
-                "debug_dump": bool(getattr(args, "debug_dump", False)),
-                "summary_lines": int(getattr(args, "summary_lines", 3)) if getattr(args, "summary_lines", None) else None,
-                "summary_mode": getattr(args, "summary_mode", "center"),
-            },
-            "combos": combos,
-            "output": {"pattern": "{secao}_{date}_{idx}.json", "report": "batch_report.json"},
-        }
+                if not _select_by_text(frame, r1, k1):
+                    if v: print(f"[plan-live][skip] N1 '{k1}' não pôde ser selecionado.")
+                    continue
+                page.wait_for_load_state("networkidle", timeout=90_000)
 
-        if getattr(args, "query", None):
-            cfg["topics"] = [{"name": "Topic", "query": args.query}]
-        if getattr(args, "state_file", None):
-            cfg["state_file"] = args.state_file
-        if getattr(args, "bulletin", None):
-            ext = "docx" if args.bulletin == "docx" else args.bulletin
-            out_b = args.bulletin_out or f"boletim_{{secao}}_{{date}}_{{idx}}.{ext}"
-            cfg["output"]["bulletin"] = out_b
-            cfg["defaults"]["bulletin"] = args.bulletin
-            cfg["defaults"]["bulletin_out"] = out_b
+                roots = _collect_dropdown_roots(frame)
+                r2 = roots[1] if len(roots) > 1 else None
 
-        return cfg
-    finally:
-        try:
-            browser.close()
-        except Exception:
-            pass
+                if r2:
+                    o2 = _read_dropdown_options(frame, r2)
+                    o2 = _filter_opts(o2, getattr(args, "select2", None), getattr(args, "pick2", None), getattr(args, "limit2", None))
+                    k2_list = _build_keys(o2, getattr(args, "key2_type_default", "text"))
+                    if v: print(f"[plan-live] N1='{k1}' => N2 válidos: {len(k2_list)}")
+                else:
+                    k2_list = []
+
+                if k2_list:
+                    for k2 in k2_list:
+                        combos.append({
+                            "key1_type": getattr(args, "key1_type_default", "text"), "key1": k1,
+                            "key2_type": getattr(args, "key2_type_default", "text"), "key2": k2,
+                            "key3_type": None, "key3": None,
+                            "label1": label_for_control(frame, r1.get("handle")) or "",
+                            "label2": label_for_control(frame, r2.get("handle")) or "" if r2 else "",
+                            "label3": "",
+                        })
+                        if maxc and len(combos) >= maxc:
+                            break
+                else:
+                    # N1-only combo
+                    combos.append({
+                        "key1_type": getattr(args, "key1_type_default", "text"), "key1": k1,
+                        "key2_type": None, "key2": None,
+                        "key3_type": None, "key3": None,
+                        "label1": label_for_control(frame, r1.get("handle")) or "",
+                        "label2": "",
+                        "label3": "",
+                    })
+                    if maxc and len(combos) >= maxc:
+                        break
+
+            if not combos:
+                raise RuntimeError("Nenhum combo válido L1×L2 foi gerado.")
+
+            cfg = {
+                "data": data,
+                "secaoDefault": args.secao or "DO1",
+                "defaults": {
+                    "scrape_detail": bool(getattr(args, "scrape_detail", False)),
+                    "fallback_date_if_missing": bool(getattr(args, "fallback_date_if_missing", False)),
+                    "max_links": int(getattr(args, "max_links", 30)),
+                    "max_scrolls": int(getattr(args, "max_scrolls", 30)),
+                    "scroll_pause_ms": int(getattr(args, "scroll_pause_ms", 250)),
+                    "stable_rounds": int(getattr(args, "stable_rounds", 2)),
+                    "label1": getattr(args, "label1", None),
+                    "label2": getattr(args, "label2", None),
+                    "label3": None,
+                    "debug_dump": bool(getattr(args, "debug_dump", False)),
+                    "summary_lines": int(getattr(args, "summary_lines", 3)) if getattr(args, "summary_lines", None) else None,
+                    "summary_mode": getattr(args, "summary_mode", "center"),
+                },
+                "combos": combos,
+                "output": {"pattern": "{secao}_{date}_{idx}.json", "report": "batch_report.json"},
+            }
+
+            # Se o usuário forneceu um nome de plano, preserve para nomear agregados/boletins
+            plan_name = getattr(args, "plan_name", None) or getattr(args, "nome_plano", None)
+            if plan_name:
+                cfg["plan_name"] = str(plan_name)
+
+            if getattr(args, "query", None):
+                cfg["topics"] = [{"name": "Topic", "query": args.query}]
+            if getattr(args, "state_file", None):
+                cfg["state_file"] = args.state_file
+            if getattr(args, "bulletin", None):
+                ext = "docx" if args.bulletin == "docx" else args.bulletin
+                out_b = args.bulletin_out or f"boletim_{{secao}}_{{date}}_{{idx}}.{ext}"
+                cfg["output"]["bulletin"] = out_b
+                cfg["defaults"]["bulletin"] = args.bulletin
+                cfg["defaults"]["bulletin_out"] = out_b
+
+        finally:
+            try:
+                context.close()
+            except Exception:
+                pass
+            try:
+                if browser is not None:
+                    browser.close()
+            except Exception:
+                pass
+
+    return cfg
