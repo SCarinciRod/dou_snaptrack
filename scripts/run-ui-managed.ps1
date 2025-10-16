@@ -14,7 +14,8 @@ $py = Join-Path (Join-Path $root $VenvDir) "Scripts\python.exe"
 
 $logs = Join-Path $root 'logs'
 if (-not (Test-Path $logs)) { New-Item -ItemType Directory -Path $logs | Out-Null }
-$uiLog = Join-Path $logs 'ui_streamlit.log'
+$tsLog = (Get-Date).ToString('yyyyMMdd_HHmmss')
+$uiLog = Join-Path $logs ("ui_streamlit_{0}.log" -f $tsLog)
 $mgrLog = Join-Path $logs 'ui_manager.log'
 $depsFlag = Join-Path $logs 'ui_deps_ok.flag'
 
@@ -44,48 +45,98 @@ function Resolve-SystemPython {
   return $null
 }
 
-function Ensure-Venv {
+function Initialize-Venv {
   param([string]$VenvPath)
-  if (Test-Path (Join-Path $VenvPath 'Scripts\python.exe')) { return }
+  $venvPy = Join-Path $VenvPath 'Scripts\python.exe'
+  if (Test-Path $venvPy) { return @{ exe = $venvPy; isVenv = $true } }
   if ($NoBootstrap) { Write-Error "Venv não encontrado em $VenvPath e bootstrap desativado. Rode scripts\install.ps1 ou remova -NoBootstrap."; exit 1 }
   $sys = Resolve-SystemPython
   if (-not $sys) { Write-Error "Python não encontrado no sistema. Instale Python 3.11+ ou rode scripts\install.ps1."; exit 1 }
   Write-Log "Criando venv em $VenvPath com: $($sys.exe)"
   & $sys.exe -m venv $VenvPath
-  if ($LASTEXITCODE -ne 0) { Write-Error "Falha ao criar venv."; exit 1 }
+  if ($LASTEXITCODE -ne 0) {
+    Write-Log "Falha ao criar venv. Fallback para Python do sistema."
+    return @{ exe = $sys.exe; isVenv = $false }
+  }
+  return @{ exe = (Join-Path $VenvPath 'Scripts\python.exe'); isVenv = $true }
 }
 
-function Dep-Installed {
+function Test-ModuleInstalled {
   param([string]$PyExe, [string]$module)
   & $PyExe -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$module') else 1)" 2>$null
   return ($LASTEXITCODE -eq 0)
 }
 
-function Ensure-Dependencies-Light {
-  param([string]$PyExe, [string]$FlagPath)
-  if (Test-Path $FlagPath) { Write-Log "Pulando checagem de dependências (cache)."; return }
-  # Startup rápido: só instala o mínimo se estiver faltando; não faz upgrade de pip ou editable install
+function Initialize-DependenciesLight {
+  param([string]$PyExe, [string]$FlagPath, [bool]$IsVenv)
+  $fingerprint = $PyExe
+  $useCache = $false
+  if (Test-Path $FlagPath) {
+    try {
+      $content = Get-Content -LiteralPath $FlagPath -Raw -ErrorAction Stop
+      if ($content -match [regex]::Escape($fingerprint)) { $useCache = $true }
+    } catch {}
+  }
+  # Always verify core modules even when cache suggests OK (stale cache guard)
   $need = @()
-  if (-not (Dep-Installed $PyExe 'streamlit')) { $need += 'streamlit' }
-  if (-not (Dep-Installed $PyExe 'playwright')) { $need += 'playwright' }
-  if (-not (Dep-Installed $PyExe 'docx')) { $need += 'python-docx' }
+  if (-not (Test-ModuleInstalled $PyExe 'streamlit')) { $need += 'streamlit' }
+  if (-not (Test-ModuleInstalled $PyExe 'playwright')) { $need += 'playwright' }
+  if (-not (Test-ModuleInstalled $PyExe 'docx')) { $need += 'python-docx' }
+  if ($useCache -and $need.Count -eq 0) {
+    Write-Log "Pulando instalação: dependências básicas já presentes (cache válida)."
+    return
+  }
   if ($need.Count -gt 0) {
     Write-Log ("Instalando rapidamente dependências ausentes: " + ($need -join ', '))
-    & $PyExe -m pip install -q $need 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
-    if ($LASTEXITCODE -ne 0) { Write-Error "Falha ao instalar dependências mínimas. Consulte $uiLog"; exit 1 }
+    $pipArgs = @('-m','pip','install','-q') + $need
+    if (-not $IsVenv) { $pipArgs = @('-m','pip','install','--user','-q') + $need }
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+      & $PyExe $pipArgs 2>&1 | Out-File -Append -FilePath $uiLog -Encoding UTF8
+    } finally {
+      $ErrorActionPreference = $prevEAP
+    }
+    if ($LASTEXITCODE -ne 0) {
+      try { Remove-Item -LiteralPath $FlagPath -Force -ErrorAction SilentlyContinue } catch {}
+      Write-Error "Falha ao instalar dependências mínimas. Consulte $uiLog"; exit 1
+    }
   } else {
     Write-Log "Dependências básicas já presentes."
   }
-  try { Set-Content -Path $FlagPath -Value ((Get-Date).ToString('s')) -Encoding UTF8 } catch {}
+  try { Set-Content -Path $FlagPath -Value ($fingerprint + "|" + (Get-Date).ToString('s')) -Encoding UTF8 } catch {}
 }
 
 # Bootstrap se necessário
-Ensure-Venv -VenvPath (Join-Path $root $VenvDir)
-$py = Join-Path (Join-Path $root $VenvDir) "Scripts\python.exe"
-if (-not (Test-Path $py)) { Write-Error "Python da venv não encontrado em $py"; exit 1 }
+$venvInfo = Initialize-Venv -VenvPath (Join-Path $root $VenvDir)
+$py = $venvInfo.exe
+$isVenv = $venvInfo.isVenv
+if (-not (Test-Path $py)) { Write-Error "Python não encontrado: $py"; exit 1 }
+
+# Detect Python version and avoid known incompatibilities (e.g., Streamlit on 3.13+)
+function Get-PythonVersion([string]$exe) {
+  try {
+    $v = & $exe -c "import sys; print('.'.join(map(str, sys.version_info[:2])))" 2>$null
+    return [version]$v.Trim()
+  } catch { return $null }
+}
+
+$pyVer = Get-PythonVersion $py
+if ($null -ne $pyVer -and $pyVer.Major -ge 3 -and $pyVer.Minor -ge 13) {
+  Write-Log ("Python $($pyVer.ToString()) detectado na venv; tentando Python do sistema 3.11/3.12 por compatibilidade do Streamlit.")
+  $sys = Resolve-SystemPython
+  if ($sys -and (Test-Path $sys.exe)) {
+    $py = $sys.exe
+    $isVenv = $false
+    Write-Log ("Usando Python do sistema: $py")
+  } else {
+    Write-Log "Python alternativo não encontrado; prosseguindo com a venv atual."
+  }
+}
 
 # Startup rápido: não atualizar pip a cada execução, só instalar módulos ausentes (com cache)
-Ensure-Dependencies-Light -PyExe $py -FlagPath $depsFlag
+if (-not $isVenv) { $depsFlag = (Join-Path $logs 'ui_deps_ok_system.flag') }
+Initialize-DependenciesLight -PyExe $py -FlagPath $depsFlag -IsVenv:$isVenv
 
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"
@@ -156,27 +207,19 @@ $p = New-Object System.Diagnostics.Process
 $p.StartInfo = $psi
 [void]$p.Start()
 
-# Async readers to file
-$stdoutWriter = [System.IO.StreamWriter]::new($uiLog, $true, [System.Text.Encoding]::UTF8)
-$stderrWriter = $stdoutWriter
-
-Start-Job -ScriptBlock {
-  param($proc, $writer)
-  while (-not $proc.HasExited) {
-    $line = $proc.StandardOutput.ReadLine()
-    if ($null -ne $line) { $writer.WriteLine($line) }
-  }
-  $writer.Flush()
-} -ArgumentList $p, $stdoutWriter | Out-Null
-
-Start-Job -ScriptBlock {
-  param($proc, $writer)
-  while (-not $proc.HasExited) {
-    $line = $proc.StandardError.ReadLine()
-    if ($null -ne $line) { $writer.WriteLine($line) }
-  }
-  $writer.Flush()
-} -ArgumentList $p, $stderrWriter | Out-Null
+# Open log file with sharing; we'll capture output on failure and at shutdown
+try {
+  $fs = [System.IO.File]::Open($uiLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
+  $stdoutWriter = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
+  $stderrWriter = $stdoutWriter
+} catch {
+  # Fallback to temp file if even per-run log is blocked
+  $tmpLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("ui_streamlit_{0}.log" -f $tsLog))
+  $fs = [System.IO.File]::Open($tmpLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
+  $stdoutWriter = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
+  $stderrWriter = $stdoutWriter
+  Write-Log ("Falha ao abrir $uiLog; usando temporário: $tmpLog")
+}
 
 # Esperar porta ficar disponível para abrir o navegador
 function Test-Port($port) {
@@ -194,7 +237,18 @@ $timeout = [DateTime]::UtcNow.AddMinutes(2)
 while (-not (Test-Port $Port)) {
   if ([DateTime]::UtcNow -gt $timeout) { Write-Log "Timeout aguardando porta $Port"; try { Stop-Process -Id $p.Id -Force } catch {}; exit 2 }
   Start-Sleep -Milliseconds 300
-  if ($p.HasExited) { Write-Log "Streamlit terminou prematuramente (exit=$($p.ExitCode))"; exit $p.ExitCode }
+  if ($p.HasExited) {
+    Write-Log "Streamlit terminou prematuramente (exit=$($p.ExitCode))"
+    try {
+      # Capture any remaining output to help diagnose failures
+      $outAll = $p.StandardOutput.ReadToEnd()
+      $errAll = $p.StandardError.ReadToEnd()
+      if ($outAll) { $stdoutWriter.WriteLine($outAll) }
+      if ($errAll) { $stderrWriter.WriteLine($errAll) }
+      $stdoutWriter.Flush(); $stderrWriter.Flush()
+    } catch {}
+    exit $p.ExitCode
+  }
 }
 Write-Log "Porta $Port disponível"
 
@@ -243,5 +297,14 @@ try {
 } catch {}
 Write-Log "Browser encerrado. Terminando Streamlit (PID $($p.Id))"
 try { Stop-Process -Id $p.Id -Force } catch {}
+# After stopping, drain remaining output to log
+try {
+  $null = $p.WaitForExit(2000)
+  $outTail = $p.StandardOutput.ReadToEnd()
+  $errTail = $p.StandardError.ReadToEnd()
+  if ($outTail) { $stdoutWriter.WriteLine($outTail) }
+  if ($errTail) { $stderrWriter.WriteLine($errTail) }
+  $stdoutWriter.Flush(); $stderrWriter.Flush()
+} catch {}
 Write-Log "UI manager finalizado."
 exit 0
