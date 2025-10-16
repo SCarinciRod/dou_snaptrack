@@ -193,6 +193,14 @@ class EditionRunnerService:
                 )
             )
             result["itens"] = out.get("itens", [])
+            # Ensure each enriched item carries the originating N1 (orgão) metadata
+            for it in result.get("itens", []):
+                try:
+                    if not it.get("orgao"):
+                        # prefer label when available
+                        it["orgao"] = params.label1 or params.key1
+                except Exception:
+                    pass
             result["total"] = len(result["itens"])
             result["enriquecido"] = True
         else:
@@ -204,6 +212,11 @@ class EditionRunnerService:
                     durl = _abs_url(page.url, link) if link else ""
                     if durl:
                         it = {**it, "detail_url": durl}
+                    # Attach originating N1 (orgão) so downstream bulletin can group by it
+                    try:
+                        it["orgao"] = params.label1 or params.key1
+                    except Exception:
+                        pass
                 except Exception:
                     pass
                 norm_items.append(it)

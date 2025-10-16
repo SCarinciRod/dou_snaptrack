@@ -17,14 +17,43 @@ LOCK_PATH = Path("resultados") / "batch.lock"
 UI_LOCK_PATH = Path("resultados") / "ui.lock"
 
 def _pid_alive_windows(pid: int) -> bool:
+    """Return True if a process with this PID exists on Windows.
+
+    Uses tasklist filtered by PID and parses output robustly to avoid false positives.
+    """
     try:
-        # Use tasklist to check if PID exists
-        out = subprocess.run([
-            "tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"
-        ], capture_output=True, text=True, check=False)
-        txt = (out.stdout or "") + (out.stderr or "")
-        # When no tasks are found, tasklist prints "INFO: No tasks are running..."
-        return str(pid) in txt and "No tasks" not in txt
+        if pid <= 0:
+            return False
+        out = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, check=False, timeout=5
+        )
+        stdout = (out.stdout or "").strip()
+        if not stdout or stdout.lower().startswith("info:"):
+            return False
+        # Expect a CSV line like: "python.exe","1234",...
+        # We match the second field to the exact PID
+        try:
+            line = stdout.splitlines()[0]
+            parts = []
+            cur = ""
+            in_q = False
+            for ch in line:
+                if ch == '"':
+                    in_q = not in_q
+                elif ch == "," and not in_q:
+                    parts.append(cur)
+                    cur = ""
+                    continue
+                cur += ch
+            parts.append(cur)
+            if len(parts) >= 2:
+                pid_field = parts[1].strip().strip('"')
+                return pid_field.isdigit() and int(pid_field) == pid
+        except Exception:
+            # Fallback: if any non-INFO output exists, assume alive
+            return True
+        return False
     except Exception:
         return False
 
@@ -89,9 +118,50 @@ def _detect_lock(lock_path: Path) -> Optional[Dict[str, Any]]:
         return None
 
 def detect_other_ui() -> Optional[Dict[str, Any]]:
-    """Detect another running UI instance using the ui.lock file."""
+    """Detect another running UI instance using the ui.lock file.
+
+    Stale or foreign locks are auto-removed. Only returns info if the PID is
+    currently a Streamlit process for this repo's UI.
+    """
     _ensure_results_dir()
-    return _detect_lock(UI_LOCK_PATH)
+    try:
+        if not UI_LOCK_PATH.exists():
+            return None
+        try:
+            data = json.loads(UI_LOCK_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            data = {}
+        pid = int(data.get("pid") or 0)
+        started = str(data.get("started") or "")
+        if sys.platform.startswith("win"):
+            info = _win_get_process_info(pid) if pid else {}
+            alive = bool(info) and _pid_alive_windows(pid)
+            if not alive or not _is_our_streamlit_process(info):
+                try:
+                    UI_LOCK_PATH.unlink(missing_ok=True)
+                except Exception:
+                    pass
+                return None
+            return {"pid": pid, "started": started, "lock_path": str(UI_LOCK_PATH)}
+        else:
+            # Non-Windows best-effort: if pid dir exists, consider alive
+            alive = pid > 0 and Path(f"/proc/{pid}").exists()
+            if not alive:
+                try:
+                    UI_LOCK_PATH.unlink(missing_ok=True)
+                except Exception:
+                    pass
+                return None
+            return {"pid": pid, "started": started, "lock_path": str(UI_LOCK_PATH)}
+    except Exception:
+        return None
+
+def clear_ui_lock() -> None:
+    """Best-effort removal of the UI lock file."""
+    try:
+        UI_LOCK_PATH.unlink(missing_ok=True)
+    except Exception:
+        pass
 
 def register_this_ui_instance() -> None:
     """Register current process as the active UI instance (overwrites previous lock)."""
@@ -363,7 +433,33 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
                 lock_ctx.__exit__(None, None, None)
 
         rep_path = out_dir_path / "batch_report.json"
-        return json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
+        rep = json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
+        # Pós-processo: se houver arquivos agregados, remover JSONs individuais remanescentes (compat com versões antigas)
+        try:
+            agg = rep.get("aggregated") if isinstance(rep, dict) else None
+            outs = rep.get("outputs") if isinstance(rep, dict) else None
+            if agg and isinstance(agg, list):
+                # Delete per-job outputs that still exist
+                deleted = []
+                if outs and isinstance(outs, list):
+                    for pth in outs:
+                        try:
+                            Path(pth).unlink(missing_ok=True)
+                            deleted.append(pth)
+                        except Exception:
+                            pass
+                # Update report on disk
+                if rep_path.exists():
+                    try:
+                        rep["deleted_outputs"] = deleted
+                        rep["outputs"] = []
+                        rep["aggregated_only"] = True
+                        rep_path.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        return rep
     except Exception as e:
         # Print instead of Streamlit UI feedback to keep this headless-safe
         print(f"[run_batch_with_cfg] Falha: {type(e).__name__}: {e}")

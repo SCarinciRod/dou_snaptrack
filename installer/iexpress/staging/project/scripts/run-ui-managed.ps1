@@ -22,6 +22,58 @@ function Write-Log($msg) {
   "$ts [mgr] $msg" | Out-File -FilePath $mgrLog -Encoding UTF8 -Append
 }
 
+# --- Helpers to identify/cleanup previous UI instances and stale locks ---
+function Get-ProcessInfo {
+  param([int]$ProcessId)
+  try {
+    $p = Get-CimInstance Win32_Process -Filter "ProcessId=$ProcessId" -ErrorAction SilentlyContinue
+    if (-not $p) { return $null }
+    $owner = $p.GetOwner()
+    return [PSCustomObject]@{
+      ExecutablePath = $p.ExecutablePath
+      CommandLine    = $p.CommandLine
+      User           = if ($owner) { "$($owner.Domain)\$($owner.User)" } else { $null }
+    }
+  } catch { return $null }
+}
+
+function Is-OurUiProcess {
+  param([int]$ProcessId)
+  $info = Get-ProcessInfo -ProcessId $ProcessId
+  if (-not $info) { return $false }
+  $venvPy = Join-Path (Join-Path $root $VenvDir) 'Scripts\python.exe'
+  $app = (Join-Path $root 'src\dou_snaptrack\ui\app.py')
+  $exe = ("" + $info.ExecutablePath).ToLower()
+  $cmd = ("" + $info.CommandLine).ToLower()
+  $venvPyL = $venvPy.ToLower()
+  $appL = $app.ToLower()
+  if (($exe -like "*$venvPyL*") -or ($cmd -like "*$venvPyL*")) {
+    if ($cmd -like "*streamlit*" -and $cmd -like "*$appL*") { return $true }
+  }
+  return $false
+}
+
+function Kill-ProcessTree {
+  param([int]$TargetPid)
+  try { Start-Process -FilePath 'taskkill' -ArgumentList @('/PID', "$TargetPid", '/T', '/F') -NoNewWindow -Wait -ErrorAction SilentlyContinue } catch {}
+}
+
+function Get-PortOwnerPid {
+  param([int]$port)
+  try {
+    $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
+    if ($conn -and $conn.OwningProcess) { return [int]$conn.OwningProcess }
+  } catch {}
+  try {
+    $lines = netstat -ano | Select-String -Pattern (":" + $port + "\s") | Select-Object -First 1
+    if ($lines) {
+      $parts = ($lines.ToString() -split "\s+") | Where-Object { $_ -ne '' }
+      if ($parts.Length -gt 0) { return [int]$parts[-1] }
+    }
+  } catch {}
+  return $null
+}
+
 function Resolve-SystemPython {
   Write-Log "Resolvendo Python do sistema..."
   $cands = @(
@@ -101,6 +153,29 @@ Ensure-Dependencies -PyExe $py
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"
 
+# Não encerrar UI anterior nem remover ui.lock: a decisão fica para o prompt dentro da UI
+$uiLock = Join-Path $root 'resultados/ui.lock'
+if (Test-Path $uiLock) { Write-Log "ui.lock presente; deixado intocado para aviso no app." }
+
+# Selecionar porta: tenta $Port e, se ocupada por processo não reconhecido, tenta as próximas
+$basePort = [int]$Port
+$chosenPort = $null
+for ($try=0; $try -lt 10; $try++) {
+  $cand = $basePort + $try
+  $owner = Get-PortOwnerPid -port $cand
+  if ($null -eq $owner) { $chosenPort = $cand; break }
+  # Não matar processos; apenas pula para próxima porta
+  if (Is-OurUiProcess -ProcessId $owner) {
+    Write-Log ("Porta $cand ocupada por nossa UI (PID=$owner); tentando próxima porta…")
+  } else {
+    Write-Log ("Porta $cand ocupada por outro processo (PID=$owner); tentando próxima porta…")
+  }
+  continue
+}
+if ($null -eq $chosenPort) { Write-Log "Nenhuma porta livre encontrada no range."; exit 5 }
+$Port = $chosenPort
+Write-Log ("Usando porta $Port")
+
 # Start Streamlit as a child process with redirected output
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $py
@@ -110,6 +185,8 @@ $psi.UseShellExecute = $false
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true
 $psi.CreateNoWindow = $true
+"STREAMLIT_LOG_LEVEL","warning" | ForEach-Object { $psi.EnvironmentVariables[($_.Split(',')[0])] = ($_.Split(',')[1]) }
+$psi.EnvironmentVariables["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 
 # Ensure Python can import project packages from src/ even when launched via shortcut
 $currentPyPath = $env:PYTHONPATH

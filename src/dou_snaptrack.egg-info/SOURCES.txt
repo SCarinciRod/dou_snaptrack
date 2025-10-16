@@ -23,11 +23,13 @@ src/dou_snaptrack/cli/plan_live.py
 src/dou_snaptrack/cli/reporting.py
 src/dou_snaptrack/cli/runner.py
 src/dou_snaptrack/cli/summary_config.py
+src/dou_snaptrack/cli/worker_entry.py
 src/dou_snaptrack/mappers/__init__.py
 src/dou_snaptrack/mappers/_init_.py
 src/dou_snaptrack/mappers/page_mapper.py
 src/dou_snaptrack/mappers/pairs_mapper.py
 src/dou_snaptrack/ui/app.py
+src/dou_snaptrack/ui/batch_runner.py
 src/dou_snaptrack/ui/launch.py
 src/dou_snaptrack/utils/__init__.py
 src/dou_snaptrack/utils/_init_.py
@@ -42,6 +44,7 @@ src/dou_utils/detail_utils.py
 src/dou_utils/dropdown_strategies.py
 src/dou_utils/dropdown_utils.py
 src/dou_utils/element_utils.py
+src/dou_utils/enrich_utils.py
 src/dou_utils/hash_utils.py
 src/dou_utils/log_utils.py
 src/dou_utils/models.py

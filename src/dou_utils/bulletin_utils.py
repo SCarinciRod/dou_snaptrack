@@ -14,109 +14,22 @@ from typing import Dict, Any, List, Callable, Optional, Tuple
 from collections import defaultdict
 import html as html_lib
 from pathlib import Path
+import re
 
 from .log_utils import get_logger
+from .text_cleaning import (
+    remove_dou_metadata as _remove_dou_metadata,
+    split_doc_header as _split_doc_header,
+    extract_doc_header_line as _extract_doc_header_line,
+    extract_article1_section as _extract_article1_section,
+    strip_legalese_preamble as _strip_legalese_preamble,
+    first_sentences as _first_sentences,
+    cap_sentences as _cap_sentences,
+    final_clean_snippet as _final_clean_snippet,
+    make_bullet_title_from_text as _make_bullet_title_from_text,
+)
 
 logger = get_logger(__name__)
-
-def _extract_article1_section(text: str) -> str:
-    """Tenta extrair somente o conteúdo do Art. 1º (ou Artigo 1º).
-
-    Heurística:
-    - Busca início por "Art. 1º", "Art. 1o", "Artigo 1º" (case-insensitive)
-    - Corta até antes de "Art. 2º/2o/Artigo 2º" ou final do texto
-    """
-    import re
-    if not text:
-        return ""
-    t = text
-    # normalizar espaços para facilitar o recorte
-    t = re.sub(r"\s+", " ", t).strip()
-
-    # localizar início do art. 1º (com ou sem o prefixo "Art." ou "Artigo")
-    m1 = re.search(r"\b(?:(?:Art\.?|Artigo)\s*)?1(º|o)?\b[:\-]?", t, flags=re.I)
-    if not m1:
-        return ""
-    start = m1.start()
-
-    # localizar início do art. 2º a partir do fim do match 1 (com ou sem prefixo)
-    rest = t[m1.end():]
-    m2 = re.search(r"\b(?:(?:Art\.?|Artigo)\s*)?2(º|o)?\b", rest, flags=re.I)
-    if m2:
-        end = m1.end() + m2.start()
-    else:
-        end = len(t)
-
-    return t[start:end].strip()
-
-
-def _strip_legalese_preamble(text: str) -> str:
-    """Remove trechos iniciais de formalidades jurídicas e corta até a parte dispositiva.
-
-    Heurísticas:
-    - Descarta tudo até (e incluindo) marcadores como "resolve:", "resolvo:", "decide:".
-    - Remove cabeçalhos como "O MINISTRO...", "A MINISTRA...", "no uso de suas atribuições".
-    - Remove blocos iniciados por "tendo em vista", "considerando", "nos termos", "com fundamento".
-    - Normaliza "Art. 1º" para "1º" (remove o token "Art.").
-    """
-    import re
-    if not text:
-        return ""
-
-    t = text
-    # Normalizar quebras para facilitar recortes
-    t = re.sub(r"\s+", " ", t).strip()
-
-    low = t.lower()
-    markers = ["resolve:", "resolvo:", "decide:", "decido:", "torna público:", "torno público:", "torna publico:", "torno publico:"]
-    cut_idx = -1
-    for m in markers:
-        i = low.find(m)
-        if i >= 0:
-            cut_idx = max(cut_idx, i + len(m))
-            break
-    if cut_idx >= 0:
-        t = t[cut_idx:].lstrip(" -:;—")
-        low = t.lower()
-
-    # Remover preâmbulos comuns no início
-    preambles = [
-        r"^(o|a)\s+minist[roa]\s+de\s+estado.*?\b",  # O MINISTRO DE ESTADO...
-        r"no\s+uso\s+de\s+suas\s+atribui[cç][oõ]es.*?\b",
-        r"tendo\s+em\s+vista.*?\b",
-        r"considerando.*?\b",
-        r"nos\s+termos\s+do.*?\b",
-        r"com\s+fundamento\s+no.*?\b",
-        r"de\s+acordo\s+com.*?\b",
-    ]
-    for pat in preambles:
-        t = re.sub(pat, "", t, flags=re.I)
-        t = t.strip(" -:;— ")
-
-    # Normalizar "Art." prefixo antes do ordinal
-    t = re.sub(r"\bArt\.?\s*(\d+º?)", r"\1", t, flags=re.I)
-    return t.strip()
-
-
-def _first_sentences(text: str, max_sents: int = 2) -> str:
-    import re
-    sents = [s.strip() for s in re.split(r"[.!?]\s+", text) if s.strip()]
-    if not sents:
-        return ""
-    out = ". ".join(sents[:max_sents])
-    return out + ("" if out.endswith(".") else ".")
-
-
-def _make_bullet_title_from_text(text: str, max_len: int = 140) -> Optional[str]:
-    """Gera um título amigável a partir do texto já limpo de juridiquês."""
-    import re
-    if not text:
-        return None
-    head = _first_sentences(text, 1)
-    if not head:
-        return None
-    head = re.sub(r"^\d+º\s+", "", head).strip()  # remove ordinal inicial
-    return head[:max_len]
 
 
 def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=None) -> str:
@@ -132,7 +45,12 @@ def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=No
     sents = [s.strip() for s in re.split(r"[.!?]\s+", base) if s.strip()]
 
     if not sents:
-        return ""
+        # Fallback: se não houver pontuação, sintetizar com primeiras palavras
+        words = re.findall(r"\w+[\w-]*", base)
+        if not words:
+            return ""
+        chunk = " ".join(words[: max(5, max_lines * 8)])
+        return chunk.strip() + "."
 
     if mode in ("head", "lead"):
         result = ". ".join(sents[:max_lines])
@@ -169,6 +87,23 @@ def _mk_suffix(it: Dict[str, Any]) -> str:
     return (" — " + " • ".join(parts)) if parts else ""
 
 
+def _minimal_summary_from_item(it: Dict[str, Any]) -> Optional[str]:
+    """Último recurso para obter um resumo mínimo a partir do cabeçalho ou título.
+
+    Retorna uma string curta e limpa ou None.
+    """
+    try:
+        head = _extract_doc_header_line(it)
+    except Exception:
+        head = None
+    if head:
+        return _final_clean_snippet(head)
+    t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
+    if t:
+        return _final_clean_snippet(str(t))
+    return None
+
+
 def _summarize_item(
     it: Dict[str, Any], 
     summarizer_fn: Optional[Callable], 
@@ -189,28 +124,128 @@ def _summarize_item(
         
     base = it.get("texto") or it.get("ementa") or ""
     if not base:
-        return None
-    # Limpar juridiquês e tentar extrair somente o Art. 1º antes de resumir
+        # Último recurso: tentar construir resumo a partir de header ou título
+        head = _extract_doc_header_line(it)
+        if head:
+            return _final_clean_snippet(head)
+        t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
+        return _final_clean_snippet(str(t)) if t else None
+    # Separar cabeçalho do corpo para o resumo não repetir o cabeçalho do ato
+    use_base = base
     try:
-        base = _strip_legalese_preamble(base)
-        a1 = _extract_article1_section(base)
-        if a1:
-            base = a1
+        header, body = _split_doc_header(base)
+        # Só usar o body se ele tiver conteúdo razoável (evita ficar vazio quando só há título)
+        if body and len(body.strip()) >= 30:
+            use_base = body
+    except Exception:
+        pass
+    # Remover metadados do DOU, limpar juridiquês e tentar extrair somente o Art. 1º
+    try:
+        clean = _remove_dou_metadata(use_base)
+        clean = _strip_legalese_preamble(clean)
+        a1 = _extract_article1_section(clean)
+        base_eff = a1 or clean
+        if not base_eff:
+            # fallback: tentar com o texto original limpo (sem remover cabeçalho)
+            clean2 = _strip_legalese_preamble(_remove_dou_metadata(base))
+            base_eff = clean2 or base
+        base = base_eff
     except Exception:
         pass
         
+    # Modo derivado por tipo de ato: usar 'lead' para atos normativos e despachos
+    derived_mode = (mode or "center").lower()
     try:
-        return summarizer_fn(base, max_lines, mode, keywords)
+        tipo = (it.get("tipo_ato") or "").strip().lower()
+        if tipo.startswith("decreto") or tipo.startswith("portaria") or tipo.startswith("resolu") or tipo.startswith("despacho"):
+            derived_mode = "lead"
+    except Exception:
+        pass
+
+    snippet = None
+    try:
+        # Chamada preferida: (text, max_lines, mode, keywords)
+        snippet = summarizer_fn(base, max_lines, derived_mode, keywords)
     except TypeError:
-        # Compatibilidade com summarizers que aceitam (text, max_lines, mode) apenas
+        # Tentar alternativa (text, max_lines, keywords, mode)
         try:
-            return summarizer_fn(base, max_lines, mode)
-        except Exception as e:
-            logger.warning(f"Erro ao sumarizar: {e}")
-            return None
+            snippet = summarizer_fn(base, max_lines, keywords, derived_mode)  # type: ignore
+        except TypeError:
+            # Tentar legado (text, max_lines, mode)
+            try:
+                snippet = summarizer_fn(base, max_lines, derived_mode)  # type: ignore
+            except Exception as e:
+                logger.warning(f"Erro ao sumarizar: {e}")
+                snippet = None
     except Exception as e:
         logger.warning(f"Erro ao sumarizar: {e}")
-        return None
+        snippet = None
+    # Se o summarizer retornar vazio, tentar fallback com a base original
+    try:
+        if not snippet:
+            alt = _strip_legalese_preamble(_remove_dou_metadata(base)) if base else base
+            if alt and alt != base:
+                try:
+                    snippet = summarizer_fn(alt, max_lines, derived_mode, keywords)
+                except TypeError:
+                    try:
+                        snippet = summarizer_fn(alt, max_lines, keywords, derived_mode)  # type: ignore
+                    except TypeError:
+                        snippet = summarizer_fn(alt, max_lines, derived_mode)  # type: ignore
+    except Exception:
+        pass
+
+    # Se ainda não houver snippet, aplicar fallback com sumarizador simples padrão
+    if not snippet:
+        try:
+            snippet = _default_simple_summarizer(base, max_lines, derived_mode, keywords)
+        except Exception:
+            snippet = None
+
+    # Se ainda não houver snippet, construir a partir de header ou título
+    if not snippet:
+        head = None
+        try:
+            head = _extract_doc_header_line(it)
+        except Exception:
+            head = None
+        if head:
+            snippet = head
+        else:
+            t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
+            if t:
+                snippet = str(t)
+
+    # Pós-processamento: limitar a N frases e limpar resíduos/metadata
+    if snippet:
+        # Remover ruídos comuns no início do resumo (ANEXO, NR, códigos)
+        try:
+            snippet = re.sub(r"^(ANEXO(\s+[IVXLCDM]+)?|NR)\b[:\-\s]*", "", snippet, flags=re.I).strip()
+        except Exception:
+            pass
+        snippet = _cap_sentences(snippet, max_lines)
+        snippet = _final_clean_snippet(snippet)
+        # Salvaguarda: se após o pós-processamento o resumo ficar vazio, reconstruir com header/título
+        if not snippet.strip():
+            head2 = None
+            try:
+                head2 = _extract_doc_header_line(it)
+            except Exception:
+                head2 = None
+            if head2:
+                snippet = _final_clean_snippet(head2)
+            else:
+                t2 = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
+                if t2:
+                    snippet = _final_clean_snippet(str(t2))
+                else:
+                    # Último recurso: usar sumarizador simples no texto-base
+                    try:
+                        snippet = _default_simple_summarizer(base or "", max_lines, derived_mode, keywords)
+                        snippet = _final_clean_snippet(snippet)
+                    except Exception:
+                        snippet = ""
+    return snippet
 
 
 class BulletinGenerator(ABC):
@@ -336,10 +371,9 @@ class DocxBulletinGenerator(BulletinGenerator):
             # Para cada item no grupo
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
-                # Título preferencial: derivado do texto limpo; fallback para friendly/listagem
-                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
-                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                # Manter texto do link inalterado (sem derivar título do corpo)
+                titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
@@ -362,6 +396,8 @@ class DocxBulletinGenerator(BulletinGenerator):
                 # Adicionar resumo se disponível
                 snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
                                          self.keywords, self.max_lines, self.mode)
+                if not snippet and self.summarize:
+                    snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
                     pr = doc.add_paragraph()
@@ -387,9 +423,9 @@ class MarkdownBulletinGenerator(BulletinGenerator):
             
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
-                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
-                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                # Manter texto do link inalterado
+                titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
@@ -409,6 +445,8 @@ class MarkdownBulletinGenerator(BulletinGenerator):
                 # Adicionar resumo se disponível
                 snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
                                          self.keywords, self.max_lines, self.mode)
+                if not snippet and self.summarize:
+                    snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
                     lines.append(f"  \n  _Resumo:_ {snippet}")
@@ -433,9 +471,9 @@ class HtmlBulletinGenerator(BulletinGenerator):
             
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(base_text) if base_text else ""
-                bullet_title = _make_bullet_title_from_text(cleaned) if cleaned else None
-                titulo = bullet_title or it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                # Manter texto do link inalterado
+                titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
@@ -453,6 +491,8 @@ class HtmlBulletinGenerator(BulletinGenerator):
                 # Adicionar resumo se disponível
                 snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
                                          self.keywords, self.max_lines, self.mode)
+                if not snippet and self.summarize:
+                    snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
                     parts.append(f"<div><strong>Resumo:</strong> {html_lib.escape(snippet)}</div>")

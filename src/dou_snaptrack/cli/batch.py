@@ -238,21 +238,21 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                 key2_type = job.get("key2_type"); key2 = job.get("key2")
                 label1 = job.get("label1"); label2 = job.get("label2")
 
-                max_links = int(_get(job, "max_links", "max_links", 30))
+                max_links = int(_get(job, "max_links", "max_links", 30) or 30)
                 do_scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", True))
-                detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000))
+                detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000) or 60_000)
                 fallback_date = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
 
                 # Leaner defaults to reduce scrolling effort; fast-mode can cut further
-                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 20))
-                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 150))
-                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 1))
+                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 20) or 20)
+                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 150) or 150)
+                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 1) or 1)
                 if fast_mode:
                     max_scrolls = min(max_scrolls, 15)
                     scroll_pause_ms = min(scroll_pause_ms, 150)
                     stable_rounds = min(stable_rounds, 1)
                     do_scrape_detail = False
-                detail_parallel = int(_get(job, "detail_parallel", "detail_parallel", 1))
+                detail_parallel = int(_get(job, "detail_parallel", "detail_parallel", 1) or 1)
 
                 bulletin = job.get("bulletin") or defaults.get("bulletin")
                 bulletin_out_pat = job.get("bulletin_out") or defaults.get("bulletin_out") or None
@@ -686,3 +686,81 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     final_line = f"[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}"
     _log("")
     _log(final_line)
+
+    # ---------------- Aggregation per plan (optional) ----------------
+    # If a plan name is provided in config, aggregate all job outputs into per-date files:
+    #   {plan_name}_paginadoDOU_{date}.json
+    try:
+        plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
+        if plan_name:
+            def _aggregate_outputs_by_date(paths: List[str], out_dir: Path, plan: str) -> List[str]:
+                from collections import defaultdict
+                agg: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
+                secao_any = ""
+                for pth in paths or []:
+                    try:
+                        data = json.loads(Path(pth).read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    date = str(data.get("data") or "")
+                    secao = str(data.get("secao") or "")
+                    if not agg[date]["data"]:
+                        agg[date]["data"] = date
+                    if not agg[date]["secao"]:
+                        agg[date]["secao"] = secao
+                    if not secao_any and secao:
+                        secao_any = secao
+                    items = data.get("itens", []) or []
+                    # Normalize detail_url (absolute) like reporting
+                    for it in items:
+                        try:
+                            durl = it.get("detail_url") or ""
+                            if not durl:
+                                link = it.get("link") or ""
+                                if link:
+                                    if link.startswith("http"):
+                                        durl = link
+                                    elif link.startswith("/"):
+                                        durl = f"https://www.in.gov.br{link}"
+                            if durl:
+                                it["detail_url"] = durl
+                        except Exception:
+                            pass
+                    agg[date]["itens"].extend(items)
+                written: List[str] = []
+                # Choose label in filename: use actual secao (e.g., DO1, DO2, DO3)
+                secao_label = (secao_any or "DO").strip()
+                for date, payload in agg.items():
+                    payload["total"] = len(payload.get("itens", []))
+                    safe_plan = sanitize_filename(plan)
+                    date_lab = (date or "").replace("/", "-")
+                    out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
+                    out_path = out_dir / out_name
+                    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                    written.append(str(out_path))
+                return written
+
+            prev_outputs = list(report.get("outputs", []))
+            agg_files = _aggregate_outputs_by_date(prev_outputs, out_dir, plan_name)
+            if agg_files:
+                # Delete original per-job outputs now that we have aggregated files
+                deleted = []
+                for pth in prev_outputs:
+                    try:
+                        Path(pth).unlink(missing_ok=True)
+                        deleted.append(pth)
+                    except Exception:
+                        pass
+                # Update batch report to reflect only aggregated files
+                try:
+                    rep = json.loads(rep_path.read_text(encoding="utf-8"))
+                except Exception:
+                    rep = report
+                rep["deleted_outputs"] = deleted
+                rep["outputs"] = []
+                rep["aggregated"] = agg_files
+                rep["aggregated_only"] = True
+                rep_path.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+                _log(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
+    except Exception as e:
+        _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")

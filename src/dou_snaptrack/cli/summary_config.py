@@ -13,13 +13,8 @@ class SummaryConfig:
 
 def setup_summary_from_args(args) -> SummaryConfig:
     """Extract summary settings from argparse args into a typed config (no globals)."""
-    # Prefer --summary-lines; fallback to --summary-sentences
+    # Fixa summary-lines=0 por padrão (sem fallback para summary-sentences)
     lines = int(getattr(args, "summary_lines", 0) or 0)
-    if lines <= 0:
-        try:
-            lines = int(getattr(args, "summary_sentences", 7) or 7)
-        except Exception:
-            lines = 7
 
     mode = getattr(args, "summary_mode", "center") or "center"
     if mode not in ("center", "lead", "keywords-first"):

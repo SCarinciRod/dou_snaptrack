@@ -428,9 +428,7 @@ with tab2:
     # Paralelismo automático: usar até N jobs (limite máximo) para não desperdiçar workers
     max_workers = 6
     st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
-    fast_mode = st.checkbox("Modo rápido (sem boletim, rolagem agressiva)", value=False,
-                            help="Desliga boletim e usa rolagem mais curta; ideal para validação rápida.")
-    st.caption("Detalhes e boletins permanecem disponíveis na aba 'Gerar boletim' após a captura dos links.")
+    st.caption("A captura do plano é sempre 'link-only' (sem detalhes/boletim); gere o boletim na aba correspondente.")
 
     if st.button("Pesquisar Agora"):
         if not selected_path.exists():
@@ -448,14 +446,18 @@ with tab2:
 
             parallel = int(min(max_workers, max(1, est_jobs)))
             with st.spinner(f"Executando…"):
-                rep = _run_batch_with_cfg(selected_path, parallel, fast_mode=bool(fast_mode), prefer_edge=True)
+                rep = _run_batch_with_cfg(selected_path, parallel, fast_mode=False, prefer_edge=True)
             st.write(rep or {"info": "Sem relatório"})
             st.caption(f"Execução concluída com {parallel} workers automáticos.")
 
 with tab3:
-    st.subheader("Gerar boletim")
-    # Selecionar pasta do dia em ./resultados
+    st.subheader("Boletim por Plano (agregados)")
     results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
+    summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=4)
+    summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
+    st.caption("Selecione a data e o plano (arquivos {plan}_{secao}_{data}.json)")
+
+    # Seletor 1: pasta da data
     day_dirs = []
     try:
         for d in results_root.iterdir():
@@ -464,52 +466,63 @@ with tab3:
     except Exception:
         pass
     day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
-    if day_dirs:
+    if not day_dirs:
+        st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar agregados.")
+    else:
         labels = [p.name for p in day_dirs]
-        choice = st.selectbox("Selecione a pasta do dia (em resultados)", labels, index=0)
-        selected_in_dir = results_root / choice if choice else results_root
-    else:
-        st.info("Nenhuma pasta encontrada em 'resultados'. Crie um plano e execute-o para gerar uma pasta do dia.")
-        selected_in_dir = results_root
-    kind = st.selectbox("Formato", ["docx", "md", "html"], index=0)
-    split = st.checkbox("Gerar um arquivo por N1", value=False)
-    chosen_date = selected_in_dir.name if selected_in_dir and selected_in_dir.exists() else str(st.session_state.plan.date or "")
-    secao_cur = str(st.session_state.plan.secao or "")
-    # Nome sugerido (apenas nome do arquivo, não caminho)
-    if not split:
-        default_name = f"boletim_{secao_cur}_{chosen_date}.{kind}"
-        base_name = st.text_input("Nome do arquivo", default_name)
-        zip_name = None
-    else:
-        base_name = None
-        default_zip = f"boletins_{secao_cur}_{chosen_date}.zip"
-        zip_name = st.text_input("Nome do pacote (.zip)", default_zip)
-    summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=4)
-    summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
-    if st.button("Gerar e baixar"):
-        with st.spinner("Gerando…"):
-            files = _run_report(
-                selected_in_dir, kind, selected_in_dir,
-                base_name or (zip_name or "out.zip"), split,
-                chosen_date, secao_cur,
-                int(summary_lines), str(summary_mode)
-            )
-        if files:
-            if not split:
-                fpath = files[0]
+        sel_day = st.selectbox("Data (pasta)", labels, index=0, key="agg_day_choice_inst")
+        chosen_dir = results_root / str(sel_day)
+
+        # Indexar agregados no dia
+        def _index_aggregates_in_day(day_dir: Path) -> Dict[str, List[Path]]:
+            idx: Dict[str, List[Path]] = {}
+            try:
+                for f in day_dir.glob("*_DO?_*.json"):
+                    try:
+                        parts = f.stem.split("_")
+                        if len(parts) < 3:
+                            continue
+                        sec = parts[-2]
+                        date = parts[-1]
+                        plan = "_".join(parts[:-2])
+                        if not sec.upper().startswith("DO"):
+                            continue
+                        if date != day_dir.name:
+                            continue
+                    except Exception:
+                        continue
+                    idx.setdefault(plan, []).append(f)
+            except Exception:
+                pass
+            return idx
+
+        day_idx = _index_aggregates_in_day(chosen_dir)
+        plan_names = sorted(day_idx.keys())
+        if not plan_names:
+            st.info("Nenhum agregado encontrado na data.")
+        else:
+            sel_plan = st.selectbox("Plano", plan_names, index=0, key="agg_plan_choice_inst")
+            files = day_idx.get(sel_plan, [])
+            kind = st.selectbox("Formato", ["docx", "md", "html"], index=0)
+            out_name = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}.{kind}")
+            if st.button("Gerar boletim do plano"):
                 try:
-                    data = fpath.read_bytes()
-                    st.download_button("Baixar boletim", data=data, file_name=(base_name or fpath.name))
+                    from dou_snaptrack.cli.reporting import report_from_aggregated
+                    out_path = results_root / out_name
+                    secao_label = ""
+                    if files:
+                        try:
+                            parts = files[0].stem.split("_")
+                            if len(parts) >= 2:
+                                secao_label = parts[-2]
+                        except Exception:
+                            pass
+                    report_from_aggregated([str(p) for p in files], kind, str(out_path),
+                                           date_label=str(sel_day), secao_label=secao_label,
+                                           summary_lines=int(summary_lines), summary_mode=str(summary_mode),
+                                           summary_keywords=None, order_desc_by_date=False)
+                    data = out_path.read_bytes()
+                    st.success(f"Boletim gerado: {out_path}")
+                    st.download_button("Baixar boletim", data=data, file_name=out_path.name)
                 except Exception as e:
-                    st.error(f"Falha ao preparar download: {e}")
-            else:
-                # Empacotar múltiplos arquivos em zip em memória
-                try:
-                    buf = io.BytesIO()
-                    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-                        for fp in files:
-                            zf.write(fp, arcname=fp.name)
-                    buf.seek(0)
-                    st.download_button("Baixar boletins (zip)", data=buf.getvalue(), file_name=(zip_name or "boletins.zip"))
-                except Exception as e:
-                    st.error(f"Falha ao empacotar boletins: {e}")
+                    st.error(f"Falha ao gerar boletim: {e}")

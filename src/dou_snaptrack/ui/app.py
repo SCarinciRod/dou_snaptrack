@@ -22,6 +22,7 @@ from dou_snaptrack.ui.batch_runner import (
     terminate_other_execution,
     detect_other_ui,
     register_this_ui_instance,
+    clear_ui_lock,
 )
 
 
@@ -52,7 +53,7 @@ def _ensure_state():
             combos=[],
                 defaults={
                     "scrape_detail": False,
-                    "summary_lines": 4,
+                    "summary_lines": 0,
                     "summary_mode": "center",
                 },
         )
@@ -309,7 +310,7 @@ def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, 
         return {}
 
 def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by_n1: bool, date_label: str, secao_label: str,
-                summary_lines: int, summary_mode: str) -> List[Path]:
+                summary_lines: int, summary_mode: str, summary_keywords: Optional[List[str]] = None) -> List[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     try:
         if split_by_n1:
@@ -320,6 +321,7 @@ def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by
                 str(in_dir), kind, str(out_dir / "unused"), str(pattern),
                 date_label=date_label, secao_label=secao_label,
                 summary_lines=summary_lines, summary_mode=summary_mode,
+                summary_keywords=summary_keywords,
             )
             files = sorted(out_dir.glob(f"boletim_*_{date_label}.{kind}"))
         else:
@@ -329,6 +331,7 @@ def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by
                 str(in_dir), kind, str(out_path),
                 date_label=date_label, secao_label=secao_label,
                 summary_lines=summary_lines, summary_mode=summary_mode,
+                summary_keywords=summary_keywords,
             )
             files = [out_path]
         return files
@@ -344,17 +347,25 @@ st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
 other_ui = detect_other_ui()
 if other_ui and int(other_ui.get("pid") or 0) != os.getpid():
     st.warning(f"Outra instância da UI detectada (PID={other_ui.get('pid')} iniciada em {other_ui.get('started')}).")
-    col_ui = st.columns(2)
+    col_ui = st.columns(3)
     with col_ui[0]:
         kill_ui = st.button("Encerrar a outra UI (forçar)")
     with col_ui[1]:
         ignore_ui = st.button("Ignorar e continuar")
+    with col_ui[2]:
+        clear_lock = st.button("Limpar lock e continuar")
     if kill_ui:
         ok = terminate_other_execution(int(other_ui.get("pid") or 0))
         if ok:
             st.success("Outra UI encerrada. Prosseguindo…")
         else:
             st.error("Falha ao encerrar a outra UI. Feche manualmente a janela/processo.")
+    elif clear_lock:
+        try:
+            clear_ui_lock()
+            st.success("Lock removido. Prosseguindo…")
+        except Exception as _e:
+            st.error(f"Falha ao remover lock: {_e}")
     elif not ignore_ui:
         st.stop()
 
@@ -369,6 +380,8 @@ with st.sidebar:
     st.session_state.plan.date = st.text_input("Data (DD-MM-AAAA)", st.session_state.plan.date)
     st.session_state.plan.secao = st.selectbox("Seção", ["DO1", "DO2", "DO3"], index=0)
     st.markdown("- Padrão: hoje; altere se necessário.")
+    plan_name_ui = st.text_input("Nome do plano (para agregação)", value=st.session_state.get("plan_name_ui", ""))
+    st.session_state["plan_name_ui"] = plan_name_ui
 
 
     with st.expander("Diagnóstico do ambiente"):
@@ -471,6 +484,10 @@ with tab1:
             "combos": st.session_state.plan.combos,
             "output": {"pattern": "{topic}_{secao}_{date}_{idx}.json", "report": "batch_report.json"}
         }
+        # Propagar nome do plano, se informado
+        _pname = st.session_state.get("plan_name_ui")
+        if isinstance(_pname, str) and _pname.strip():
+            cfg["plan_name"] = _pname.strip()
         ppath = Path(plan_path); ppath.parent.mkdir(parents=True, exist_ok=True)
         ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
         st.success(f"Plano salvo em {plan_path}")
@@ -500,20 +517,10 @@ with tab2:
         choice = st.selectbox("Selecione o plano salvo", labels, index=0)
         selected_path = Path(choice)
 
-    # Paralelismo automático com opção de compatibilidade
+    # Paralelismo automático (sem opções de compatibilidade/mode rápido)
     max_workers = 6
-    compat_mode = st.checkbox(
-        "Modo compatível (sem multiprocessamento)",
-        value=True,
-        help="Evita multiprocessamento na UI para máxima estabilidade (usa 1 worker). Use o CLI para paralelismo alto."
-    )
-    if compat_mode:
-        st.caption("Compatibilidade ativa: execução inline com 1 worker no processo da UI.")
-    else:
-        st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
-    fast_mode = st.checkbox("Modo rápido (sem boletim, rolagem agressiva)", value=False,
-                            help="Desliga boletim e usa rolagem mais curta; ideal para validação rápida.")
-    st.caption("Detalhes e boletins permanecem disponíveis na aba 'Gerar boletim' após a captura dos links.")
+    st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
+    st.caption("A captura do plano é sempre 'link-only' (sem detalhes/boletim); gere o boletim na aba correspondente.")
 
     if st.button("Pesquisar Agora"):
         if not selected_path.exists():
@@ -547,7 +554,7 @@ with tab2:
                 est_jobs = 1
 
             auto_parallel = int(min(max_workers, max(1, est_jobs)))
-            parallel = 1 if compat_mode else auto_parallel
+            parallel = auto_parallel
             with st.spinner(f"Executando…"):
                 # Forçar execução para a data atual selecionada no UI (padrão: hoje)
                 try:
@@ -556,6 +563,34 @@ with tab2:
                     cfg_json = {}
                 override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
                 cfg_json["data"] = override_date
+                # Injetar plan_name (agregação por plano ao final do batch)
+                def _sanitize_filename(name: str) -> str:
+                    import re
+                    s = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
+                    s = s.strip(" _")
+                    return s[:180] or "Plano"
+                _pname2 = st.session_state.get("plan_name_ui")
+                if isinstance(_pname2, str) and _pname2.strip():
+                    cfg_json["plan_name"] = _pname2.strip()
+                if not cfg_json.get("plan_name"):
+                    # Fallback 1: nome do arquivo do plano salvo
+                    try:
+                        if selected_path and selected_path.exists():
+                            base = selected_path.stem
+                            if base:
+                                cfg_json["plan_name"] = _sanitize_filename(base)
+                    except Exception:
+                        pass
+                if not cfg_json.get("plan_name"):
+                    # Fallback 2: usar key1/label1 do primeiro combo
+                    try:
+                        combos_fallback = cfg_json.get("combos") or []
+                        if combos_fallback:
+                            c0 = combos_fallback[0] or {}
+                            cand = (c0.get("label1") or c0.get("key1") or "Plano")
+                            cfg_json["plan_name"] = _sanitize_filename(str(cand))
+                    except Exception:
+                        cfg_json["plan_name"] = "Plano"
                 # Gerar um config temporário para a execução desta sessão, sem modificar o arquivo salvo
                 out_dir_tmp = Path("resultados") / override_date
                 out_dir_tmp.mkdir(parents=True, exist_ok=True)
@@ -565,9 +600,7 @@ with tab2:
                 except Exception:
                     pass
                 st.caption(f"Iniciando captura… log em resultados/{override_date}/batch_run.log")
-                if not compat_mode:
-                    st.caption("Dica: se o log travar em 'futures scheduled', ative o modo compatível ou aguarde fallback inline automático.")
-                rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=bool(fast_mode), prefer_edge=True)
+                rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=False, prefer_edge=True)
             st.write(rep or {"info": "Sem relatório"})
             # Hint on where to find detailed run logs
             out_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
@@ -578,10 +611,71 @@ with tab2:
                 st.caption(f"Execução concluída com {parallel} workers automáticos.")
 
 with tab3:
-    st.subheader("Gerar boletim")
-    # Selecionar pasta do dia em ./resultados
+    st.subheader("Boletim por Plano (agregados)")
     results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
-    day_dirs = []
+    # Controles principais de resumo e formato
+    summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=3)
+    summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
+    kws = st.text_input("Palavras-chave (opcional, separadas por vírgula)", "")
+    kw_list = [k.strip() for k in kws.split(",") if k.strip()] if isinstance(kws, str) and kws.strip() else None
+    st.caption("Gere boletim a partir de agregados do dia: {plan}_{secao}_{data}.json (dentro da pasta da data)")
+
+    # Controles de modo profundo (deep-mode) de captura de texto
+    with st.expander("Opções avançadas de captura do texto (deep-mode)", expanded=False):
+        col_adv1, col_adv2 = st.columns(2)
+        with col_adv1:
+            fetch_parallel = st.number_input("Paralelismo de busca (links)", min_value=1, max_value=16, value=8)
+            fetch_timeout_sec = st.number_input("Timeout por link (s)", min_value=5, max_value=120, value=30)
+            short_len_threshold = st.number_input("Tamanho mínimo para acionar navegador", min_value=200, max_value=3000, value=800, step=50)
+        with col_adv2:
+            fetch_force_refresh = st.checkbox("Forçar atualização (sem cache)", value=True)
+            fetch_browser_fallback = st.checkbox("Usar navegador (fallback quando curto)", value=True)
+            offline_mode = st.checkbox("Modo offline (não baixar páginas)", value=False)
+        # Setar variável de ambiente imediatamente para afetar o relatório
+        try:
+            os.environ["DOU_OFFLINE_REPORT"] = "1" if offline_mode else "0"
+        except Exception:
+            pass
+
+    # Ação auxiliar: agregação manual a partir de uma pasta de dia
+    with st.expander("Agregação manual (quando necessário)"):
+        day_dirs = []
+        try:
+            for d in results_root.iterdir():
+                if d.is_dir():
+                    day_dirs.append(d)
+        except Exception:
+            pass
+        day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
+        if not day_dirs:
+            st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar uma pasta do dia.")
+        else:
+            labels = [p.name for p in day_dirs]
+            choice = st.selectbox("Pasta do dia para agregar", labels, index=0, key="agg_day_choice")
+            choice_str = str(choice) if isinstance(choice, str) and choice else str(labels[0])
+            chosen_dir = results_root / choice_str
+            help_txt = "Use esta opção se a execução terminou sem gerar os arquivos agregados. Informe o nome do plano e agregue os JSONs da pasta escolhida."
+            st.write(help_txt)
+            manual_plan = st.text_input("Nome do plano (para nome do arquivo agregado)", value=st.session_state.get("plan_name_ui", ""), key="agg_manual_plan")
+            if st.button("Gerar agregados agora", key="agg_manual_btn"):
+                _mp = manual_plan or ""
+                if not _mp.strip():
+                    st.warning("Informe o nome do plano.")
+                else:
+                    try:
+                        from dou_snaptrack.cli.reporting import aggregate_outputs_by_plan
+                        written = aggregate_outputs_by_plan(str(chosen_dir), _mp.strip())
+                        if written:
+                            st.success(f"Gerados {len(written)} agregado(s):")
+                            for w in written:
+                                st.write(w)
+                        else:
+                            st.info("Nenhum arquivo de job encontrado para agregar.")
+                    except Exception as e:
+                        st.error(f"Falha ao agregar: {e}")
+
+    # Seletor 1: escolher a pasta da data (resultados/<data>)
+    day_dirs: List[Path] = []
     try:
         for d in results_root.iterdir():
             if d.is_dir():
@@ -589,52 +683,72 @@ with tab3:
     except Exception:
         pass
     day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
-    if day_dirs:
-        labels = [p.name for p in day_dirs]
-        choice = st.selectbox("Selecione a pasta do dia (em resultados)", labels, index=0)
-        selected_in_dir = results_root / choice if choice else results_root
+    if not day_dirs:
+        st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano com 'Nome do plano' para gerar agregados.")
     else:
-        st.info("Nenhuma pasta encontrada em 'resultados'. Crie um plano e execute-o para gerar uma pasta do dia.")
-        selected_in_dir = results_root
-    kind = st.selectbox("Formato", ["docx", "md", "html"], index=0)
-    split = st.checkbox("Gerar um arquivo por N1", value=False)
-    chosen_date = selected_in_dir.name if selected_in_dir and selected_in_dir.exists() else str(st.session_state.plan.date or "")
-    secao_cur = str(st.session_state.plan.secao or "")
-    # Nome sugerido (apenas nome do arquivo, não caminho)
-    if not split:
-        default_name = f"boletim_{secao_cur}_{chosen_date}.{kind}"
-        base_name = st.text_input("Nome do arquivo", default_name)
-        zip_name = None
-    else:
-        base_name = None
-        default_zip = f"boletins_{secao_cur}_{chosen_date}.zip"
-        zip_name = st.text_input("Nome do pacote (.zip)", default_zip)
-    summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=4)
-    summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
-    if st.button("Gerar e baixar"):
-        with st.spinner("Gerando…"):
-            files = _run_report(
-                selected_in_dir, kind, selected_in_dir,
-                base_name or (zip_name or "out.zip"), split,
-                chosen_date, secao_cur,
-                int(summary_lines), str(summary_mode)
-            )
-        if files:
-            if not split:
-                fpath = files[0]
+        day_labels = [p.name for p in day_dirs]
+        sel_day = st.selectbox("Data (pasta em resultados)", day_labels, index=0, key="agg_day_select")
+        chosen_dir = results_root / str(sel_day)
+
+        # Indexar agregados dentro da pasta escolhida
+        def _index_aggregates_in_day(day_dir: Path) -> Dict[str, List[Path]]:
+            idx: Dict[str, List[Path]] = {}
+            try:
+                for f in day_dir.glob("*_DO?_*.json"):
+                    name = f.name
+                    try:
+                        parts = name[:-5].split("_")  # drop .json
+                        if len(parts) < 3:
+                            continue
+                        sec = parts[-2]
+                        date = parts[-1]
+                        plan = "_".join(parts[:-2])
+                        if not sec.upper().startswith("DO"):
+                            continue
+                        # conferir se bate com a pasta (sanidade)
+                        if date != day_dir.name:
+                            continue
+                    except Exception:
+                        continue
+                    idx.setdefault(plan, []).append(f)
+            except Exception:
+                pass
+            return idx
+
+        day_idx = _index_aggregates_in_day(chosen_dir)
+        plan_names = sorted(day_idx.keys())
+        if not plan_names:
+            st.info("Nenhum agregado encontrado nessa data. Verifique se o plano foi executado com 'Nome do plano'.")
+        else:
+            # Seletor 2: escolher o plano dentro da pasta do dia
+            sel_plan = st.selectbox("Plano (encontrado na data)", plan_names, index=0, key="agg_plan_select")
+            files = day_idx.get(sel_plan, [])
+            kind2 = st.selectbox("Formato (agregados)", ["docx", "md", "html"], index=1, key="kind_agg")
+            out_name2 = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}.{kind2}")
+            if st.button("Gerar boletim do plano (data selecionada)"):
                 try:
-                    data = fpath.read_bytes()
-                    st.download_button("Baixar boletim", data=data, file_name=(base_name or fpath.name))
+                    from dou_snaptrack.cli.reporting import report_from_aggregated
+                    out_path = results_root / out_name2
+                    # Detectar seção a partir do primeiro arquivo
+                    secao_label = ""
+                    if files:
+                        try:
+                            parts = files[0].stem.split("_")
+                            if len(parts) >= 2:
+                                secao_label = parts[-2]
+                        except Exception:
+                            pass
+                    report_from_aggregated(
+                        [str(p) for p in files], kind2, str(out_path),
+                        date_label=str(sel_day), secao_label=secao_label,
+                        summary_lines=int(summary_lines), summary_mode=str(summary_mode),
+                        summary_keywords=kw_list, order_desc_by_date=False,
+                        fetch_parallel=int(fetch_parallel), fetch_timeout_sec=int(fetch_timeout_sec),
+                        fetch_force_refresh=bool(fetch_force_refresh), fetch_browser_fallback=bool(fetch_browser_fallback),
+                        short_len_threshold=int(short_len_threshold),
+                    )
+                    data = out_path.read_bytes()
+                    st.success(f"Boletim gerado: {out_path}")
+                    st.download_button("Baixar boletim (plano)", data=data, file_name=out_path.name)
                 except Exception as e:
-                    st.error(f"Falha ao preparar download: {e}")
-            else:
-                # Empacotar múltiplos arquivos em zip em memória
-                try:
-                    buf = io.BytesIO()
-                    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-                        for fp in files:
-                            zf.write(fp, arcname=fp.name)
-                    buf.seek(0)
-                    st.download_button("Baixar boletins (zip)", data=buf.getvalue(), file_name=(zip_name or "boletins.zip"))
-                except Exception as e:
-                    st.error(f"Falha ao empacotar boletins: {e}")
+                    st.error(f"Falha ao gerar boletim por plano: {e}")

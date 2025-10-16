@@ -7,6 +7,7 @@ import hashlib
 import time
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import sys
 
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
 from .runner import run_once
@@ -396,3 +397,82 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
     rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
+
+    # ---------------- Aggregation per plan (optional) ----------------
+    try:
+        plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
+        if plan_name:
+            def _sanitize_filename(name: str) -> str:
+                import re
+                name = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
+                return name[:180].strip(" _") or "out"
+            def _aggregate_outputs_by_date(paths: List[str], out_dir: Path, plan: str) -> List[str]:
+                from collections import defaultdict
+                agg: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
+                secao_any = ""
+                for pth in paths or []:
+                    try:
+                        data = json.loads(Path(pth).read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    date = str(data.get("data") or "")
+                    secao = str(data.get("secao") or "")
+                    if not agg[date]["data"]:
+                        agg[date]["data"] = date
+                    if not agg[date]["secao"]:
+                        agg[date]["secao"] = secao
+                    if not secao_any and secao:
+                        secao_any = secao
+                    items = data.get("itens", []) or []
+                    # Normalize detail_url (absolute)
+                    for it in items:
+                        try:
+                            durl = it.get("detail_url") or ""
+                            if not durl:
+                                link = it.get("link") or ""
+                                if link:
+                                    if link.startswith("http"):
+                                        durl = link
+                                    elif link.startswith("/"):
+                                        durl = f"https://www.in.gov.br{link}"
+                            if durl:
+                                it["detail_url"] = durl
+                        except Exception:
+                            pass
+                    agg[date]["itens"].extend(items)
+                written: List[str] = []
+                secao_label = (secao_any or "DO").strip()
+                for date, payload in agg.items():
+                    payload["total"] = len(payload.get("itens", []))
+                    safe_plan = _sanitize_filename(plan)
+                    date_lab = (date or "").replace("/", "-")
+                    out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
+                    out_path = out_dir / out_name
+                    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                    written.append(str(out_path))
+                return written
+
+            prev_outputs = list(report.get("outputs", []))
+            agg_files = _aggregate_outputs_by_date(prev_outputs, out_dir, plan_name)
+            if agg_files:
+                # Delete original per-job outputs now that we have aggregated files
+                deleted = []
+                for pth in prev_outputs:
+                    try:
+                        Path(pth).unlink(missing_ok=True)
+                        deleted.append(pth)
+                    except Exception:
+                        pass
+                # Update batch report to reflect only aggregated files
+                try:
+                    rep = json.loads(rep_path.read_text(encoding="utf-8"))
+                except Exception:
+                    rep = report
+                rep["deleted_outputs"] = deleted
+                rep["outputs"] = []
+                rep["aggregated"] = agg_files
+                rep["aggregated_only"] = True
+                rep_path.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+                print(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
+    except Exception as e:
+        print(f"[AGG][WARN] Falha ao agregar por plano: {e}")

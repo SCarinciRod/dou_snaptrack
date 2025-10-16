@@ -7,7 +7,7 @@ except Exception:  # pragma: no cover
         raise RuntimeError("Geração de boletim indisponível")
 
 try:
-    from dou_utils.summary_utils import summarize_text  # type: ignore
+    from dou_utils.summarize import summarize_text  # type: ignore
 except Exception:  # pragma: no cover
     def summarize_text(text: str, max_lines: int = 0, keywords=None, mode: str = "center") -> str:  # type: ignore
         return text
