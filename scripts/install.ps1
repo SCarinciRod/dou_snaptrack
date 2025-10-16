@@ -1,78 +1,370 @@
 param(
   [string]$Python = "python",
-  [string]$VenvDir = ".venv"
+  [string]$VenvDir = ".venv",
+  [string]$PythonVersions = "3.11",
+  [switch]$AllowWinget,
+  [switch]$SkipSmoke,
+  [switch]$ForceCleanVenv,
+  [switch]$NoVenv
 )
 
-function Run($cmd) {
-  Write-Host "[RUN] $cmd"
-  powershell -NoProfile -ExecutionPolicy Bypass -Command $cmd
-  if ($LASTEXITCODE -ne 0) { throw "Command failed: $cmd" }
+function Run($cmd, [int]$TimeoutSeconds = 30) {
+  # Execute a PowerShell command in a child process with a timeout (seconds).
+  Write-Host "[RUN] $cmd (timeout=${TimeoutSeconds}s)"
+  $stdout = [System.IO.Path]::GetTempFileName()
+  $stderr = [System.IO.Path]::GetTempFileName()
+  $psArgs = @('-NoProfile','-ExecutionPolicy','Bypass','-Command',$cmd)
+  $argJoined = ($psArgs -join ' ')
+  $p = Start-Process -FilePath powershell -ArgumentList $argJoined -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+  if ($null -eq $p) { throw "Failed to start PowerShell for: $cmd" }
+  $timeoutMs = [int]($TimeoutSeconds * 1000)
+  try {
+    $finished = $p.WaitForExit($timeoutMs)
+  } catch {
+    $finished = $false
+  }
+  if (-not $finished) {
+    Write-Warning "[TIMEOUT] Command exceeded ${TimeoutSeconds}s: $cmd"
+    try { $p.Kill() } catch {}
+    $outTxt = (Get-Content -LiteralPath $stdout -ErrorAction SilentlyContinue -Raw)
+    $errTxt = (Get-Content -LiteralPath $stderr -ErrorAction SilentlyContinue -Raw)
+    throw ("Timeout: command exceeded {0}s: {1}`nSTDOUT:`n{2}`nSTDERR:`n{3}" -f $TimeoutSeconds, $cmd, $outTxt, $errTxt)
+  }
+  $exit = $p.ExitCode
+  $outTxt = (Get-Content -LiteralPath $stdout -ErrorAction SilentlyContinue -Raw)
+  $errTxt = (Get-Content -LiteralPath $stderr -ErrorAction SilentlyContinue -Raw)
+  if ($exit -ne 0) { throw ("Command failed (exit={0}): {1}`nSTDOUT:`n{2}`nSTDERR:`n{3}" -f $exit, $cmd, $outTxt, $errTxt) }
+  try { Remove-Item -LiteralPath $stdout -Force -ErrorAction SilentlyContinue } catch {}
+  try { Remove-Item -LiteralPath $stderr -Force -ErrorAction SilentlyContinue } catch {}
 }
 
-function Resolve-Python311 {
-  Write-Host "[Python] Verificando Python 3.11..."
-  # 1) py -3.11 se disponível
-  try {
-    $out = & py -3.11 -c "import sys; print(sys.executable)" 2>$null
-    if ($LASTEXITCODE -eq 0 -and $out) { return $out.Trim() }
-  } catch {}
-  # 2) python no PATH (verificar versão)
+# Variante que retorna ExitCode/STDOUT/STDERR sem lançar exceção
+function Run-GetResult($cmd, [int]$TimeoutSeconds = 30) {
+  Write-Host "[RUN] $cmd (timeout=${TimeoutSeconds}s)"
+  $stdout = [System.IO.Path]::GetTempFileName()
+  $stderr = [System.IO.Path]::GetTempFileName()
+  $tmpPs1 = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "runwrap_" + [System.Guid]::NewGuid().ToString() + ".ps1")
+  $content = @(
+    $cmd,
+    'if ($LASTEXITCODE) { exit $LASTEXITCODE } elseif (-not $?) { exit 1 }'
+  ) -join "`n"
+  Set-Content -LiteralPath $tmpPs1 -Value $content -Encoding UTF8 -Force
+  $psArgs = @('-NoProfile','-ExecutionPolicy','Bypass','-File', $tmpPs1)
+  $argJoined = ($psArgs -join ' ')
+  $p = Start-Process -FilePath powershell -ArgumentList $argJoined -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+  if ($null -eq $p) { return [pscustomobject]@{ ExitCode = 901; Stdout = ''; Stderr = 'Failed to start PowerShell'; TimedOut = $false } }
+  $timeoutMs = [int]($TimeoutSeconds * 1000)
+  $timedOut = $false
+  try { $finished = $p.WaitForExit($timeoutMs) } catch { $finished = $false }
+  if (-not $finished) {
+    $timedOut = $true
+    try { $p.Kill() } catch {}
+  }
+  $exit = $p.ExitCode
+  $outTxt = (Get-Content -LiteralPath $stdout -ErrorAction SilentlyContinue -Raw)
+  $errTxt = (Get-Content -LiteralPath $stderr -ErrorAction SilentlyContinue -Raw)
+  try { Remove-Item -LiteralPath $stdout -Force -ErrorAction SilentlyContinue } catch {}
+  try { Remove-Item -LiteralPath $stderr -Force -ErrorAction SilentlyContinue } catch {}
+  try { Remove-Item -LiteralPath $tmpPs1 -Force -ErrorAction SilentlyContinue } catch {}
+  return [pscustomobject]@{ ExitCode = $exit; Stdout = $outTxt; Stderr = $errTxt; TimedOut = $timedOut }
+}
+
+# Cria venv de maneira robusta (venv -> venv --without-pip -> virtualenv) e retorna objeto com Python e VenvDir
+function New-VenvRobust {
+  param(
+    [Parameter(Mandatory=$true)][string]$BasePython,
+    [Parameter(Mandatory=$true)][string]$VenvDir,
+    [switch]$ForceClean,
+    [string[]]$AltVenvDirs
+  )
+  function Remove-DirectoryRobust([string]$path) {
+    if (-not (Test-Path $path)) { return $true }
+    Write-Host "[Venv] Limpando diretório existente: $path"
+    $ok = $false
+    try { Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction Stop; $ok = $true } catch {}
+    if (-not $ok) {
+      $bak = "$path-old-$(Get-Date -Format yyyyMMddHHmmss)"
+      try { Rename-Item -LiteralPath $path -NewName (Split-Path -Leaf $bak) -ErrorAction Stop; $ok = $true; Write-Host "[Venv] Renomeado para: $bak" } catch {}
+    }
+    return $ok
+  }
+
+  $targetDir = $VenvDir
+  if ($ForceClean) { Remove-DirectoryRobust $targetDir | Out-Null }
+
+  Write-Host "[Venv] Criando venv em $targetDir usando $BasePython"
+  $created = $false
+  $permDenied = $false
+  function TryVenv([string]$venvArgs) { try { Run "$BasePython $venvArgs" 120; return $true } catch { $script:lastErr = $_; return $false } }
+
+  if (-not $created) {
+    if (TryVenv "-m venv `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] venv padrão falhou: {0}" -f $script:lastErr.Exception.Message) }
+    if (-not $created -and ($script:lastErr.Exception.Message -match 'Permission denied')) { $permDenied = $true }
+  }
+  if (-not $created) {
+    if (TryVenv "-m venv --without-pip `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] venv --without-pip falhou: {0}" -f $script:lastErr.Exception.Message) }
+    if (-not $created -and ($script:lastErr.Exception.Message -match 'Permission denied')) { $permDenied = $true }
+  }
+  if (-not $created -and $permDenied) {
+    # mesmo sem ForceClean, tentar limpar quando houver Permission denied
+    if (Remove-DirectoryRobust $targetDir) {
+      if (TryVenv "-m venv `"$targetDir`"") { $created = $true }
+      if (-not $created) { if (TryVenv "-m venv --without-pip `"$targetDir`"") { $created = $true } }
+    }
+  }
+
+  if (-not $created) {
+    # virtualenv fallback
+    $basePipOk = $false
+    try { Run "$BasePython -m ensurepip --upgrade" 90; $basePipOk = $true } catch {
+      Write-Warning "[Venv] ensurepip no Python base falhou, tentando get-pip.py"
+      $getPip = Join-Path $env:TEMP "get-pip.py"
+      try { Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15; Run "$BasePython `"$getPip`"" 180; $basePipOk = $true } catch { Write-Warning ("[Venv] get-pip também falhou: {0}" -f $_.Exception.Message) } finally { try { Remove-Item -LiteralPath $getPip -Force -ErrorAction SilentlyContinue } catch {} }
+    }
+    if ($basePipOk) {
+      try { Run "$BasePython -m pip install --user virtualenv" 180 } catch { Write-Warning ("[Venv] instalação do virtualenv falhou: {0}" -f $_.Exception.Message) }
+      if (TryVenv "-m virtualenv `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] criação via virtualenv falhou: {0}" -f $script:lastErr.Exception.Message) }
+      if (-not $created -and $permDenied -and $ForceClean) {
+        if (Remove-DirectoryRobust $targetDir) { if (TryVenv "-m virtualenv `"$targetDir`"") { $created = $true } }
+      }
+    }
+  }
+
+  if (-not $created -and $AltVenvDirs -and $AltVenvDirs.Count -gt 0) {
+    foreach ($alt in $AltVenvDirs) {
+      if ($created) { break }
+      Write-Warning "[Venv] Alternando para diretório alternativo de venv: $alt"
+      $targetDir = $alt
+      if (Test-Path $targetDir) { Remove-DirectoryRobust $targetDir | Out-Null }
+      if (TryVenv "-m venv `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] venv padrão (alt) falhou: {0}" -f $script:lastErr.Exception.Message) }
+      if (-not $created) { if (TryVenv "-m venv --without-pip `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] venv --without-pip (alt) falhou: {0}" -f $script:lastErr.Exception.Message) } }
+      if (-not $created) {
+        $basePipOk = $false
+        try { Run "$BasePython -m ensurepip --upgrade" 90; $basePipOk = $true } catch {}
+        if (-not $basePipOk) {
+          $getPip = Join-Path $env:TEMP "get-pip.py"
+          try { Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15; Run "$BasePython `"$getPip`"" 180; $basePipOk = $true } catch {} finally { try { Remove-Item -LiteralPath $getPip -Force -ErrorAction SilentlyContinue } catch {} }
+        }
+        if ($basePipOk) {
+          try { Run "$BasePython -m pip install --user virtualenv" 180 } catch {}
+          if (TryVenv "-m virtualenv `"$targetDir`"") { $created = $true } else { Write-Warning ("[Venv] virtualenv (alt) falhou: {0}" -f $script:lastErr.Exception.Message) }
+        }
+      }
+    }
+  }
+
+  if (-not $created) { throw "Falha ao criar venv em $targetDir por todos os métodos." }
+
+  $venvPy = Join-Path $targetDir "Scripts\python.exe"
+  if (-not (Test-Path $venvPy)) { throw "Venv criada, mas python.exe não encontrado: $venvPy" }
+  try { Run "$venvPy -m ensurepip --upgrade" 90 } catch { Write-Warning ("[Venv] ensurepip na venv falhou: {0}" -f $_.Exception.Message) }
+  try { Run "$venvPy -m pip install -U pip" 180 } catch { Write-Warning ("[Venv] upgrade do pip na venv falhou: {0}" -f $_.Exception.Message) }
+  return [pscustomobject]@{ Python = $venvPy; VenvDir = $targetDir }
+}
+
+# Download com retry/backoff (TTL por tentativa = 15s)
+function Invoke-FileDownloadWithRetry {
+  param(
+    [Parameter(Mandatory=$true)][string]$Url,
+    [Parameter(Mandatory=$true)][string]$OutFile,
+    [int]$MaxAttempts = 4,
+    [int]$TimeoutSec = 15
+  )
+  Write-Host ("[Download] {0} -> {1} (timeout={2}s; attempts={3})" -f $Url, $OutFile, $TimeoutSec, $MaxAttempts)
+  try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
+  $attempt = 0
+  $delay = 1
+  while ($attempt -lt $MaxAttempts) {
+    $attempt++
+    try {
+  try { Add-Type -AssemblyName System.Net.Http -ErrorAction SilentlyContinue } catch {}
+  $handler = New-Object System.Net.Http.HttpClientHandler
+      $client = New-Object System.Net.Http.HttpClient($handler)
+      $client.Timeout = [TimeSpan]::FromSeconds($TimeoutSec)
+      try {
+        $bytes = $client.GetByteArrayAsync($Url).GetAwaiter().GetResult()
+        [IO.File]::WriteAllBytes($OutFile, $bytes)
+        Write-Host "[Download] Sucesso na tentativa $attempt"
+        return
+      } finally {
+        $client.Dispose()
+        $handler.Dispose()
+      }
+    } catch {
+      Write-Warning ("[Download] Falha na tentativa {0}: {1}" -f $attempt, $_.Exception.Message)
+      if ($attempt -lt $MaxAttempts) {
+        Start-Sleep -Seconds $delay
+        $delay = [Math]::Min($delay * 2, 8)
+      }
+    }
+  }
+  throw "Falha no download após $MaxAttempts tentativas: $Url"
+}
+
+function Get-PyVer([string]$exe) {
+  try { return (& $exe -c "import sys; print('.'.join(map(str, sys.version_info[:2])))" 2>$null) } catch { return $null }
+}
+
+function Find-PythonCandidate([string[]]$versions) {
+  # 1) Caminhos conhecidos por usuário (oficial installer per-user)
+  foreach ($v in $versions) {
+    $verDigits = $v.Replace('.', '')
+    $cand = Join-Path $env:LocalAppData ("Programs\Python\Python{0}\python.exe" -f $verDigits)
+    if (Test-Path $cand) { return $cand }
+  }
+  # 2) Registro HKCU do instalador oficial
+  foreach ($v in $versions) {
+    try {
+      $key = "HKCU:\\Software\\Python\\PythonCore\\$v\\InstallPath"
+      $p = (Get-Item -Path $key -ErrorAction SilentlyContinue).GetValue('')
+      if ($p) {
+        $exe = Join-Path $p 'python.exe'
+        if (Test-Path $exe) { return $exe }
+      }
+    } catch {}
+  }
+  # 3) Microsoft Store App Execution Alias
+  $wa = Join-Path $env:LocalAppData 'Microsoft\WindowsApps\python.exe'
+  if (Test-Path $wa) {
+    $ver = Get-PyVer $wa
+    if ($ver -and ($versions -contains $ver)) { return $wa }
+  }
+  # 4) python no PATH
   try {
     $ver = & $Python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))" 2>$null
-    if ($LASTEXITCODE -eq 0 -and $ver -eq "3.11") {
-      $exe = & $Python -c "import sys; print(sys.executable)"
+    if ($LASTEXITCODE -eq 0 -and ($versions -contains $ver)) {
+      $exe = & $Python -c "import sys; print(sys.executable)" 2>$null
       if ($exe) { return $exe.Trim() }
     }
   } catch {}
-  # 3) winget
-  try {
-    Write-Host "[Python] Tentando instalar via winget Python.Python.3.11..."
-    winget install -e --id Python.Python.3.11 --accept-source-agreements --accept-package-agreements --silent
-    if ($LASTEXITCODE -eq 0) {
-      $cand = Join-Path $env:LocalAppData "Programs\Python\Python311\python.exe"
-      if (Test-Path $cand) { return $cand }
-      $out = & py -3.11 -c "import sys; print(sys.executable)" 2>$null
-      if ($LASTEXITCODE -eq 0 -and $out) { return $out.Trim() }
-    }
-  } catch {}
-  # 4) Download instalador oficial e instalação silenciosa (per-user)
-  try {
-    $ver = "3.11.9"
-    $url = "https://www.python.org/ftp/python/$ver/python-$ver-amd64.exe"
-    $tmp = Join-Path $env:TEMP "python-$ver-amd64.exe"
-    Write-Host "[Python] Baixando instalador $ver..."
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $tmp
-    Write-Host "[Python] Instalando silenciosamente (per-user)..."
-    & $tmp /quiet InstallAllUsers=0 PrependPath=1 Include_pip=1 Include_launcher=1 SimpleInstall=1
-    # caminho padrão per-user
-    $cand = Join-Path $env:LocalAppData "Programs\Python\Python311\python.exe"
-    if (Test-Path $cand) { return $cand }
-    $out = & py -3.11 -c "import sys; print(sys.executable)" 2>$null
-    if ($LASTEXITCODE -eq 0 -and $out) { return $out.Trim() }
-  } catch {
-    Write-Warning "[Python] Falha ao instalar automaticamente: $_"
-  }
-  throw "Python 3.11 não encontrado nem instalado automaticamente. Instale manualmente e reexecute."
+  return $null
 }
 
-$pyExe = Resolve-Python311
+function Resolve-Python {
+  param([string]$Versions = "3.12;3.11", [switch]$AllowWinget)
+  $versions = $Versions -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+  Write-Host ("[Python] Procurando Python nas versões: {0}" -f ($versions -join ', '))
+  $found = Find-PythonCandidate -versions $versions
+  if ($found) { return $found }
+
+  # Download e instalação per-user (sem admin), preferindo a primeira versão listada; tenta cada uma
+  foreach ($v in $versions) {
+    $full = if ($v -eq '3.12') { '3.12.6' } else { '3.11.9' }
+    $url = "https://www.python.org/ftp/python/$full/python-$full-amd64.exe"
+    $tmp = Join-Path $env:TEMP ("python-{0}-amd64.exe" -f $full)
+    Write-Host "[Python] Baixando instalador $full..."
+    try {
+  Invoke-FileDownloadWithRetry -Url $url -OutFile $tmp -MaxAttempts 4 -TimeoutSec 15
+    } catch {
+      Write-Warning "Download falhou: $_"
+      continue
+    }
+    Write-Host "[Python] Instalando silenciosamente (per-user)..."
+    try {
+      Start-Process -FilePath $tmp -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_pip=1 Include_launcher=1 SimpleInstall=1" -Wait -WindowStyle Hidden
+    } catch {
+      Write-Warning "Falha ao executar o instalador: $_"
+    }
+    # Revarrer após instalação
+    $found = Find-PythonCandidate -versions $versions
+    if ($found) { return $found }
+  }
+
+  if ($AllowWinget) {
+    foreach ($v in $versions) {
+      Write-Host "[Python] Tentando instalar via winget Python.Python.$v..."
+      try {
+  Run ("winget install -e --id Python.Python.{0} --accept-source-agreements --accept-package-agreements --silent" -f $v) 300
+      } catch {
+        Write-Warning "winget falhou/indisponível: $_"
+        continue
+      }
+      $found = Find-PythonCandidate -versions $versions
+      if ($found) { return $found }
+    }
+  }
+
+  throw "Python (3.12/3.11) não encontrado nem instalado automaticamente. Instale manualmente (Just for me) e reexecute."
+}
+
+$pyExe = Resolve-Python -Versions $PythonVersions -AllowWinget:$AllowWinget
 Write-Host "[Python] Usando: $pyExe"
 
-Write-Host "[Install] Criando ambiente virtual ($VenvDir)"
-Run "$pyExe -m venv $VenvDir"
-$pip = Join-Path $VenvDir "Scripts\pip.exe"
-$py = Join-Path $VenvDir "Scripts\python.exe"
 
-Write-Host "[Install] Atualizando pip"
-Run "$py -m pip install -U pip"
+# --- User-mode streamlined install ---
+$py = $pyExe
+Write-Host "[Install] Modo usuário (-NoVenv). Pulando criação de venv e upgrade de pip."
+Write-Host "[Install] Verificando pip no Python do sistema"
+$pipOk = $false
+$chk = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
+if ($chk.ExitCode -eq 0 -or ($chk.Stdout -match '^(?i)pip\s+\d')) { $pipOk = $true }
+if (-not $pipOk) {
+  Write-Warning "[Install] pip não encontrado. Tentando inicializar com ensurepip/get-pip.py (sem admin)."
+  $ens = Run-GetResult ("& `"{0}`" -m ensurepip --upgrade" -f $py) 180
+  if ($ens.ExitCode -eq 0) { $pipOk = $true }
+  if (-not $pipOk) {
+    $getPip = Join-Path $env:TEMP "get-pip.py"
+    try {
+  Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15
+  $null = Run-GetResult ("& `"{0}`" `"{1}`"" -f $py, $getPip) 300
+    } finally {
+      try { Remove-Item -LiteralPath $getPip -Force -ErrorAction SilentlyContinue } catch {}
+    }
+  }
+  # Rechecar pip
+  $chk2 = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
+  if ($chk2.ExitCode -eq 0 -or ($chk2.Stdout -match '^(?i)pip\s+\d')) { $pipOk = $true } else { $pipOk = $false }
+}
+if (-not $pipOk) { throw "[Install] pip indisponível após tentativa de bootstrap (ensurepip/get-pip)." }
+Write-Host "[Install] Instalando pacote do projeto (editable, modo usuário)"
+$succ = $false
+try { $repoPath = (Resolve-Path ".").Path } catch { $repoPath = (Get-Location).Path }
+$rshow = Run-GetResult "$py -m pip show dou-snaptrack" 20
+if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
+  $editableLoc = $null
+  foreach ($line in ($rshow.Stdout -split "`r?`n")) {
+    if ($line -match '^Editable project location:\s*(.+)$') { $editableLoc = $matches[1].Trim(); break }
+  }
+  if ($editableLoc) {
+    $a = ($editableLoc -replace '/', '\\').TrimEnd('\\')
+    $b = ($repoPath -replace '/', '\\').TrimEnd('\\')
+    if ($a.ToLowerInvariant() -eq $b.ToLowerInvariant()) {
+      Write-Host "[Install] Pacote já em modo editável neste repositório. Pulando reinstalação."
+      $succ = $true
+    }
+  }
+}
+if (-not $succ) {
+  $r = Run-GetResult ("& `"{0}`" -m pip install --user --no-warn-script-location -e ." -f $py) 900
+  if ($r.ExitCode -eq 0 -or ($r.Stdout -match '(?i)Successfully installed')) { $succ = $true }
+  if (-not $succ) {
+    $msg = "[Install] Falha ao instalar o pacote em modo usuário." +
+           " Detalhe: Exit={0}`nSTDOUT:`n{1}`nSTDERR:`n{2}" -f $r.ExitCode, $r.Stdout, $r.Stderr
+    throw $msg
+  }
+}
 
-Write-Host "[Install] Instalando pacote do projeto (editable)"
-Run "$py -m pip install -e ."
+if (-not $SkipSmoke) {
+  Write-Host "[Install] Verificando Playwright"
+  # Evita problemas de aspas: usa o operador de chamada & e escapa apenas as aspas duplas
+  Run ("& `"{0}`" -c `"import importlib; m=importlib.util.find_spec('playwright'); print('ok' if m else 'missing')`"" -f $py)
 
-Write-Host "[Install] Verificando Playwright"
-Run "$py -c 'import playwright; print("playwright", playwright.__version__)'"
+  Write-Host "[Install] Testando navegador do sistema (Chrome/Edge)"
+  Run "$py scripts\playwright_smoke.py"
+}
 
-Write-Host "[Install] Testando navegador do sistema (Chrome/Edge)"
-Run "$py scripts\playwright_smoke.py"
+Write-Host "[Install] OK. Para iniciar a UI: scripts\run-ui-managed.ps1 (usando Python do sistema em modo usuário)"
 
-Write-Host "[Install] OK. Para iniciar a UI: scripts\run-ui.ps1"
+# Criar atalho na área de trabalho ao final
+try {
+  $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+  $shortcutScript = Join-Path $scriptDir 'create-desktop-shortcut.ps1'
+  if (Test-Path $shortcutScript) {
+    Write-Host "[Install] Criando atalho na Área de Trabalho"
+    Run "& `"$shortcutScript`""
+  } else {
+    Write-Warning "[Install] Script para criar atalho não encontrado: $shortcutScript"
+  }
+} catch {
+  Write-Warning "[Install] Falha ao criar atalho: $_"
+}
