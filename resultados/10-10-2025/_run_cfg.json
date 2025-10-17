@@ -1,0 +1,69 @@
+{
+  "data": "10-10-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": false,
+    "summary_lines": 4,
+    "summary_mode": "center",
+    "detail_parallel": 1
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Ministério de Portos e Aeroportos",
+      "key2_type": "text",
+      "key2": "Agência Nacional de Aviação Civil",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Relações Exteriores",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Comunicações",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": "",
+      "scrape_detail": false,
+      "detail_parallel": 1
+    }
+  ],
+  "output": {
+    "pattern": "{topic}_{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  },
+  "plan_name": "planodeteste"
+}

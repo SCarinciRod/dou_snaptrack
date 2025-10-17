@@ -1,0 +1,36 @@
+{
+  "data": "17-10-2025",
+  "secao": "DO1",
+  "plan": "testeLuiza",
+  "itens": [
+    {
+      "titulo": "DECRETO Nº 12.678, DE 16 DE OUTUBRO DE 2025",
+      "link": "/web/dou/-/decreto-n-12.678-de-16-de-outubro-de-2025-663107699",
+      "detail_url": "https://www.in.gov.br/web/dou/-/decreto-n-12.678-de-16-de-outubro-de-2025-663107699",
+      "orgao": "Atos do Poder Executivo",
+      "title_friendly": "Decreto Nº 12.678 De 16 De Outubro De 2025"
+    },
+    {
+      "titulo": "DECRETO Nº 12.679, DE 16 DE OUTUBRO DE 2025",
+      "link": "/web/dou/-/decreto-n-12.679-de-16-de-outubro-de-2025-663108093",
+      "detail_url": "https://www.in.gov.br/web/dou/-/decreto-n-12.679-de-16-de-outubro-de-2025-663108093",
+      "orgao": "Atos do Poder Executivo",
+      "title_friendly": "Decreto Nº 12.679 De 16 De Outubro De 2025"
+    },
+    {
+      "titulo": "DESPACHO DO PRESIDENTE DA REPÚBLICA",
+      "link": "/web/dou/-/despacho-do-presidente-da-republica-663098695",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-do-presidente-da-republica-663098695",
+      "orgao": "Presidência da República",
+      "title_friendly": "DESPACHO DO PRESIDENTE DA REPÚBLICA"
+    },
+    {
+      "titulo": "RESOLUÇÃO GECEX Nº 800, DE 16 DE OUTUBRO DE 2025",
+      "link": "/web/dou/-/resolucao-gecex-n-800-de-16-de-outubro-de-2025-663090093",
+      "detail_url": "https://www.in.gov.br/web/dou/-/resolucao-gecex-n-800-de-16-de-outubro-de-2025-663090093",
+      "orgao": "Presidência da República",
+      "title_friendly": "Resolução: Resolucao Gecex Nº 800 De 16 De Outubro De 2025"
+    }
+  ],
+  "total": 4
+}

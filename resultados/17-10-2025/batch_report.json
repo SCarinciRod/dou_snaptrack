@@ -1,0 +1,12 @@
+{
+  "total_jobs": 4,
+  "ok": 4,
+  "fail": 0,
+  "items_total": 19,
+  "outputs": [],
+  "deleted_outputs": [],
+  "aggregated": [
+    "resultados\\17-10-2025\\planomelhorias_17-10-2025_DO1_17-10-2025.json"
+  ],
+  "aggregated_only": true
+}

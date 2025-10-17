@@ -8,6 +8,7 @@ import os
 from datetime import date as _date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import threading
 import io, zipfile
 
 # Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
@@ -127,18 +128,36 @@ def _build_combos(n1: str, n2_list: List[str], key_type: str = "text") -> List[D
     return out
 
 
-@st.cache_resource(show_spinner=False)
-def _get_cached_playwright_and_browser():
-    """Cria e mantém um Playwright+browser compartilhado na sessão para acelerar plan-live.
+def _get_thread_local_playwright_and_browser():
+    """Retorna um recurso Playwright+Browser por thread para evitar erros de troca de thread.
 
-    - Mantém o driver Playwright ativo (p = sync_playwright().start())
-    - Lança 1 browser conforme preferências (canal do sistema > caminho explícito > fallback)
-    - O browser é reaproveitado; cada chamada cria seu próprio context/page e fecha somente o context.
+    Não usa cache global do Streamlit; armazena em session_state por thread-id.
     """
     import os as _os
     import sys as _sys, asyncio as _asyncio
     from pathlib import Path as _P
     from playwright.sync_api import sync_playwright  # type: ignore
+
+    # Chave por thread da sessão atual
+    tid = threading.get_ident()
+    key = f"_pw_res_tid_{tid}"
+
+    # Verificar se já existe e está conectado
+    res = st.session_state.get(key)
+    if res is not None:
+        try:
+            is_ok = True
+            try:
+                # Preferir checar conexão, quando disponível
+                is_ok = bool(getattr(res.browser, "is_connected", lambda: True)())
+            except Exception:
+                # Acesso a contexts força RPC; se falhar, recriaremos
+                _ = res.browser.contexts  # type: ignore
+            if is_ok:
+                return res
+        except Exception:
+            # Recriar abaixo
+            pass
 
     # Garantir Proactor loop no Windows (subprocess usado por Playwright)
     if _sys.platform.startswith("win"):
@@ -172,7 +191,8 @@ def _get_cached_playwright_and_browser():
         def __init__(self, p, b):
             self.p = p
             self.browser = b
-        def __del__(self):
+            self._tid = threading.get_ident()
+        def close(self):
             try:
                 self.browser.close()
             except Exception:
@@ -181,8 +201,15 @@ def _get_cached_playwright_and_browser():
                 self.p.stop()
             except Exception:
                 pass
+        def __del__(self):
+            # Evitar fechar a partir de outra thread, o que pode gerar o mesmo erro
+            if threading.get_ident() != getattr(self, "_tid", None):
+                return
+            self.close()
 
-    return _Resource(p, browser)
+    res = _Resource(p, browser)
+    st.session_state[key] = res
+    return res
 
 
 @st.cache_data(show_spinner=False)
@@ -191,7 +218,7 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
     try:
         from types import SimpleNamespace
         from dou_snaptrack.cli.plan_live import build_plan_live
-        _res = _get_cached_playwright_and_browser()
+        _res = _get_thread_local_playwright_and_browser()
         p = _res.p
         args = SimpleNamespace(
             secao=secao,
@@ -214,7 +241,41 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
             headful=False,
             slowmo=0,
         )
-        cfg = build_plan_live(p, args)
+        # Reuse thread-local UI browser to avoid re-launching a new one inside plan_live
+        # Resiliência: 1 retry leve em caso de erro transitório de navegação
+        cfg = None
+        err: Optional[Exception] = None
+        for _attempt in range(2):
+            try:
+                cfg = build_plan_live(None, args, browser=_res.browser)
+                err = None
+                break
+            except Exception as e2:
+                msg2 = str(e2)
+                err = e2
+                transient = ("ERR_CONNECTION_RESET" in msg2) or ("net::ERR_" in msg2) or ("timeout" in msg2.lower())
+                if transient and _attempt == 0:
+                    try:
+                        # pequeno reset do contexto do browser thread-local
+                        browser = _res.browser
+                        try:
+                            # fecha contexts abertos para limpar estado
+                            for ctx in list(browser.contexts):
+                                try:
+                                    ctx.close()
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                        # pausa breve
+                        import time as _t
+                        _t.sleep(0.4)
+                        continue
+                    except Exception:
+                        pass
+                break
+        if cfg is None:
+            raise err or RuntimeError("Falha no plan-live (sem detalhes)")
         combos = cfg.get("combos", [])
         n2s = sorted({c.get("key2") for c in combos if c.get("key1") == n1 and c.get("key2")})
         return n2s
@@ -244,9 +305,9 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
         from playwright.sync_api import TimeoutError  # type: ignore
         from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
         from dou_snaptrack.utils.dom import find_best_frame
-        from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options  # type: ignore
-        # Reutiliza Playwright+browser cacheados e cria um novo contexto por chamada
-        _res = _get_cached_playwright_and_browser()
+        from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options, _select_roots  # type: ignore
+        # Reutiliza Playwright+browser thread-local e cria um novo contexto por chamada
+        _res = _get_thread_local_playwright_and_browser()
         browser = _res.browser
         try:
             context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
@@ -258,8 +319,14 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
             except Exception:
                 pass
             frame = find_best_frame(context)
-            roots = _collect_dropdown_roots(frame)
-            r1 = roots[0] if roots else None
+            # Priorizar IDs canônicos quando disponíveis; fallback para a primeira raiz detectada
+            try:
+                r1, _r2 = _select_roots(frame)
+            except Exception:
+                r1 = None
+            if not r1:
+                roots = _collect_dropdown_roots(frame)
+                r1 = roots[0] if roots else None
             if not r1:
                 st.error("[ERRO] Nenhum dropdown N1 detectado. Verifique se há publicações para a data/seção escolhidas.")
                 return []
@@ -416,6 +483,27 @@ with st.sidebar:
                 "Playwright": pw_ver,
                 "Chrome/Edge path": exe_hint or "canal 'chrome' (auto)",
             })
+            # Botão para reiniciar recursos Playwright desta thread
+            if st.button("Reiniciar navegador (UI)"):
+                try:
+                    # Fechar e remover quaisquer recursos thread-local desta sessão
+                    to_del = []
+                    for k, v in list(st.session_state.items()):
+                        if isinstance(k, str) and k.startswith("_pw_res_tid_"):
+                            try:
+                                if hasattr(v, "close"):
+                                    v.close()
+                            except Exception:
+                                pass
+                            to_del.append(k)
+                    for k in to_del:
+                        try:
+                            del st.session_state[k]
+                        except Exception:
+                            pass
+                    st.success("Navegador reiniciado para esta sessão.")
+                except Exception as _e2:
+                    st.error(f"Falha ao reiniciar navegador: {_e2}")
         except Exception as _e:
             st.write(f"[diag] erro: {_e}")
 
@@ -517,9 +605,17 @@ with tab2:
         choice = st.selectbox("Selecione o plano salvo", labels, index=0)
         selected_path = Path(choice)
 
-    # Paralelismo automático (sem opções de compatibilidade/mode rápido)
-    max_workers = 6
-    st.caption(f"Paralelismo automático (até {max_workers} workers) — ajustado ao número de jobs do plano.")
+    # Paralelismo adaptativo (heurística baseada em CPU e nº de jobs)
+    from dou_snaptrack.utils.parallel import recommend_parallel
+    try:
+        cfg_preview = json.loads(selected_path.read_text(encoding="utf-8")) if selected_path.exists() else {}
+        combos_prev = cfg_preview.get("combos") or []
+        topics_prev = cfg_preview.get("topics") or []
+        est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
+    except Exception:
+        est_jobs_prev = 1
+    suggested_workers = recommend_parallel(est_jobs_prev, prefer_process=True)
+    st.caption(f"Paralelismo recomendado: {suggested_workers} (baseado no hardware e plano)")
     st.caption("A captura do plano é sempre 'link-only' (sem detalhes/boletim); gere o boletim na aba correspondente.")
 
     if st.button("Pesquisar Agora"):
@@ -553,8 +649,8 @@ with tab2:
             except Exception:
                 est_jobs = 1
 
-            auto_parallel = int(min(max_workers, max(1, est_jobs)))
-            parallel = auto_parallel
+            # Calcular recomendação no momento da execução (pode mudar conforme data/plan_name)
+            parallel = int(recommend_parallel(est_jobs, prefer_process=True))
             with st.spinner(f"Executando…"):
                 # Forçar execução para a data atual selecionada no UI (padrão: hoje)
                 try:

@@ -1,0 +1,12 @@
+{
+  "total_jobs": 4,
+  "ok": 4,
+  "fail": 0,
+  "items_total": 32,
+  "outputs": [],
+  "deleted_outputs": [],
+  "aggregated": [
+    "resultados\\10-10-2025\\planodeteste_DO1_10-10-2025.json"
+  ],
+  "aggregated_only": true
+}

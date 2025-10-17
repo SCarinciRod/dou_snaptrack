@@ -154,7 +154,7 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
             default_key = key
         return job.get(key, defaults.get(default_key, default_value))
 
-    report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": []}
+    report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
 
     with sync_playwright() as p:
         # Prefer system Chrome/Edge (order can respect DOU_PREFER_EDGE) to avoid downloads (faster startup)
@@ -330,6 +330,26 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                     report["items_total"] += (result.get("total", 0) if isinstance(result, dict) else 0)
                     elapsed = time.time() - start_ts
                     print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={0 if not isinstance(result, dict) else result.get('total', 0)}")
+                    # Telemetria por job
+                    try:
+                        timings = (result.get("_timings") or {}) if isinstance(result, dict) else {}
+                    except Exception:
+                        timings = {}
+                    job_metrics = {
+                        "job_index": j_idx,
+                        "topic": job.get("topic"),
+                        "date": str(data),
+                        "secao": str(secao),
+                        "key1": key1,
+                        "key2": key2,
+                        "items": (result.get("total", 0) if isinstance(result, dict) else 0),
+                        "elapsed_sec": elapsed,
+                        "timings": timings,
+                    }
+                    try:
+                        report["metrics"]["jobs"].append(job_metrics)
+                    except Exception:
+                        pass
                 except Exception as e:
                     print(f"[FAIL] Job {j_idx}: {e}")
                     report["fail"] += 1
@@ -434,7 +454,22 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         except Exception:
             pass
 
-    parallel = int(getattr(args, "parallel", 4) or 4)
+    # Parallelism: if user provided --parallel, honor it; otherwise compute recommendation
+    try:
+        user_parallel = getattr(args, "parallel", None)
+        if user_parallel is None:
+            raise AttributeError
+        user_parallel = int(user_parallel)
+    except Exception:
+        user_parallel = None
+    if user_parallel and user_parallel > 0:
+        parallel = int(user_parallel)
+    else:
+        try:
+            from dou_snaptrack.utils.parallel import recommend_parallel
+            parallel = int(recommend_parallel(len(jobs), prefer_process=(os.environ.get("DOU_POOL", "process").strip().lower() == "process")))
+        except Exception:
+            parallel = 4
     pool_pref = os.environ.get("DOU_POOL", "process").strip().lower() or "process"
     reuse_page = bool(getattr(args, "reuse_page", False))
 
@@ -679,6 +714,26 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                                 _log(f"[Worker FAIL thread fallback] {e}")
     finally:
         # Nothing to cleanup in parent; workers clean themselves.
+        pass
+
+    # Agregar métricas de sumário
+    try:
+        jobs_m = report.get("metrics", {}).get("jobs", [])
+        if jobs_m:
+            import statistics as _stats
+            elapseds = [m.get("elapsed_sec", 0) or 0 for m in jobs_m]
+            items = [m.get("items", 0) or 0 for m in jobs_m]
+            rep_sum = {
+                "jobs": len(jobs_m),
+                "elapsed_sec_total": float(sum(elapseds)),
+                "elapsed_sec_avg": float((_stats.mean(elapseds) if elapseds else 0)),
+                "elapsed_sec_p50": float((_stats.median(elapseds) if elapseds else 0)),
+                "elapsed_sec_p90": float((sorted(elapseds)[int(0.9*len(elapseds))-1] if len(elapseds) >= 1 else 0)),
+                "items_total": int(sum(items)),
+                "items_avg": float((_stats.mean(items) if items else 0)),
+            }
+            report["metrics"]["summary"] = rep_sum
+    except Exception:
         pass
 
     rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")

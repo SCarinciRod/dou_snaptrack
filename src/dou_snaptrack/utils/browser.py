@@ -1,7 +1,8 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any, Dict
 import re
+import os
 
 # use import absoluto para maior robustez
 from dou_snaptrack.constants import BASE_DOU
@@ -76,14 +77,14 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     from pathlib import Path
 
     p = sync_playwright().start()
-    launch_args = dict(headless=not headful, slow_mo=slowmo)
+    launch_args: Dict[str, Any] = dict(headless=not headful, slow_mo=slowmo)
 
     # 1) Tentar canais do sistema na ordem preferida
     prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
     channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
     for ch in channels:
         try:
-            browser = p.chromium.launch(channel=ch, **launch_args)
+            browser = p.chromium.launch(channel=ch, **launch_args)  # type: ignore
             return p, browser
         except Exception:
             continue
@@ -109,29 +110,65 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
                 break
     if exe and Path(exe).exists():
         try:
-            browser = p.chromium.launch(executable_path=exe, **launch_args)
+            browser = p.chromium.launch(executable_path=exe, **launch_args)  # type: ignore
             return p, browser
         except Exception:
             pass
 
     # 3) Fallback padrão (pode exigir download do ms-playwright)
-    browser = p.chromium.launch(**launch_args)
+    browser = p.chromium.launch(**launch_args)  # type: ignore
     return p, browser
 
 def new_context(browser, viewport=(1366, 900)):
     return browser.new_context(ignore_https_errors=True, viewport={"width": viewport[0], "height": viewport[1]})
 
-def goto(page, url: str) -> None:
+def goto(page, url: str, retries: int = 2) -> None:
     if _page_goto:
+        # Se a implementação de dou_utils existir, delega (pode ter retry interno)
         return _page_goto(page, url)
-    # fallback mínimo
+    # fallback com retry/backoff
     print(f"[Abrindo] {url}")
-    page.goto(url, wait_until="domcontentloaded", timeout=60_000)
-    # Prefer selector-based readiness to speed up when content is present
+    # Permitir override por env
     try:
-        # Header or container common in the reading page
-        page.wait_for_selector("header, .conteudo, #conteudo, iframe", timeout=30_000)
+        retries_env = int(os.environ.get("DOU_GOTO_RETRIES", "").strip() or retries)
+        retries = max(0, min(5, retries_env))
     except Exception:
-        # Fallback to a shorter networkidle wait
-        page.wait_for_load_state("networkidle", timeout=30_000)
-    close_cookies(page)
+        pass
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+            # Prefer readiness by selector
+            try:
+                page.wait_for_selector("header, .conteudo, #conteudo, iframe", timeout=30_000)
+            except Exception:
+                # Fallback to a shorter networkidle wait
+                page.wait_for_load_state("networkidle", timeout=30_000)
+            close_cookies(page)
+            return
+        except Exception as e:
+            last_err = e
+            msg = str(e)
+            # Repetir em erros transitórios comuns
+            transient = (
+                "ERR_CONNECTION_RESET" in msg
+                or "net::ERR_" in msg
+                or "timeout" in msg.lower()
+                or "Navigation" in msg and "failed" in msg.lower()
+            )
+            if attempt < retries and transient:
+                try:
+                    # Pequeno backoff e reset suave do page
+                    page.wait_for_timeout(400)
+                    try:
+                        page.goto("about:blank", timeout=5_000)
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(300)
+                except Exception:
+                    pass
+                continue
+            # Sem mais tentativas ou erro não transitório
+            break
+    # Se chegou aqui, propaga o último erro
+    raise last_err if last_err else RuntimeError("Falha ao navegar")

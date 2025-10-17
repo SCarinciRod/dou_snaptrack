@@ -20,6 +20,24 @@ dist/
 playwright-report/
 playwright/.cache/
 
+# Runtime browser profiles & caches (heavy, regenerated)
+logs/ui_chrome_profile/
+logs/_cache/
+
+# Installer staging and payload outputs
+installer/iexpress/payload/
+installer/iexpress/staging/
+
+# Python egg metadata inside src tree
+src/dou_snaptrack.egg-info/
+
+# Build/output folders
+dist/
+out/
+
+# Heavy per-run subprocess artifacts
+resultados/*/_subproc/
+
 # OS files
 .DS_Store
 Thumbs.db

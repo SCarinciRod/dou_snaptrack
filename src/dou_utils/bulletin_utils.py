@@ -163,17 +163,21 @@ def _summarize_item(
         pass
 
     snippet = None
+    method_tag = ""
     try:
         # Chamada preferida: (text, max_lines, mode, keywords)
         snippet = summarizer_fn(base, max_lines, derived_mode, keywords)
+        method_tag = "summarizer"
     except TypeError:
         # Tentar alternativa (text, max_lines, keywords, mode)
         try:
             snippet = summarizer_fn(base, max_lines, keywords, derived_mode)  # type: ignore
+            method_tag = "summarizer_alt"
         except TypeError:
             # Tentar legado (text, max_lines, mode)
             try:
                 snippet = summarizer_fn(base, max_lines, derived_mode)  # type: ignore
+                method_tag = "summarizer_legacy"
             except Exception as e:
                 logger.warning(f"Erro ao sumarizar: {e}")
                 snippet = None
@@ -187,11 +191,14 @@ def _summarize_item(
             if alt and alt != base:
                 try:
                     snippet = summarizer_fn(alt, max_lines, derived_mode, keywords)
+                    method_tag = method_tag or "summarizer_altbase"
                 except TypeError:
                     try:
                         snippet = summarizer_fn(alt, max_lines, keywords, derived_mode)  # type: ignore
+                        method_tag = method_tag or "summarizer_altbase_alt"
                     except TypeError:
                         snippet = summarizer_fn(alt, max_lines, derived_mode)  # type: ignore
+                        method_tag = method_tag or "summarizer_altbase_legacy"
     except Exception:
         pass
 
@@ -199,6 +206,7 @@ def _summarize_item(
     if not snippet:
         try:
             snippet = _default_simple_summarizer(base, max_lines, derived_mode, keywords)
+            method_tag = method_tag or "default_simple"
         except Exception:
             snippet = None
 
@@ -211,10 +219,12 @@ def _summarize_item(
             head = None
         if head:
             snippet = head
+            method_tag = method_tag or "header_line"
         else:
             t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
             if t:
                 snippet = str(t)
+                method_tag = method_tag or "title_fallback"
 
     # Pós-processamento: limitar a N frases e limpar resíduos/metadata
     if snippet:
@@ -234,17 +244,42 @@ def _summarize_item(
                 head2 = None
             if head2:
                 snippet = _final_clean_snippet(head2)
+                method_tag = method_tag or "header_line_cleanup"
             else:
                 t2 = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
                 if t2:
                     snippet = _final_clean_snippet(str(t2))
+                    method_tag = method_tag or "title_cleanup"
                 else:
                     # Último recurso: usar sumarizador simples no texto-base
                     try:
                         snippet = _default_simple_summarizer(base or "", max_lines, derived_mode, keywords)
                         snippet = _final_clean_snippet(snippet)
+                        method_tag = method_tag or "default_simple_cleanup"
                     except Exception:
                         snippet = ""
+    # Garantir resumo mínimo e registrar metadados
+    if not snippet or not snippet.strip():
+        min_snip = _minimal_summary_from_item(it)
+        if min_snip:
+            snippet = _final_clean_snippet(min_snip)
+            method_tag = method_tag or "minimal_header_title"
+        elif base:
+            # reduzir base à 1 frase curta como último recurso
+            snippet = _cap_sentences(base, max(1, min(2, max_lines)))
+            method_tag = method_tag or "cap_from_base"
+        else:
+            snippet = ""
+
+    try:
+        it.setdefault("_summary_meta", {})
+        it["_summary_meta"].update({
+            "mode_used": derived_mode,
+            "method": method_tag or "unknown",
+            "len": len(snippet or ""),
+        })
+    except Exception:
+        pass
     return snippet
 
 

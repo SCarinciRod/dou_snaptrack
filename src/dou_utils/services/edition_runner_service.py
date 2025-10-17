@@ -233,9 +233,21 @@ class EditionRunnerService:
             except Exception:
                 pass
         total_elapsed = time.time() - t0
+        timings = {
+            "nav_sec": round(t_after_nav - t0, 3),
+            "view_sec": round(t_after_view - t_after_nav, 3),
+            "select_sec": round(t_after_select - t_after_view, 3),
+            "collect_sec": round(t_after_collect - t_after_select, 3),
+            "total_sec": round(total_elapsed, 3),
+            "inpage_reuse": bool(inpage),
+        }
+        try:
+            result["_timings"] = timings
+        except Exception:
+            pass
         print(
             f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} inpage={int(inpage)} "
-            f"timings: nav={t_after_nav - t0:.1f}s view={t_after_view - t_after_nav:.1f}s "
-            f"select={t_after_select - t_after_view:.1f}s collect={t_after_collect - t_after_select:.1f}s total={total_elapsed:.1f}s"
+            f"timings: nav={timings['nav_sec']:.1f}s view={timings['view_sec']:.1f}s "
+            f"select={timings['select_sec']:.1f}s collect={timings['collect_sec']:.1f}s total={timings['total_sec']:.1f}s"
         )
         return result

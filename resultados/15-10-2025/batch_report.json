@@ -1,0 +1,12 @@
+{
+  "total_jobs": 3,
+  "ok": 3,
+  "fail": 0,
+  "items_total": 18,
+  "outputs": [],
+  "deleted_outputs": [],
+  "aggregated": [
+    "resultados\\15-10-2025\\testeLuiza_DO1_15-10-2025.json"
+  ],
+  "aggregated_only": true
+}

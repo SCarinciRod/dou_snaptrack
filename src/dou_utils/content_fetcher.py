@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import gzip
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
@@ -33,20 +35,61 @@ class Fetcher:
         self.use_browser_if_short = use_browser_if_short
         self.short_len_threshold = short_len_threshold
         self.browser_timeout_sec = browser_timeout_sec
+        # LRU de processo para reduzir I/O repetido (até 512 páginas)
+        self._mem_cache: "OrderedDict[str, str]" = OrderedDict()
+        self._mem_cache_max = 512
 
     def _cache_path(self, url: str) -> Path:
         h = hashlib.sha256(url.encode("utf-8")).hexdigest()[:32]
-        return self.cache_dir / f"{h}.html"
+        # Usar gzip para reduzir footprint
+        return self.cache_dir / f"{h}.html.gz"
+
+    def _read_cache_file(self, p: Path) -> str:
+        # Suporta tanto .gz quanto legado .html
+        try:
+            if p.suffix == ".gz" and p.exists():
+                with gzip.open(p, "rt", encoding="utf-8", errors="ignore") as fp:
+                    return fp.read()
+            # legado: mesmo nome sem .gz
+            raw = p.with_suffix("")
+            if raw.exists():
+                return raw.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+        return ""
+
+    def _write_cache_file(self, p: Path, html: str) -> None:
+        try:
+            with gzip.open(p, "wt", encoding="utf-8") as fp:
+                fp.write(html)
+        except Exception:
+            pass
 
     def fetch_html(self, url: str) -> str:
         if not url or not url.startswith("http"):
             return ""
         cp = self._cache_path(url)
-        if cp.exists() and not self.force_refresh:
+        # Cache em memória
+        if not self.force_refresh:
             try:
-                return cp.read_text(encoding="utf-8", errors="ignore")
+                if url in self._mem_cache:
+                    html = self._mem_cache.pop(url)
+                    # move para o fim (mais recente)
+                    self._mem_cache[url] = html
+                    return html
             except Exception:
                 pass
+            # Se existir no disco, ler e popular LRU
+            if cp.exists():
+                html = self._read_cache_file(cp)
+                if html:
+                    try:
+                        self._mem_cache[url] = html
+                        if len(self._mem_cache) > self._mem_cache_max:
+                            self._mem_cache.popitem(last=False)
+                    except Exception:
+                        pass
+                    return html
         req = urllib.request.Request(
             url,
             headers={
@@ -70,7 +113,14 @@ class Fetcher:
             return ""
         try:
             if not self.force_refresh:
-                cp.write_text(html, encoding="utf-8", errors="ignore")
+                self._write_cache_file(cp, html)
+                # Popular LRU
+                try:
+                    self._mem_cache[url] = html
+                    if len(self._mem_cache) > self._mem_cache_max:
+                        self._mem_cache.popitem(last=False)
+                except Exception:
+                    pass
         except Exception:
             pass
         return html
@@ -104,83 +154,83 @@ class Fetcher:
             return ""
         return html or ""
 
-        def fetch_text_browser(self, url: str) -> str:
-                """Carrega a página com navegador e tenta extrair texto visível dos principais contêineres,
-                incluindo shadow DOM quando possível. Retorna texto plano.
-                """
+    def fetch_text_browser(self, url: str) -> str:
+        """Carrega a página com navegador e tenta extrair texto visível dos principais contêineres,
+        incluindo shadow DOM quando possível. Retorna texto plano.
+        """
+        try:
+            from playwright.sync_api import sync_playwright  # type: ignore
+        except Exception:
+            logger.info("[ENRICH] browser fallback not available (playwright not installed)")
+            return ""
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
                 try:
-                        from playwright.sync_api import sync_playwright  # type: ignore
-                except Exception:
-                        logger.info("[ENRICH] browser fallback not available (playwright not installed)")
-                        return ""
-                try:
-                        with sync_playwright() as p:
-                                browser = p.chromium.launch(headless=True)
-                                try:
-                                        page = browser.new_page()
-                                        page.set_default_timeout(self.browser_timeout_sec * 1000)
-                                        page.goto(url, wait_until="domcontentloaded")
-                                        # Pequeno atraso para render estável
-                                        try:
-                                                page.wait_for_timeout(500)
-                                        except Exception:
-                                                pass
+                    page = browser.new_page()
+                    page.set_default_timeout(self.browser_timeout_sec * 1000)
+                    page.goto(url, wait_until="domcontentloaded")
+                    # Pequeno atraso para render estável
+                    try:
+                        page.wait_for_timeout(500)
+                    except Exception:
+                        pass
 
-                                        js = r"""
-                                        (() => {
-                                            const selectors = [
-                                                'article', 'main article', '.texto-dou', '.publicacao-conteudo', '.single-full', '#materia', '.materia'
-                                            ];
-                                            function collectFrom(root, sel) {
-                                                try {
-                                                    return Array.from(root.querySelectorAll(sel)).map(e => (e.innerText||'').trim()).filter(Boolean).join('\n');
-                                                } catch(e) { return ''; }
-                                            }
-                                            const seen = new Set();
-                                            function walk(node, acc) {
-                                                for (const sel of selectors) {
-                                                    const txt = collectFrom(node, sel);
-                                                    if (txt) acc.push(txt);
-                                                }
-                                                const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT);
-                                                let n;
-                                                while (n = walker.nextNode()) {
-                                                    if (n.shadowRoot && !seen.has(n.shadowRoot)) {
-                                                        seen.add(n.shadowRoot);
-                                                        walk(n.shadowRoot, acc);
-                                                    }
-                                                }
-                                            }
-                                            const acc = [];
-                                            walk(document, acc);
-                                            let out = acc.join('\n').trim();
-                                            if (!out) {
-                                                const a = document.querySelector('article');
-                                                if (a && a.innerText) out = a.innerText.trim();
-                                            }
-                                            if (!out) {
-                                                const m = document.querySelector('main');
-                                                if (m && m.innerText) out = m.innerText.trim();
-                                            }
-                                            if (!out && document.body) {
-                                                out = (document.body.innerText||'').trim();
-                                            }
-                                            return out || '';
-                                        })()
-                                        """
-                                        try:
-                                                text = page.evaluate(js)
-                                        except Exception:
-                                                text = ""
-                                        # Limitar tamanho extremo
-                                        if text and len(text) > 200000:
-                                                text = text[:200000]
-                                finally:
-                                        browser.close()
-                except Exception as e:
-                        logger.info(f"[ENRICH] browser text fetch failed: {e}")
-                        return ""
-                return text or ""
+                    js = r"""
+                    (() => {
+                        const selectors = [
+                            'article', 'main article', '.texto-dou', '.publicacao-conteudo', '.single-full', '#materia', '.materia'
+                        ];
+                        function collectFrom(root, sel) {
+                            try {
+                                return Array.from(root.querySelectorAll(sel)).map(e => (e.innerText||'').trim()).filter(Boolean).join('\n');
+                            } catch(e) { return ''; }
+                        }
+                        const seen = new Set();
+                        function walk(node, acc) {
+                            for (const sel of selectors) {
+                                const txt = collectFrom(node, sel);
+                                if (txt) acc.push(txt);
+                            }
+                            const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT);
+                            let n;
+                            while (n = walker.nextNode()) {
+                                if (n.shadowRoot && !seen.has(n.shadowRoot)) {
+                                    seen.add(n.shadowRoot);
+                                    walk(n.shadowRoot, acc);
+                                }
+                            }
+                        }
+                        const acc = [];
+                        walk(document, acc);
+                        let out = acc.join('\n').trim();
+                        if (!out) {
+                            const a = document.querySelector('article');
+                            if (a && a.innerText) out = a.innerText.trim();
+                        }
+                        if (!out) {
+                            const m = document.querySelector('main');
+                            if (m && m.innerText) out = m.innerText.trim();
+                        }
+                        if (!out && document.body) {
+                            out = (document.body.innerText||'').trim();
+                        }
+                        return out || '';
+                    })()
+                    """
+                    try:
+                        text = page.evaluate(js)
+                    except Exception:
+                        text = ""
+                    # Limitar tamanho extremo
+                    if text and len(text) > 200000:
+                        text = text[:200000]
+                finally:
+                    browser.close()
+        except Exception as e:
+            logger.info(f"[ENRICH] browser text fetch failed: {e}")
+            return ""
+        return text or ""
 
     @staticmethod
     def extract_text_from_html(html: str) -> str:
