@@ -709,11 +709,9 @@ with tab2:
 with tab3:
     st.subheader("Boletim por Plano (agregados)")
     results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
-    # Controles principais de resumo e formato
-    summary_lines = st.number_input("Resumo: nº de linhas por item (0=desligado)", min_value=0, max_value=10, value=3)
-    summary_mode = st.selectbox("Modo do resumo", ["center", "lead", "keywords-first"], index=0)
-    kws = st.text_input("Palavras-chave (opcional, separadas por vírgula)", "")
-    kw_list = [k.strip() for k in kws.split(",") if k.strip()] if isinstance(kws, str) and kws.strip() else None
+    # Formato e política padronizada de resumo (sem escolhas do usuário)
+    # Padrões fixos: summary_lines=7, summary_mode="center", keywords=None
+    st.caption("Os resumos são gerados com parâmetros padronizados (modo center, 7 linhas).")
     st.caption("Gere boletim a partir de agregados do dia: {plan}_{secao}_{data}.json (dentro da pasta da data)")
 
     # Controles de modo profundo (deep-mode) de captura de texto
@@ -837,8 +835,8 @@ with tab3:
                     report_from_aggregated(
                         [str(p) for p in files], kind2, str(out_path),
                         date_label=str(sel_day), secao_label=secao_label,
-                        summary_lines=int(summary_lines), summary_mode=str(summary_mode),
-                        summary_keywords=kw_list, order_desc_by_date=False,
+                        summary_lines=7, summary_mode="center",
+                        summary_keywords=None, order_desc_by_date=False,
                         fetch_parallel=int(fetch_parallel), fetch_timeout_sec=int(fetch_timeout_sec),
                         fetch_force_refresh=bool(fetch_force_refresh), fetch_browser_fallback=bool(fetch_browser_fallback),
                         short_len_threshold=int(short_len_threshold),
