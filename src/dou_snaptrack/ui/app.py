@@ -711,25 +711,10 @@ with tab3:
     results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
     # Formato e política padronizada de resumo (sem escolhas do usuário)
     # Padrões fixos: summary_lines=7, summary_mode="center", keywords=None
-    st.caption("Os resumos são gerados com parâmetros padronizados (modo center, 7 linhas).")
+    st.caption("Os resumos são gerados com parâmetros padronizados (modo center, 7 linhas) e captura profunda automática.")
     st.caption("Gere boletim a partir de agregados do dia: {plan}_{secao}_{data}.json (dentro da pasta da data)")
 
-    # Controles de modo profundo (deep-mode) de captura de texto
-    with st.expander("Opções avançadas de captura do texto (deep-mode)", expanded=False):
-        col_adv1, col_adv2 = st.columns(2)
-        with col_adv1:
-            fetch_parallel = st.number_input("Paralelismo de busca (links)", min_value=1, max_value=16, value=8)
-            fetch_timeout_sec = st.number_input("Timeout por link (s)", min_value=5, max_value=120, value=30)
-            short_len_threshold = st.number_input("Tamanho mínimo para acionar navegador", min_value=200, max_value=3000, value=800, step=50)
-        with col_adv2:
-            fetch_force_refresh = st.checkbox("Forçar atualização (sem cache)", value=True)
-            fetch_browser_fallback = st.checkbox("Usar navegador (fallback quando curto)", value=True)
-            offline_mode = st.checkbox("Modo offline (não baixar páginas)", value=False)
-        # Setar variável de ambiente imediatamente para afetar o relatório
-        try:
-            os.environ["DOU_OFFLINE_REPORT"] = "1" if offline_mode else "0"
-        except Exception:
-            pass
+    # Deep-mode: sem opções expostas. Usamos parâmetros fixos e mantemos modo online.
 
     # Ação auxiliar: agregação manual a partir de uma pasta de dia
     with st.expander("Agregação manual (quando necessário)"):
@@ -832,14 +817,19 @@ with tab3:
                                 secao_label = parts[-2]
                         except Exception:
                             pass
+                    # Garantir deep-mode ligado para relatório (não offline)
+                    try:
+                        os.environ["DOU_OFFLINE_REPORT"] = "0"
+                    except Exception:
+                        pass
                     report_from_aggregated(
                         [str(p) for p in files], kind2, str(out_path),
                         date_label=str(sel_day), secao_label=secao_label,
                         summary_lines=7, summary_mode="center",
-                        summary_keywords=None, order_desc_by_date=False,
-                        fetch_parallel=int(fetch_parallel), fetch_timeout_sec=int(fetch_timeout_sec),
-                        fetch_force_refresh=bool(fetch_force_refresh), fetch_browser_fallback=bool(fetch_browser_fallback),
-                        short_len_threshold=int(short_len_threshold),
+                        summary_keywords=None, order_desc_by_date=True,
+                        fetch_parallel=8, fetch_timeout_sec=30,
+                        fetch_force_refresh=True, fetch_browser_fallback=True,
+                        short_len_threshold=800,
                     )
                     data = out_path.read_bytes()
                     st.success(f"Boletim gerado: {out_path}")
