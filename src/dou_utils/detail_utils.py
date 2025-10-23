@@ -12,7 +12,7 @@ Recursos (advanced=True):
  - Coleta de meta keys centrais
  - Texto completo (até 8000 chars, preservando corte em frase)
 
-Saída via DetailData (models.DetailData) – espera-se que esse dataclass já exista.
+Saída via DetailData (models.DetailData) - espera-se que esse dataclass já exista.
 """
 
 from __future__ import annotations

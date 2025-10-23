@@ -16,14 +16,14 @@ def normalize_text(s: str | None) -> str:
 
 def sanitize_filename(name: str, max_len: int = 180) -> str:
     """Normaliza e limpa nome de arquivo, removendo caracteres inválidos.
-    
+
     Args:
         name: Nome original a ser sanitizado
         max_len: Tamanho máximo do nome (default=180)
-        
+
     Returns:
         Nome de arquivo sanitizado e seguro para sistema de arquivos
-        
+
     Examples:
         >>> sanitize_filename("meu/arquivo*.txt")
         'meu_arquivo_.txt'

@@ -13,14 +13,14 @@ _ABBREV_ETAL_PATTERN = re.compile(r"\b(et al)\.", re.IGNORECASE)
 _SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[\.\!\?;])\s+")
 _ARTICLE1_PATTERN = re.compile(r"\b(?:Art\.?|Artigo)\s*1(º|o)?\b", re.IGNORECASE)
 _DOC_TYPE_PREFIX_PATTERN = re.compile(
-    r"^\s*(PORTARIA|RESOLUÇÃO|DECRETO|ATO|MENSAGEM|DESPACHO|EXTRATO|COMUNICADO)\s*[-–—]?\s*",
+    r"^\s*(PORTARIA|RESOLUÇÃO|DECRETO|ATO|MENSAGEM|DESPACHO|EXTRATO|COMUNICADO)\s*[-]?\s*",
     re.IGNORECASE
 )
 _PRIORITY_VERB_PATTERN = re.compile(
     r"\b(decis[aã]o:|nego\s+provimento|defiro|indefer[io]|determino|autorizo|autoriza|habilita|desabilita|estabelece|fica\s+estabelecido|prorroga|renova|entra\s+em\s+vigor)\b",
     re.IGNORECASE
 )
-_ENUMERATION_PATTERN = re.compile(r"^\s*(?:[IVXLCDM]{1,6}|\d+|[a-z]\)|[A-Z]\))\s*[-–—)]\s+", re.IGNORECASE)
+_ENUMERATION_PATTERN = re.compile(r"^\s*(?:[IVXLCDM]{1,6}|\d+|[a-z]\)|[A-Z]\))\s*[-)\s]+", re.IGNORECASE)
 _MONEY_PATTERN = re.compile(r"R\$\s?\d", re.IGNORECASE)
 _DATE_PATTERN = re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b|\bde\s+[A-Za-zçáéíóúãõâêô]+\s+de\s+\d{4}\b", re.IGNORECASE)
 

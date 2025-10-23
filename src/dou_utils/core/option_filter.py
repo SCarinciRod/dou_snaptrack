@@ -55,8 +55,8 @@ def filter_options(
     """
     Filtra opções seguindo ordem de precedência:
       1. Remoção de sentinelas (se drop_sentinels=True)
-      2. pick_list (se fornecido) – aceita se texto OU value estiver na lista
-      3. select_regex (se fornecido) – regex case-insensitive.
+      2. pick_list (se fornecido) - aceita se texto OU value estiver na lista
+      3. select_regex (se fornecido) - regex case-insensitive.
          - Se o padrão não contiver acentos, faz fallback em versão sem acentos do texto/value.
       4. Sem filtros => retorna todas (exceto sentinelas).
       5. Aplica limit no final (após seleção).

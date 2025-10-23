@@ -41,11 +41,11 @@ _filename_re = re.compile(r'[^A-Za-z0-9._-]+')
 def sanitize_filename(name: str, max_len: int | None = None) -> str:
     """
     Normaliza e limpa nome de arquivo, removendo caracteres inválidos.
-    
+
     Args:
         name: Nome original a ser sanitizado
         max_len: Tamanho máximo do nome (default=settings.files.sanitize_max_filename_len ou 100)
-        
+
     Returns:
         Nome de arquivo sanitizado
     """
@@ -78,12 +78,12 @@ def sanitize_filename(name: str, max_len: int | None = None) -> str:
 def make_unique(name: str, existing: set[str], max_len: int | None = None) -> str:
     """
     Garante que o nome de arquivo é único dentro do conjunto 'existing' adicionando _N.
-    
+
     Args:
         name: Nome base a ser usado
         existing: Conjunto de nomes existentes para checar colisão
         max_len: Tamanho máximo do nome final
-    
+
     Returns:
         Nome único garantido
     """
@@ -110,14 +110,14 @@ def make_unique(name: str, existing: set[str], max_len: int | None = None) -> st
 def render_out_filename(pattern: str, job: ExpandedJob | dict[str, Any]) -> str:
     """
     Renderiza um padrão de nome de arquivo com campos do job.
-    
+
     Placeholders suportados:
       {topic} {secao} {date} {idx} {rep} {key1} {key2} {key3}
-    
+
     Args:
         pattern: String de padrão com placeholders
         job: ExpandedJob ou Dict com dados do job
-        
+
     Returns:
         Nome do arquivo renderizado e sanitizado
     """
@@ -189,7 +189,7 @@ class JobExpander:
     def __init__(self, cfg: dict[str, Any]):
         """
         Inicializa o expansor com uma configuração de batch.
-        
+
         Args:
             cfg: Configuração de batch como dicionário
         """
@@ -198,7 +198,7 @@ class JobExpander:
     def expand(self) -> list[ExpandedJob]:
         """
         Expande a configuração em uma lista de jobs completos.
-        
+
         Returns:
             Lista de ExpandedJob
         """
@@ -334,10 +334,10 @@ class JobExpander:
 def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Interface compatível com legado retornando lista de dicionários.
-    
+
     Args:
         cfg: Configuração de batch
-        
+
     Returns:
         Lista de jobs expandidos como dicionários
     """

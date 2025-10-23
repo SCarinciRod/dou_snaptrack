@@ -65,7 +65,7 @@ def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=No
 def _mk_suffix(it: dict[str, Any]) -> str:
     """
     Cria um sufixo padronizado com metadados do item (data, seção, edição, página).
-    
+
     Returns:
         String formatada com metadados, ou string vazia se não houver dados
     """
@@ -115,7 +115,7 @@ def _summarize_item(
     """
     Aplica sumarização a um item se summarize=True e summarizer_fn disponível.
     Lida com diferentes assinaturas de summarizer_fn.
-    
+
     Returns:
         String resumida ou None se não foi possível resumir
     """
@@ -321,7 +321,7 @@ class BulletinGenerator(ABC):
     def generate(self) -> dict[str, Any]:
         """
         Gera o boletim no formato específico e retorna metadados.
-        
+
         Returns:
             Dict com metadados: groups, items, summarized, output
         """
@@ -342,7 +342,7 @@ class BulletinGenerator(ABC):
     def _generate_content(self) -> int:
         """
         Implementação específica da geração de conteúdo para cada formato.
-        
+
         Returns:
             Número de itens sumarizados
         """
@@ -552,7 +552,7 @@ def generate_bulletin(
 ) -> dict[str, Any]:
     """
     Gera boletim e retorna metadados.
-    
+
     Args:
         result: Dicionário com dados do resultado (data, secao, itens)
         out_path: Caminho para arquivo de saída
@@ -562,7 +562,7 @@ def generate_bulletin(
         keywords: Lista de palavras-chave para sumarização
         max_lines: Número máximo de linhas no resumo
         mode: Modo de sumarização (center, head)
-        
+
     Returns:
         Dict com metadados: {groups, items, summarized, output}
     """

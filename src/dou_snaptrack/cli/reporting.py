@@ -377,7 +377,7 @@ def split_and_report_by_n1(
             short_len_threshold=int(short_len_threshold),
             browser_timeout_sec=max(20, fetch_timeout_sec),
         )
-        for k, items in groups.items():
+        for _k, items in groups.items():
             fetcher.enrich_items(items, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
     else:
         if summary_lines <= 0:

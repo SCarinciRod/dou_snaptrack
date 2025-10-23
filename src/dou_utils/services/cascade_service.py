@@ -62,11 +62,11 @@ class CascadeService:
     def run(self, raw_items: list[dict[str, Any]], params: CascadeParams) -> dict[str, Any]:
         """
         Executa o processo de cascade completo para os itens fornecidos.
-        
+
         Args:
             raw_items: Lista de dicionários contendo pelo menos 'link'
             params: Parâmetros de configuração do cascade
-        
+
         Returns:
             Dicionário com estatísticas e itens processados
         """

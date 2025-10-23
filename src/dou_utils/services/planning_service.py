@@ -63,7 +63,7 @@ def _looks_like_dropdown_list(lst: Any) -> bool:
 
 def _deep_find_dropdown_lists(obj: Any, acc: list[list[dict[str, Any]]]):
     if isinstance(obj, dict):
-        for k, v in obj.items():
+        for v in obj.values():
             if _looks_like_dropdown_list(v):
                 acc.append(v)  # type: ignore
             _deep_find_dropdown_lists(v, acc)

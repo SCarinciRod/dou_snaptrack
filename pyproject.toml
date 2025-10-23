@@ -135,6 +135,9 @@ unfixable = [
 # Tests can use assert, magic values, etc
 "tests/**/*.py" = ["S101", "PLR2004"]
 
+# B023 false positive: closure executed immediately in loop (not delayed)
+"src/dou_snaptrack/cli/batch.py" = ["B023"]
+
 [tool.ruff.lint.isort]
 # Use "from" imports for multiple items
 combine-as-imports = true
