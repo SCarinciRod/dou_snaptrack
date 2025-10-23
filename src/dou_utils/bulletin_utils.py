@@ -37,7 +37,6 @@ def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=No
     Sumarizador simples fallback quando nenhum outro é fornecido.
     Aplica limpeza de preâmbulo jurídico e extrai frases do início ou centro.
     """
-    import re
     clean = _strip_legalese_preamble(text)
     # priorizar somente o Art. 1º, se existir
     a1 = _extract_article1_section(clean)

@@ -73,7 +73,6 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     except Exception:
         pass
     from playwright.sync_api import sync_playwright  # type: ignore
-    import os
     from pathlib import Path
 
     p = sync_playwright().start()

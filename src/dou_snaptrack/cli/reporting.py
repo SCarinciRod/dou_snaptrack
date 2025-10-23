@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 import json
+import os
 import re
 from ..adapters.utils import generate_bulletin as _generate_bulletin
 from ..utils.text import sanitize_filename
@@ -28,7 +29,6 @@ def consolidate_and_report(
     fetch_browser_fallback: bool = True,
     short_len_threshold: int = 800,
 ) -> None:
-    import os
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     agg = []
     for f in sorted(Path(in_dir).glob("*.json")):
@@ -171,7 +171,6 @@ def report_from_aggregated(
         agg.sort(key=_key, reverse=True)
 
     # Deep mode por padrão também em agregados
-    import os
     offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
     if summary_lines > 0 and not offline and agg:
         logger.info(
@@ -319,7 +318,6 @@ def split_and_report_by_n1(
         date_label: rótulo de data (opcional)
         secao_label: rótulo de seção (opcional)
     """
-    import os
     out_dir = Path(out_root)
     # If a file path is passed (like logs/unused.docx), use its parent as output directory
     if out_dir.suffix:

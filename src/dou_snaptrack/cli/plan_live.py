@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+import os
 import re
 
 from ..utils.browser import launch_browser, new_context, goto, fmt_date
@@ -392,8 +393,6 @@ def build_plan_live(p, args, browser=None) -> Dict[str, Any]:
     here to avoid cross-thread usage.
     """
     v = bool(getattr(args, "plan_verbose", False))
-    import os
-    from pathlib import Path
     from playwright.sync_api import sync_playwright  # type: ignore
 
     headful = bool(getattr(args, "headful", False))

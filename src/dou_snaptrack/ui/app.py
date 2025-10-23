@@ -80,7 +80,6 @@ def _load_pairs_file(p: Path) -> Dict[str, List[str]]:
 @lru_cache(maxsize=1)
 def _find_system_browser_exe() -> Optional[str]:
     """Resolve a system Chrome/Edge executable once and cache the result."""
-    import os
     from pathlib import Path as _P
     exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
     if exe and _P(exe).exists():
