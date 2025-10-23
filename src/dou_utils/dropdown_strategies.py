@@ -10,7 +10,10 @@ mantendo ordem configurável e logging.
 """
 
 from __future__ import annotations
-from typing import Optional, Dict, Any, Iterable, List
+
+from collections.abc import Iterable
+from typing import Any
+
 from .log_utils import get_logger
 
 logger = get_logger(__name__)
@@ -49,7 +52,7 @@ def _listbox_present(frame) -> bool:
     return False
 
 
-def open_dropdown_robust(frame, locator, strategy_order: Optional[Iterable[str]] = None, delay_ms: int = 120) -> bool:
+def open_dropdown_robust(frame, locator, strategy_order: Iterable[str] | None = None, delay_ms: int = 120) -> bool:
     """
     Try multiple strategies to open a dropdown-like widget.
 
@@ -117,7 +120,7 @@ def open_dropdown_robust(frame, locator, strategy_order: Optional[Iterable[str]]
     return _listbox_present(frame)
 
 
-def collect_open_list_options(frame) -> List[Dict[str, Any]]:
+def collect_open_list_options(frame) -> list[dict[str, Any]]:
     """
     After dropdown is open, collect available visible option nodes with rich attributes.
     """

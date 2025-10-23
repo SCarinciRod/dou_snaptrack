@@ -1,8 +1,9 @@
 from __future__ import annotations
-from datetime import datetime
-from typing import Optional, Tuple, Any, Dict
-import re
+
 import os
+import re
+from datetime import datetime
+from typing import Any
 
 # use import absoluto para maior robustez
 from dou_snaptrack.constants import BASE_DOU
@@ -10,8 +11,8 @@ from dou_snaptrack.constants import BASE_DOU
 # Delegar helpers para dou_utils.page_utils (fonte única de verdade)
 try:
     from dou_utils.page_utils import (
-        goto as _page_goto,
         close_cookies as _page_close_cookies,
+        goto as _page_goto,
         try_visualizar_em_lista as _page_try_visualizar_em_lista,
     )
 except Exception:
@@ -21,7 +22,7 @@ except Exception:
 
 COOKIE_BUTTON_TEXTS = ["ACEITO", "ACEITAR", "OK", "ENTENDI", "CONCORDO", "FECHAR", "ACEITO TODOS"]
 
-def fmt_date(date_str: Optional[str] = None) -> str:
+def fmt_date(date_str: str | None = None) -> str:
     if date_str:
         return datetime.strptime(date_str, "%d-%m-%Y").strftime("%d-%m-%Y")
     return datetime.now().strftime("%d-%m-%Y")
@@ -66,17 +67,19 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     """
     # Garantir loop Proactor no Windows antes de iniciar Playwright
     try:
-        import sys as _sys, asyncio as _asyncio
+        import asyncio as _asyncio
+        import sys as _sys
         if _sys.platform.startswith("win"):
             _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
             _asyncio.set_event_loop(_asyncio.new_event_loop())
     except Exception:
         pass
-    from playwright.sync_api import sync_playwright  # type: ignore
     from pathlib import Path
 
+    from playwright.sync_api import sync_playwright  # type: ignore
+
     p = sync_playwright().start()
-    launch_args: Dict[str, Any] = dict(headless=not headful, slow_mo=slowmo)
+    launch_args: dict[str, Any] = dict(headless=not headful, slow_mo=slowmo)
 
     # 1) Tentar canais do sistema na ordem preferida
     prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
@@ -153,7 +156,7 @@ def goto(page, url: str, retries: int = 2) -> None:
                 "ERR_CONNECTION_RESET" in msg
                 or "net::ERR_" in msg
                 or "timeout" in msg.lower()
-                or "Navigation" in msg and "failed" in msg.lower()
+                or ("Navigation" in msg and "failed" in msg.lower())
             )
             if attempt < retries and transient:
                 try:

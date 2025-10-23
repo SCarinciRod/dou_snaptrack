@@ -3,6 +3,7 @@
 
 import re
 
+
 def apply_query(frame, query: str):
     if not query:
         return

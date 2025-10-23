@@ -1,8 +1,9 @@
 from __future__ import annotations
-import sys
+
 import pathlib
 import platform
 import subprocess
+import sys
 import webbrowser
 
 # Launcher para `python -m dou_snaptrack.ui.launch` ou entry point `dou-ui`.

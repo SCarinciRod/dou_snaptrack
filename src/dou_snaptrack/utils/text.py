@@ -1,12 +1,12 @@
 from __future__ import annotations
+
 import re
 import unicodedata
-from typing import Optional
 
 # Regex pré-compilado para performance
 _FILENAME_INVALID_CHARS = re.compile(r'[\\/:*?"<>\|\r\n\t]+')
 
-def normalize_text(s: Optional[str]) -> str:
+def normalize_text(s: str | None) -> str:
     if not s:
         return ""
     s = unicodedata.normalize("NFKD", s)
@@ -32,16 +32,16 @@ def sanitize_filename(name: str, max_len: int = 180) -> str:
     """
     if not name:
         return "out"
-    
+
     # Remove caracteres inválidos para nomes de arquivo (Windows e Unix)
     cleaned = _FILENAME_INVALID_CHARS.sub("_", name)
-    
+
     # Remove espaços/underscores do início e fim
     cleaned = cleaned.strip("_ ")
-    
+
     # Truncar se necessário
     if len(cleaned) > max_len:
         cleaned = cleaned[:max_len].rstrip("_ ")
-    
+
     # Garantir que não está vazio após limpeza
     return cleaned or "out"

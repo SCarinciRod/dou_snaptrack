@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Optional
-
-from .text_cleaning import (
-    strip_legalese_preamble,
-    extract_article1_section,
-    cap_sentences,
-)
-
 from .log_utils import get_logger
+from .text_cleaning import (
+    cap_sentences,
+    extract_article1_section,
+    strip_legalese_preamble,
+)
 
 logger = get_logger(__name__)
 
@@ -19,7 +16,7 @@ except Exception:
     _inner_summarize = None  # type: ignore
 
 
-def summarize_text(text: str, max_lines: int, mode: str, keywords: Optional[List[str]] = None) -> str:
+def summarize_text(text: str, max_lines: int, mode: str, keywords: list[str] | None = None) -> str:
     """Wrapper estável para chamar summarize_text com ordem correta dos parâmetros.
 
     Adapta assinatura para (text, max_lines, keywords, mode) quando possível.

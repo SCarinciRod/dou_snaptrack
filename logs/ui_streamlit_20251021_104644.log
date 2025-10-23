@@ -1,0 +1,13 @@
+﻿
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8502
+  Network URL: http://10.7.171.143:8502
+  External URL: http://45.188.218.119:8502
+
+
+2025-10-21 10:47:03.965 WARNING streamlit.web.cli: Setting the log level using the --log_level flag is unsupported.
+Use the --logger.level flag (after your streamlit command) instead.
+[2025-10-21 10:47:37] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=23 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-21 10:47:53] INFO dou_utils.content_fetcher: [ENRICH] updated 23/23 items (overwrite=True, min_len=None)
+

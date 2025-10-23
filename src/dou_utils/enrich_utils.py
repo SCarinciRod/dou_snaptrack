@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import re
-from typing import Dict, Any, List, Optional
-from urllib.parse import urlparse, unquote
+from typing import Any
+from urllib.parse import unquote, urlparse
 
 _ACT_TYPES = [
     "decreto", "portaria", "instrução normativa", "instrucao normativa",
@@ -51,7 +52,7 @@ def _humanize_slug(seg: str) -> str:
     return " ".join([w for w in words if w])
 
 
-def _detect_act_type(text: str) -> Optional[str]:
+def _detect_act_type(text: str) -> str | None:
     t = (text or "").lower()
     for k in _ACT_TYPES:
         if k in t:
@@ -66,7 +67,7 @@ def _detect_act_type(text: str) -> Optional[str]:
     return None
 
 
-def make_friendly_title(item: Dict[str, Any], date: Optional[str] = None, secao: Optional[str] = None, max_len: int = 140) -> str:
+def make_friendly_title(item: dict[str, Any], date: str | None = None, secao: str | None = None, max_len: int = 140) -> str:
     raw_title = (item.get("titulo") or item.get("title") or "").strip()
     link = item.get("detail_url") or item.get("link") or ""
     act_type = _detect_act_type(raw_title) or _detect_act_type(link) or ""
@@ -105,8 +106,8 @@ def make_friendly_title(item: Dict[str, Any], date: Optional[str] = None, secao:
     return _clean_title(raw_title or "Documento do DOU")
 
 
-def enrich_items_friendly_titles(items: List[Dict[str, Any]], date: Optional[str] = None, secao: Optional[str] = None, max_len: int = 140) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def enrich_items_friendly_titles(items: list[dict[str, Any]], date: str | None = None, secao: str | None = None, max_len: int = 140) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     for it in items or []:
         try:
             friendly = make_friendly_title(it, date=date, secao=secao, max_len=max_len)

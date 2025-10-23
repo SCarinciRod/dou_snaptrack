@@ -1,13 +1,15 @@
 from __future__ import annotations
-from typing import List, Dict, Any, Optional
+
 import re
+from typing import Any
+
 
 def clean_text(s: str) -> str:
     if not s:
         return ""
     return re.sub(r"\s+", " ", s).strip()
 
-def extract_simple_links(root_locator, item_selector: str, link_selector: Optional[str] = None, max_items: Optional[int] = None) -> List[Dict[str, Any]]:
+def extract_simple_links(root_locator, item_selector: str, link_selector: str | None = None, max_items: int | None = None) -> list[dict[str, Any]]:
     try:
         items = root_locator.locator(item_selector)
     except Exception:
@@ -16,7 +18,7 @@ def extract_simple_links(root_locator, item_selector: str, link_selector: Option
         n = items.count()
     except Exception:
         n = 0
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for i in range(n):
         if max_items and len(out) >= max_items:
             break

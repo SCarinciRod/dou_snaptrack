@@ -1,21 +1,20 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+
 import json
-import hashlib
-import time
-import os
-import sys
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 import multiprocessing as mp
+import os
 import subprocess
+import sys
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import Any
 
-from .summary_config import SummaryConfig, apply_summary_overrides_from_job
 from ..utils.text import sanitize_filename
+from .summary_config import SummaryConfig, apply_summary_overrides_from_job
 
 
-def render_out_filename(pattern: str, job: Dict[str, Any]) -> str:
+def render_out_filename(pattern: str, job: dict[str, Any]) -> str:
     date_str = job.get("data") or ""
     tokens = {
         "topic": job.get("topic") or "job",
@@ -33,8 +32,8 @@ def render_out_filename(pattern: str, job: Dict[str, Any]) -> str:
     return name
 
 
-def expand_batch_config(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
-    jobs: List[Dict[str, Any]] = []
+def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
+    jobs: list[dict[str, Any]] = []
     defaults = cfg.get("defaults", {})
     base_data = cfg.get("data")
     base_secao = cfg.get("secaoDefault")
@@ -104,11 +103,12 @@ def expand_batch_config(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
     return jobs
 
 
-def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
+def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
     # Ajuste de loop asyncio no Windows antes de importar Playwright (subprocess)
     try:
-        import sys as _sys, asyncio as _asyncio
+        import asyncio as _asyncio
+        import sys as _sys
         if _sys.platform.startswith("win"):
             _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
             _asyncio.set_event_loop(_asyncio.new_event_loop())
@@ -132,17 +132,18 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
         _log_fp = None
     # Defer heavy imports until after stdout is redirected
     from playwright.sync_api import sync_playwright  # type: ignore
+
     from .runner import run_once
-    jobs: List[Dict[str, Any]] = payload["jobs"]
-    defaults: Dict[str, Any] = payload["defaults"]
+    jobs: list[dict[str, Any]] = payload["jobs"]
+    defaults: dict[str, Any] = payload["defaults"]
     out_dir = Path(payload["out_dir"])  # already exists
     out_pattern: str = payload["out_pattern"]
     headful: bool = bool(payload.get("headful", False))
     slowmo: int = int(payload.get("slowmo", 0))
-    state_file: Optional[str] = payload.get("state_file")
+    state_file: str | None = payload.get("state_file")
     reuse_page: bool = bool(payload.get("reuse_page", False))
     summary: SummaryConfig = SummaryConfig(**(payload.get("summary") or {}))
-    indices: List[int] = payload["indices"]
+    indices: list[int] = payload["indices"]
 
     def _get(job, key, default_key=None, default_value=None):
         if default_key is None:
@@ -217,7 +218,7 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
             context.route("**/*", _route_block_heavy)
         except Exception:
             pass
-        page_cache: Dict[Tuple[str, str], Any] = {}
+        page_cache: dict[tuple[str, str], Any] = {}
         fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1","true","yes")
         try:
             for j_idx in indices:
@@ -277,7 +278,7 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                         page_cache[k] = page
                     keep_open = True
 
-                def _run_with_retry(cur_page) -> Optional[Dict[str, Any]]:
+                def _run_with_retry(cur_page) -> dict[str, Any] | None:
                     # Single retry path in case of closed page/context issues during reuse
                     for attempt in (1, 2):
                         try:
@@ -297,7 +298,7 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 detail_parallel=detail_parallel,
                                 page=cur_page, keep_page_open=keep_open,
                             )
-                        except Exception as e:
+                        except Exception:
                             # On first failure, recreate page and retry once
                             if attempt == 1:
                                 try:
@@ -376,10 +377,12 @@ def _worker_process(payload: Dict[str, Any]) -> Dict[str, Any]:
     return report
 
 
-def _init_worker(log_file: Optional[str] = None) -> None:
+def _init_worker(log_file: str | None = None) -> None:
     """Initializer for worker processes to confirm spawn and set basic policy early."""
     try:
-        import sys as _sys, asyncio as _asyncio, os as _os
+        import asyncio as _asyncio
+        import os as _os
+        import sys as _sys
         if _sys.platform.startswith("win"):
             try:
                 _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
@@ -469,9 +472,9 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     reuse_page = bool(getattr(args, "reuse_page", False))
 
     # Distribute jobs by (date, secao), but chunk large groups across buckets to keep parallelism
-    from collections import defaultdict
     import math
-    groups: Dict[Tuple[str, str], List[int]] = defaultdict(list)
+    from collections import defaultdict
+    groups: dict[tuple[str, str], list[int]] = defaultdict(list)
     for i, job in enumerate(jobs, start=1):
         d = str(job.get("data") or cfg.get("data") or "")
         s = str(job.get("secao") or cfg.get("secaoDefault") or "")
@@ -480,7 +483,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     min_bucket = max(1, min_bucket)
     # Strategy: prefer keeping (date,secao) groups intact, but if there is only one group with many jobs,
     # split it into a few buckets to retain some parallelism while reusing pages within each bucket.
-    unique_groups = list(sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True))
+    unique_groups = sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True)
     if len(unique_groups) == 1:
         only_group_idxs = unique_groups[0][1]
         # Choose 2-3 buckets depending on job count and available parallelism
@@ -497,7 +500,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         else:
             bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
             desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
-            pseudo_groups: List[List[int]] = []
+            pseudo_groups: list[list[int]] = []
             for _, idxs in unique_groups:
                 for start in range(0, len(idxs), desired_size):
                     pseudo_groups.append(idxs[start:start + desired_size])
@@ -721,11 +724,11 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
             rep_sum = {
                 "jobs": len(jobs_m),
                 "elapsed_sec_total": float(sum(elapseds)),
-                "elapsed_sec_avg": float((_stats.mean(elapseds) if elapseds else 0)),
-                "elapsed_sec_p50": float((_stats.median(elapseds) if elapseds else 0)),
-                "elapsed_sec_p90": float((sorted(elapseds)[int(0.9*len(elapseds))-1] if len(elapseds) >= 1 else 0)),
+                "elapsed_sec_avg": float(_stats.mean(elapseds) if elapseds else 0),
+                "elapsed_sec_p50": float(_stats.median(elapseds) if elapseds else 0),
+                "elapsed_sec_p90": float(sorted(elapseds)[int(0.9*len(elapseds))-1] if len(elapseds) >= 1 else 0),
                 "items_total": int(sum(items)),
-                "items_avg": float((_stats.mean(items) if items else 0)),
+                "items_avg": float(_stats.mean(items) if items else 0),
             }
             report["metrics"]["summary"] = rep_sum
     except Exception:
@@ -743,9 +746,9 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     try:
         plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
         if plan_name:
-            def _aggregate_outputs_by_date(paths: List[str], out_dir: Path, plan: str) -> List[str]:
+            def _aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan: str) -> list[str]:
                 from collections import defaultdict
-                agg: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
+                agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
                 secao_any = ""
                 for pth in paths or []:
                     try:
@@ -777,7 +780,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                         except Exception:
                             pass
                     agg[date]["itens"].extend(items)
-                written: List[str] = []
+                written: list[str] = []
                 # Choose label in filename: use actual secao (e.g., DO1, DO2, DO3)
                 secao_label = (secao_any or "DO").strip()
                 for date, payload in agg.items():

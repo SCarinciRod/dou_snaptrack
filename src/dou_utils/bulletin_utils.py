@@ -9,24 +9,24 @@ Função principal:
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Callable, Optional, Tuple
-from collections import defaultdict
+
 import html as html_lib
-from pathlib import Path
 import re
+from abc import ABC, abstractmethod
+from collections import defaultdict
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 from .log_utils import get_logger
 from .text_cleaning import (
+    cap_sentences as _cap_sentences,
+    extract_article1_section as _extract_article1_section,
+    extract_doc_header_line as _extract_doc_header_line,
+    final_clean_snippet as _final_clean_snippet,
     remove_dou_metadata as _remove_dou_metadata,
     split_doc_header as _split_doc_header,
-    extract_doc_header_line as _extract_doc_header_line,
-    extract_article1_section as _extract_article1_section,
     strip_legalese_preamble as _strip_legalese_preamble,
-    first_sentences as _first_sentences,
-    cap_sentences as _cap_sentences,
-    final_clean_snippet as _final_clean_snippet,
-    make_bullet_title_from_text as _make_bullet_title_from_text,
 )
 
 logger = get_logger(__name__)
@@ -62,7 +62,7 @@ def _default_simple_summarizer(text: str, max_lines: int, mode: str, keywords=No
     return result + ("" if result.endswith(".") else ".")
 
 
-def _mk_suffix(it: Dict[str, Any]) -> str:
+def _mk_suffix(it: dict[str, Any]) -> str:
     """
     Cria um sufixo padronizado com metadados do item (data, seção, edição, página).
     
@@ -70,23 +70,23 @@ def _mk_suffix(it: Dict[str, Any]) -> str:
         String formatada com metadados, ou string vazia se não houver dados
     """
     parts = []
-    
+
     if it.get("data_publicacao"):
         parts.append(it["data_publicacao"])
-        
+
     if it.get("secao"):
         parts.append(it["secao"])
-        
+
     if it.get("edicao"):
         parts.append(f"Edição {it['edicao']}")
-        
+
     if it.get("pagina"):
         parts.append(f"p. {it['pagina']}")
-        
+
     return (" — " + " • ".join(parts)) if parts else ""
 
 
-def _minimal_summary_from_item(it: Dict[str, Any]) -> Optional[str]:
+def _minimal_summary_from_item(it: dict[str, Any]) -> str | None:
     """Último recurso para obter um resumo mínimo a partir do cabeçalho ou título.
 
     Retorna uma string curta e limpa ou None.
@@ -105,13 +105,13 @@ def _minimal_summary_from_item(it: Dict[str, Any]) -> Optional[str]:
 
 
 def _summarize_item(
-    it: Dict[str, Any], 
-    summarizer_fn: Optional[Callable], 
-    summarize: bool, 
-    keywords: Optional[List[str]], 
-    max_lines: int, 
+    it: dict[str, Any],
+    summarizer_fn: Callable | None,
+    summarize: bool,
+    keywords: list[str] | None,
+    max_lines: int,
     mode: str
-) -> Optional[str]:
+) -> str | None:
     """
     Aplica sumarização a um item se summarize=True e summarizer_fn disponível.
     Lida com diferentes assinaturas de summarizer_fn.
@@ -121,7 +121,7 @@ def _summarize_item(
     """
     if not summarize or not summarizer_fn:
         return None
-        
+
     base = it.get("texto") or it.get("ementa") or ""
     if not base:
         # Último recurso: tentar construir resumo a partir de header ou título
@@ -152,7 +152,7 @@ def _summarize_item(
         base = base_eff
     except Exception as e:
         logger.debug(f"Failed to clean/extract article: {e}")
-        
+
     # Modo derivado por tipo de ato: usar 'lead' para atos normativos e despachos
     derived_mode = (mode or "center").lower()
     try:
@@ -285,14 +285,14 @@ def _summarize_item(
 
 class BulletinGenerator(ABC):
     """Classe base abstrata para geradores de boletim em diferentes formatos."""
-    
+
     def __init__(
         self,
-        result: Dict[str, Any],
+        result: dict[str, Any],
         out_path: str,
-        summarizer_fn: Optional[Callable],
+        summarizer_fn: Callable | None,
         summarize: bool,
-        keywords: Optional[List[str]],
+        keywords: list[str] | None,
         max_lines: int,
         mode: str
     ):
@@ -305,11 +305,11 @@ class BulletinGenerator(ABC):
         self.mode = mode
         self.date = result.get("data", "")
         self.secao = result.get("secao", "")
-        
+
         # Agrupar itens por (órgão, tipo_ato)
         self.grouped = self._group_items()
-        
-    def _group_items(self) -> Dict[Tuple[str, str], List[Dict[str, Any]]]:
+
+    def _group_items(self) -> dict[tuple[str, str], list[dict[str, Any]]]:
         """Agrupa itens por (órgão, tipo_ato)."""
         grouped = defaultdict(list)
         for it in self.result.get("itens", []):
@@ -317,8 +317,8 @@ class BulletinGenerator(ABC):
             tipo = it.get("tipo_ato") or "Sem tipo"
             grouped[(org, tipo)].append(it)
         return grouped
-        
-    def generate(self) -> Dict[str, Any]:
+
+    def generate(self) -> dict[str, Any]:
         """
         Gera o boletim no formato específico e retorna metadados.
         
@@ -327,17 +327,17 @@ class BulletinGenerator(ABC):
         """
         # Preparar diretório de saída
         Path(self.out_path).parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Geração específica por formato
         summarized = self._generate_content()
-        
+
         return {
             "groups": len(self.grouped),
             "items": sum(len(v) for v in self.grouped.values()),
             "summarized": summarized,
             "output": self.out_path
         }
-    
+
     @abstractmethod
     def _generate_content(self) -> int:
         """
@@ -346,45 +346,44 @@ class BulletinGenerator(ABC):
         Returns:
             Número de itens sumarizados
         """
-        pass
 
 
 class DocxBulletinGenerator(BulletinGenerator):
     """Gerador de boletim em formato DOCX."""
-    
+
     def _generate_content(self) -> int:
         try:
             from docx import Document
+            from docx.opc.constants import RELATIONSHIP_TYPE as RT
             from docx.oxml import OxmlElement
             from docx.oxml.ns import qn
-            from docx.opc.constants import RELATIONSHIP_TYPE as RT
         except ImportError:
             logger.error("Módulo python-docx não encontrado. Instale com: pip install python-docx")
             raise
-            
+
         def add_hyperlink(paragraph, url: str, text: str, color="0000FF", underline=True):
             """Adiciona hyperlink a um parágrafo no DOCX."""
             try:
                 r_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
             except Exception:
                 return
-                
+
             hyperlink = OxmlElement('w:hyperlink')
             hyperlink.set(qn('r:id'), r_id)
-            
+
             new_run = OxmlElement('w:r')
             rPr = OxmlElement('w:rPr')
-            
+
             if color:
                 c = OxmlElement('w:color')
                 c.set(qn('w:val'), color)
                 rPr.append(c)
-                
+
             if underline:
                 u = OxmlElement('w:u')
                 u.set(qn('w:val'), 'single')
                 rPr.append(u)
-                
+
             new_run.append(rPr)
             t = OxmlElement('w:t')
             t.text = text
@@ -398,15 +397,15 @@ class DocxBulletinGenerator(BulletinGenerator):
 
         # Contador de itens sumarizados
         summarized = 0
-        
+
         # Para cada grupo (órgão + tipo de ato)
         for (org, tipo), arr in self.grouped.items():
             doc.add_heading(f"{org} — {tipo}", level=1)
-            
+
             # Para cada item no grupo
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
                 # Manter texto do link inalterado (sem derivar título do corpo)
                 titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
@@ -419,17 +418,17 @@ class DocxBulletinGenerator(BulletinGenerator):
                     add_hyperlink(p, durl, titulo)
                 else:
                     p.add_run(titulo)
-                    
+
                 if pdf:
                     p.add_run(" [")
                     add_hyperlink(p, pdf, "PDF")
                     p.add_run("]")
-                    
+
                 if suffix:
                     p.add_run(suffix)
 
                 # Adicionar resumo se disponível
-                snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
+                snippet = _summarize_item(it, self.summarizer_fn, self.summarize,
                                          self.keywords, self.max_lines, self.mode)
                 if not snippet and self.summarize:
                     snippet = _minimal_summary_from_item(it)
@@ -447,47 +446,47 @@ class DocxBulletinGenerator(BulletinGenerator):
 
 class MarkdownBulletinGenerator(BulletinGenerator):
     """Gerador de boletim em formato Markdown."""
-    
+
     def _generate_content(self) -> int:
         lines = [f"# Boletim DOU — {self.date} ({self.secao})", ""]
         summarized = 0
-        
+
         for (org, tipo), arr in self.grouped.items():
             lines.append(f"## {org} — {tipo}")
             lines.append("")
-            
+
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
                 # Manter texto do link inalterado
                 titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
-                
+
                 # Link markdown para o título
                 base_line = f"- [{titulo}]({durl})" if durl else f"- {titulo}"
-                
+
                 # Adicionar link para PDF se disponível
                 if pdf:
                     base_line += f" [PDF]({pdf})"
-                    
+
                 if suffix:
                     base_line += suffix
-                    
+
                 lines.append(base_line)
-                
+
                 # Adicionar resumo se disponível
-                snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
+                snippet = _summarize_item(it, self.summarizer_fn, self.summarize,
                                          self.keywords, self.max_lines, self.mode)
                 if not snippet and self.summarize:
                     snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
                     lines.append(f"  \n  _Resumo:_ {snippet}")
-                    
+
                 lines.append("")
-                
+
         # Escrever arquivo markdown
         Path(self.out_path).write_text("\n".join(lines), encoding="utf-8")
         return summarized
@@ -495,62 +494,62 @@ class MarkdownBulletinGenerator(BulletinGenerator):
 
 class HtmlBulletinGenerator(BulletinGenerator):
     """Gerador de boletim em formato HTML."""
-    
+
     def _generate_content(self) -> int:
         parts = [f"<h1>Boletim DOU — {html_lib.escape(self.date)} ({html_lib.escape(self.secao)})</h1>"]
         summarized = 0
-        
+
         for (org, tipo), arr in self.grouped.items():
             parts.append(f"<h2>{html_lib.escape(org)} — {html_lib.escape(tipo)}</h2>")
             parts.append("<ul>")
-            
+
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
-                cleaned = _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
+                _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
                 # Manter texto do link inalterado
                 titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
-                
+
                 # Link HTML para título
                 title_html = html_lib.escape(titulo)
                 if durl:
                     title_html = f'<a href="{html_lib.escape(durl)}">{title_html}</a>'
-                    
+
                 # Link para PDF
                 pdf_html = f' <a href="{html_lib.escape(pdf)}">[PDF]</a>' if pdf else ""
-                
+
                 parts.append(f"<li>{title_html}{pdf_html}{html_lib.escape(suffix)}")
-                
+
                 # Adicionar resumo se disponível
-                snippet = _summarize_item(it, self.summarizer_fn, self.summarize, 
+                snippet = _summarize_item(it, self.summarizer_fn, self.summarize,
                                          self.keywords, self.max_lines, self.mode)
                 if not snippet and self.summarize:
                     snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
                     parts.append(f"<div><strong>Resumo:</strong> {html_lib.escape(snippet)}</div>")
-                    
+
                 parts.append("</li>")
-                
+
             parts.append("</ul>")
-            
+
         # Escrever arquivo HTML
         Path(self.out_path).write_text("\n".join(parts), encoding="utf-8")
         return summarized
 
 
 def generate_bulletin(
-    result: Dict[str, Any],
+    result: dict[str, Any],
     out_path: str,
     kind: str = "docx",
     summarize: bool = False,
-    summarizer: Optional[Callable[[str, int, str, Optional[List[str]]], str]] = None,
-    keywords: Optional[List[str]] = None,
+    summarizer: Callable[[str, int, str, list[str] | None], str] | None = None,
+    keywords: list[str] | None = None,
     max_lines: int = 5,
     mode: str = "center"
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Gera boletim e retorna metadados.
     
@@ -571,7 +570,7 @@ def generate_bulletin(
     summarizer_fn = summarizer
     if summarize and summarizer_fn is None:
         summarizer_fn = _default_simple_summarizer  # fallback
-    
+
     # Criar gerador apropriado conforme formato
     if kind == "docx":
         generator = DocxBulletinGenerator(
@@ -587,6 +586,6 @@ def generate_bulletin(
         )
     else:
         raise ValueError(f"Formato '{kind}' não suportado. Use: docx|md|html")
-    
+
     # Gerar e retornar metadados
     return generator.generate()

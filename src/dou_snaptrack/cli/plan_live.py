@@ -1,12 +1,13 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+
 import os
 import re
+from pathlib import Path
+from typing import Any
 
-from ..utils.browser import launch_browser, new_context, goto, fmt_date
-from ..utils.dom import find_best_frame, label_for_control, is_select, read_select_options
 from ..constants import DROPDOWN_ROOT_SELECTORS, LEVEL_IDS
+from ..utils.browser import fmt_date, goto
+from ..utils.dom import find_best_frame, is_select, label_for_control, read_select_options
 from ..utils.text import normalize_text
 
 try:
@@ -34,8 +35,8 @@ except Exception:
     )
 
 
-def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
-    roots: List[Dict[str, Any]] = []
+def _collect_dropdown_roots(frame) -> list[dict[str, Any]]:
+    roots: list[dict[str, Any]] = []
     seen = set()
 
     def _push(kind: str, sel: str, loc):
@@ -72,7 +73,7 @@ def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
     def _prio(k: str) -> int:
         return {"select": 3, "combobox": 2, "unknown": 1}.get(k, 0)
 
-    by_key: Dict[Any, Dict[str, Any]] = {}
+    by_key: dict[Any, dict[str, Any]] = {}
     for r in roots:
         h = r["handle"]
         try:
@@ -89,7 +90,7 @@ def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
     return out
 
 
-def _locate_root_by_id(frame, elem_id: str) -> Optional[Dict[str, Any]]:
+def _locate_root_by_id(frame, elem_id: str) -> dict[str, Any] | None:
     """Try to locate a dropdown root by a specific element id within the frame or page.
 
     Returns a root dict compatible with _collect_dropdown_roots entries or None if not found.
@@ -117,7 +118,7 @@ def _locate_root_by_id(frame, elem_id: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _select_roots(frame) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+def _select_roots(frame) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     """Pick r1/r2 roots prioritizing known IDs from LEVEL_IDS; fallback to first two roots."""
     r1 = None
     r2 = None
@@ -163,7 +164,7 @@ def _get_listbox_container(frame):
     return None
 
 
-def _read_open_list_options(frame) -> List[Dict[str, Any]]:
+def _read_open_list_options(frame) -> list[dict[str, Any]]:
     def _is_placeholder_text(t: str) -> bool:
         nt = normalize_text(t or "")
         if not nt:
@@ -178,7 +179,7 @@ def _read_open_list_options(frame) -> List[Dict[str, Any]]:
     container = _get_listbox_container(frame)
     if not container:
         return []
-    opts: List[Dict[str, Any]] = []
+    opts: list[dict[str, Any]] = []
     for sel in OPTION_SELECTORS:
         try:
             cands = container.locator(sel)
@@ -206,7 +207,7 @@ def _read_open_list_options(frame) -> List[Dict[str, Any]]:
         pass
     # dedupe
     seen = set()
-    uniq: List[Dict[str, Any]] = []
+    uniq: list[dict[str, Any]] = []
     for o in opts:
         key = (o.get("text"), o.get("value"), o.get("dataValue"), o.get("dataIndex"))
         if key in seen:
@@ -216,7 +217,7 @@ def _read_open_list_options(frame) -> List[Dict[str, Any]]:
     return uniq
 
 
-def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     if not root:
         return []
     h = root.get("handle")
@@ -254,7 +255,7 @@ def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
     return _read_open_list_options(frame)
 
 
-def _select_by_text(frame, root: Dict[str, Any], text: str) -> bool:
+def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
     h = root.get("handle")
     if h is None:
         return False
@@ -333,7 +334,7 @@ def _select_by_text(frame, root: Dict[str, Any], text: str) -> bool:
     return False
 
 
-def _filter_opts(options: List[Dict[str, Any]], select_regex: Optional[str], pick_list: Optional[str], limit: Optional[int]) -> List[Dict[str, Any]]:
+def _filter_opts(options: list[dict[str, Any]], select_regex: str | None, pick_list: str | None, limit: int | None) -> list[dict[str, Any]]:
     opts = options or []
     out = opts
     if select_regex:
@@ -359,8 +360,8 @@ def _filter_opts(options: List[Dict[str, Any]], select_regex: Optional[str], pic
     return out
 
 
-def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
-    keys: List[str] = []
+def _build_keys(opts: list[dict[str, Any]], key_type: str) -> list[str]:
+    keys: list[str] = []
     for o in opts:
         if key_type == "text":
             t = (o.get("text") or "").strip()
@@ -378,14 +379,14 @@ def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
             di = o.get("dataIndex")
             if di not in (None, ""):
                 keys.append(str(di))
-    seen = set(); out: List[str] = []
+    seen = set(); out: list[str] = []
     for k in keys:
         if k in seen: continue
         seen.add(k); out.append(k)
     return out
 
 
-def build_plan_live(p, args, browser=None) -> Dict[str, Any]:
+def build_plan_live(p, args, browser=None) -> dict[str, Any]:
     """Gera um plano dinâmico L1×L2 diretamente do site (sem N3).
 
     This implementation starts a local Playwright context so all browser
@@ -398,8 +399,8 @@ def build_plan_live(p, args, browser=None) -> Dict[str, Any]:
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)
 
-    combos: List[Dict[str, Any]] = []
-    cfg: Dict[str, Any] = {}
+    combos: list[dict[str, Any]] = []
+    cfg: dict[str, Any] = {}
 
     # Reuso: se um browser foi fornecido, evitamos abrir/fechar Playwright localmente
     pctx_mgr = None
@@ -574,7 +575,7 @@ def build_plan_live(p, args, browser=None) -> Dict[str, Any]:
             cfg["output"]["bulletin"] = out_b
             cfg["defaults"]["bulletin"] = args.bulletin
             cfg["defaults"]["bulletin_out"] = out_b
-        
+
         # Encerramento do contexto e, se aplicável, do browser local
         try:
             context.close()

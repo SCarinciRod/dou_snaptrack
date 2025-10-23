@@ -4,16 +4,16 @@ Used to avoid reprocessing same items across runs.
 """
 
 from __future__ import annotations
-from pathlib import Path
+
 import json
-from typing import Set
+from pathlib import Path
 
 
 class DedupState:
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self._loaded = False
-        self._seen: Set[str] = set()
+        self._seen: set[str] = set()
 
     def load(self):
         if self._loaded:

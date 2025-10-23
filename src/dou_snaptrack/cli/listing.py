@@ -1,16 +1,17 @@
 from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 try:
     # Prefer centralized discovery utils if available later
-    from dou_utils.page_utils import goto as _goto, find_best_frame as _find_best_frame
+    from dou_utils.page_utils import find_best_frame as _find_best_frame, goto as _goto
 except Exception:
     _goto = None
     _find_best_frame = None
 
-from ..utils.dom import label_for_control, is_select, read_select_options
 from ..constants import DROPDOWN_ROOT_SELECTORS
+from ..utils.dom import is_select, label_for_control, read_select_options
 
 try:
     from dou_utils.selectors import LISTBOX_SELECTORS, OPTION_SELECTORS  # type: ignore
@@ -61,8 +62,8 @@ def _fallback_find_best_frame(context):
     return best
 
 
-def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
-    roots: List[Dict[str, Any]] = []
+def _collect_dropdown_roots(frame) -> list[dict[str, Any]]:
+    roots: list[dict[str, Any]] = []
     seen = set()
 
     def _push(kind: str, sel: str, loc):
@@ -100,7 +101,7 @@ def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
         return {"select": 3, "combobox": 2, "unknown": 1}.get(k, 0)
 
     # Dedupe por id/pos
-    by_key: Dict[Any, Dict[str, Any]] = {}
+    by_key: dict[Any, dict[str, Any]] = {}
     for r in roots:
         h = r["handle"]
         try:
@@ -117,7 +118,7 @@ def _collect_dropdown_roots(frame) -> List[Dict[str, Any]]:
     return out
 
 
-def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     if not root:
         return []
     if is_select(root.get("handle")):
@@ -143,7 +144,7 @@ def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
             pass
     if not container:
         return []
-    opts: List[Dict[str, Any]] = []
+    opts: list[dict[str, Any]] = []
     for sel in OPTION_SELECTORS:
         try:
             cands = container.locator(sel)
@@ -168,7 +169,7 @@ def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
         pass
     # dedupe
     seen = set()
-    uniq: List[Dict[str, Any]] = []
+    uniq: list[dict[str, Any]] = []
     for o in opts:
         key = (o.get("text"), o.get("value"), o.get("dataValue"), o.get("dataIndex"))
         if key in seen:
@@ -178,7 +179,7 @@ def _read_dropdown_options(frame, root: Dict[str, Any]) -> List[Dict[str, Any]]:
     return uniq
 
 
-def _print_list(label: str, level: int, options: List[Dict[str, Any]]) -> None:
+def _print_list(label: str, level: int, options: list[dict[str, Any]]) -> None:
     print(f"\n[Dropdown {level}] {label or '(sem rótulo)'} — {len(options)} opções")
     print("-" * 110)
     for i, o in enumerate(options, 1):
@@ -193,10 +194,10 @@ def _print_list(label: str, level: int, options: List[Dict[str, Any]]) -> None:
 
 
 def run_list(context, data: str, secao: str, level: int,
-             key1: Optional[str], key1_type: Optional[str],
-             key2: Optional[str], key2_type: Optional[str],
+             key1: str | None, key1_type: str | None,
+             key2: str | None, key2_type: str | None,
              out_path: str, debug_dump: bool,
-             label1: Optional[str] = None, label2: Optional[str] = None, label3: Optional[str] = None) -> None:
+             label1: str | None = None, label2: str | None = None, label3: str | None = None) -> None:
 
     page = context.pages[0]
     if _goto:
@@ -216,7 +217,7 @@ def run_list(context, data: str, secao: str, level: int,
     opts1 = _read_dropdown_options(frame, r1) if r1 else []
     _print_list(lab1, 1, opts1)
 
-    lab2 = lab3 = ""; opts2: List[Dict[str, Any]] = []; opts3: List[Dict[str, Any]] = []
+    lab2 = lab3 = ""; opts2: list[dict[str, Any]] = []; opts3: list[dict[str, Any]] = []
     if level >= 2 and len(roots) > 1:
         r2 = roots[1]
         lab2 = label_for_control(frame, r2["handle"]) or ""
@@ -228,7 +229,7 @@ def run_list(context, data: str, secao: str, level: int,
         opts3 = _read_dropdown_options(frame, r3)
         _print_list(lab3, 3, opts3)
 
-    payload: Dict[str, Any] = {"data": data, "secao": secao, "level": level}
+    payload: dict[str, Any] = {"data": data, "secao": secao, "level": level}
     if level == 1:
         payload.update({"label": lab1, "options": opts1})
     elif level == 2:

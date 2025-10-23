@@ -8,12 +8,13 @@ Configuração central de logging com:
 """
 
 from __future__ import annotations
-import logging
+
 import json
+import logging
 import os
 import threading
-from logging.handlers import RotatingFileHandler
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
 try:
     from .settings import SETTINGS  # optional

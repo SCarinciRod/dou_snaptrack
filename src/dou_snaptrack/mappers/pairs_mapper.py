@@ -1,13 +1,16 @@
 from __future__ import annotations
-from typing import Dict, Any, List, Optional
+
 import re
+from typing import Any
+
+from dou_utils.dropdown_strategies import collect_open_list_options, open_dropdown_robust
 
 from ..constants import LEVEL_IDS
-from ..utils.text import normalize_text
 from ..utils.dom import read_select_options
-from dou_utils.dropdown_strategies import open_dropdown_robust, collect_open_list_options
+from ..utils.text import normalize_text
 
-def remove_placeholders(options: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+
+def remove_placeholders(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
     bad = {
         "selecionar organizacao principal","selecionar organização principal",
         "selecionar organizacao subordinada","selecionar organização subordinada",
@@ -19,7 +22,7 @@ def remove_placeholders(options: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         out.append(o)
     return out
 
-def filter_opts(options: List[Dict[str, Any]], select_regex: Optional[str], pick_list: Optional[str], limit: Optional[int]) -> List[Dict[str, Any]]:
+def filter_opts(options: list[dict[str, Any]], select_regex: str | None, pick_list: str | None, limit: int | None) -> list[dict[str, Any]]:
     out = options or []
     if select_regex:
         try:
@@ -41,7 +44,7 @@ def filter_opts(options: List[Dict[str, Any]], select_regex: Optional[str], pick
         out = out[:limit]
     return out
 
-def find_dropdown_by_id_or_label(page, wanted_ids: List[str], label_regex: Optional[str]) -> Optional[Dict[str, Any]]:
+def find_dropdown_by_id_or_label(page, wanted_ids: list[str], label_regex: str | None) -> dict[str, Any] | None:
     # 1) por ID (DOM principal)
     for wid in wanted_ids:
         try:
@@ -83,14 +86,14 @@ def find_dropdown_by_id_or_label(page, wanted_ids: List[str], label_regex: Optio
         pass
     return None
 
-def is_select_root(root: Dict[str, Any]) -> bool:
+def is_select_root(root: dict[str, Any]) -> bool:
     try:
         tag = root["handle"].evaluate("el => el.tagName && el.tagName.toLowerCase()")
         return tag == "select"
     except Exception:
         return False
 
-def select_by_text_or_attrs(page, root: Dict[str,Any], option: Dict[str,Any]) -> bool:
+def select_by_text_or_attrs(page, root: dict[str,Any], option: dict[str,Any]) -> bool:
     # Preferir <select> nativo
     if is_select_root(root):
         sel = root["handle"]
@@ -174,10 +177,10 @@ def _scroll_listbox_to_end(page) -> None:
         pass
 
 def map_pairs(page, secao: str, data: str,
-              label1: Optional[str], label2: Optional[str],
-              select1: Optional[str], pick1: Optional[str], limit1: Optional[int],
-              select2: Optional[str], pick2: Optional[str], limit2_per_n1: Optional[int],
-              verbose: bool) -> Dict[str, Any]:
+              label1: str | None, label2: str | None,
+              select1: str | None, pick1: str | None, limit1: int | None,
+              select2: str | None, pick2: str | None, limit2_per_n1: int | None,
+              verbose: bool) -> dict[str, Any]:
 
     n1 = find_dropdown_by_id_or_label(page, LEVEL_IDS[1], label1)
     n2 = find_dropdown_by_id_or_label(page, LEVEL_IDS[2], label2)

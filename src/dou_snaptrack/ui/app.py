@@ -1,32 +1,32 @@
 from __future__ import annotations
 
-import json
-import sys
 import asyncio
-from dataclasses import dataclass
+import json
 import os
+import sys
+import threading
+from dataclasses import dataclass
 from datetime import date as _date
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-import threading
-import io, zipfile
+from typing import Any
 
 # Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
 SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-import streamlit as st
 from functools import lru_cache
-from dou_snaptrack.utils.text import sanitize_filename
+
+import streamlit as st
+
 from dou_snaptrack.ui.batch_runner import (
+    clear_ui_lock,
     detect_other_execution,
-    terminate_other_execution,
     detect_other_ui,
     register_this_ui_instance,
-    clear_ui_lock,
+    terminate_other_execution,
 )
-
+from dou_snaptrack.utils.text import sanitize_filename
 
 # ---------------- Helpers ----------------
 # Corrigir política do loop no Windows para evitar NotImplementedError com Playwright
@@ -40,8 +40,8 @@ if sys.platform.startswith("win"):
 class PlanState:
     date: str
     secao: str
-    combos: List[Dict[str, Any]]
-    defaults: Dict[str, Any]
+    combos: list[dict[str, Any]]
+    defaults: dict[str, Any]
 
 
 def _ensure_state():
@@ -61,13 +61,13 @@ def _ensure_state():
         )
 
 
-def _load_pairs_file(p: Path) -> Dict[str, List[str]]:
+def _load_pairs_file(p: Path) -> dict[str, list[str]]:
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         # Espera formato {"pairs": {"N1": ["N2", ...]}}
         pairs = data.get("pairs") or {}
         if isinstance(pairs, dict):
-            norm: Dict[str, List[str]] = {}
+            norm: dict[str, list[str]] = {}
             for k, v in pairs.items():
                 if isinstance(v, list):
                     norm[str(k)] = [str(x) for x in v]
@@ -78,7 +78,7 @@ def _load_pairs_file(p: Path) -> Dict[str, List[str]]:
 
 
 @lru_cache(maxsize=1)
-def _find_system_browser_exe() -> Optional[str]:
+def _find_system_browser_exe() -> str | None:
     """Resolve a system Chrome/Edge executable once and cache the result."""
     from pathlib import Path as _P
     exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
@@ -103,7 +103,7 @@ def _find_system_browser_exe() -> Optional[str]:
 
 
 @st.cache_data(show_spinner=False)
-def _load_pairs_file_cached(path_str: str) -> Dict[str, List[str]]:
+def _load_pairs_file_cached(path_str: str) -> dict[str, list[str]]:
     """Cached wrapper around _load_pairs_file for UI flows."""
     try:
         return _load_pairs_file(Path(path_str))
@@ -111,7 +111,7 @@ def _load_pairs_file_cached(path_str: str) -> Dict[str, List[str]]:
         return {}
 
 
-def _build_combos(n1: str, n2_list: List[str], key_type: str = "text") -> List[Dict[str, Any]]:
+def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[dict[str, Any]]:
     out = []
     for n2 in n2_list:
         out.append({
@@ -133,9 +133,11 @@ def _get_thread_local_playwright_and_browser():
 
     Não usa cache global do Streamlit; armazena em session_state por thread-id.
     """
+    import asyncio as _asyncio
     import os as _os
-    import sys as _sys, asyncio as _asyncio
+    import sys as _sys
     from pathlib import Path as _P
+
     from playwright.sync_api import sync_playwright  # type: ignore
 
     # Chave por thread da sessão atual
@@ -213,13 +215,14 @@ def _get_thread_local_playwright_and_browser():
 
 
 @st.cache_data(show_spinner=False)
-def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 20) -> List[str]:
+def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20) -> list[str]:
     # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico (reutilizando Playwright)
     try:
         from types import SimpleNamespace
+
         from dou_snaptrack.cli.plan_live import build_plan_live
         _res = _get_thread_local_playwright_and_browser()
-        p = _res.p
+        _res.p
         args = SimpleNamespace(
             secao=secao,
             data=date,
@@ -244,7 +247,7 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
         # Reuse thread-local UI browser to avoid re-launching a new one inside plan_live
         # Resiliência: 1 retry leve em caso de erro transitório de navegação
         cfg = None
-        err: Optional[Exception] = None
+        err: Exception | None = None
         for _attempt in range(2):
             try:
                 cfg = build_plan_live(None, args, browser=_res.browser)
@@ -291,11 +294,12 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: Optional[int] = 
 
 
 @st.cache_data(show_spinner=False)
-def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
+def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU)."""
     import traceback
     try:
-        import sys as _sys, asyncio as _asyncio
+        import asyncio as _asyncio
+        import sys as _sys
         if _sys.platform.startswith("win"):
             try:
                 _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
@@ -303,9 +307,14 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
             except Exception:
                 pass
         from playwright.sync_api import TimeoutError  # type: ignore
+
+        from dou_snaptrack.cli.plan_live import (  # type: ignore
+            _collect_dropdown_roots,
+            _read_dropdown_options,
+            _select_roots,
+        )
         from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
         from dou_snaptrack.utils.dom import find_best_frame
-        from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options, _select_roots  # type: ignore
         # Reutiliza Playwright+browser thread-local e cria um novo contexto por chamada
         _res = _get_thread_local_playwright_and_browser()
         browser = _res.browser
@@ -367,7 +376,7 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> List[str]:
         return []
 
 
-def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True) -> Dict[str, Any]:
+def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True) -> dict[str, Any]:
     """Wrapper que delega para o runner livre de Streamlit para permitir uso headless e via UI."""
     try:
         from dou_snaptrack.ui.batch_runner import run_batch_with_cfg as _runner
@@ -377,7 +386,7 @@ def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, 
         return {}
 
 def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by_n1: bool, date_label: str, secao_label: str,
-                summary_lines: int, summary_mode: str, summary_keywords: Optional[List[str]] = None) -> List[Path]:
+                summary_lines: int, summary_mode: str, summary_keywords: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     try:
         if split_by_n1:
@@ -525,7 +534,7 @@ with tab1:
         st.info("Clique em 'Carregar' para listar os órgãos.")
 
     # Carregar N2 conforme N1 escolhido
-    n2_list: List[str] = []
+    n2_list: list[str] = []
     can_load_n2 = bool(n1)
     if st.button("Carregar Organizações Subordinadas") and can_load_n2:
         with st.spinner("Obtendo lista do DOU…"):
@@ -651,7 +660,7 @@ with tab2:
 
             # Calcular recomendação no momento da execução (pode mudar conforme data/plan_name)
             parallel = int(recommend_parallel(est_jobs, prefer_process=True))
-            with st.spinner(f"Executando…"):
+            with st.spinner("Executando…"):
                 # Forçar execução para a data atual selecionada no UI (padrão: hoje)
                 try:
                     cfg_json = json.loads(selected_path.read_text(encoding="utf-8"))
@@ -749,7 +758,7 @@ with tab3:
                         st.error(f"Falha ao agregar: {e}")
 
     # Seletor 1: escolher a pasta da data (resultados/<data>)
-    day_dirs: List[Path] = []
+    day_dirs: list[Path] = []
     try:
         for d in results_root.iterdir():
             if d.is_dir():
@@ -765,8 +774,8 @@ with tab3:
         chosen_dir = results_root / str(sel_day)
 
         # Indexar agregados dentro da pasta escolhida
-        def _index_aggregates_in_day(day_dir: Path) -> Dict[str, List[Path]]:
-            idx: Dict[str, List[Path]] = {}
+        def _index_aggregates_in_day(day_dir: Path) -> dict[str, list[Path]]:
+            idx: dict[str, list[Path]] = {}
             try:
                 for f in day_dir.glob("*_DO?_*.json"):
                     name = f.name

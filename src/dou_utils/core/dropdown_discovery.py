@@ -26,14 +26,16 @@ Saída:
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Any, List, Dict, Optional
-import re
 
+import re
+from dataclasses import dataclass, field
+from typing import Any
+
+from ..dropdown_utils import _is_select, _read_select_options
 from ..element_utils import elem_common_info, label_for_control
-from ..dropdown_utils import _read_select_options, _is_select
-from ..selectors import DROPDOWN_ROOT_SELECTORS
 from ..log_utils import get_logger
+from ..selectors import DROPDOWN_ROOT_SELECTORS
+
 try:
     from ..settings import SETTINGS  # optional
 except Exception:
@@ -55,12 +57,12 @@ class DropdownRoot:
     y: float
     x: float
     handle: Any
-    id_attr: Optional[str] = None
+    id_attr: str | None = None
     label: str = ""
-    info: Dict[str, Any] = field(default_factory=dict)
-    options_preview: List[Dict[str, Any]] = field(default_factory=list)
+    info: dict[str, Any] = field(default_factory=dict)
+    options_preview: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_public_dict(self) -> Dict[str, Any]:
+    def to_public_dict(self) -> dict[str, Any]:
         """
         Representação simplificada (compatível com o formato anterior de mapeamento).
         """
@@ -93,7 +95,7 @@ def _looks_generic(label: str) -> bool:
     return any(p.match(label.strip()) for p in _GENERIC_PATTERNS)
 
 
-def _first_non_trivial_option(options: List[Dict[str, Any]]) -> str:
+def _first_non_trivial_option(options: list[dict[str, Any]]) -> str:
     for o in options:
         t = (o.get("text") or "").strip()
         if not t:
@@ -109,7 +111,7 @@ def _first_non_trivial_option(options: List[Dict[str, Any]]) -> str:
 
 # Substitua a função derive_label existente por esta versão:
 
-def derive_label(frame, handle, base_label: str, info: Dict[str, Any], options_preview: List[Dict[str, Any]]) -> str:
+def derive_label(frame, handle, base_label: str, info: dict[str, Any], options_preview: list[dict[str, Any]]) -> str:
     """
     Estratégia unificada (ordem):
       1. Label explícito não genérico
@@ -152,7 +154,7 @@ def derive_label(frame, handle, base_label: str, info: Dict[str, Any], options_p
 
 # ---------------- Discovery Core ----------------
 
-def _push_candidates(frame, kind: str, sel: str, loc, limit: int, acc: List[Dict], seen: set):
+def _push_candidates(frame, kind: str, sel: str, loc, limit: int, acc: list[dict], seen: set):
     try:
         cnt = loc.count()
     except Exception:
@@ -180,11 +182,11 @@ def _push_candidates(frame, kind: str, sel: str, loc, limit: int, acc: List[Dict
             continue
 
 
-def _collect_raw_roots(frame) -> List[Dict]:
+def _collect_raw_roots(frame) -> list[dict]:
     """
     Coleta bruta de elementos candidatos a dropdown.
     """
-    out: List[Dict] = []
+    out: list[dict] = []
     seen = set()
     max_per_type = SETTINGS.dropdown.max_per_type
 
@@ -205,7 +207,7 @@ def _collect_raw_roots(frame) -> List[Dict]:
     return out
 
 
-def _deduplicate(raw: List[Dict]) -> List[Dict]:
+def _deduplicate(raw: list[dict]) -> list[dict]:
     """
     Deduplica por ID (quando disponível) ou por posição aproximada.
     """
@@ -235,7 +237,7 @@ def _deduplicate(raw: List[Dict]) -> List[Dict]:
     return list(by_key.values())
 
 
-def discover_dropdown_roots(frame) -> List[DropdownRoot]:
+def discover_dropdown_roots(frame) -> list[DropdownRoot]:
     """
     Função principal: retorna lista de DropdownRoot ordenada por (y,x).
 
@@ -246,7 +248,7 @@ def discover_dropdown_roots(frame) -> List[DropdownRoot]:
     raw = _collect_raw_roots(frame)
     dedup = _deduplicate(raw)
 
-    roots: List[DropdownRoot] = []
+    roots: list[DropdownRoot] = []
     for r in dedup:
         h = r["handle"]
 
@@ -267,7 +269,7 @@ def discover_dropdown_roots(frame) -> List[DropdownRoot]:
         except Exception:
             pass
 
-        options_preview: List[Dict[str, Any]] = []
+        options_preview: list[dict[str, Any]] = []
         if _is_select(h):
             try:
                 options_preview = _read_select_options(h) or []

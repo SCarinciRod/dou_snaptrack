@@ -11,9 +11,11 @@ Modelo atual: síncrono (Playwright sync). Versão async pode ser adicionada dep
 """
 
 from __future__ import annotations
-import time
+
 import hashlib
-from typing import List, Dict, Any, Optional, Callable
+import time
+from collections.abc import Callable
+from typing import Any
 
 from ..dropdown_utils import _read_select_options
 from ..log_utils import get_logger
@@ -21,7 +23,7 @@ from ..log_utils import get_logger
 logger = get_logger(__name__)
 
 
-def snapshot_options(select_handle) -> List[Dict[str, Any]]:
+def snapshot_options(select_handle) -> list[dict[str, Any]]:
     """
     Lê opções de um <select>. Para dropdown custom, caller deve abrir e usar
     outra função de coleta antes de chamar este polling.
@@ -32,7 +34,7 @@ def snapshot_options(select_handle) -> List[Dict[str, Any]]:
         return []
 
 
-def options_hash(options: List[Dict[str, Any]]) -> str:
+def options_hash(options: list[dict[str, Any]]) -> str:
     """
     Hash estável das opções (value,text) para detecção de mudança.
     """
@@ -46,13 +48,13 @@ def options_hash(options: List[Dict[str, Any]]) -> str:
 def wait_for_options_change(
     frame,
     select_handle,
-    before: List[Dict[str, Any]],
+    before: list[dict[str, Any]],
     timeout_ms: int = 3000,
     poll_interval_ms: int = 250,
     require_growth: bool = False,
     min_delta: int = 1,
-    custom_reader: Optional[Callable[[], List[Dict[str, Any]]]] = None
-) -> List[Dict[str, Any]]:
+    custom_reader: Callable[[], list[dict[str, Any]]] | None = None
+) -> list[dict[str, Any]]:
     """
     Aguarda mudança no conjunto de opções.
 

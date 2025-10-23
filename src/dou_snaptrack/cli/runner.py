@@ -1,17 +1,19 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import Any, Dict, Optional, List, Callable
 
-from ..cli.summary_config import SummaryConfig
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
 from ..adapters.services import get_edition_runner
 from ..adapters.utils import generate_bulletin as _generate_bulletin, summarize_text as _summarize_text
+from ..cli.summary_config import SummaryConfig
 
 
-def _make_summarizer(summary: SummaryConfig) -> Optional[Callable[[str, int, str, Optional[List[str]]], str]]:
+def _make_summarizer(summary: SummaryConfig) -> Callable[[str, int, str, list[str] | None], str] | None:
     if not _summarize_text:
         return None
 
-    def _adapter(text: str, max_lines: int, mode: str, keywords: Optional[List[str]] = None) -> str:
+    def _adapter(text: str, max_lines: int, mode: str, keywords: list[str] | None = None) -> str:
         # _summarize_text is guaranteed not None here due to guard above
         return (_summarize_text or (lambda t, **_: t))(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
 
@@ -21,15 +23,15 @@ def _make_summarizer(summary: SummaryConfig) -> Optional[Callable[[str, int, str
 def run_once(context, date: str, secao: str,
              key1: str, key1_type: str,
              key2: str, key2_type: str,
-             key3: Optional[str], key3_type: Optional[str],
-             query: Optional[str], max_links: int, out_path: str,
+             key3: str | None, key3_type: str | None,
+             query: str | None, max_links: int, out_path: str,
              scrape_details: bool, detail_timeout: int, fallback_date_if_missing: bool,
-             label1: Optional[str], label2: Optional[str], label3: Optional[str],
+             label1: str | None, label2: str | None, label3: str | None,
              max_scrolls: int, scroll_pause_ms: int, stable_rounds: int,
-             state_file: Optional[str], bulletin: Optional[str], bulletin_out: Optional[str],
+             state_file: str | None, bulletin: str | None, bulletin_out: str | None,
              summary: SummaryConfig,
              detail_parallel: int = 1,
-             page=None, keep_page_open: bool = False) -> Dict[str, Any]:
+             page=None, keep_page_open: bool = False) -> dict[str, Any]:
 
     try:
         EditionRunnerService, EditionRunParams = get_edition_runner()

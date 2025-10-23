@@ -1,13 +1,14 @@
 from __future__ import annotations
+
 import json
 import re
 import unicodedata
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any
 
-from dou_utils.core.sentinel_utils import is_sentinel_option
+from dou_utils.core.combos import build_combos_plan, build_dynamic_n2, generate_cartesian
 from dou_utils.core.option_filter import filter_options
-from dou_utils.core.combos import generate_cartesian, build_dynamic_n2, build_combos_plan
+from dou_utils.core.sentinel_utils import is_sentinel_option
 
 try:
     from dou_utils.log_utils import get_logger
@@ -35,7 +36,7 @@ def _pattern_has_accents(pat: str) -> bool:
     return any(unicodedata.category(ch) == "Mn" for ch in unicodedata.normalize("NFD", s))
 
 
-def _text_fields(dd: Dict[str, Any]) -> List[str]:
+def _text_fields(dd: dict[str, Any]) -> list[str]:
     fields = []
     for k in ("label", "name", "ariaLabel", "placeholder", "title"):
         v = dd.get(k)
@@ -60,7 +61,7 @@ def _looks_like_dropdown_list(lst: Any) -> bool:
     return hits >= max(1, len(lst) // 2)
 
 
-def _deep_find_dropdown_lists(obj: Any, acc: List[List[Dict[str, Any]]]):
+def _deep_find_dropdown_lists(obj: Any, acc: list[list[dict[str, Any]]]):
     if isinstance(obj, dict):
         for k, v in obj.items():
             if _looks_like_dropdown_list(v):
@@ -83,7 +84,7 @@ def _looks_like_pairs_list(lst: Any) -> bool:
     return good >= max(1, len(lst) // 2)
 
 
-def _deep_find_pairs_lists(obj: Any, acc: List[List[Dict[str, Any]]]):
+def _deep_find_pairs_lists(obj: Any, acc: list[list[dict[str, Any]]]):
     if isinstance(obj, dict):
         for k, v in obj.items():
             if k.lower() == "pairs" and isinstance(v, list) and _looks_like_pairs_list(v):
@@ -96,14 +97,14 @@ def _deep_find_pairs_lists(obj: Any, acc: List[List[Dict[str, Any]]]):
 
 class DropdownExtractor:
     @staticmethod
-    def extract_from_raw(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def extract_from_raw(raw: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Procura arrays de dropdowns em múltiplos caminhos e também via busca profunda.
         Prioridade:
           1) Campos diretos comuns (root/data/mapping)
           2) Busca profunda por listas que aparentem ser dropdowns
         """
-        candidates: List[List[Dict[str, Any]]] = []
+        candidates: list[list[dict[str, Any]]] = []
 
         def push(val):
             if isinstance(val, list) and val:
@@ -125,7 +126,7 @@ class DropdownExtractor:
 
         # Busca profunda se nada encontrado
         if not candidates:
-            deep: List[List[Dict[str, Any]]] = []
+            deep: list[list[dict[str, Any]]] = []
             _deep_find_dropdown_lists(raw, deep)
             candidates.extend(deep)
 
@@ -148,7 +149,7 @@ class PlanFromMapService:
         self._raw = json.loads(p.read_text(encoding="utf-8"))
         self._dropdowns = DropdownExtractor.extract_from_raw(self._raw)
 
-    def list_dropdowns(self) -> List[Dict[str, Any]]:
+    def list_dropdowns(self) -> list[dict[str, Any]]:
         out = []
         for dd in self._dropdowns:
             labels = _text_fields(dd)
@@ -162,28 +163,28 @@ class PlanFromMapService:
 
     def build(
         self,
-        label1_regex: Optional[str],
-        label2_regex: Optional[str],
-        select1: Optional[str],
-        pick1: Optional[str],
-        limit1: Optional[int],
-        select2: Optional[str],
-        pick2: Optional[str],
-        limit2: Optional[int],
-        max_combos: Optional[int],
+        label1_regex: str | None,
+        label2_regex: str | None,
+        select1: str | None,
+        pick1: str | None,
+        limit1: int | None,
+        select2: str | None,
+        pick2: str | None,
+        limit2: int | None,
+        max_combos: int | None,
         secao: str,
         date: str,
-        defaults: Dict[str, Any],
-        query: Optional[str],
-        enable_level3: Optional[bool] = None,
-        label3_regex: Optional[str] = None,
-        select3: Optional[str] = None,
-        pick3: Optional[str] = None,
-        limit3: Optional[int] = None,
+        defaults: dict[str, Any],
+        query: str | None,
+        enable_level3: bool | None = None,
+        label3_regex: str | None = None,
+        select3: str | None = None,
+        pick3: str | None = None,
+        limit3: int | None = None,
         filter_sentinels: bool = True,
         dynamic_n2: bool = False,
         **_
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
 
         d1 = self._match_dropdown(label1_regex, 0)
         d2 = self._match_dropdown(label2_regex, 1)
@@ -206,7 +207,7 @@ class PlanFromMapService:
 
         opts2 = self._prep_opts(d2, select2, pick2, limit2, filter_sentinels)
 
-        opts3: List[Dict[str, Any]] = []
+        opts3: list[dict[str, Any]] = []
         use_level3 = False
         if enable_level3 and d3:
             opts3 = self._prep_opts(d3, select3, pick3, limit3, filter_sentinels)
@@ -218,7 +219,7 @@ class PlanFromMapService:
 
     # -------- Helpers --------
 
-    def _match_dropdown(self, label_regex: Optional[str], idx: int):
+    def _match_dropdown(self, label_regex: str | None, idx: int):
         if label_regex:
             rx = re.compile(label_regex, re.IGNORECASE)
             fold_ok = not _pattern_has_accents(label_regex)
@@ -233,11 +234,11 @@ class PlanFromMapService:
             return None
         return self._dropdowns[idx] if idx < len(self._dropdowns) else None
 
-    def _prep_opts(self, dropdown: Dict[str, Any],
-                   select_regex: Optional[str],
-                   pick_list: Optional[str],
-                   limit: Optional[int],
-                   filter_sentinels: bool) -> List[Dict[str, Any]]:
+    def _prep_opts(self, dropdown: dict[str, Any],
+                   select_regex: str | None,
+                   pick_list: str | None,
+                   limit: int | None,
+                   filter_sentinels: bool) -> list[dict[str, Any]]:
         opts = dropdown.get("options") or []
         return filter_options(
             opts,
@@ -263,26 +264,26 @@ class PlanFromPairsService:
 
     def build(
         self,
-        select1: Optional[str],
-        pick1: Optional[str],
-        limit1: Optional[int],
-        select2: Optional[str],
-        pick2: Optional[str],
-        limit2_per_n1: Optional[int],
-        max_combos: Optional[int],
+        select1: str | None,
+        pick1: str | None,
+        limit1: int | None,
+        select2: str | None,
+        pick2: str | None,
+        limit2_per_n1: int | None,
+        max_combos: int | None,
         secao: str,
         date: str,
-        defaults: Dict[str, Any],
-        query: Optional[str],
+        defaults: dict[str, Any],
+        query: str | None,
         enable_level3: bool = False,
-        select3: Optional[str] = None,
-        pick3: Optional[str] = None,
+        select3: str | None = None,
+        pick3: str | None = None,
         filter_sentinels: bool = True,
         **_
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
 
         # Construir mapa N1 -> lista de N2
-        n1_map: Dict[str, Dict[str, Any]] = {}
+        n1_map: dict[str, dict[str, Any]] = {}
         for pair in self._pairs:
             n1o = pair.get("n1Option") or {}
             n2opts = pair.get("n2Options") or []
@@ -304,7 +305,7 @@ class PlanFromPairsService:
         )
 
         # Para cada N1, filtrar N2 e gerar combos
-        combos: List[Dict[str, Any]] = []
+        combos: list[dict[str, Any]] = []
         for n1o in n1_filtered:
             n1val = n1o.get("value") or n1o.get("text")
             if not n1val:
@@ -334,7 +335,7 @@ class PlanFromPairsService:
         logger.info("PlanFromPairsService combos=%s", len(combos))
         return build_combos_plan(date, secao, defaults, query, combos)
 
-    def _extract_pairs(self) -> List[Dict[str, Any]]:
+    def _extract_pairs(self) -> list[dict[str, Any]]:
         # Busca direta comum
         data = self._raw.get("data")
         if isinstance(data, dict) and isinstance(data.get("pairs"), list) and _looks_like_pairs_list(data["pairs"]):
@@ -343,7 +344,7 @@ class PlanFromPairsService:
             return self._raw["pairs"]
 
         # Busca profunda
-        found: List[List[Dict[str, Any]]] = []
+        found: list[list[dict[str, Any]]] = []
         _deep_find_pairs_lists(self._raw, found)
         if found:
             # escolha a maior lista válida

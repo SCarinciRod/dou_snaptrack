@@ -1,14 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
-import sys
-import asyncio
-from datetime import date as _date
-from pathlib import Path
-from typing import Any, Dict, Optional
-from datetime import datetime
 import subprocess
+import sys
+from datetime import date as _date, datetime
+from pathlib import Path
+from typing import Any
 
 # Global lock files
 # - batch lock: guards a single batch execution launched from UI
@@ -61,7 +60,7 @@ def _ensure_results_dir() -> Path:
     p = Path("resultados"); p.mkdir(parents=True, exist_ok=True)
     return p
 
-def detect_other_execution() -> Optional[Dict[str, Any]]:
+def detect_other_execution() -> dict[str, Any] | None:
     """Return info about another execution if a UI lock is active and PID is alive.
     Cleans up stale locks automatically.
     { pid, started, lock_path }
@@ -92,7 +91,7 @@ def detect_other_execution() -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
-def _detect_lock(lock_path: Path) -> Optional[Dict[str, Any]]:
+def _detect_lock(lock_path: Path) -> dict[str, Any] | None:
     try:
         if not lock_path.exists():
             return None
@@ -117,7 +116,7 @@ def _detect_lock(lock_path: Path) -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
-def detect_other_ui() -> Optional[Dict[str, Any]]:
+def detect_other_ui() -> dict[str, Any] | None:
     """Detect another running UI instance using the ui.lock file.
 
     Stale or foreign locks are auto-removed. Only returns info if the PID is
@@ -313,7 +312,7 @@ class _UILock:
 
 
 def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True,
-                       enforce_singleton: bool = True) -> Dict[str, Any]:
+                       enforce_singleton: bool = True) -> dict[str, Any]:
     """Headless-safe wrapper to execute the batch without importing Streamlit UI.
 
     Returns the loaded report dict or {} if something failed.
@@ -328,9 +327,10 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
                 pass
 
         # Lazy imports to keep this module light and Streamlit-free
+        from playwright.sync_api import sync_playwright  # type: ignore
+
         from dou_snaptrack.cli.batch import run_batch
         from dou_snaptrack.cli.summary_config import SummaryConfig
-        from playwright.sync_api import sync_playwright  # type: ignore
 
         # Determine output dir based on plan date
         try:

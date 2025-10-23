@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 
 @dataclass
 class SummaryConfig:
     lines: int = 0
     mode: str = "center"
-    keywords: List[str] | None = None
+    keywords: list[str] | None = None
 
 
 def setup_summary_from_args(args) -> SummaryConfig:

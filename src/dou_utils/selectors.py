@@ -8,11 +8,9 @@ Refactored:
 """
 
 from __future__ import annotations
-from typing import Tuple
-
 
 # Order: semantic ARIA roles first, then generic/class-based, then framework-specific
-DROPDOWN_ROOT_SELECTORS: Tuple[str, ...] = (
+DROPDOWN_ROOT_SELECTORS: tuple[str, ...] = (
     "[role=combobox]",
     "select",
     "[aria-haspopup=listbox]",
@@ -26,7 +24,7 @@ DROPDOWN_ROOT_SELECTORS: Tuple[str, ...] = (
     ".dropdown",             # Bootstrap-like
 )
 
-LISTBOX_SELECTORS: Tuple[str, ...] = (
+LISTBOX_SELECTORS: tuple[str, ...] = (
     "[role=listbox]",
     "ul[role=listbox]",
     "div[role=listbox]",
@@ -42,7 +40,7 @@ LISTBOX_SELECTORS: Tuple[str, ...] = (
     ".dropdown-menu",
 )
 
-OPTION_SELECTORS: Tuple[str, ...] = (
+OPTION_SELECTORS: tuple[str, ...] = (
     "[role=option]",
     "li[role=option]",
     ".ng-option",
@@ -57,7 +55,7 @@ OPTION_SELECTORS: Tuple[str, ...] = (
 )
 
 
-def all_selectors() -> Tuple[Tuple[str, ...], Tuple[str, ...], Tuple[str, ...]]:
+def all_selectors() -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     """
     Returns all selector tuples (root, listbox, option)
     Useful for debugging / introspection.

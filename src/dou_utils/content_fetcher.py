@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import hashlib
-import os
-import re
 import gzip
+import hashlib
+import re
+import urllib.error
+import urllib.request
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
-import urllib.request
-import urllib.error
 
 from .log_utils import get_logger
 
@@ -36,7 +34,7 @@ class Fetcher:
         self.short_len_threshold = short_len_threshold
         self.browser_timeout_sec = browser_timeout_sec
         # LRU de processo para reduzir I/O repetido (até 512 páginas)
-        self._mem_cache: "OrderedDict[str, str]" = OrderedDict()
+        self._mem_cache: OrderedDict[str, str] = OrderedDict()
         self._mem_cache_max = 512
 
     def _cache_path(self, url: str) -> Path:
@@ -89,7 +87,6 @@ class Fetcher:
                             self._mem_cache.popitem(last=False)
                     except Exception as e:
                         logger.debug(f"Memory cache update failed: {e}")
-                        pass
                     return html
         req = urllib.request.Request(
             url,
@@ -269,12 +266,12 @@ class Fetcher:
         # Aumentar limite para capturar atos longos
         return text[:20000]
 
-    def enrich_items_missing_text(self, items: List[Dict], max_workers: int = 8) -> int:
+    def enrich_items_missing_text(self, items: list[dict], max_workers: int = 8) -> int:
         """Busca HTML para itens sem 'texto'/'ementa' e preenche 'texto' se extrair corpo.
 
         Retorna quantidade de itens preenchidos.
         """
-        targets: List[Tuple[Dict, str]] = []
+        targets: list[tuple[dict, str]] = []
         for it in items:
             if it.get("texto") or it.get("ementa"):
                 continue
@@ -292,7 +289,7 @@ class Fetcher:
             return 0
 
         filled = 0
-        def _work(pair: Tuple[Dict, str]) -> Tuple[Dict, str, str]:
+        def _work(pair: tuple[dict, str]) -> tuple[dict, str, str]:
             it, url = pair
             html = self.fetch_html(url)
             body = self.extract_text_from_html(html)
@@ -325,10 +322,10 @@ class Fetcher:
 
     def enrich_items(
         self,
-        items: List[Dict],
+        items: list[dict],
         max_workers: int = 8,
         overwrite: bool = False,
-        min_len: Optional[int] = None,
+        min_len: int | None = None,
     ) -> int:
         """Busca HTML e extrai corpo para um conjunto de itens.
 
@@ -338,7 +335,7 @@ class Fetcher:
 
         Retorna quantidade de itens que tiveram `texto` atualizado/preenchido.
         """
-        targets: List[Tuple[Dict, str]] = []
+        targets: list[tuple[dict, str]] = []
         for it in items:
             txt = (it.get("texto") or it.get("ementa") or "").strip()
             need = False
@@ -363,7 +360,7 @@ class Fetcher:
             return 0
 
         updated = 0
-        def _work(pair: Tuple[Dict, str]) -> Tuple[Dict, str, str]:
+        def _work(pair: tuple[dict, str]) -> tuple[dict, str, str]:
             it, url = pair
             html = self.fetch_html(url)
             body = self.extract_text_from_html(html)

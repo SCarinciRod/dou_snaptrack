@@ -13,19 +13,20 @@ Futuras extensões:
 """
 
 from __future__ import annotations
-from typing import List, Dict, Any, Optional
+
+from typing import Any
 
 
 def generate_cartesian(
-    level1: List[Dict[str, Any]],
-    level2: List[Dict[str, Any]],
-    level3: Optional[List[Dict[str, Any]]] = None,
-    max_combos: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    level1: list[dict[str, Any]],
+    level2: list[dict[str, Any]],
+    level3: list[dict[str, Any]] | None = None,
+    max_combos: int | None = None
+) -> list[dict[str, Any]]:
     """
     Gera produto cartesiano limitado (N1 x N2 [x N3]).
     """
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     if not level1:
         return out
     if not level2:
@@ -69,7 +70,7 @@ def generate_cartesian(
         return out
 
 
-def build_dynamic_n2(level1: List[Dict[str, Any]], max_combos: Optional[int] = None) -> List[Dict[str, Any]]:
+def build_dynamic_n2(level1: list[dict[str, Any]], max_combos: int | None = None) -> list[dict[str, Any]]:
     """
     Retorna combos apenas com N1 marcados para expansão posterior.
     """
@@ -88,11 +89,11 @@ def build_dynamic_n2(level1: List[Dict[str, Any]], max_combos: Optional[int] = N
 def build_combos_plan(
     date: str,
     secao: str,
-    defaults: Dict[str, Any],
-    query: Optional[str],
-    combos: List[Dict[str, Any]],
+    defaults: dict[str, Any],
+    query: str | None,
+    combos: list[dict[str, Any]],
     dynamic_n2: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Empacota a resposta padronizada para um plan.
     """

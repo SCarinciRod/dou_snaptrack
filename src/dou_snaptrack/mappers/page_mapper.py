@@ -1,11 +1,14 @@
 from __future__ import annotations
-from typing import Dict, Any, List
+
+from typing import Any
+
+from dou_utils.dropdown_strategies import collect_open_list_options, open_dropdown_robust
 
 from ..constants import DROPDOWN_ROOT_SELECTORS
-from ..utils.dom import elem_common_info, label_for_control, is_select, read_select_options
-from dou_utils.dropdown_strategies import open_dropdown_robust, collect_open_list_options
+from ..utils.dom import elem_common_info, is_select, label_for_control, read_select_options
 
-def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> List[Dict[str, Any]]:
+
+def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> list[dict[str, Any]]:
     results = []
     roots = []
     seen = set()
@@ -111,7 +114,7 @@ def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> 
 
     return results
 
-def map_elements_by_category(frame, max_per_type=100) -> Dict[str, Any]:
+def map_elements_by_category(frame, max_per_type=100) -> dict[str, Any]:
     cats = {}
     categories = {
         "searchbox": frame.get_by_role("searchbox"),

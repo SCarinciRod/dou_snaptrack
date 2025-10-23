@@ -16,9 +16,10 @@ Futuro:
 """
 
 from __future__ import annotations
+
 import re
 import unicodedata
-from typing import Optional, Dict, Any
+from typing import Any
 
 # Regex de prefixos/sentinelas
 _PREFIX_PAT = re.compile(r"^\s*(selecionar|selecione|todos|todas)\b", re.IGNORECASE)
@@ -34,7 +35,7 @@ def _normalize(s: str | None) -> str:
     return s
 
 
-def is_placeholder_text(text: Optional[str]) -> bool:
+def is_placeholder_text(text: str | None) -> bool:
     """
     Retorna True se o texto aparenta ser placeholder/sentinela.
     """
@@ -54,7 +55,7 @@ def is_placeholder_text(text: Optional[str]) -> bool:
     return False
 
 
-def is_sentinel_option(opt: Dict[str, Any] | None) -> bool:
+def is_sentinel_option(opt: dict[str, Any] | None) -> bool:
     """
     Avalia um dicionário de opção (com chaves esperadas 'text' e/ou 'value').
 

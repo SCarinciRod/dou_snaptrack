@@ -1,14 +1,15 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+
 import json
+from pathlib import Path
+from typing import Any
 
-from ..utils.text import normalize_text
-from ..utils.browser import fmt_date
 from ..mappers.pairs_mapper import filter_opts as _filter_opts
+from ..utils.browser import fmt_date
+from ..utils.text import normalize_text
 
 
-def _best_key_for_option(opt: Dict[str, Any]) -> Tuple[str, Optional[str]]:
+def _best_key_for_option(opt: dict[str, Any]) -> tuple[str, str | None]:
     if opt.get("value") not in (None, ""):
         return ("value", str(opt["value"]))
     if opt.get("dataValue") not in (None, ""):
@@ -22,8 +23,8 @@ def _best_key_for_option(opt: Dict[str, Any]) -> Tuple[str, Optional[str]]:
     return ("text", (opt.get("text") or "").strip())
 
 
-def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
-    keys: List[str] = []
+def _build_keys(opts: list[dict[str, Any]], key_type: str) -> list[str]:
+    keys: list[str] = []
     for o in opts:
         if key_type == "text":
             t = (o.get("text") or "").strip()
@@ -41,7 +42,7 @@ def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
             di = o.get("dataIndex")
             if di not in (None, ""):
                 keys.append(str(di))
-    seen = set(); out: List[str] = []
+    seen = set(); out: list[str] = []
     for k in keys:
         if k in seen:
             continue
@@ -49,7 +50,7 @@ def _build_keys(opts: List[Dict[str, Any]], key_type: str) -> List[str]:
     return out
 
 
-def build_plan_from_pairs(pairs_file: str, args) -> Dict[str, Any]:
+def build_plan_from_pairs(pairs_file: str, args) -> dict[str, Any]:
     pf = Path(pairs_file)
     data_pairs = json.loads(pf.read_text(encoding="utf-8"))
 
@@ -57,7 +58,7 @@ def build_plan_from_pairs(pairs_file: str, args) -> Dict[str, Any]:
     secao = data_pairs.get("secao") or getattr(args, "secao", "DO1")
     n1_groups = data_pairs.get("n1_options") or []
 
-    def _key_norm(o: Dict[str, Any]) -> str:
+    def _key_norm(o: dict[str, Any]) -> str:
         return normalize_text(o.get("text") or "")
 
     # 1) filtrar N1
@@ -65,9 +66,9 @@ def build_plan_from_pairs(pairs_file: str, args) -> Dict[str, Any]:
     n1_filtered = _filter_opts(n1_all, getattr(args, "select1", None), getattr(args, "pick1", None), getattr(args, "limit1", None))
 
     # lookup N2 por N1 normalizado
-    map_n1_to_n2: Dict[str, List[Dict[str, Any]]] = { _key_norm(grp.get("n1") or {}): (grp.get("n2_options") or []) for grp in n1_groups }
+    map_n1_to_n2: dict[str, list[dict[str, Any]]] = { _key_norm(grp.get("n1") or {}): (grp.get("n2_options") or []) for grp in n1_groups }
 
-    combos: List[Dict[str, Any]] = []
+    combos: list[dict[str, Any]] = []
     limit2_per_n1 = getattr(args, "limit2_per_n1", None)
     k1_def = getattr(args, "key1_type_default", None)
     k2_def = getattr(args, "key2_type_default", None)
@@ -119,7 +120,7 @@ def build_plan_from_pairs(pairs_file: str, args) -> Dict[str, Any]:
     if not combos:
         raise RuntimeError("Nenhum combo válido foi gerado a partir dos pares (verifique filtros/limites).")
 
-    cfg: Dict[str, Any] = {
+    cfg: dict[str, Any] = {
         "data": args.data or data,
         "secaoDefault": args.secao or secao or "DO1",
         "defaults": {

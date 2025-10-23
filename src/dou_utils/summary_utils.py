@@ -3,8 +3,8 @@
 
 import re
 import unicodedata
-from typing import List, Optional, Tuple
-from .text_cleaning import remove_dou_metadata, strip_legalese_preamble, extract_article1_section
+
+from .text_cleaning import extract_article1_section, remove_dou_metadata, strip_legalese_preamble
 
 # Padrões regex pré-compilados para performance
 _WHITESPACE_PATTERN = re.compile(r"\s+")
@@ -31,7 +31,7 @@ def normalize_text(s: str) -> str:
     s = s.encode("ascii", "ignore").decode("ascii")
     return _WHITESPACE_PATTERN.sub(" ", s.strip().lower())
 
-def split_sentences(pt_text: str) -> List[str]:
+def split_sentences(pt_text: str) -> list[str]:
     if not pt_text:
         return []
     text = pt_text
@@ -93,7 +93,7 @@ def _detect_genre_header(text: str) -> str:
             return g.lower()
     return ""
 
-def _find_priority_sentence(sents: List[str]) -> Optional[Tuple[int, str]]:
+def _find_priority_sentence(sents: list[str]) -> tuple[int, str] | None:
     """Procura uma sentença com verbos decisórios comuns (útil para DESPACHO/atos sem artigos)."""
     if not sents:
         return None
@@ -103,7 +103,7 @@ def _find_priority_sentence(sents: List[str]) -> Optional[Tuple[int, str]]:
             return (i, s)
     return None
 
-def summarize_text(text: str, max_lines: int = 7, keywords: Optional[List[str]] = None, mode: str = "center") -> str:
+def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = None, mode: str = "center") -> str:
     if not text:
         return ""
     base = clean_text_for_summary(text)

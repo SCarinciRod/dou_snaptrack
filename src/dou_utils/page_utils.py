@@ -3,6 +3,7 @@
 
 import re
 
+
 def goto(page, url):
     print(f"\n[Abrindo] {url}")
     page.goto(url, wait_until="domcontentloaded", timeout=60000)
@@ -58,4 +59,4 @@ def find_best_frame(context):
             best_score = score
             best = fr
     return best
- 
+

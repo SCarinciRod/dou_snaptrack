@@ -9,9 +9,11 @@ Reúne:
 """
 
 from __future__ import annotations
-from typing import Any, List, Dict
+
+from typing import Any
+
+from ..dropdown_strategies import collect_open_list_options, open_dropdown_robust
 from ..dropdown_utils import _is_select, _read_select_options
-from ..dropdown_strategies import open_dropdown_robust, collect_open_list_options
 from ..log_utils import get_logger
 
 logger = get_logger(__name__)
@@ -70,7 +72,7 @@ def select_by_value(handle, value: str) -> bool:
         return False
 
 
-def collect_native_options(handle) -> List[Dict[str, Any]]:
+def collect_native_options(handle) -> list[dict[str, Any]]:
     if not _is_select(handle):
         return []
     try:
@@ -79,7 +81,7 @@ def collect_native_options(handle) -> List[Dict[str, Any]]:
         return []
 
 
-def ensure_open_then_collect_custom(frame, handle) -> List[Dict[str, Any]]:
+def ensure_open_then_collect_custom(frame, handle) -> list[dict[str, Any]]:
     if _is_select(handle):
         return collect_native_options(handle)
     opened = open_dropdown(frame, handle)

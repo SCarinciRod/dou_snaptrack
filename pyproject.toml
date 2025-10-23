@@ -34,3 +34,127 @@ ui = [
 [tool.playwright]
 # Para facilitar pós-instalação (rodar: python -m playwright install)
 install = true
+
+# =============================================================================
+# RUFF CONFIGURATION
+# =============================================================================
+
+[tool.ruff]
+# Python version target
+target-version = "py311"
+
+# Line length (match Black default)
+line-length = 120
+
+# Exclude patterns
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "*.egg-info",
+    "build",
+    "dist",
+    "logs",
+    "resultados",
+    "planos",
+    "artefatos",
+    "installer",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+]
+
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    # Pyflakes (basic errors)
+    "F",
+    # pycodestyle (PEP 8 style)
+    "E",
+    "W",
+    # isort (import sorting)
+    "I",
+    # pydocstyle (docstring conventions) - DISABLED for now
+    # "D",
+    # pyupgrade (upgrade syntax for newer Python)
+    "UP",
+    # flake8-bugbear (common bugs)
+    "B",
+    # flake8-simplify (simplify code)
+    "SIM",
+    # flake8-comprehensions (list/dict comprehensions)
+    "C4",
+    # flake8-unused-arguments
+    "ARG",
+    # Perflint (performance anti-patterns)
+    "PERF",
+    # Ruff-specific rules
+    "RUF",
+]
+
+# Ignore specific rules
+ignore = [
+    # E501: Line too long (handled by formatter)
+    "E501",
+    # SIM108: Use ternary operator (sometimes less readable)
+    "SIM108",
+    # RUF012: Mutable class attributes (common pattern in dataclasses)
+    "RUF012",
+    # B008: Function call in default argument (common with FastAPI Depends)
+    "B008",
+    # ARG001: Unused function argument (common in callbacks, protocol implementations)
+    "ARG001",
+    # ARG002: Unused method argument
+    "ARG002",
+]
+
+# Allow autofix for specific rules
+fixable = [
+    "F",     # Pyflakes (unused imports, etc)
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "I",     # isort (import sorting)
+    "UP",    # pyupgrade
+    "C4",    # flake8-comprehensions
+    "RUF",   # Ruff-specific
+]
+
+# Never autofix these rules (may change logic)
+unfixable = [
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+]
+
+[tool.ruff.lint.per-file-ignores]
+# __init__.py files can have unused imports (re-exports)
+"__init__.py" = ["F401", "F403"]
+
+# CLI tools can have print statements
+"src/dou_snaptrack/cli/*.py" = ["T201"]
+
+# Tests can use assert, magic values, etc
+"tests/**/*.py" = ["S101", "PLR2004"]
+
+[tool.ruff.lint.isort]
+# Use "from" imports for multiple items
+combine-as-imports = true
+
+# Known first-party modules
+known-first-party = ["dou_snaptrack", "dou_utils"]
+
+[tool.ruff.lint.mccabe]
+# Maximum cyclomatic complexity
+max-complexity = 15
+
+[tool.ruff.format]
+# Use double quotes
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# End files with newline
+skip-magic-trailing-comma = false
+
+# Docstring formatting
+docstring-code-format = true

@@ -19,14 +19,12 @@ Compatível com combos vindos de expand_batch_config contendo:
 """
 
 from __future__ import annotations
-from typing import Optional, Dict, Any
+
 import re
+from typing import Any
+
 from ..log_utils import get_logger
-from ..selection_utils import (
-    select_option_robust,
-    read_rich_options,
-    wait_repopulation
-)
+from ..selection_utils import read_rich_options, select_option_robust, wait_repopulation
 
 logger = get_logger(__name__)
 
@@ -41,14 +39,14 @@ class MultiLevelCascadeSelector:
         key1_type: str,
         key2: str,
         key2_type: str,
-        label1: Optional[str] = None,
-        label2: Optional[str] = None,
-        key3: Optional[str] = None,
-        key3_type: Optional[str] = None,
-        label3: Optional[str] = None,
+        label1: str | None = None,
+        label2: str | None = None,
+        key3: str | None = None,
+        key3_type: str | None = None,
+        label3: str | None = None,
         repop_timeout_ms: int = 15_000,
         repop_poll_ms: int = 250
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Executa seleção hierárquica. Retorna dicionário:
           {
@@ -208,7 +206,7 @@ class MultiLevelCascadeSelector:
             pass
         return ""
 
-    def _resolve_root(self, roots, label_regex: Optional[str], fallback_index: int):
+    def _resolve_root(self, roots, label_regex: str | None, fallback_index: int):
         if label_regex:
             try:
                 pat = re.compile(label_regex, re.I)

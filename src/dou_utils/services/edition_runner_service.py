@@ -1,15 +1,16 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Any, Dict, Optional, List, Callable
-from urllib.parse import urlparse, parse_qs
 
-from ..page_utils import goto as _goto, try_visualizar_em_lista, find_best_frame
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+from urllib.parse import parse_qs, urlparse
+
 from ..detail_utils import abs_url as _abs_url
-from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
 from ..enrich_utils import enrich_items_friendly_titles as _enrich_titles
+from ..page_utils import find_best_frame, goto as _goto, try_visualizar_em_lista
+from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
+from ..services.cascade_service import CascadeParams, CascadeService
 from ..services.multi_level_cascade_service import MultiLevelCascadeSelector
-from ..services.cascade_service import CascadeService, CascadeParams
-from ..bulletin_utils import generate_bulletin as _generate_bulletin  # optional, used by caller typically
 
 
 @dataclass
@@ -20,13 +21,13 @@ class EditionRunParams:
     key1_type: str
     key2: str
     key2_type: str
-    key3: Optional[str] = None
-    key3_type: Optional[str] = None
-    label1: Optional[str] = None
-    label2: Optional[str] = None
-    label3: Optional[str] = None
+    key3: str | None = None
+    key3_type: str | None = None
+    label1: str | None = None
+    label2: str | None = None
+    label3: str | None = None
 
-    query: Optional[str] = None
+    query: str | None = None
     max_links: int = 30
     max_scrolls: int = 30
     scroll_pause_ms: int = 250
@@ -35,14 +36,14 @@ class EditionRunParams:
     scrape_detail: bool = False
     detail_timeout: int = 60_000
     fallback_date_if_missing: bool = True
-    dedup_state_file: Optional[str] = None
+    dedup_state_file: str | None = None
     detail_parallel: int = 1
 
     # Summary is usually applied at bulletin generation; keep disabled here by default
     summary: bool = False
     summary_lines: int = 7
     summary_mode: str = "center"
-    summary_keywords: Optional[List[str]] = None
+    summary_keywords: list[str] | None = None
 
 
 class EditionRunnerService:
@@ -71,7 +72,7 @@ class EditionRunnerService:
         except Exception:
             pass
 
-    def run(self, params: EditionRunParams, summarizer_fn: Optional[Callable] = None) -> Dict[str, Any]:
+    def run(self, params: EditionRunParams, summarizer_fn: Callable | None = None) -> dict[str, Any]:
         import time
         t0 = time.time()
         page = self._precreated_page or self.context.new_page()
@@ -155,7 +156,7 @@ class EditionRunnerService:
         )
         t_after_collect = time.time()
 
-        result: Dict[str, Any] = {
+        result: dict[str, Any] = {
             "data": params.date,
             "secao": params.secao,
             "selecoes": [

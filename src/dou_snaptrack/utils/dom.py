@@ -1,6 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Any, Optional
-import re
+
+from typing import Any
 
 # Prefer dou_utils implementations when available, fallback to local
 try:
@@ -9,7 +9,10 @@ except Exception:
     _du_find_best_frame = None
 
 try:
-    from dou_utils.dropdown_utils import _is_select as _du_is_select, _read_select_options as _du_read_select_options  # type: ignore
+    from dou_utils.dropdown_utils import (  # type: ignore
+        _is_select as _du_is_select,
+        _read_select_options as _du_read_select_options,
+    )
 except Exception:
     _du_is_select = None
     _du_read_select_options = None
@@ -72,7 +75,7 @@ def label_for_control(frame, locator) -> str:
         pass
     return ""
 
-def compute_css_path(frame, locator) -> Optional[str]:
+def compute_css_path(frame, locator) -> str | None:
     try:
         return locator.evaluate("""(el) => {
             function cssPath(e){
@@ -97,7 +100,7 @@ def compute_css_path(frame, locator) -> Optional[str]:
     except Exception:
         return None
 
-def compute_xpath(frame, locator) -> Optional[str]:
+def compute_xpath(frame, locator) -> str | None:
     try:
         return locator.evaluate("""(el)=>{
             function xpath(el){
@@ -125,7 +128,7 @@ def compute_xpath(frame, locator) -> Optional[str]:
     except Exception:
         return None
 
-def elem_common_info(frame, locator) -> Dict[str, Any]:
+def elem_common_info(frame, locator) -> dict[str, Any]:
     info = {"visible": None, "box": None, "attrs": {}, "text": None, "cssPath": None, "xpath": None}
     try: info["visible"] = locator.is_visible()
     except Exception: pass

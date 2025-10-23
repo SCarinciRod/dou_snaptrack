@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from .log_utils import get_logger
 
@@ -57,7 +57,7 @@ def remove_dou_metadata(text: str) -> str:
     return "\n".join(cleaned)
 
 
-def split_doc_header(text: str) -> Tuple[Optional[str], str]:
+def split_doc_header(text: str) -> tuple[str | None, str]:
     """Localiza o cabeçalho do ato em qualquer ponto das primeiras linhas e retorna (header, body)."""
     if not text:
         return None, ""
@@ -87,14 +87,12 @@ def split_doc_header(text: str) -> Tuple[Optional[str], str]:
     doc_alt_sorted = sorted(doc_alt, key=len, reverse=True)
 
     # Encontrar primeira ocorrência de qualquer tipo dentro do blob
-    found = None
     start_idx = None
     upper_blob = blob.upper()
     for dt in doc_alt_sorted:
         i = upper_blob.find(dt)
         if i != -1 and (start_idx is None or i < start_idx):
             start_idx = i
-            found = dt
     if start_idx is None:
         # fallback: primeira linha com alta proporção de maiúsculas
         for s in head_candidates:
@@ -152,7 +150,7 @@ def split_doc_header(text: str) -> Tuple[Optional[str], str]:
     return header, body
 
 
-def extract_doc_header_line(it: Dict[str, Any]) -> Optional[str]:
+def extract_doc_header_line(it: dict[str, Any]) -> str | None:
     """Compat: extrai apenas o header do texto do item, com fallback em campos do item."""
     text = it.get("texto") or it.get("ementa") or ""
     header, _ = split_doc_header(text)
@@ -287,7 +285,7 @@ def final_clean_snippet(snippet: str) -> str:
     return s
 
 
-def make_bullet_title_from_text(text: str, max_len: int = 140) -> Optional[str]:
+def make_bullet_title_from_text(text: str, max_len: int = 140) -> str | None:
     """Gera um título amigável a partir do texto já limpo de juridiquês."""
     if not text:
         return None

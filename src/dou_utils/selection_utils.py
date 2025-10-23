@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 import re
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Any
+
 from playwright.async_api import Frame, TimeoutError as PlaywrightTimeoutError
 
 # Sync helpers expected by services.multi_level_cascade_service
@@ -12,8 +14,8 @@ except Exception:
 
 try:
     from .dropdown_strategies import (
-        open_dropdown_robust as _open_dropdown_robust,
         collect_open_list_options as _collect_open_list_options,
+        open_dropdown_robust as _open_dropdown_robust,
     )
 except Exception:
     def _open_dropdown_robust(frame, locator, strategy_order=None, delay_ms: int = 120):  # type: ignore
@@ -27,12 +29,13 @@ except Exception:
         return []
 
 from typing import Any as _Any
+
 open_dropdown_robust: _Any = _open_dropdown_robust
 collect_open_list_options: _Any = _collect_open_list_options
 
 SENTINELA_PREFIX = "selecionar "
 
-def is_sentinel(value: Optional[str], label: Optional[str]) -> bool:
+def is_sentinel(value: str | None, label: str | None) -> bool:
     v = (value or "").strip().lower()
     l = (label or "").strip().lower()
     if not v and not l:
@@ -43,15 +46,15 @@ def is_sentinel(value: Optional[str], label: Optional[str]) -> bool:
         return True
     return False
 
-async def collect_dropdowns(frame: Frame, selector: str = "select") -> List:
+async def collect_dropdowns(frame: Frame, selector: str = "select") -> list:
     return await frame.query_selector_all(selector)
 
-async def option_data(opt) -> Tuple[str, str]:
+async def option_data(opt) -> tuple[str, str]:
     val = await opt.get_attribute("value")
     txt = (await opt.text_content()) or ""
     return (val or txt, txt.strip())
 
-async def select_option(dropdown_el, value: Optional[str], label: Optional[str]) -> bool:
+async def select_option(dropdown_el, value: str | None, label: str | None) -> bool:
     options = await dropdown_el.query_selector_all("option")
     target = None
     if value:
@@ -73,8 +76,8 @@ async def select_option(dropdown_el, value: Optional[str], label: Optional[str])
 
 async def select_level(frame: Frame,
                        level: int,
-                       value: Optional[str],
-                       label: Optional[str],
+                       value: str | None,
+                       label: str | None,
                        wait_ms: int = 300,
                        logger=None,
                        selector: str = "select") -> bool:
@@ -115,7 +118,7 @@ def _is_native_select(handle) -> bool:
         return False
 
 
-def _read_select_options_sync(handle) -> List[Dict[str, Any]]:
+def _read_select_options_sync(handle) -> list[dict[str, Any]]:
     if _du_read_select_options:
         try:
             return _du_read_select_options(handle)
@@ -136,7 +139,7 @@ def _read_select_options_sync(handle) -> List[Dict[str, Any]]:
         return []
 
 
-def read_rich_options(frame, root_handle) -> List[Dict[str, Any]]:
+def read_rich_options(frame, root_handle) -> list[dict[str, Any]]:
     """Return a list of option dicts for either native <select> or custom dropdowns."""
     if not root_handle:
         return []
@@ -146,7 +149,7 @@ def read_rich_options(frame, root_handle) -> List[Dict[str, Any]]:
     return collect_open_list_options(frame) if opened else []
 
 
-def _match_option(options: List[Dict[str, Any]], key: str, key_type: str) -> Optional[Dict[str, Any]]:
+def _match_option(options: list[dict[str, Any]], key: str, key_type: str) -> dict[str, Any] | None:
     if key is None:
         return None
     k = str(key)
@@ -163,7 +166,7 @@ def _match_option(options: List[Dict[str, Any]], key: str, key_type: str) -> Opt
     return None
 
 
-def select_option_robust(frame, root_handle, key: Optional[str], key_type: Optional[str]) -> bool:
+def select_option_robust(frame, root_handle, key: str | None, key_type: str | None) -> bool:
     """Select an option by key/key_type on either native select or custom dropdown.
     Returns True when selection happened and the page stabilized.
     """

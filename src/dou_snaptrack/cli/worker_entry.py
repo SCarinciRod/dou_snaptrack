@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import sys
-import asyncio
 from pathlib import Path
 
 

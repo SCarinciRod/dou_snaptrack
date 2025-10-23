@@ -16,14 +16,15 @@ Saída via DetailData (models.DetailData) – espera-se que esse dataclass já e
 """
 
 from __future__ import annotations
-from typing import Optional, Dict, Any, List
-from datetime import datetime
-from urllib.parse import urljoin
-import re
 
-from .models import DetailData
-from .log_utils import get_logger
+import re
+from datetime import datetime
+from typing import Any
+from urllib.parse import urljoin
+
 from .hash_utils import stable_sha1
+from .log_utils import get_logger
+from .models import DetailData
 
 logger = get_logger(__name__)
 
@@ -48,7 +49,7 @@ def text_of(locator) -> str:
     return ""
 
 
-def meta_content(page, selector: str) -> Optional[str]:
+def meta_content(page, selector: str) -> str | None:
     try:
         el = page.locator(selector).first
         if el and el.count() > 0:
@@ -60,7 +61,7 @@ def meta_content(page, selector: str) -> Optional[str]:
     return None
 
 
-def _normalize_date(raw: Optional[str]) -> Optional[str]:
+def _normalize_date(raw: str | None) -> str | None:
     if not raw:
         return None
     raw = raw.strip()
@@ -73,7 +74,7 @@ def _normalize_date(raw: Optional[str]) -> Optional[str]:
     return raw
 
 
-def _extract_publication_date(page) -> Optional[str]:
+def _extract_publication_date(page) -> str | None:
     for sel in [
         "meta[property='article:published_time']",
         "meta[name='publicationDate']",
@@ -93,7 +94,7 @@ def _extract_publication_date(page) -> Optional[str]:
     return None
 
 
-def _extract_title_basic(page) -> Optional[str]:
+def _extract_title_basic(page) -> str | None:
     for sel in ["meta[property='og:title']", "meta[name='dc.title']"]:
         t = meta_content(page, sel)
         if t:
@@ -108,7 +109,7 @@ def _extract_title_basic(page) -> Optional[str]:
         return None
 
 
-def _extract_title_advanced(page) -> Optional[str]:
+def _extract_title_advanced(page) -> str | None:
     basic = _extract_title_basic(page)
     if basic:
         return basic
@@ -123,7 +124,7 @@ def _extract_title_advanced(page) -> Optional[str]:
     return basic
 
 
-def find_dt_dd_value(page, labels_regex: str, max_scan: int = 400) -> Optional[str]:
+def find_dt_dd_value(page, labels_regex: str, max_scan: int = 400) -> str | None:
     pat = re.compile(labels_regex, re.I)
     dts = page.locator("dl dt")
     try:
@@ -170,7 +171,7 @@ def find_dt_dd_value(page, labels_regex: str, max_scan: int = 400) -> Optional[s
     return None
 
 
-def _extract_ementa(page) -> Optional[str]:
+def _extract_ementa(page) -> str | None:
     for sel in ["article .texto p", "article p", "main article p", "div[class*=materia] p", "main p"]:
         p = text_of(page.locator(sel))
         if p:
@@ -178,9 +179,9 @@ def _extract_ementa(page) -> Optional[str]:
     return None
 
 
-def _collect_article_text(page, max_chars: int = 8000) -> Optional[str]:
+def _collect_article_text(page, max_chars: int = 8000) -> str | None:
     selectors = ["article", "main article", "div[class*=materia]", "main"]
-    buf: List[str] = []
+    buf: list[str] = []
     for sel in selectors:
         loc = page.locator(sel)
         try:
@@ -207,7 +208,7 @@ def _collect_article_text(page, max_chars: int = 8000) -> Optional[str]:
     return text
 
 
-def _extract_pdf(page, advanced: bool) -> Optional[str]:
+def _extract_pdf(page, advanced: bool) -> str | None:
     pdf = None
     try:
         pdfs = page.locator("a[href$='.pdf'], a[href*='.pdf?']")
@@ -235,7 +236,7 @@ def _extract_pdf(page, advanced: bool) -> Optional[str]:
     return pdf
 
 
-def _extract_edicao_pagina(page) -> Dict[str, Optional[str]]:
+def _extract_edicao_pagina(page) -> dict[str, str | None]:
     result = {"edicao": None, "pagina": None}
     try:
         body_text = text_of(page.locator("article")) or text_of(page.locator("main")) or (page.inner_text("body") or "")
@@ -256,7 +257,7 @@ def scrape_detail_structured(
     timeout_ms: int = 60_000,
     capture_meta: bool = True,
     advanced: bool = False,
-    fallback_date: Optional[str] = None,
+    fallback_date: str | None = None,
     compute_hash: bool = True
 ) -> DetailData:
     page = context.new_page()
@@ -355,9 +356,9 @@ def scrape_detail(
     timeout_ms: int = 60_000,
     capture_meta: bool = True,
     advanced: bool = False,
-    fallback_date: Optional[str] = None,
+    fallback_date: str | None = None,
     compute_hash: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return scrape_detail_structured(
         context,
         url,

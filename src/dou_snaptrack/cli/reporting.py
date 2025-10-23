@@ -1,14 +1,17 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+
 import json
 import os
 import re
-from ..adapters.utils import generate_bulletin as _generate_bulletin
-from ..utils.text import sanitize_filename
-from dou_utils.summarize import summarize_text as _summarize_text
+from pathlib import Path
+from typing import Any
+
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
+from dou_utils.summarize import summarize_text as _summarize_text
+
+from ..adapters.utils import generate_bulletin as _generate_bulletin
+from ..utils.text import sanitize_filename
 
 logger = get_logger(__name__)
 
@@ -21,7 +24,7 @@ def consolidate_and_report(
     secao_label: str = "",
     summary_lines: int = 0,
     summary_mode: str = "center",
-    summary_keywords: Optional[List[str]] = None,
+    summary_keywords: list[str] | None = None,
     enrich_missing: bool = True,
     fetch_parallel: int = 8,
     fetch_timeout_sec: int = 15,
@@ -84,7 +87,7 @@ def consolidate_and_report(
                 if t:
                     it["texto"] = str(t)
 
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "data": date_label or "",
         "secao": secao_label or "",
         "total": len(agg),
@@ -92,7 +95,7 @@ def consolidate_and_report(
     }
     summarize = summary_lines > 0
     # Adapt summarizer to expected signature
-    def _summarizer(text: str, max_lines: int, mode: str, keywords: Optional[List[str]]):
+    def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
         return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
@@ -111,14 +114,14 @@ def consolidate_and_report(
 
 
 def report_from_aggregated(
-    files: List[str],
+    files: list[str],
     kind: str,
     out_path: str,
     date_label: str = "",
     secao_label: str = "",
     summary_lines: int = 0,
     summary_mode: str = "center",
-    summary_keywords: Optional[List[str]] = None,
+    summary_keywords: list[str] | None = None,
     order_desc_by_date: bool = True,
     enrich_missing: bool = True,
     fetch_parallel: int = 8,
@@ -132,7 +135,7 @@ def report_from_aggregated(
     Permite juntar agregados de dias diferentes em um único boletim.
     """
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-    agg: List[Dict[str, Any]] = []
+    agg: list[dict[str, Any]] = []
     date = date_label
     secao = secao_label
     for fp in files:
@@ -160,7 +163,7 @@ def report_from_aggregated(
             secao = data.get("secao") or secao
     # Ordena por data_publicacao (desc), quando disponível
     if order_desc_by_date:
-        def _key(it: Dict[str, Any]):
+        def _key(it: dict[str, Any]):
             d = it.get("data_publicacao") or ""
             # esperado DD-MM-AAAA; forçar formato comparável AAAA-MM-DD
             try:
@@ -202,9 +205,9 @@ def report_from_aggregated(
                 if t:
                     it["texto"] = str(t)
 
-    result: Dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(agg), "itens": agg}
+    result: dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(agg), "itens": agg}
     summarize = summary_lines > 0
-    def _summarizer(text: str, max_lines: int, mode: str, keywords: Optional[List[str]]):
+    def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
         return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
@@ -221,7 +224,7 @@ def report_from_aggregated(
     print(f"[OK] Boletim (de agregados) gerado: {out_path}")
 
 
-def find_aggregated_by_plan(in_dir: str, plan_name: str) -> List[str]:
+def find_aggregated_by_plan(in_dir: str, plan_name: str) -> list[str]:
     """Lista arquivos agregados do padrão {plan}_{secao}_{data}.json do plano indicado."""
     plan_safe = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", plan_name).strip(" _")
     out = []
@@ -230,7 +233,7 @@ def find_aggregated_by_plan(in_dir: str, plan_name: str) -> List[str]:
     return out
 
 
-def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> List[str]:
+def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
     """Aggregate all job JSON outputs inside a day-folder into a single per-date
     file at the resultados root, named {plan}_paginadoDOU_{date}.json.
 
@@ -244,7 +247,7 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> List[str]:
     if not jobs:
         return []
     from collections import defaultdict
-    agg: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []})
+    agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []})
     secao_any = ""
     for jf in jobs:
         try:
@@ -276,7 +279,7 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> List[str]:
             except Exception:
                 pass
         agg[date]["itens"].extend(items)
-    written: List[str] = []
+    written: list[str] = []
     # resultados root = parent of the day folder if named 'resultados'
     target_dir = root.parent if root.parent.name.lower() == "resultados" else root
     secao_label = (secao_any or "DO").strip()
@@ -300,7 +303,7 @@ def split_and_report_by_n1(
     secao_label: str = "",
     summary_lines: int = 0,
     summary_mode: str = "center",
-    summary_keywords: Optional[List[str]] = None,
+    summary_keywords: list[str] | None = None,
     enrich_missing: bool = True,
     fetch_parallel: int = 8,
     fetch_timeout_sec: int = 15,
@@ -325,7 +328,7 @@ def split_and_report_by_n1(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Agrupar por N1 (selecoes[0])
-    groups: Dict[str, List[Dict[str, Any]]] = {}
+    groups: dict[str, list[dict[str, Any]]] = {}
     date = date_label
     secao = secao_label
     for f in sorted(Path(in_dir).glob("*.json")):
@@ -388,7 +391,7 @@ def split_and_report_by_n1(
 
     # Adapt summarizer
     summarize = summary_lines > 0
-    def _summarizer(text: str, max_lines: int, mode: str, keywords: Optional[List[str]]):
+    def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
         return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
@@ -406,7 +409,7 @@ def split_and_report_by_n1(
         out_path = out_dir / name
         # Garantir que a pasta do arquivo exista, mesmo se o padrão incluir subpastas
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        result: Dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(items), "itens": items}
+        result: dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(items), "itens": items}
         _generate_bulletin(
             result,
             str(out_path),

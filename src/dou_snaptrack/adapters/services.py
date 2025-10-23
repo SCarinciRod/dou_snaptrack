@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 def get_edition_runner():
     try:
         from dou_utils.services.edition_runner_service import EditionRunnerService, EditionRunParams  # type: ignore

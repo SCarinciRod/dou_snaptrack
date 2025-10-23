@@ -4,9 +4,10 @@ Centralizes structured representations to improve typing, validation, and reuse.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, Optional
+
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from typing import Any
 
 
 @dataclass(slots=True)
@@ -17,21 +18,21 @@ class ExpandedJob:
     """
     topic: str
     query: str
-    data: Optional[str] = None
-    secao: Optional[str] = None
+    data: str | None = None
+    secao: str | None = None
     key1: str = ""
     key2: str = ""
     key3: str = ""
-    summary_keywords: Optional[str] = None
-    summary_lines: Optional[int] = None
-    summary_mode: Optional[str] = None
+    summary_keywords: str | None = None
+    summary_lines: int | None = None
+    summary_mode: str | None = None
     _repeat: int = 1
-    _combo_index: Optional[int] = None
-    _job_index: Optional[int] = None  # for direct jobs (non-combos)
+    _combo_index: int | None = None
+    _job_index: int | None = None  # for direct jobs (non-combos)
     # Keep original arbitrary extras if present (extensibility)
-    _extra: Dict[str, Any] = field(default_factory=dict)
+    _extra: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize job to a dict compatible with legacy usage."""
         base = asdict(self)
         # Merge extras at root (legacy compatibility)
@@ -46,21 +47,21 @@ class DetailData:
     Structured representation of a scraped DOU detail page.
     """
     detail_url: str
-    titulo: Optional[str] = None
-    ementa: Optional[str] = None
-    texto: Optional[str] = None
-    orgao: Optional[str] = None
-    tipo_ato: Optional[str] = None
-    secao: Optional[str] = None
-    data_publicacao_raw: Optional[str] = None
-    data_publicacao: Optional[datetime] = None
-    pdf_url: Optional[str] = None
-    edicao: Optional[str] = None
-    pagina: Optional[str] = None
+    titulo: str | None = None
+    ementa: str | None = None
+    texto: str | None = None
+    orgao: str | None = None
+    tipo_ato: str | None = None
+    secao: str | None = None
+    data_publicacao_raw: str | None = None
+    data_publicacao: datetime | None = None
+    pdf_url: str | None = None
+    edicao: str | None = None
+    pagina: str | None = None
     # raw meta capture (optional)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         out = asdict(self)
         if self.data_publicacao:
             out["data_publicacao_iso"] = self.data_publicacao.date().isoformat()
@@ -75,13 +76,13 @@ class BulletinItem:
     titulo: str
     orgao: str
     tipo_ato: str
-    detail_url: Optional[str] = None
-    pdf_url: Optional[str] = None
-    data_publicacao: Optional[str] = None
-    edicao: Optional[str] = None
-    pagina: Optional[str] = None
-    texto: Optional[str] = None
-    ementa: Optional[str] = None
+    detail_url: str | None = None
+    pdf_url: str | None = None
+    data_publicacao: str | None = None
+    edicao: str | None = None
+    pagina: str | None = None
+    texto: str | None = None
+    ementa: str | None = None
 
     def base_text(self) -> str:
         return self.texto or self.ementa or ""

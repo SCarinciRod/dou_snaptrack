@@ -12,15 +12,14 @@ Classes:
 """
 
 from __future__ import annotations
+
 import re
 import unicodedata
-import hashlib
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Callable, Set
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
+from typing import Any
 
-from .models import ExpandedJob
 from .log_utils import get_logger
+from .models import ExpandedJob
 
 logger = get_logger(__name__)
 
@@ -39,7 +38,7 @@ except Exception:
 
 _filename_re = re.compile(r'[^A-Za-z0-9._-]+')
 
-def sanitize_filename(name: str, max_len: Optional[int] = None) -> str:
+def sanitize_filename(name: str, max_len: int | None = None) -> str:
     """
     Normaliza e limpa nome de arquivo, removendo caracteres inválidos.
     
@@ -52,7 +51,7 @@ def sanitize_filename(name: str, max_len: Optional[int] = None) -> str:
     """
     if not name:
         return "out"
-        
+
     # Normalizar para remover acentos
     nfkd = unicodedata.normalize("NFKD", name)
     ascii_name = "".join(ch for ch in nfkd if not unicodedata.combining(ch))
@@ -64,7 +63,7 @@ def sanitize_filename(name: str, max_len: Optional[int] = None) -> str:
     # Substituir caracteres inválidos por underscore
     cleaned = _filename_re.sub("_", ascii_name)
     cleaned = cleaned.strip("._")
-    
+
     # Garantir que não está vazio
     if not cleaned:
         cleaned = "out"
@@ -76,7 +75,7 @@ def sanitize_filename(name: str, max_len: Optional[int] = None) -> str:
     return cleaned
 
 
-def make_unique(name: str, existing: Set[str], max_len: Optional[int] = None) -> str:
+def make_unique(name: str, existing: set[str], max_len: int | None = None) -> str:
     """
     Garante que o nome de arquivo é único dentro do conjunto 'existing' adicionando _N.
     
@@ -90,25 +89,25 @@ def make_unique(name: str, existing: Set[str], max_len: Optional[int] = None) ->
     """
     max_len = int(max_len) if isinstance(max_len, int) else int(MAX_FILENAME_LEN)
     base = name
-    
+
     # Se já é único, retornar diretamente
     if name not in existing:
         return name
-        
+
     # Caso contrário, tentar com sufixos incrementais
     i = 2
     while True:
         suffix = f"_{i}"
         # Garante que o comprimento total respeita max_len
         candidate = base[: max_len - len(suffix)] + suffix
-        
+
         if candidate not in existing:
             return candidate
-            
+
         i += 1
 
 
-def render_out_filename(pattern: str, job: ExpandedJob | Dict[str, Any]) -> str:
+def render_out_filename(pattern: str, job: ExpandedJob | dict[str, Any]) -> str:
     """
     Renderiza um padrão de nome de arquivo com campos do job.
     
@@ -128,7 +127,7 @@ def render_out_filename(pattern: str, job: ExpandedJob | Dict[str, Any]) -> str:
         jdict = job
 
     date_str = (jdict.get("data") or "").replace("/", "-")
-    
+
     tokens = {
         "topic": jdict.get("topic") or "job",
         "secao": jdict.get("secao") or "DO",
@@ -139,11 +138,11 @@ def render_out_filename(pattern: str, job: ExpandedJob | Dict[str, Any]) -> str:
         "key2": jdict.get("key2") or "",
         "key3": jdict.get("key3") or "",
     }
-    
+
     name = pattern
     for k, v in tokens.items():
         name = name.replace("{" + k + "}", sanitize_filename(str(v)))
-        
+
     return sanitize_filename(name)
 
 
@@ -161,16 +160,16 @@ def _safe_int(v: Any, default: int = 1) -> int:
 @dataclass(slots=True)
 class RawBatchConfig:
     """Representa a estrutura bruta de uma configuração de batch."""
-    defaults: Dict[str, Any]
-    jobs: List[Dict[str, Any]]
-    topics: List[Dict[str, Any]]
-    combos: List[Dict[str, Any]]
-    data: Optional[str]
-    secao_default: Optional[str]
+    defaults: dict[str, Any]
+    jobs: list[dict[str, Any]]
+    topics: list[dict[str, Any]]
+    combos: list[dict[str, Any]]
+    data: str | None
+    secao_default: str | None
     repeat: int
 
     @classmethod
-    def from_dict(cls, cfg: Dict[str, Any]) -> "RawBatchConfig":
+    def from_dict(cls, cfg: dict[str, Any]) -> RawBatchConfig:
         """Cria uma instância RawBatchConfig a partir de um dicionário."""
         return cls(
             defaults=cfg.get("defaults", {}) or {},
@@ -187,7 +186,7 @@ class JobExpander:
     """
     Serviço para expandir uma configuração de batch em jobs completamente expandidos.
     """
-    def __init__(self, cfg: Dict[str, Any]):
+    def __init__(self, cfg: dict[str, Any]):
         """
         Inicializa o expansor com uma configuração de batch.
         
@@ -196,111 +195,111 @@ class JobExpander:
         """
         self.raw = RawBatchConfig.from_dict(cfg)
 
-    def expand(self) -> List[ExpandedJob]:
+    def expand(self) -> list[ExpandedJob]:
         """
         Expande a configuração em uma lista de jobs completos.
         
         Returns:
             Lista de ExpandedJob
         """
-        jobs: List[ExpandedJob] = []
-        
+        jobs: list[ExpandedJob] = []
+
         # Expansão de jobs diretos
         jobs.extend(self._expand_direct_jobs())
-        
+
         # Combinação de tópicos e combos
         if self.raw.topics and self.raw.combos:
             jobs.extend(self._expand_topics_and_combos())
         # Somente combos
         elif self.raw.combos:
             jobs.extend(self._expand_combos_only())
-            
+
         logger.info("Expanded jobs", extra={"count": len(jobs)})
         return jobs
 
     # ------------- Internal expansion helpers -----------------
 
-    def _merge_defaults(self, item: Dict[str, Any]) -> Dict[str, Any]:
+    def _merge_defaults(self, item: dict[str, Any]) -> dict[str, Any]:
         """Mescla defaults com item específico."""
         merged = dict(self.raw.defaults)
         merged.update(item or {})
-        
+
         # Aplica defaults globais se não definidos no item
         if self.raw.data and not merged.get("data"):
             merged["data"] = self.raw.data
-            
+
         if self.raw.secao_default and not merged.get("secao"):
             merged["secao"] = self.raw.secao_default
-            
+
         return merged
 
-    def _expand_direct_jobs(self) -> List[ExpandedJob]:
+    def _expand_direct_jobs(self) -> list[ExpandedJob]:
         """Expande jobs definidos diretamente na configuração."""
-        out: List[ExpandedJob] = []
-        
+        out: list[ExpandedJob] = []
+
         for jidx, j in enumerate(self.raw.jobs, 1):
             merged = self._merge_defaults(j)
             rep = _safe_int(merged.get("repeat", self.raw.repeat))
-            
+
             for r in range(1, rep + 1):
                 ej = self._to_expanded(merged, repeat=r, job_index=jidx)
                 out.append(ej)
-                
+
         return out
 
-    def _expand_topics_and_combos(self) -> List[ExpandedJob]:
+    def _expand_topics_and_combos(self) -> list[ExpandedJob]:
         """Expande combinando cada tópico com cada combo."""
-        out: List[ExpandedJob] = []
-        
+        out: list[ExpandedJob] = []
+
         for t in self.raw.topics:
             topic_name = t.get("name") or "topic"
             topic_query = t.get("query") or ""
             topic_repeat = _safe_int(t.get("repeat", self.raw.repeat))
-            
+
             # Extrai campos específicos de tópicos
             overrides = {
                 k: t.get(k)
                 for k in ("summary_keywords", "summary_lines", "summary_mode")
                 if k in t
             }
-            
+
             for cidx, combo in enumerate(self.raw.combos, 1):
                 merged = self._merge_defaults(combo)
                 merged["topic"] = topic_name
                 merged["query"] = merged.get("query", topic_query)
                 merged.update(overrides)
-                
+
                 rep = _safe_int(merged.get("repeat", topic_repeat))
-                
+
                 for r in range(1, rep + 1):
                     ej = self._to_expanded(merged, repeat=r, combo_index=cidx)
                     out.append(ej)
-                    
+
         return out
 
-    def _expand_combos_only(self) -> List[ExpandedJob]:
+    def _expand_combos_only(self) -> list[ExpandedJob]:
         """Expande apenas os combos sem tópicos."""
-        out: List[ExpandedJob] = []
-        
+        out: list[ExpandedJob] = []
+
         for cidx, combo in enumerate(self.raw.combos, 1):
             merged = self._merge_defaults(combo)
             merged["topic"] = merged.get("topic") or f"job{cidx}"
             merged["query"] = merged.get("query", self.raw.defaults.get("query", ""))
-            
+
             rep = _safe_int(merged.get("repeat", self.raw.repeat))
-            
+
             for r in range(1, rep + 1):
                 ej = self._to_expanded(merged, repeat=r, combo_index=cidx)
                 out.append(ej)
-                
+
         return out
 
     def _to_expanded(
         self,
-        merged: Dict[str, Any],
+        merged: dict[str, Any],
         repeat: int,
-        combo_index: Optional[int] = None,
-        job_index: Optional[int] = None,
+        combo_index: int | None = None,
+        job_index: int | None = None,
     ) -> ExpandedJob:
         """Converte dicionário mesclado para um ExpandedJob."""
         # Campos conhecidos para ExpandedJob
@@ -319,20 +318,20 @@ class JobExpander:
             "_combo_index": combo_index,
             "_job_index": job_index,
         }
-        
+
         # Outros campos vão para _extra
         extra_fields = {
             k: v
             for k, v in merged.items()
             if k not in core_fields and k != "repeat"
         }
-        
+
         return ExpandedJob(**core_fields, _extra=extra_fields)
 
 
 # ------------------ Public API functions (legacy names) ---------------------
 
-def expand_batch_config(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
+def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Interface compatível com legado retornando lista de dicionários.
     

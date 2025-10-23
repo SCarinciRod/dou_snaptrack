@@ -16,9 +16,11 @@ Observação:
 """
 
 from __future__ import annotations
-from typing import List, Dict, Any, Optional, Callable
+
 import re
 import unicodedata
+from collections.abc import Callable
+from typing import Any
 
 
 def _strip_accents(s: str) -> str:
@@ -43,13 +45,13 @@ def _pattern_has_accents(pat: str) -> bool:
 
 
 def filter_options(
-    options: List[Dict[str, Any]],
-    select_regex: Optional[str] = None,
-    pick_list: Optional[str] = None,
-    limit: Optional[int] = None,
+    options: list[dict[str, Any]],
+    select_regex: str | None = None,
+    pick_list: str | None = None,
+    limit: int | None = None,
     drop_sentinels: bool = True,
-    is_sentinel_fn: Optional[Callable[[Dict[str, Any]], bool]] = None,
-) -> List[Dict[str, Any]]:
+    is_sentinel_fn: Callable[[dict[str, Any]], bool] | None = None,
+) -> list[dict[str, Any]]:
     """
     Filtra opções seguindo ordem de precedência:
       1. Remoção de sentinelas (se drop_sentinels=True)
@@ -71,7 +73,7 @@ def filter_options(
     rx = re.compile(select_regex, re.IGNORECASE) if select_regex else None
     rx_has_accents = _pattern_has_accents(select_regex) if select_regex else False
 
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
 
     for o in options:
         text = (o.get("text") or "").strip()
