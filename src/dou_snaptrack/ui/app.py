@@ -18,6 +18,7 @@ if str(SRC_ROOT) not in sys.path:
 
 import streamlit as st
 from functools import lru_cache
+from dou_snaptrack.utils.text import sanitize_filename
 from dou_snaptrack.ui.batch_runner import (
     detect_other_execution,
     terminate_other_execution,
@@ -660,11 +661,6 @@ with tab2:
                 override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
                 cfg_json["data"] = override_date
                 # Injetar plan_name (agregação por plano ao final do batch)
-                def _sanitize_filename(name: str) -> str:
-                    import re
-                    s = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
-                    s = s.strip(" _")
-                    return s[:180] or "Plano"
                 _pname2 = st.session_state.get("plan_name_ui")
                 if isinstance(_pname2, str) and _pname2.strip():
                     cfg_json["plan_name"] = _pname2.strip()
@@ -674,7 +670,7 @@ with tab2:
                         if selected_path and selected_path.exists():
                             base = selected_path.stem
                             if base:
-                                cfg_json["plan_name"] = _sanitize_filename(base)
+                                cfg_json["plan_name"] = sanitize_filename(base)
                     except Exception:
                         pass
                 if not cfg_json.get("plan_name"):
@@ -684,7 +680,7 @@ with tab2:
                         if combos_fallback:
                             c0 = combos_fallback[0] or {}
                             cand = (c0.get("label1") or c0.get("key1") or "Plano")
-                            cfg_json["plan_name"] = _sanitize_filename(str(cand))
+                            cfg_json["plan_name"] = sanitize_filename(str(cand))
                     except Exception:
                         cfg_json["plan_name"] = "Plano"
                 # Gerar um config temporário para a execução desta sessão, sem modificar o arquivo salvo
@@ -833,6 +829,40 @@ with tab3:
                     )
                     data = out_path.read_bytes()
                     st.success(f"Boletim gerado: {out_path}")
-                    st.download_button("Baixar boletim (plano)", data=data, file_name=out_path.name)
+                    # Guardar em memória para download e remoção posterior do arquivo físico
+                    try:
+                        st.session_state["last_bulletin_data"] = data
+                        st.session_state["last_bulletin_name"] = out_path.name
+                        st.session_state["last_bulletin_path"] = str(out_path)
+                        st.info("Use o botão abaixo para baixar; o arquivo local será removido após o download.")
+                    except Exception:
+                        # Fallback: se sessão não aceitar, manter botão direto (sem remoção automática)
+                        st.download_button("Baixar boletim (plano)", data=data, file_name=out_path.name, key="dl_fallback")
                 except Exception as e:
                     st.error(f"Falha ao gerar boletim por plano: {e}")
+
+    # Se houver um boletim recém-gerado, oferecer download e remover arquivo após clique
+    lb_data = st.session_state.get("last_bulletin_data")
+    lb_name = st.session_state.get("last_bulletin_name")
+    lb_path = st.session_state.get("last_bulletin_path")
+    if lb_data and lb_name:
+        clicked = st.download_button(
+            "Baixar último boletim gerado", data=lb_data, file_name=str(lb_name), key="dl_last_bulletin"
+        )
+        if clicked:
+            # Remover arquivo gerado no servidor após o download
+            try:
+                if lb_path:
+                    from pathlib import Path as _P
+                    p = _P(str(lb_path))
+                    if p.exists():
+                        p.unlink()
+            except Exception as _e:
+                st.warning(f"Não foi possível remover o arquivo local: {lb_path} — {_e}")
+            # Limpar dados da sessão para evitar re-download e liberar memória
+            for k in ("last_bulletin_data", "last_bulletin_name", "last_bulletin_path"):
+                try:
+                    del st.session_state[k]
+                except Exception:
+                    pass
+            st.caption("Arquivo do boletim removido do servidor. Os JSONs permanecem em 'resultados/'.")

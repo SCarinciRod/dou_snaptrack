@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Tuple, Optional
 import json
 import re
 from ..adapters.utils import generate_bulletin as _generate_bulletin
+from ..utils.text import sanitize_filename
 from dou_utils.summarize import summarize_text as _summarize_text
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
@@ -280,11 +281,9 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> List[str]:
     # resultados root = parent of the day folder if named 'resultados'
     target_dir = root.parent if root.parent.name.lower() == "resultados" else root
     secao_label = (secao_any or "DO").strip()
-    def _sanitize(name: str) -> str:
-        return re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name).strip(" _")[:180] or "out"
     for date, payload in agg.items():
         payload["total"] = len(payload.get("itens", []))
-        safe_plan = _sanitize(plan_name)
+        safe_plan = sanitize_filename(plan_name)
         date_lab = (date or "").replace("/", "-")
         out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
         out_path = target_dir / out_name
@@ -320,11 +319,6 @@ def split_and_report_by_n1(
         date_label: rótulo de data (opcional)
         secao_label: rótulo de seção (opcional)
     """
-    def _sanitize(name: str) -> str:
-        import re
-        name = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
-        return (name or "n1").strip(" _")[:120]
-
     import os
     out_dir = Path(out_root)
     # If a file path is passed (like logs/unused.docx), use its parent as output directory
@@ -410,7 +404,7 @@ def split_and_report_by_n1(
                     if t:
                         it["texto"] = str(t)
 
-        name = pattern.replace("{n1}", _sanitize(n1)).replace("{date}", _sanitize(date or "")).replace("{secao}", _sanitize(secao or ""))
+        name = pattern.replace("{n1}", sanitize_filename(n1, max_len=120)).replace("{date}", sanitize_filename(date or "", max_len=120)).replace("{secao}", sanitize_filename(secao or "", max_len=120))
         out_path = out_dir / name
         # Garantir que a pasta do arquivo exista, mesmo se o padrão incluir subpastas
         out_path.parent.mkdir(parents=True, exist_ok=True)

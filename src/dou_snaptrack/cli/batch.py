@@ -12,12 +12,7 @@ import multiprocessing as mp
 import subprocess
 
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
-
-
-def sanitize_filename(name: str) -> str:
-    import re
-    name = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", name)
-    return name[:180].strip("_ ") or "out"
+from ..utils.text import sanitize_filename
 
 
 def render_out_filename(pattern: str, job: Dict[str, Any]) -> str:
