@@ -3,7 +3,7 @@ from __future__ import annotations
 try:
     from dou_utils.bulletin_utils import generate_bulletin  # type: ignore
 except Exception:  # pragma: no cover
-    def generate_bulletin(*args, **kwargs):  # type: ignore
+    def generate_bulletin(*args, **_kwargs):  # type: ignore
         raise RuntimeError("Geração de boletim indisponível")
 
 try:

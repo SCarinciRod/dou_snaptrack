@@ -9,7 +9,7 @@ Reúne:
 """
 
 from __future__ import annotations
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict
 from ..dropdown_utils import _is_select, _read_select_options
 from ..dropdown_strategies import open_dropdown_robust, collect_open_list_options
 from ..log_utils import get_logger

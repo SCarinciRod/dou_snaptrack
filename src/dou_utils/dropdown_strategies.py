@@ -11,7 +11,6 @@ mantendo ordem configurável e logging.
 
 from __future__ import annotations
 from typing import Optional, Dict, Any, Iterable, List
-import re
 from .log_utils import get_logger
 
 logger = get_logger(__name__)

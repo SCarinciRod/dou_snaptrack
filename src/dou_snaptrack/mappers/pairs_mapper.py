@@ -1,11 +1,10 @@
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
-from datetime import datetime
 import re
 
 from ..constants import LEVEL_IDS
 from ..utils.text import normalize_text
-from ..utils.dom import is_select, read_select_options
+from ..utils.dom import read_select_options
 from dou_utils.dropdown_strategies import open_dropdown_robust, collect_open_list_options
 
 def remove_placeholders(options: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

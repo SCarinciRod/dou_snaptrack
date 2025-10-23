@@ -26,8 +26,8 @@ Saída:
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field, asdict
-from typing import Any, List, Dict, Optional, Iterable, Tuple
+from dataclasses import dataclass, field
+from typing import Any, List, Dict, Optional
 import re
 
 from ..element_utils import elem_common_info, label_for_control

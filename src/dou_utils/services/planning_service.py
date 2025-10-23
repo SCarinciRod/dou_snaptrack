@@ -3,7 +3,7 @@ import json
 import re
 import unicodedata
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional
 
 from dou_utils.core.sentinel_utils import is_sentinel_option
 from dou_utils.core.option_filter import filter_options
@@ -277,7 +277,6 @@ class PlanFromPairsService:
         enable_level3: bool = False,
         select3: Optional[str] = None,
         pick3: Optional[str] = None,
-        limit3_per_n2: Optional[int] = None,
         filter_sentinels: bool = True,
         **_
     ) -> Dict[str, Any]:

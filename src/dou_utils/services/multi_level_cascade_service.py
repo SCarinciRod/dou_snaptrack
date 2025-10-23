@@ -19,7 +19,7 @@ Compatível com combos vindos de expand_batch_config contendo:
 """
 
 from __future__ import annotations
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 import re
 from ..log_utils import get_logger
 from ..selection_utils import (
@@ -27,8 +27,6 @@ from ..selection_utils import (
     read_rich_options,
     wait_repopulation
 )
-from ..dropdown_strategies import open_dropdown_robust, collect_open_list_options
-from ..dropdown_utils import _is_select, _read_select_options
 
 logger = get_logger(__name__)
 

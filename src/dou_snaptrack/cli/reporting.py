@@ -423,6 +423,6 @@ def split_and_report_by_n1(
 
 
 # ----------------- helpers -----------------
-def _enrich_missing_texts(*args, **kwargs):
+def _enrich_missing_texts(*args, **_kwargs):
     # Legacy compat: mantido para evitar import breaks; não usado após refactor
     logger.info("[ENRICH] legacy function not used; using dou_utils.content_fetcher.Fetcher instead")

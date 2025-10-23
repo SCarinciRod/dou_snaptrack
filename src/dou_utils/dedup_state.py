@@ -6,7 +6,7 @@ Used to avoid reprocessing same items across runs.
 from __future__ import annotations
 from pathlib import Path
 import json
-from typing import Set, Optional
+from typing import Set
 
 
 class DedupState:

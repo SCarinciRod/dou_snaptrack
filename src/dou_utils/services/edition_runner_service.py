@@ -1,7 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List, Callable
-from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 from ..page_utils import goto as _goto, try_visualizar_em_lista, find_best_frame

@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import Dict, Any, List
-from datetime import datetime
 
 from ..constants import DROPDOWN_ROOT_SELECTORS
 from ..utils.dom import elem_common_info, label_for_control, is_select, read_select_options

@@ -5,7 +5,7 @@ Centralizes structured representations to improve typing, validation, and reuse.
 
 from __future__ import annotations
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional
 from datetime import datetime
 
 

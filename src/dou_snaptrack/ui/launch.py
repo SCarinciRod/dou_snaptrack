@@ -4,7 +4,6 @@ import pathlib
 import platform
 import subprocess
 import webbrowser
-import time
 
 # Launcher para `python -m dou_snaptrack.ui.launch` ou entry point `dou-ui`.
 # Em Windows, delega ao launcher gerenciado (PowerShell) que abre o navegador com loader e faz auto-kill.

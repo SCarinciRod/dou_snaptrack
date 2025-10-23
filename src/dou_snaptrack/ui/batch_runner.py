@@ -285,7 +285,7 @@ class _UILock:
             self._locked = False
         return self
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(self, _exc_type, _exc, tb):
         try:
             if self._fp and self._locked and sys.platform.startswith("win"):
                 import msvcrt  # type: ignore
