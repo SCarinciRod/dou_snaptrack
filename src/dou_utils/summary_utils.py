@@ -6,22 +6,40 @@ import unicodedata
 from typing import List, Optional, Tuple
 from .text_cleaning import remove_dou_metadata, strip_legalese_preamble, extract_article1_section
 
+# Padrões regex pré-compilados para performance
+_WHITESPACE_PATTERN = re.compile(r"\s+")
+_ABBREV_SR_PATTERN = re.compile(r"\b(Sr|Sra|Dr|Dra)\.")
+_ABBREV_ETAL_PATTERN = re.compile(r"\b(et al)\.", re.IGNORECASE)
+_SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[\.\!\?;])\s+")
+_ARTICLE1_PATTERN = re.compile(r"\b(?:Art\.?|Artigo)\s*1(º|o)?\b", re.IGNORECASE)
+_DOC_TYPE_PREFIX_PATTERN = re.compile(
+    r"^\s*(PORTARIA|RESOLUÇÃO|DECRETO|ATO|MENSAGEM|DESPACHO|EXTRATO|COMUNICADO)\s*[-–—]?\s*",
+    re.IGNORECASE
+)
+_PRIORITY_VERB_PATTERN = re.compile(
+    r"\b(decis[aã]o:|nego\s+provimento|defiro|indefer[io]|determino|autorizo|autoriza|habilita|desabilita|estabelece|fica\s+estabelecido|prorroga|renova|entra\s+em\s+vigor)\b",
+    re.IGNORECASE
+)
+_ENUMERATION_PATTERN = re.compile(r"^\s*(?:[IVXLCDM]{1,6}|\d+|[a-z]\)|[A-Z]\))\s*[-–—)]\s+", re.IGNORECASE)
+_MONEY_PATTERN = re.compile(r"R\$\s?\d", re.IGNORECASE)
+_DATE_PATTERN = re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b|\bde\s+[A-Za-zçáéíóúãõâêô]+\s+de\s+\d{4}\b", re.IGNORECASE)
+
 def normalize_text(s: str) -> str:
     if s is None:
         return ""
     s = unicodedata.normalize("NFKD", s)
     s = s.encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"\s+", " ", s.strip().lower())
+    return _WHITESPACE_PATTERN.sub(" ", s.strip().lower())
 
 def split_sentences(pt_text: str) -> List[str]:
     if not pt_text:
         return []
     text = pt_text
     # Remover ponto de abreviações comuns sem usar look-behind variável
-    text = re.sub(r"\b(Sr|Sra|Dr|Dra)\.", r"\1", text)
-    text = re.sub(r"\b(et al)\.", r"\1", text, flags=re.I)
-    parts = re.split(r"(?<=[\.\!\?;])\s+", text)
-    sents = [re.sub(r"\s+", " ", s).strip() for s in parts if s and s.strip()]
+    text = _ABBREV_SR_PATTERN.sub(r"\1", text)
+    text = _ABBREV_ETAL_PATTERN.sub(r"\1", text)
+    parts = _SENTENCE_SPLIT_PATTERN.split(text)
+    sents = [_WHITESPACE_PATTERN.sub(" ", s).strip() for s in parts if s and s.strip()]
     cleaned = []
     seen = set()
     for s in sents:
@@ -40,7 +58,7 @@ def clean_text_for_summary(text: str) -> str:
     # Remover metadados do DOU e formalidades jurídicas básicas
     t = remove_dou_metadata(text)
     t = strip_legalese_preamble(t)
-    t = re.sub(r"\s+", " ", t).strip()
+    t = _WHITESPACE_PATTERN.sub(" ", t).strip()
     patterns = [
         r"Este conteúdo não substitui.*?$",
         r"Publicado em\s*\d{1,2}/\d{1,2}/\d{2,4}.*?$",
@@ -49,7 +67,7 @@ def clean_text_for_summary(text: str) -> str:
     ]
     for pat in patterns:
         t = re.sub(pat, "", t, flags=re.I)
-    t = re.sub(r"^\s*(PORTARIA|RESOLUÇÃO|DECRETO|ATO|MENSAGEM|DESPACHO|EXTRATO|COMUNICADO)\s*[-–—]?\s*", "", t, flags=re.I)
+    t = _DOC_TYPE_PREFIX_PATTERN.sub("", t)
     t = t.strip()
     # Preferir conteúdo do Art. 1º quando existir (para atos articulados)
     a1 = extract_article1_section(t)
@@ -58,7 +76,7 @@ def clean_text_for_summary(text: str) -> str:
 def _has_article_markers(text: str) -> bool:
     if not text:
         return False
-    return re.search(r"\b(?:Art\.?|Artigo)\s*1(º|o)?\b", text, flags=re.I) is not None
+    return _ARTICLE1_PATTERN.search(text) is not None
 
 def _detect_genre_header(text: str) -> str:
     """Detecta gênero aproximado a partir do cabeçalho do texto bruto.
@@ -79,10 +97,9 @@ def _find_priority_sentence(sents: List[str]) -> Optional[Tuple[int, str]]:
     """Procura uma sentença com verbos decisórios comuns (útil para DESPACHO/atos sem artigos)."""
     if not sents:
         return None
-    pat = re.compile(r"\b(decis[aã]o:|nego\s+provimento|defiro|indefer[io]|determino|autorizo|autoriza|habilita|desabilita|estabelece|fica\s+estabelecido|prorroga|renova|entra\s+em\s+vigor)\b", re.I)
     window = sents[: min(10, len(sents))]
     for i, s in enumerate(window):
-        if pat.search(s or ""):
+        if _PRIORITY_VERB_PATTERN.search(s or ""):
             return (i, s)
     return None
 
@@ -139,11 +156,6 @@ def summarize_text(text: str, max_lines: int = 7, keywords: Optional[List[str]] 
     # Dar um bônus para frases com verbos decisórios (sempre que aparecerem)
     pri_idx = _find_priority_sentence(sents)
 
-    # Padrões de enumeração a penalizar (listas tipo I -, II -, alíneas, incisos)
-    enum_pat = re.compile(r"^\s*(?:[IVXLCDM]{1,6}|\d+|[a-z]\)|[A-Z]\))\s*[-–—)]\s+", re.I)
-    money_pat = re.compile(r"R\$\s?\d", re.I)
-    date_pat = re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b|\bde\s+[A-Za-zçáéíóúãõâêô]+\s+de\s+\d{4}\b", re.I)
-
     for i, s in enumerate(sents):
         if mode_local == "keywords-first":
             w_k, w_l, w_p = 1.6, 1.0, 0.6
@@ -160,12 +172,12 @@ def summarize_text(text: str, max_lines: int = 7, keywords: Optional[List[str]] 
         if pri_idx and i == pri_idx[0]:
             score += 0.9
         # Bônus por valores/datas
-        if money_pat.search(s):
+        if _MONEY_PATTERN.search(s):
             score += 0.4
-        if date_pat.search(s):
+        if _DATE_PATTERN.search(s):
             score += 0.2
         # Penalidade por enumeração/itens de lista normativos
-        if enum_pat.search(s):
+        if _ENUMERATION_PATTERN.search(s):
             score -= 0.7
         scores.append((score, i, s))
 

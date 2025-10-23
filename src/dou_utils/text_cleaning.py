@@ -7,6 +7,20 @@ from .log_utils import get_logger
 
 logger = get_logger(__name__)
 
+# Padrões regex pré-compilados para performance
+_HTML_TAG_PATTERN = re.compile(r"<[^>]+>")
+_NEWLINE_PATTERN = re.compile(r"[\r\n]+")
+_DOU_METADATA_1 = re.compile(r"\b(di[áa]rio oficial da uni[aã]o|imprensa nacional)\b", re.IGNORECASE)
+_DOU_METADATA_2 = re.compile(r"\b(publicado em|edi[cç][aã]o|se[cç][aã]o|p[aá]gina|[oó]rg[aã]o)\b", re.IGNORECASE)
+_DOU_METADATA_3 = re.compile(r"\b(bras[aã]o)\b", re.IGNORECASE)
+_DOU_DISCLAIMER = re.compile(r"este conte[úu]do n[aã]o substitui", re.IGNORECASE)
+_DOU_LAYOUT = re.compile(r"borda do rodap[eé]|logo da imprensa|rodap[eé]", re.IGNORECASE)
+_HEADER_DATE_PATTERN = re.compile(r"\b(MENSAGEM\s+N[ºO]|N[ºO]\s+\d|de\s+\d{1,2}\s+de)\b", re.IGNORECASE)
+_WHITESPACE_PATTERN = re.compile(r"\s+")
+_MULTI_DOT_PATTERN = re.compile(r"\.+")
+_TRAILING_WORD_PATTERN = re.compile(r"\s+\S*$")
+_ORDINAL_PREFIX_PATTERN = re.compile(r"^\d+º\s+")
+
 
 def remove_dou_metadata(text: str) -> str:
     """Remove linhas e trechos típicos de metadados do DOU para não poluir resumos.
@@ -19,24 +33,24 @@ def remove_dou_metadata(text: str) -> str:
         return ""
 
     # Remover tags HTML simples que possam estar presentes
-    t = re.sub(r"<[^>]+>", " ", text)
-    lines = re.split(r"[\r\n]+", t)
+    t = _HTML_TAG_PATTERN.sub(" ", text)
+    lines = _NEWLINE_PATTERN.split(t)
     cleaned: list[str] = []
     for ln in lines:
         low = ln.strip().lower()
         if not low:
             continue
         # Padrões de metadados do DOU a remover
-        if re.search(r"\b(di[áa]rio oficial da uni[aã]o|imprensa nacional)\b", low):
+        if _DOU_METADATA_1.search(low):
             continue
-        if re.search(r"\b(publicado em|edi[cç][aã]o|se[cç][aã]o|p[aá]gina|[oó]rg[aã]o)\b", low):
+        if _DOU_METADATA_2.search(low):
             continue
-        if re.search(r"\b(bras[aã]o)\b", low):
+        if _DOU_METADATA_3.search(low):
             continue
         # Disclaimers e elementos de layout
-        if re.search(r"este conte[úu]do n[aã]o substitui", low):
+        if _DOU_DISCLAIMER.search(low):
             continue
-        if re.search(r"borda do rodap[eé]|logo da imprensa|rodap[eé]", low):
+        if _DOU_LAYOUT.search(low):
             continue
         cleaned.append(ln)
 
@@ -49,10 +63,10 @@ def split_doc_header(text: str) -> Tuple[Optional[str], str]:
         return None, ""
 
     # Remover tags HTML simples e normalizar quebras
-    raw = re.sub(r"<[^>]+>", " ", text)
+    raw = _HTML_TAG_PATTERN.sub(" ", text)
     # Limitar a janela de busca para desempenho, mas suficientemente ampla
     raw_window = raw[:4000]
-    lines = re.split(r"[\r\n]+", raw_window)
+    lines = _NEWLINE_PATTERN.split(raw_window)
     head_candidates = []
     for ln in lines[:50]:
         s = ln.strip()
@@ -114,7 +128,7 @@ def split_doc_header(text: str) -> Tuple[Optional[str], str]:
         if not tail:
             break
         nxt = tail.split("\n", 1)[0].strip()
-        if re.search(r"\b(MENSAGEM\s+N[ºO]|N[ºO]\s+\d|de\s+\d{1,2}\s+de)\b", nxt, flags=re.I):
+        if _HEADER_DATE_PATTERN.search(nxt):
             remain = tail
             continue
         # se a próxima linha ainda for majoritariamente maiúscula, considerar também
@@ -124,7 +138,7 @@ def split_doc_header(text: str) -> Tuple[Optional[str], str]:
             remain = tail
             continue
         break
-    header = re.sub(r"\s+", " ", " ".join(header_lines)).strip()
+    header = _WHITESPACE_PATTERN.sub(" ", " ".join(header_lines)).strip()
 
     # Construir body removendo o header da primeira ocorrência no raw original
     # Usar uma busca case-insensitive para achar a mesma fatia
