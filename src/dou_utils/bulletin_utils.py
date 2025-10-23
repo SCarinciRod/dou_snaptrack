@@ -93,7 +93,8 @@ def _minimal_summary_from_item(it: Dict[str, Any]) -> Optional[str]:
     """
     try:
         head = _extract_doc_header_line(it)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to extract doc header: {e}")
         head = None
     if head:
         return _final_clean_snippet(head)
@@ -136,8 +137,8 @@ def _summarize_item(
         # Só usar o body se ele tiver conteúdo razoável (evita ficar vazio quando só há título)
         if body and len(body.strip()) >= 30:
             use_base = body
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Failed to split doc header: {e}")
     # Remover metadados do DOU, limpar juridiquês e tentar extrair somente o Art. 1º
     try:
         clean = _remove_dou_metadata(use_base)
@@ -149,8 +150,8 @@ def _summarize_item(
             clean2 = _strip_legalese_preamble(_remove_dou_metadata(base))
             base_eff = clean2 or base
         base = base_eff
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Failed to clean/extract article: {e}")
         
     # Modo derivado por tipo de ato: usar 'lead' para atos normativos e despachos
     derived_mode = (mode or "center").lower()
@@ -158,8 +159,8 @@ def _summarize_item(
         tipo = (it.get("tipo_ato") or "").strip().lower()
         if tipo.startswith("decreto") or tipo.startswith("portaria") or tipo.startswith("resolu") or tipo.startswith("despacho"):
             derived_mode = "lead"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Failed to derive mode from tipo_ato: {e}")
 
     snippet = None
     method_tag = ""

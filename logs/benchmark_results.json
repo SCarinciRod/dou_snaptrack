@@ -1,0 +1,106 @@
+{
+  "benchmark_name": "Consolidated Results",
+  "timestamp": "2025-10-23 12:55:58",
+  "results": [
+    {
+      "label": "remove_dou_metadata (1000x)",
+      "iterations": 1000,
+      "total_time_ms": 1682.49,
+      "avg_time_ms": 1.6825,
+      "throughput_ops_sec": 594.36,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.07,
+      "peak_memory_mb": 0.02
+    },
+    {
+      "label": "split_doc_header (1000x)",
+      "iterations": 1000,
+      "total_time_ms": 306.03,
+      "avg_time_ms": 0.306,
+      "throughput_ops_sec": 3267.64,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.01,
+      "peak_memory_mb": 0.04
+    },
+    {
+      "label": "summarize_text mode=center (500x)",
+      "iterations": 500,
+      "total_time_ms": 1579.29,
+      "avg_time_ms": 3.1586,
+      "throughput_ops_sec": 316.6,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.86,
+      "peak_memory_mb": 0.08
+    },
+    {
+      "label": "summarize_text mode=keywords-first (500x)",
+      "iterations": 500,
+      "total_time_ms": 1580.58,
+      "avg_time_ms": 3.1612,
+      "throughput_ops_sec": 316.34,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.13,
+      "peak_memory_mb": 0.07
+    },
+    {
+      "label": "Regex PRÉ-COMPILADO (otimizado)",
+      "iterations": 1000,
+      "total_time_ms": 2848.36,
+      "avg_time_ms": 2.8484,
+      "throughput_ops_sec": 351.08,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.09,
+      "peak_memory_mb": 0.26
+    },
+    {
+      "label": "Regex INLINE (não otimizado)",
+      "iterations": 1000,
+      "total_time_ms": 2812.67,
+      "avg_time_ms": 2.8127,
+      "throughput_ops_sec": 355.53,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.05,
+      "peak_memory_mb": 0.26
+    },
+    {
+      "label": "import dou_utils.text_cleaning",
+      "iterations": 1,
+      "total_time_ms": 0.02,
+      "avg_time_ms": 0.0186,
+      "throughput_ops_sec": 53763.7,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.0,
+      "peak_memory_mb": 0.0
+    },
+    {
+      "label": "import dou_utils.summary_utils",
+      "iterations": 1,
+      "total_time_ms": 0.02,
+      "avg_time_ms": 0.0229,
+      "throughput_ops_sec": 43668.46,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.0,
+      "peak_memory_mb": 0.0
+    },
+    {
+      "label": "import dou_utils.bulletin_utils",
+      "iterations": 1,
+      "total_time_ms": 0.02,
+      "avg_time_ms": 0.0201,
+      "throughput_ops_sec": 49751.73,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.0,
+      "peak_memory_mb": 0.0
+    },
+    {
+      "label": "import dou_snaptrack.cli.reporting",
+      "iterations": 1,
+      "total_time_ms": 0.02,
+      "avg_time_ms": 0.0233,
+      "throughput_ops_sec": 42917.91,
+      "cpu_percent_delta": 0,
+      "memory_delta_mb": 0.0,
+      "peak_memory_mb": 0.0
+    }
+  ]
+}

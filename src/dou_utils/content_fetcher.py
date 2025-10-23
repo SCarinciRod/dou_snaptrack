@@ -54,16 +54,16 @@ class Fetcher:
             raw = p.with_suffix("")
             if raw.exists():
                 return raw.read_text(encoding="utf-8", errors="ignore")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Cache read failed for {p}: {e}")
         return ""
 
     def _write_cache_file(self, p: Path, html: str) -> None:
         try:
             with gzip.open(p, "wt", encoding="utf-8") as fp:
                 fp.write(html)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Cache write failed for {p}: {e}")
 
     def fetch_html(self, url: str) -> str:
         if not url or not url.startswith("http"):
@@ -77,8 +77,8 @@ class Fetcher:
                     # move para o fim (mais recente)
                     self._mem_cache[url] = html
                     return html
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Memory cache access failed for {url}: {e}")
             # Se existir no disco, ler e popular LRU
             if cp.exists():
                 html = self._read_cache_file(cp)
@@ -87,7 +87,8 @@ class Fetcher:
                         self._mem_cache[url] = html
                         if len(self._mem_cache) > self._mem_cache_max:
                             self._mem_cache.popitem(last=False)
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Memory cache update failed: {e}")
                         pass
                     return html
         req = urllib.request.Request(
