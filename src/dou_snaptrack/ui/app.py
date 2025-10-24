@@ -214,7 +214,7 @@ def _get_thread_local_playwright_and_browser():
     return res
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=300)  # Cache por 5 minutos apenas
 def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20) -> list[str]:
     # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico (reutilizando Playwright)
     try:
@@ -293,7 +293,7 @@ def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20)
         return []
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=300)  # Cache por 5 minutos apenas
 def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU)."""
     import traceback
@@ -320,6 +320,8 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
         browser = _res.browser
         try:
             context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
+            # Aumentar timeout padrão para operações (site DOU pode ser lento)
+            context.set_default_timeout(90_000)  # 90 segundos
             page = context.new_page()
             url = build_dou_url(date, secao)
             goto(page, url)
@@ -328,6 +330,11 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
             except Exception:
                 pass
             frame = find_best_frame(context)
+            # Aguardar um pouco para garantir que os dropdowns estão carregados
+            try:
+                page.wait_for_timeout(1000)  # 1 segundo adicional
+            except Exception:
+                pass
             # Priorizar IDs canônicos quando disponíveis; fallback para a primeira raiz detectada
             try:
                 r1, _r2 = _select_roots(frame)
@@ -354,8 +361,10 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
             if not uniq:
                 st.error("[ERRO] Lista de N1 está vazia após filtragem. Tente outra data/seção ou revise o site.")
             return uniq
-        except TimeoutError:
-            st.error("[ERRO] Timeout ao tentar carregar opções N1. Tente novamente ou revise a conexão.")
+        except TimeoutError as te:
+            st.error(f"[ERRO] Timeout ao tentar carregar opções N1 ({te}).")
+            st.warning("⏱️ O site do DOU pode estar lento. Tente novamente em alguns segundos ou:")
+            st.info("• Verifique sua conexão com a internet\n• Tente uma data/seção diferente\n• Aguarde alguns minutos e tente novamente")
             return []
         except Exception as e:
             tb = traceback.format_exc(limit=4)
