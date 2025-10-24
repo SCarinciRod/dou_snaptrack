@@ -9,6 +9,8 @@ from typing import Any
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
 from dou_utils.summarize import summarize_text as _summarize_text
+# CRÍTICO: Aplicar patch para corrigir bug de texto cortado em resumos
+import dou_utils.bulletin_patch  # noqa: F401
 
 from ..adapters.utils import generate_bulletin as _generate_bulletin
 from ..utils.text import sanitize_filename
@@ -187,6 +189,24 @@ def report_from_aggregated(
             short_len_threshold=int(short_len_threshold),
             browser_timeout_sec=max(20, fetch_timeout_sec),
         ).enrich_items(agg, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
+        
+        # CRÍTICO: Limpar cabeçalhos DOU de todos os items após enrich
+        # O fetcher salva HTML completo com "Brasão do Brasil... Diário Oficial..."
+        # Precisamos limpar ANTES da sumarização para evitar cabeçalhos nos resumos
+        from dou_utils.summary_utils import clean_text_for_summary
+        for it in agg:
+            texto_bruto = it.get("texto") or ""
+            if texto_bruto:
+                it["texto"] = clean_text_for_summary(texto_bruto)
+        
+        # DEBUG: Verificar se items têm texto após enrich + limpeza
+        with_texto = sum(1 for i in agg if i.get("texto"))
+        logger.info(f"[DEBUG] Após enrich+limpeza: {with_texto}/{len(agg)} items com 'texto'")
+        if agg:
+            sample_idx = min(2, len(agg)-1)  # Item 522 é índice 2
+            sample_text = agg[sample_idx].get("texto", "")
+            logger.info(f"[DEBUG] Item[{sample_idx}] titulo: {agg[sample_idx].get('titulo', '')[:50]}")
+            logger.info(f"[DEBUG] Item[{sample_idx}] texto length: {len(sample_text)}, primeiros 200: {sample_text[:200]}")
     else:
         if summary_lines <= 0:
             logger.info("[ENRICH] skipped: summarize disabled (summary_lines=0)")

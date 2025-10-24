@@ -23,6 +23,11 @@ _PRIORITY_VERB_PATTERN = re.compile(
 _ENUMERATION_PATTERN = re.compile(r"^\s*(?:[IVXLCDM]{1,6}|\d+|[a-z]\)|[A-Z]\))\s*[-)\s]+", re.IGNORECASE)
 _MONEY_PATTERN = re.compile(r"R\$\s?\d", re.IGNORECASE)
 _DATE_PATTERN = re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b|\bde\s+[A-Za-zçáéíóúãõâêô]+\s+de\s+\d{4}\b", re.IGNORECASE)
+# Padrão para detectar sentenças que parecem cabeçalhos/metadados do DOU
+_DOU_HEADER_SENTENCE = re.compile(
+    r"(brasão.*?diário oficial|publicado em.*?edição.*?seção|órgão.*?ministério.*?publicado)",
+    re.IGNORECASE
+)
 
 def normalize_text(s: str) -> str:
     if s is None:
@@ -53,25 +58,63 @@ def split_sentences(pt_text: str) -> list[str]:
     return cleaned
 
 def clean_text_for_summary(text: str) -> str:
+    """Remove cabeçalhos DOU, metadados e juridiquês, retornando texto limpo para sumarização.
+    
+    Args:
+        text: Texto completo do ato/publicação
+        
+    Returns:
+        Texto limpo, preferencialmente do Art. 1º se existir
+    """
     if not text:
         return ""
-    # Remover metadados do DOU e formalidades jurídicas básicas
-    t = remove_dou_metadata(text)
+    
+    # CRÍTICO: Remover cabeçalho DOU inline ANTES de tudo
+    # Padrão: Brasão...Diário Oficial...Publicado/Edição...Seção/Página...Órgão:...até tipo do ato
+    # Captura múltiplos níveis de órgão (ex: Ministério/Universidade/Pró-Reitoria/Departamento)
+    # Lookahead aceita tipo do ato COM ou SEM qualificador (PORTARIA Nº ou só RETIFICAÇÃO)
+    # Expandido para incluir DECISÃO e outros tipos comuns
+    t = re.sub(
+        r"^.*?(?:Brasão|Diário Oficial da União).*?(?:Publicado em|Edição).*?(?:Seção|Página).*?Órgão:[^\n]*?\s*(?=(?:PORTARIA|DECRETO|DESPACHO|RESOLUÇÃO|ATO|EXTRATO|PAUTA|DELIBERAÇÃO|ALVARÁ|RETIFICAÇÃO|SÚMULA|DECISÃO|ORDEM|EDITAL|AVISO|INSTRUÇÃO|Portaria|Decreto|Despacho|Decisão|MENSAGEM|Mensagem|Retificação|Súmula)(?:\s|$))",
+        "",
+        text,
+        count=1,
+        flags=re.I | re.DOTALL
+    )
+    
+    # Limpar resíduo comum "do Ministro" após remoção do cabeçalho
+    if len(t) < len(text):  # Apenas se regex removeu algo
+        t = re.sub(r"^(?:do|da|de)\s+\w+\s+", "", t, count=1, flags=re.I)
+    
+    # Se a regex não encontrou padrão DOU, tentar fallback conservador
+    # MAS APENAS se o texto tem múltiplas linhas E contém padrões típicos de cabeçalho
+    if t == text:  # Regex não removeu nada
+        lines_count = len(t.split('\n'))
+        has_metadata_pattern = bool(re.search(r"(?:Brasão|Publicado em|Edição|Órgão).*?(?:Seção|Página)", t, re.I | re.DOTALL))
+        # Só aplicar remove_dou_metadata se há múltiplas linhas E padrões de metadata
+        if lines_count > 3 and has_metadata_pattern:
+            t = remove_dou_metadata(t)
+        # Senão, o texto já está limpo (ex: Art. 1º vindo de extract já processado)
+    
     t = strip_legalese_preamble(t)
     t = _WHITESPACE_PATTERN.sub(" ", t).strip()
+    
+    # Padrões adicionais para limpeza
     patterns = [
         r"Este conteúdo não substitui.*?$",
-        r"Publicado em\s*\d{1,2}/\d{1,2}/\d{2,4}.*?$",
         r"Imprensa Nacional.*?$",
-        r"Ministério da.*?Diário Oficial.*?$",
     ]
     for pat in patterns:
-        t = re.sub(pat, "", t, flags=re.I)
+        t = re.sub(pat, "", t, flags=re.I | re.DOTALL)
+    
     t = _DOC_TYPE_PREFIX_PATTERN.sub("", t)
     t = t.strip()
+    
     # Preferir conteúdo do Art. 1º quando existir (para atos articulados)
     a1 = extract_article1_section(t)
-    return (a1 or t).strip()
+    result = (a1 or t).strip()
+    
+    return result
 
 def _has_article_markers(text: str) -> bool:
     if not text:
@@ -104,10 +147,13 @@ def _find_priority_sentence(sents: list[str]) -> tuple[int, str] | None:
     return None
 
 def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = None, mode: str = "center") -> str:
+    """Sumariza texto removendo cabeçalhos DOU e selecionando sentenças relevantes."""
     if not text:
         return ""
+    
     base = clean_text_for_summary(text)
     sents = split_sentences(base)
+    
     # Robust fallback: se não houver sentenças, sintetizar a partir das primeiras palavras
     if not sents:
         words = re.findall(r"\w+[\w-]*", base)
@@ -115,6 +161,7 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
             return ""
         chunk = " ".join(words[: max(12, max_lines * 14)]).strip()
         return chunk + ("" if chunk.endswith(".") else ".")
+    
     if len(sents) <= max_lines:
         return "\n".join(sents[:max_lines])
 
@@ -176,6 +223,20 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
             score += 0.4
         if _DATE_PATTERN.search(s):
             score += 0.2
+        # PENALIDADE FORTE para sentenças que parecem cabeçalhos do DOU
+        if _DOU_HEADER_SENTENCE.search(s):
+            score -= 2.0
+        # Penalidade adicional por menções a "Edição", "Seção", "Página" isoladas
+        s_low = s.lower()
+        metadata_count = sum([
+            "edição" in s_low or "edicao" in s_low,
+            "seção" in s_low or "secao" in s_low,
+            "página" in s_low or "pagina" in s_low,
+            "publicado em" in s_low,
+            "brasão" in s_low or "brasao" in s_low
+        ])
+        if metadata_count >= 2:
+            score -= 1.5
         # Penalidade por enumeração/itens de lista normativos
         if _ENUMERATION_PATTERN.search(s):
             score -= 0.7
