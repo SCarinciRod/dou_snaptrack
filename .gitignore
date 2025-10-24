@@ -48,3 +48,20 @@ Thumbs.db
 
 # Project-specific
 src/dou_snaptrack.egg-info/
+
+# Development and testing
+logs/ui_streamlit_*.log
+planos/teste*.json
+resultados/boletim_*.md
+resultados/teste*/
+resultados/*-*-*/
+scripts/test_*.py
+scripts/check_*.py
+scripts/debug_*.py
+scripts/run_*.py
+scripts/teste_*.py
+scripts/fetch_*.py
+scripts/investigate_*.py
+
+# Lock files
+resultados/ui.lock
