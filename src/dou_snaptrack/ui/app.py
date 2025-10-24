@@ -77,7 +77,7 @@ def _load_pairs_file(p: Path) -> dict[str, list[str]]:
     return {}
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)  # Cobre múltiplas versões (Edge/Chrome 32/64-bit)
 def _find_system_browser_exe() -> str | None:
     """Resolve a system Chrome/Edge executable once and cache the result."""
     from pathlib import Path as _P
@@ -102,7 +102,7 @@ def _find_system_browser_exe() -> str | None:
     return None
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)  # Cache por 1 hora - previne dados obsoletos
 def _load_pairs_file_cached(path_str: str) -> dict[str, list[str]]:
     """Cached wrapper around _load_pairs_file for UI flows."""
     try:
@@ -175,7 +175,8 @@ def _get_thread_local_playwright_and_browser():
     browser = None
     for ch in channels:
         try:
-            browser = p.chromium.launch(channel=ch, headless=True)
+            # Timeout de 10s por tentativa - evita espera excessiva em falhas
+            browser = p.chromium.launch(channel=ch, headless=True, timeout=10000)
             break
         except Exception:
             browser = None
@@ -183,11 +184,11 @@ def _get_thread_local_playwright_and_browser():
         exe = _find_system_browser_exe()
         if exe and _P(exe).exists():
             try:
-                browser = p.chromium.launch(executable_path=exe, headless=True)
+                browser = p.chromium.launch(executable_path=exe, headless=True, timeout=10000)
             except Exception:
                 browser = None
     if browser is None:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True, timeout=10000)
 
     class _Resource:
         def __init__(self, p, b):
@@ -882,4 +883,58 @@ with tab3:
                     del st.session_state[k]
                 except Exception:
                     pass
+
+
+# ======================== TAB 4: Manutenção do Artefato de Pares ========================
+with st.sidebar:
+    st.divider()
+    with st.expander("🔧 Manutenção do Artefato", expanded=False):
+        st.caption("Gerenciar pairs_DO1_full.json")
+        
+        from dou_snaptrack.utils.pairs_updater import get_pairs_file_info, update_pairs_file
+        
+        info = get_pairs_file_info()
+        
+        if info["exists"]:
+            st.metric("Status", "✅ Existe" if not info["is_stale"] else "⚠️ Obsoleto")
+            if info["age_days"] is not None:
+                st.metric("Idade", f"{info['age_days']:.1f} dias")
+            if info["n1_count"]:
+                st.metric("Órgãos (N1)", info["n1_count"])
+            if info["pairs_count"]:
+                st.metric("Pares (N1→N2)", info["pairs_count"])
+            if info["last_update"]:
+                st.caption(f"Última atualização: {info['last_update'][:19]}")
+        else:
+            st.warning("⚠️ Arquivo não encontrado")
+        
+        st.divider()
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🔄 Atualizar Agora", key="update_pairs_btn", use_container_width=True):
+                with st.spinner("Scraping DOU para atualizar pares..."):
+                    progress_bar = st.progress(0.0)
+                    status_text = st.empty()
+                    
+                    def progress_cb(p, msg):
+                        progress_bar.progress(p)
+                        status_text.text(msg)
+                    
+                    result = update_pairs_file(progress_callback=progress_cb)
+                    
+                    progress_bar.empty()
+                    status_text.empty()
+                    
+                    if result["success"]:
+                        st.success(f"✅ Atualizado! {result['n1_count']} órgãos, {result['pairs_count']} pares")
+                        st.cache_data.clear()  # Limpar cache para forçar reload
+                        st.rerun()
+                    else:
+                        st.error(f"❌ Erro: {result['error']}")
+        
+        with col2:
+            if st.button("ℹ️ Ver Info", key="info_pairs_btn", use_container_width=True):
+                st.json(info, expanded=True)
+
             st.caption("Arquivo do boletim removido do servidor. Os JSONs permanecem em 'resultados/'.")

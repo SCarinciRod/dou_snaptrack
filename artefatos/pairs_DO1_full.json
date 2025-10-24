@@ -1,855 +1,161 @@
 {
-  "date": "12-09-2025",
-  "secao": "DO1",
-  "controls": {
-    "n1_id": "slcOrgs",
-    "n2_id": "slcOrgsSubs"
+  "_metadata": {
+    "secao": "DO1",
+    "data_scrape": "12-09-2025",
+    "timestamp": "2025-10-24T14:26:31.115083",
+    "total_n1": 32,
+    "total_pairs": 83,
+    "auto_generated": false,
+    "max_age_days": 7,
+    "migrated_from": "artefatos\\pairs_DO1_full.json"
   },
-  "n1_options": [
-    {
-      "n1": {
-        "text": "Atos do Poder Legislativo",
-        "value": "Atos do Poder Legislativo",
-        "dataValue": null,
-        "dataIndex": 2
-      },
-      "n2_options": []
-    },
-    {
-      "n1": {
-        "text": "Atos do Congresso Nacional",
-        "value": "Atos do Congresso Nacional",
-        "dataValue": null,
-        "dataIndex": 3
-      },
-      "n2_options": []
-    },
-    {
-      "n1": {
-        "text": "Atos do Senado Federal",
-        "value": "Atos do Senado Federal",
-        "dataValue": null,
-        "dataIndex": 4
-      },
-      "n2_options": []
-    },
-    {
-      "n1": {
-        "text": "Presidência da República",
-        "value": "Presidência da República",
-        "dataValue": null,
-        "dataIndex": 5
-      },
-      "n2_options": [
-        {
-          "text": "Conselho de Governo",
-          "value": "Conselho de Governo",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Câmara de Comércio Exterior",
-          "value": "Câmara de Comércio Exterior",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Agricultura e Pecuária",
-        "value": "Ministério da Agricultura e Pecuária",
-        "dataValue": null,
-        "dataIndex": 6
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria Executiva",
-          "value": "Secretaria Executiva",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério das Cidades",
-        "value": "Ministério das Cidades",
-        "dataValue": null,
-        "dataIndex": 7
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Ciência, Tecnologia e Inovação",
-        "value": "Ministério da Ciência, Tecnologia e Inovação",
-        "dataValue": null,
-        "dataIndex": 8
-      },
-      "n2_options": [
-        {
-          "text": "Comissão Técnica Nacional de Biossegurança",
-          "value": "Comissão Técnica Nacional de Biossegurança",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Conselho Nacional de Controle de Experimentação Animal",
-          "value": "Conselho Nacional de Controle de Experimentação Animal",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
-          "value": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
-          "dataValue": null,
-          "dataIndex": 4
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério das Comunicações",
-        "value": "Ministério das Comunicações",
-        "dataValue": null,
-        "dataIndex": 9
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional de Telecomunicações",
-          "value": "Agência Nacional de Telecomunicações",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Cultura",
-        "value": "Ministério da Cultura",
-        "dataValue": null,
-        "dataIndex": 10
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional do Cinema",
-          "value": "Agência Nacional do Cinema",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Instituto do Patrimônio Histórico e Artístico Nacional",
-          "value": "Instituto do Patrimônio Histórico e Artístico Nacional",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Defesa",
-        "value": "Ministério da Defesa",
-        "dataValue": null,
-        "dataIndex": 11
-      },
-      "n2_options": [
-        {
-          "text": "Comando da Aeronáutica",
-          "value": "Comando da Aeronáutica",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Comando do Exército",
-          "value": "Comando do Exército",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 4
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
-        "value": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
-        "dataValue": null,
-        "dataIndex": 12
-      },
-      "n2_options": [
-        {
-          "text": "Instituto Nacional de Colonização e Reforma Agrária",
-          "value": "Instituto Nacional de Colonização e Reforma Agrária",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-        "value": "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome",
-        "dataValue": null,
-        "dataIndex": 13
-      },
-      "n2_options": [
-        {
-          "text": "Comissão Intergestores Tripartite do Sistema Único de Assistência Social",
-          "value": "Comissão Intergestores Tripartite do Sistema Único de Assistência Social",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
-        "value": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
-        "dataValue": null,
-        "dataIndex": 14
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
-          "value": "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Superintendência da Zona Franca de Manaus",
-          "value": "Superintendência da Zona Franca de Manaus",
-          "dataValue": null,
-          "dataIndex": 4
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Educação",
-        "value": "Ministério da Educação",
-        "dataValue": null,
-        "dataIndex": 15
-      },
-      "n2_options": [
-        {
-          "text": "Fundo Nacional de Desenvolvimento da Educação",
-          "value": "Fundo Nacional de Desenvolvimento da Educação",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
-          "value": "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
-          "value": "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
-          "value": "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
-          "dataValue": null,
-          "dataIndex": 5
-        },
-        {
-          "text": "Secretaria de Regulação e Supervisão da Educação Superior",
-          "value": "Secretaria de Regulação e Supervisão da Educação Superior",
-          "dataValue": null,
-          "dataIndex": 6
-        },
-        {
-          "text": "Universidade Federal do Espírito Santo",
-          "value": "Universidade Federal do Espírito Santo",
-          "dataValue": null,
-          "dataIndex": 7
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-        "value": "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte",
-        "dataValue": null,
-        "dataIndex": 16
-      },
-      "n2_options": [
-        {
-          "text": "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte",
-          "value": "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Esporte",
-        "value": "Ministério do Esporte",
-        "dataValue": null,
-        "dataIndex": 17
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Fazenda",
-        "value": "Ministério da Fazenda",
-        "dataValue": null,
-        "dataIndex": 18
-      },
-      "n2_options": [
-        {
-          "text": "Caixa Econômica Federal",
-          "value": "Caixa Econômica Federal",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Comissão de Valores Mobiliários",
-          "value": "Comissão de Valores Mobiliários",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Conselho Administrativo de Recursos Fiscais",
-          "value": "Conselho Administrativo de Recursos Fiscais",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 5
-        },
-        {
-          "text": "Secretaria Especial da Receita Federal do Brasil",
-          "value": "Secretaria Especial da Receita Federal do Brasil",
-          "dataValue": null,
-          "dataIndex": 6
-        },
-        {
-          "text": "Secretaria de Prêmios e Apostas",
-          "value": "Secretaria de Prêmios e Apostas",
-          "dataValue": null,
-          "dataIndex": 7
-        },
-        {
-          "text": "Secretaria do Tesouro Nacional",
-          "value": "Secretaria do Tesouro Nacional",
-          "dataValue": null,
-          "dataIndex": 8
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Gestão e da Inovação em Serviços Públicos",
-        "value": "Ministério da Gestão e da Inovação em Serviços Públicos",
-        "dataValue": null,
-        "dataIndex": 19
-      },
-      "n2_options": [
-        {
-          "text": "Instituto Nacional de Tecnologia da Informação",
-          "value": "Instituto Nacional de Tecnologia da Informação",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria do Patrimônio da União",
-          "value": "Secretaria do Patrimônio da União",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Igualdade Racial",
-        "value": "Ministério da Igualdade Racial",
-        "dataValue": null,
-        "dataIndex": 20
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete da Ministra",
-          "value": "Gabinete da Ministra",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Integração e do Desenvolvimento Regional",
-        "value": "Ministério da Integração e do Desenvolvimento Regional",
-        "dataValue": null,
-        "dataIndex": 21
-      },
-      "n2_options": [
-        {
-          "text": "Departamento Nacional de Obras Contra as Secas",
-          "value": "Departamento Nacional de Obras Contra as Secas",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria Executiva",
-          "value": "Secretaria Executiva",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Secretaria Nacional de Proteção e Defesa Civil",
-          "value": "Secretaria Nacional de Proteção e Defesa Civil",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Superintendência do Desenvolvimento do Nordeste",
-          "value": "Superintendência do Desenvolvimento do Nordeste",
-          "dataValue": null,
-          "dataIndex": 5
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Justiça e Segurança Pública",
-        "value": "Ministério da Justiça e Segurança Pública",
-        "dataValue": null,
-        "dataIndex": 22
-      },
-      "n2_options": [
-        {
-          "text": "Conselho Administrativo de Defesa Econômica",
-          "value": "Conselho Administrativo de Defesa Econômica",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Polícia Federal",
-          "value": "Polícia Federal",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Secretaria Nacional de Justiça",
-          "value": "Secretaria Nacional de Justiça",
-          "dataValue": null,
-          "dataIndex": 4
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Meio Ambiente e Mudança do Clima",
-        "value": "Ministério do Meio Ambiente e Mudança do Clima",
-        "dataValue": null,
-        "dataIndex": 23
-      },
-      "n2_options": [
-        {
-          "text": "Comitê Nacional de Manejo Integrado do Fogo",
-          "value": "Comitê Nacional de Manejo Integrado do Fogo",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Gabinete da Ministra",
-          "value": "Gabinete da Ministra",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
-          "value": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Instituto Chico Mendes de Conservação da Biodiversidade",
-          "value": "Instituto Chico Mendes de Conservação da Biodiversidade",
-          "dataValue": null,
-          "dataIndex": 5
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério de Minas e Energia",
-        "value": "Ministério de Minas e Energia",
-        "dataValue": null,
-        "dataIndex": 24
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional de Energia Elétrica",
-          "value": "Agência Nacional de Energia Elétrica",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Agência Nacional de Mineração",
-          "value": "Agência Nacional de Mineração",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
-          "value": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
-          "value": "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
-          "dataValue": null,
-          "dataIndex": 5
-        },
-        {
-          "text": "Secretaria Nacional de Transição Energética e Planejamento",
-          "value": "Secretaria Nacional de Transição Energética e Planejamento",
-          "dataValue": null,
-          "dataIndex": 6
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Planejamento e Orçamento",
-        "value": "Ministério do Planejamento e Orçamento",
-        "dataValue": null,
-        "dataIndex": 25
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete da Ministra",
-          "value": "Gabinete da Ministra",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria de Orçamento Federal",
-          "value": "Secretaria de Orçamento Federal",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério de Portos e Aeroportos",
-        "value": "Ministério de Portos e Aeroportos",
-        "dataValue": null,
-        "dataIndex": 26
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional de Transportes Aquaviários",
-          "value": "Agência Nacional de Transportes Aquaviários",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Previdência Social",
-        "value": "Ministério da Previdência Social",
-        "dataValue": null,
-        "dataIndex": 27
-      },
-      "n2_options": [
-        {
-          "text": "Instituto Nacional do Seguro Social",
-          "value": "Instituto Nacional do Seguro Social",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Superintendência Nacional de Previdência Complementar",
-          "value": "Superintendência Nacional de Previdência Complementar",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério da Saúde",
-        "value": "Ministério da Saúde",
-        "dataValue": null,
-        "dataIndex": 28
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional de Vigilância Sanitária",
-          "value": "Agência Nacional de Vigilância Sanitária",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Conselho Nacional de Saúde",
-          "value": "Conselho Nacional de Saúde",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Secretaria Executiva",
-          "value": "Secretaria Executiva",
-          "dataValue": null,
-          "dataIndex": 5
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério do Trabalho e Emprego",
-        "value": "Ministério do Trabalho e Emprego",
-        "dataValue": null,
-        "dataIndex": 29
-      },
-      "n2_options": [
-        {
-          "text": "Secretaria de Inspeção do Trabalho",
-          "value": "Secretaria de Inspeção do Trabalho",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Secretaria de Qualificação, Emprego e Renda",
-          "value": "Secretaria de Qualificação, Emprego e Renda",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Secretaria de Relações do Trabalho",
-          "value": "Secretaria de Relações do Trabalho",
-          "dataValue": null,
-          "dataIndex": 4
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério dos Transportes",
-        "value": "Ministério dos Transportes",
-        "dataValue": null,
-        "dataIndex": 30
-      },
-      "n2_options": [
-        {
-          "text": "Agência Nacional de Transportes Terrestres",
-          "value": "Agência Nacional de Transportes Terrestres",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Departamento Nacional de Infraestrutura de Transportes",
-          "value": "Departamento Nacional de Infraestrutura de Transportes",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Banco Central do Brasil",
-        "value": "Banco Central do Brasil",
-        "dataValue": null,
-        "dataIndex": 31
-      },
-      "n2_options": [
-        {
-          "text": "Área de Administração",
-          "value": "Área de Administração",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Área de Regulação",
-          "value": "Área de Regulação",
-          "dataValue": null,
-          "dataIndex": 3
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Controladoria-Geral da União",
-        "value": "Controladoria-Geral da União",
-        "dataValue": null,
-        "dataIndex": 32
-      },
-      "n2_options": [
-        {
-          "text": "Gabinete do Ministro",
-          "value": "Gabinete do Ministro",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Conselho Nacional do Ministério Público",
-        "value": "Conselho Nacional do Ministério Público",
-        "dataValue": null,
-        "dataIndex": 33
-      },
-      "n2_options": [
-        {
-          "text": "Corregedoria Nacional do Ministério Público",
-          "value": "Corregedoria Nacional do Ministério Público",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Ministério Público da União",
-        "value": "Ministério Público da União",
-        "dataValue": null,
-        "dataIndex": 34
-      },
-      "n2_options": [
-        {
-          "text": "Atos do Procurador-Geral da República",
-          "value": "Atos do Procurador-Geral da República",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "Escola Superior",
-          "value": "Escola Superior",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Ministério Público Militar",
-          "value": "Ministério Público Militar",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Ministério Público do Trabalho",
-          "value": "Ministério Público do Trabalho",
-          "dataValue": null,
-          "dataIndex": 5
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Tribunal de Contas da União",
-        "value": "Tribunal de Contas da União",
-        "dataValue": null,
-        "dataIndex": 35
-      },
-      "n2_options": [
-        {
-          "text": "2ª Câmara",
-          "value": "2ª Câmara",
-          "dataValue": null,
-          "dataIndex": 2
-        }
-      ]
-    },
-    {
-      "n1": {
-        "text": "Entidades de Fiscalização do Exercício das Profissões Liberais",
-        "value": "Entidades de Fiscalização do Exercício das Profissões Liberais",
-        "dataValue": null,
-        "dataIndex": 36
-      },
-      "n2_options": [
-        {
-          "text": "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
-          "value": "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
-          "dataValue": null,
-          "dataIndex": 2
-        },
-        {
-          "text": "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
-          "value": "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
-          "dataValue": null,
-          "dataIndex": 3
-        },
-        {
-          "text": "Conselho Federal de Fisioterapia e Terapia Ocupacional",
-          "value": "Conselho Federal de Fisioterapia e Terapia Ocupacional",
-          "dataValue": null,
-          "dataIndex": 4
-        },
-        {
-          "text": "Conselho Federal de Medicina Veterinária",
-          "value": "Conselho Federal de Medicina Veterinária",
-          "dataValue": null,
-          "dataIndex": 5
-        },
-        {
-          "text": "Conselho Federal de Odontologia",
-          "value": "Conselho Federal de Odontologia",
-          "dataValue": null,
-          "dataIndex": 6
-        },
-        {
-          "text": "Conselho Federal de Profissionais de Relações Públicas",
-          "value": "Conselho Federal de Profissionais de Relações Públicas",
-          "dataValue": null,
-          "dataIndex": 7
-        },
-        {
-          "text": "Conselho Regional de Contabilidade do Espírito Santo",
-          "value": "Conselho Regional de Contabilidade do Espírito Santo",
-          "dataValue": null,
-          "dataIndex": 8
-        }
-      ]
-    }
-  ]
+  "pairs": {
+    "Presidência da República": [
+      "Conselho de Governo",
+      "Câmara de Comércio Exterior"
+    ],
+    "Ministério da Agricultura e Pecuária": [
+      "Gabinete do Ministro",
+      "Secretaria Executiva"
+    ],
+    "Ministério das Cidades": [
+      "Gabinete do Ministro"
+    ],
+    "Ministério da Ciência, Tecnologia e Inovação": [
+      "Comissão Técnica Nacional de Biossegurança",
+      "Conselho Nacional de Controle de Experimentação Animal",
+      "Conselho Nacional de Desenvolvimento Científico e Tecnológico"
+    ],
+    "Ministério das Comunicações": [
+      "Agência Nacional de Telecomunicações"
+    ],
+    "Ministério da Cultura": [
+      "Agência Nacional do Cinema",
+      "Instituto do Patrimônio Histórico e Artístico Nacional"
+    ],
+    "Ministério da Defesa": [
+      "Comando da Aeronáutica",
+      "Comando do Exército",
+      "Gabinete do Ministro"
+    ],
+    "Ministério do Desenvolvimento Agrário e Agricultura Familiar": [
+      "Instituto Nacional de Colonização e Reforma Agrária"
+    ],
+    "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome": [
+      "Comissão Intergestores Tripartite do Sistema Único de Assistência Social"
+    ],
+    "Ministério do Desenvolvimento, Indústria, Comércio e Serviços": [
+      "Gabinete do Ministro",
+      "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
+      "Superintendência da Zona Franca de Manaus"
+    ],
+    "Ministério da Educação": [
+      "Fundo Nacional de Desenvolvimento da Educação",
+      "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
+      "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
+      "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
+      "Secretaria de Regulação e Supervisão da Educação Superior",
+      "Universidade Federal do Espírito Santo"
+    ],
+    "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte": [
+      "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte"
+    ],
+    "Ministério do Esporte": [
+      "Gabinete do Ministro"
+    ],
+    "Ministério da Fazenda": [
+      "Caixa Econômica Federal",
+      "Comissão de Valores Mobiliários",
+      "Conselho Administrativo de Recursos Fiscais",
+      "Gabinete do Ministro",
+      "Secretaria Especial da Receita Federal do Brasil",
+      "Secretaria de Prêmios e Apostas",
+      "Secretaria do Tesouro Nacional"
+    ],
+    "Ministério da Gestão e da Inovação em Serviços Públicos": [
+      "Instituto Nacional de Tecnologia da Informação",
+      "Secretaria do Patrimônio da União"
+    ],
+    "Ministério da Igualdade Racial": [
+      "Gabinete da Ministra"
+    ],
+    "Ministério da Integração e do Desenvolvimento Regional": [
+      "Departamento Nacional de Obras Contra as Secas",
+      "Secretaria Executiva",
+      "Secretaria Nacional de Proteção e Defesa Civil",
+      "Superintendência do Desenvolvimento do Nordeste"
+    ],
+    "Ministério da Justiça e Segurança Pública": [
+      "Conselho Administrativo de Defesa Econômica",
+      "Polícia Federal",
+      "Secretaria Nacional de Justiça"
+    ],
+    "Ministério do Meio Ambiente e Mudança do Clima": [
+      "Comitê Nacional de Manejo Integrado do Fogo",
+      "Gabinete da Ministra",
+      "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
+      "Instituto Chico Mendes de Conservação da Biodiversidade"
+    ],
+    "Ministério de Minas e Energia": [
+      "Agência Nacional de Energia Elétrica",
+      "Agência Nacional de Mineração",
+      "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+      "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
+      "Secretaria Nacional de Transição Energética e Planejamento"
+    ],
+    "Ministério do Planejamento e Orçamento": [
+      "Gabinete da Ministra",
+      "Secretaria de Orçamento Federal"
+    ],
+    "Ministério de Portos e Aeroportos": [
+      "Agência Nacional de Transportes Aquaviários"
+    ],
+    "Ministério da Previdência Social": [
+      "Instituto Nacional do Seguro Social",
+      "Superintendência Nacional de Previdência Complementar"
+    ],
+    "Ministério da Saúde": [
+      "Agência Nacional de Vigilância Sanitária",
+      "Conselho Nacional de Saúde",
+      "Gabinete do Ministro",
+      "Secretaria Executiva"
+    ],
+    "Ministério do Trabalho e Emprego": [
+      "Secretaria de Inspeção do Trabalho",
+      "Secretaria de Qualificação, Emprego e Renda",
+      "Secretaria de Relações do Trabalho"
+    ],
+    "Ministério dos Transportes": [
+      "Agência Nacional de Transportes Terrestres",
+      "Departamento Nacional de Infraestrutura de Transportes"
+    ],
+    "Banco Central do Brasil": [
+      "Área de Administração",
+      "Área de Regulação"
+    ],
+    "Controladoria-Geral da União": [
+      "Gabinete do Ministro"
+    ],
+    "Conselho Nacional do Ministério Público": [
+      "Corregedoria Nacional do Ministério Público"
+    ],
+    "Ministério Público da União": [
+      "Atos do Procurador-Geral da República",
+      "Escola Superior",
+      "Ministério Público Militar",
+      "Ministério Público do Trabalho"
+    ],
+    "Tribunal de Contas da União": [
+      "2ª Câmara"
+    ],
+    "Entidades de Fiscalização do Exercício das Profissões Liberais": [
+      "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
+      "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
+      "Conselho Federal de Fisioterapia e Terapia Ocupacional",
+      "Conselho Federal de Medicina Veterinária",
+      "Conselho Federal de Odontologia",
+      "Conselho Federal de Profissionais de Relações Públicas",
+      "Conselho Regional de Contabilidade do Espírito Santo"
+    ]
+  }
 }
