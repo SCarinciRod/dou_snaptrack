@@ -320,13 +320,13 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     
     # Criar script temporário para executar em processo isolado
     # Passar src_path como argumento porque __file__ não existe em 'python -c'
-    src_path = str(SRC_ROOT / "src")
+    src_path = str(SRC_ROOT / "src").replace("\\", "\\\\")  # Escapar barras para Windows
     
     script_content = f'''
 import sys
 
 # Add src to path (passado como literal porque __file__ não existe em python -c)
-src_root = r"{src_path}"
+src_root = "{src_path}"
 if src_root not in sys.path:
     sys.path.insert(0, src_root)
 
@@ -405,15 +405,27 @@ except Exception as e:
             cwd=str(Path(__file__).parent.parent.parent)  # Raiz do projeto
         )
         
+        # Extrair apenas a última linha do stdout (JSON), ignorando logs anteriores
+        stdout_lines = result.stdout.strip().splitlines() if result.stdout else []
+        json_line = stdout_lines[-1] if stdout_lines else ""
+        
         if result.returncode != 0:
             try:
-                error_data = json.loads(result.stdout)
+                error_data = json.loads(json_line)
                 st.error(f"[ERRO] {error_data.get('error', 'Erro desconhecido')}")
-            except Exception:
-                st.error(f"[ERRO] Falha ao carregar N1: {result.stderr}")
+            except json.JSONDecodeError:
+                st.error(f"[ERRO] Falha ao carregar N1. Return code: {result.returncode}")
+                if result.stderr:
+                    st.error(f"STDERR: {result.stderr[:300]}")
             return []
         
-        data = json.loads(result.stdout)
+        try:
+            data = json.loads(json_line)
+        except json.JSONDecodeError as je:
+            st.error(f"[ERRO] JSON inválido: {je}")
+            st.error(f"Saída completa: {result.stdout[:500]}")
+            return []
+            
         if data.get("success"):
             return data.get("options", [])
         else:
@@ -425,6 +437,8 @@ except Exception as e:
         return []
     except Exception as e:
         st.error(f"[ERRO] Falha ao executar subprocess: {type(e).__name__}: {e}")
+        import traceback
+        st.error(f"Traceback: {traceback.format_exc()[:500]}")
         return []
 
 
