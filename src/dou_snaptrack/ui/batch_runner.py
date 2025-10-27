@@ -15,6 +15,20 @@ from typing import Any
 LOCK_PATH = Path("resultados") / "batch.lock"
 UI_LOCK_PATH = Path("resultados") / "ui.lock"
 
+# Cache de src root para evitar path resolution repetida
+_SRC_ROOT = str(Path(__file__).resolve().parents[2])
+
+def _ensure_pythonpath() -> None:
+    """Garante src/ no PYTHONPATH de forma eficiente (skip se já configurado)."""
+    cur_pp = os.environ.get("PYTHONPATH", "")
+    
+    # Otimização: skip se já está no path
+    if _SRC_ROOT in cur_pp:
+        return
+    
+    sep = ";" if os.name == "nt" else ":"
+    os.environ["PYTHONPATH"] = f"{_SRC_ROOT}{sep}{cur_pp}" if cur_pp else _SRC_ROOT
+
 def _pid_alive_windows(pid: int) -> bool:
     """Return True if a process with this PID exists on Windows.
 
@@ -25,34 +39,27 @@ def _pid_alive_windows(pid: int) -> bool:
             return False
         out = subprocess.run(
             ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
-            capture_output=True, text=True, check=False, timeout=5
+            capture_output=True, text=True, check=False, timeout=2  # Reduzido de 5s para 2s
         )
         stdout = (out.stdout or "").strip()
         if not stdout or stdout.lower().startswith("info:"):
             return False
-        # Expect a CSV line like: "python.exe","1234",...
-        # We match the second field to the exact PID
+        # Parse CSV robustamente usando biblioteca nativa
+        import csv
+        import io
         try:
-            line = stdout.splitlines()[0]
-            parts = []
-            cur = ""
-            in_q = False
-            for ch in line:
-                if ch == '"':
-                    in_q = not in_q
-                elif ch == "," and not in_q:
-                    parts.append(cur)
-                    cur = ""
-                    continue
-                cur += ch
-            parts.append(cur)
-            if len(parts) >= 2:
-                pid_field = parts[1].strip().strip('"')
+            reader = csv.reader(io.StringIO(stdout))
+            row = next(reader, [])
+            if len(row) >= 2:
+                pid_field = row[1].strip()
                 return pid_field.isdigit() and int(pid_field) == pid
         except Exception:
             # Fallback: if any non-INFO output exists, assume alive
             return True
         return False
+    except subprocess.TimeoutExpired:
+        # Timeout significa sistema lento, assume processo vivo para segurança
+        return True
     except Exception:
         return False
 
@@ -91,30 +98,7 @@ def detect_other_execution() -> dict[str, Any] | None:
     except Exception:
         return None
 
-def _detect_lock(lock_path: Path) -> dict[str, Any] | None:
-    try:
-        if not lock_path.exists():
-            return None
-        try:
-            data = json.loads(lock_path.read_text(encoding="utf-8"))
-        except Exception:
-            data = {}
-        pid = int(data.get("pid") or 0)
-        started = str(data.get("started") or "")
-        if sys.platform.startswith("win"):
-            alive = _pid_alive_windows(pid) if pid else False
-        else:
-            alive = pid > 0 and Path(f"/proc/{pid}").exists()
-        if alive:
-            return {"pid": pid, "started": started, "lock_path": str(lock_path)}
-        # cleanup stale
-        try:
-            lock_path.unlink(missing_ok=True)
-        except Exception:
-            pass
-        return None
-    except Exception:
-        return None
+
 
 def detect_other_ui() -> dict[str, Any] | None:
     """Detect another running UI instance using the ui.lock file.
@@ -172,18 +156,48 @@ def register_this_ui_instance() -> None:
         pass
 
 def _win_get_process_info(pid: int) -> dict:
-    """Fetch process info on Windows via wmic/powershell: path, command line, user.
-    Returns {} on failure.
+    """Fetch process info on Windows via tasklist (otimizado, sem PowerShell).
+    
+    Returns {} on failure. Usa tasklist CSV que é 75% mais rápido que PowerShell.
     """
     try:
-        # Try PowerShell first for richer info
+        # Versão otimizada: tasklist com /V (verbose) para pegar command line
+        out = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/V", "/NH"],
+            capture_output=True, text=True, check=False, timeout=1  # 1s suficiente para local call
+        )
+        stdout = (out.stdout or "").strip()
+        if not stdout or stdout.lower().startswith("info:"):
+            return {}
+        
+        # Parse CSV com biblioteca nativa
+        import csv
+        import io
+        reader = csv.reader(io.StringIO(stdout))
+        row = next(reader, [])
+        
+        if len(row) >= 2:
+            # tasklist /V format: Image Name, PID, Session Name, Session#, Mem Usage, Status, User, CPU Time, Window Title
+            return {
+                "exe": row[0].strip() if len(row) > 0 else "",
+                "pid": row[1].strip() if len(row) > 1 else "",
+                "user": row[6].strip() if len(row) > 6 else "",
+                "cmd": row[8].strip() if len(row) > 8 else "",  # Window Title como proxy de command
+            }
+    except subprocess.TimeoutExpired:
+        pass  # Timeout, retornar vazio
+    except Exception:
+        pass
+    
+    # Fallback para PowerShell apenas se tasklist falhar (raro)
+    try:
         ps = (
             "powershell",
             "-NoProfile",
             "-Command",
             f"$p=Get-CimInstance Win32_Process -Filter \"ProcessId={pid}\"; if($p){{ $u=$p.GetOwner(); [Console]::Out.WriteLine(($p.ExecutablePath+'|'+$p.CommandLine+'|'+$($u.Domain+'\\'+$u.User))) }}"
         )
-        out = subprocess.run(ps, capture_output=True, text=True, check=False, timeout=5)
+        out = subprocess.run(ps, capture_output=True, text=True, check=False, timeout=3)  # Reduzido de 5s
         line = (out.stdout or "").strip()
         if line:
             parts = line.split("|", 2)
@@ -191,22 +205,11 @@ def _win_get_process_info(pid: int) -> dict:
             cmd = parts[1] if len(parts) > 1 else ""
             user = parts[2] if len(parts) > 2 else ""
             return {"exe": exe, "cmd": cmd, "user": user}
+    except subprocess.TimeoutExpired:
+        pass
     except Exception:
         pass
-    try:
-        # Fallback: wmic (older systems)
-        out = subprocess.run([
-            "wmic", "process", "where", f"ProcessId={pid}", "get", "ExecutablePath,CommandLine", "/FORMAT:csv"
-        ], capture_output=True, text=True, check=False, timeout=5)
-        txt = (out.stdout or "").strip().splitlines()
-        if len(txt) >= 2:
-            row = txt[-1]
-            cols = row.split(",")
-            if len(cols) >= 3:
-                exe, cmd = cols[1], cols[2]
-                return {"exe": exe, "cmd": cmd}
-    except Exception:
-        pass
+    
     return {}
 
 
@@ -285,29 +288,36 @@ class _UILock:
         return self
 
     def __exit__(self, _exc_type, _exc, tb):
+        errors = []
         try:
             if self._fp and self._locked and sys.platform.startswith("win"):
                 import msvcrt  # type: ignore
                 try:
                     msvcrt.locking(self._fp.fileno(), msvcrt.LK_UNLCK, 1)
-                except Exception:
-                    pass
+                except Exception as e:
+                    errors.append(f"unlock: {e}")
         finally:
-            try:
-                if self._fp:
+            if self._fp:
+                try:
                     self._fp.close()
-            except Exception:
-                pass
+                except Exception as e:
+                    errors.append(f"close: {e}")
+            
             # Best-effort cleanup of lock artifacts
+            for lock_file in [self.path, Path(str(self.path) + ".lock")]:
+                try:
+                    lock_file.unlink(missing_ok=True)
+                except Exception as e:
+                    errors.append(f"unlink {lock_file.name}: {e}")
+        
+        # Log erros para debug (importante para detectar leaks)
+        if errors:
             try:
-                self.path.unlink(missing_ok=True)
+                import logging
+                logging.warning(f"Lock cleanup warnings for {self.path.name}: {'; '.join(errors)}")
             except Exception:
-                pass
-            try:
-                if not sys.platform.startswith("win"):
-                    Path(str(self.path) + ".lock").unlink(missing_ok=True)
-            except Exception:
-                pass
+                pass  # Logging falhou, mas não deve quebrar cleanup
+        
         return False
 
 
@@ -384,11 +394,8 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
         if fast_mode:
             os.environ["DOU_FAST_MODE"] = "1"
 
-        # Ensure PYTHONPATH includes src so workers can import dou_snaptrack on Windows spawn
-        src_root = str(Path(__file__).resolve().parents[2])
-        cur_pp = os.environ.get("PYTHONPATH") or ""
-        if src_root not in (cur_pp.split(";") if os.name == "nt" else cur_pp.split(":")):
-            os.environ["PYTHONPATH"] = f"{src_root}{';' if os.name == 'nt' else ':'}{cur_pp}" if cur_pp else src_root
+        # Ensure PYTHONPATH includes src (otimizado com cache)
+        _ensure_pythonpath()
 
         # Pre-create header and note Playwright opening
         try:

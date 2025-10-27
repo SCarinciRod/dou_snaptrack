@@ -132,10 +132,12 @@ def _get_thread_local_playwright_and_browser():
     """Retorna um recurso Playwright+Browser por thread para evitar erros de troca de thread.
 
     Não usa cache global do Streamlit; armazena em session_state por thread-id.
+    Otimizado: cache de validação de conexão para reduzir RPC calls.
     """
     import asyncio as _asyncio
     import os as _os
     import sys as _sys
+    import time as _time
     from pathlib import Path as _P
 
     from playwright.sync_api import sync_playwright  # type: ignore
@@ -147,15 +149,29 @@ def _get_thread_local_playwright_and_browser():
     # Verificar se já existe e está conectado
     res = st.session_state.get(key)
     if res is not None:
+        # Cache de validação: evita RPC calls excessivas
+        last_check = getattr(res, '_last_connection_check', 0)
+        now = _time.time()
+        
+        # Se verificou nos últimos 5 segundos, assumir válido (otimização)
+        if now - last_check < 5:
+            return res
+        
         try:
             is_ok = True
             try:
-                # Preferir checar conexão, quando disponível
+                # Verificação rápida sem forçar RPC pesado
                 is_ok = bool(getattr(res.browser, "is_connected", lambda: True)())
             except Exception:
-                # Acesso a contexts força RPC; se falhar, recriaremos
-                _ = res.browser.contexts  # type: ignore
+                # Fallback: acesso a contexts (RPC call) apenas se necessário
+                try:
+                    _ = res.browser.contexts  # type: ignore
+                except Exception:
+                    is_ok = False
+            
             if is_ok:
+                # Atualizar timestamp de validação e retornar
+                res._last_connection_check = now
                 return res
         except Exception:
             # Recriar abaixo
