@@ -319,14 +319,16 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     from pathlib import Path
     
     # Criar script temporário para executar em processo isolado
+    # Passar src_path como argumento porque __file__ não existe em 'python -c'
+    src_path = str(SRC_ROOT / "src")
+    
     script_content = f'''
 import sys
-from pathlib import Path
 
-# Add src to path
-src_root = Path(__file__).resolve().parents[2] / "src"
-if str(src_root) not in sys.path:
-    sys.path.insert(0, str(src_root))
+# Add src to path (passado como literal porque __file__ não existe em python -c)
+src_root = r"{src_path}"
+if src_root not in sys.path:
+    sys.path.insert(0, src_root)
 
 from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options, _select_roots
 from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
