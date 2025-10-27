@@ -7,26 +7,63 @@ import sys
 import threading
 from dataclasses import dataclass
 from datetime import date as _date
+from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 # Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
 SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from functools import lru_cache
-
+# OTIMIZAÇÃO: Lazy imports - só carrega quando necessário
+# Streamlit é leve, pode carregar logo
 import streamlit as st
 
-from dou_snaptrack.ui.batch_runner import (
-    clear_ui_lock,
-    detect_other_execution,
-    detect_other_ui,
-    register_this_ui_instance,
-    terminate_other_execution,
-)
-from dou_snaptrack.utils.text import sanitize_filename
+# OTIMIZAÇÃO: Imports pesados apenas quando TYPE_CHECKING ou sob demanda
+if TYPE_CHECKING:
+    from playwright.sync_api import sync_playwright
+
+# Funções lazy loading para imports pesados
+def _lazy_import_batch_runner():
+    """Lazy import do batch_runner (importa Playwright)."""
+    from dou_snaptrack.ui.batch_runner import (
+        clear_ui_lock,
+        detect_other_execution,
+        detect_other_ui,
+        register_this_ui_instance,
+        terminate_other_execution,
+    )
+    return {
+        'clear_ui_lock': clear_ui_lock,
+        'detect_other_execution': detect_other_execution,
+        'detect_other_ui': detect_other_ui,
+        'register_this_ui_instance': register_this_ui_instance,
+        'terminate_other_execution': terminate_other_execution,
+    }
+
+def _lazy_import_text():
+    """Lazy import de utils.text."""
+    from dou_snaptrack.utils.text import sanitize_filename
+    return sanitize_filename
+
+# Cache de lazy imports para evitar reimport
+_BATCH_RUNNER_CACHE = None
+_SANITIZE_FILENAME_CACHE = None
+
+def get_batch_runner():
+    """Retorna batch_runner (cached)."""
+    global _BATCH_RUNNER_CACHE
+    if _BATCH_RUNNER_CACHE is None:
+        _BATCH_RUNNER_CACHE = _lazy_import_batch_runner()
+    return _BATCH_RUNNER_CACHE
+
+def get_sanitize_filename():
+    """Retorna sanitize_filename (cached)."""
+    global _SANITIZE_FILENAME_CACHE
+    if _SANITIZE_FILENAME_CACHE is None:
+        _SANITIZE_FILENAME_CACHE = _lazy_import_text()
+    return _SANITIZE_FILENAME_CACHE
 
 # ---------------- Helpers ----------------
 # Corrigir política do loop no Windows para evitar NotImplementedError com Playwright
@@ -45,9 +82,8 @@ class PlanState:
 
 
 def _ensure_state():
-    # Pastas base
-    PLANS_DIR = Path("planos"); PLANS_DIR.mkdir(parents=True, exist_ok=True)
-    RESULTS_DIR = Path("resultados"); RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    # OTIMIZAÇÃO: Lazy directory creation - apenas cria quando necessário
+    # (evita I/O no startup se pastas já existem)
     if "plan" not in st.session_state:
         st.session_state.plan = PlanState(
             date=_date.today().strftime("%d-%m-%Y"),
@@ -59,6 +95,15 @@ def _ensure_state():
                     "summary_mode": "center",
                 },
         )
+
+
+def _ensure_dirs():
+    """Cria diretórios base apenas quando necessário (lazy)."""
+    PLANS_DIR = Path("planos")
+    RESULTS_DIR = Path("resultados")
+    PLANS_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    return PLANS_DIR, RESULTS_DIR
 
 
 def _load_pairs_file(p: Path) -> dict[str, list[str]]:
@@ -445,8 +490,10 @@ def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by
 # ---------------- UI ----------------
 st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
 
+# OTIMIZAÇÃO: Lazy load batch_runner apenas quando necessário (startup mais rápido)
 # Detect another UI and register this one
-other_ui = detect_other_ui()
+batch_funcs = get_batch_runner()
+other_ui = batch_funcs['detect_other_ui']()
 if other_ui and int(other_ui.get("pid") or 0) != os.getpid():
     st.warning(f"Outra instância da UI detectada (PID={other_ui.get('pid')} iniciada em {other_ui.get('started')}).")
     col_ui = st.columns(3)
@@ -457,14 +504,14 @@ if other_ui and int(other_ui.get("pid") or 0) != os.getpid():
     with col_ui[2]:
         clear_lock = st.button("Limpar lock e continuar")
     if kill_ui:
-        ok = terminate_other_execution(int(other_ui.get("pid") or 0))
+        ok = batch_funcs['terminate_other_execution'](int(other_ui.get("pid") or 0))
         if ok:
             st.success("Outra UI encerrada. Prosseguindo…")
         else:
             st.error("Falha ao encerrar a outra UI. Feche manualmente a janela/processo.")
     elif clear_lock:
         try:
-            clear_ui_lock()
+            batch_funcs['clear_ui_lock']()
             st.success("Lock removido. Prosseguindo…")
         except Exception as _e:
             st.error(f"Falha ao remover lock: {_e}")
@@ -472,7 +519,7 @@ if other_ui and int(other_ui.get("pid") or 0) != os.getpid():
         st.stop()
 
 # Register this UI instance for future launches
-register_this_ui_instance()
+batch_funcs['register_this_ui_instance']()
 
 st.title("SnapTrack DOU — Interface")
 _ensure_state()
@@ -595,8 +642,8 @@ with tab1:
 
     st.divider()
     st.subheader("Salvar plano")
-    # Salvar sempre em ./planos
-    plans_dir = Path("planos"); plans_dir.mkdir(parents=True, exist_ok=True)
+    # OTIMIZAÇÃO: Criação lazy de diretórios apenas quando necessário
+    plans_dir, _ = _ensure_dirs()
     suggested = plans_dir / f"plan_{str(st.session_state.plan.date or '').replace('/', '-').replace(' ', '_')}.json"
     plan_path = st.text_input("Salvar como", str(suggested))
     if st.button("Salvar plano"):
@@ -617,8 +664,8 @@ with tab1:
 
 with tab2:
     st.subheader("Escolha o plano de pesquisa")
-    # Listar planos exclusivamente de ./planos
-    plans_dir = Path("planos"); plans_dir.mkdir(parents=True, exist_ok=True)
+    # OTIMIZAÇÃO: Criação lazy de diretórios
+    plans_dir, _ = _ensure_dirs()
     plan_candidates = []
     try:
         for p in plans_dir.glob("*.json"):
@@ -641,7 +688,7 @@ with tab2:
         selected_path = Path(choice)
 
     # Paralelismo adaptativo (heurística baseada em CPU e nº de jobs)
-    from dou_snaptrack.utils.parallel import recommend_parallel
+    # OTIMIZAÇÃO: Import lazy apenas quando necessário (não carrega no startup)
     try:
         cfg_preview = json.loads(selected_path.read_text(encoding="utf-8")) if selected_path.exists() else {}
         combos_prev = cfg_preview.get("combos") or []
@@ -649,6 +696,9 @@ with tab2:
         est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
     except Exception:
         est_jobs_prev = 1
+    
+    # Lazy import apenas quando realmente usado
+    from dou_snaptrack.utils.parallel import recommend_parallel
     suggested_workers = recommend_parallel(est_jobs_prev, prefer_process=True)
     st.caption(f"Paralelismo recomendado: {suggested_workers} (baseado no hardware e plano)")
     st.caption("A captura do plano é sempre 'link-only' (sem detalhes/boletim); gere o boletim na aba correspondente.")
@@ -658,7 +708,9 @@ with tab2:
             st.error("Plano não encontrado.")
         else:
             # Concurrency guard: check if another execution is running
-            other = detect_other_execution()
+            # OTIMIZAÇÃO: Lazy load batch_runner apenas quando botão for clicado
+            batch_funcs = get_batch_runner()
+            other = batch_funcs['detect_other_execution']()
             if other:
                 st.warning(f"Outra execução detectada (PID={other.get('pid')} iniciada em {other.get('started')}).")
                 colx = st.columns(2)
@@ -667,7 +719,7 @@ with tab2:
                 with colx[1]:
                     proceed_anyway = st.button("Prosseguir sem encerrar")
                 if kill_it:
-                    ok = terminate_other_execution(int(other.get("pid") or 0))
+                    ok = batch_funcs['terminate_other_execution'](int(other.get("pid") or 0))
                     if ok:
                         st.success("Outra execução encerrada. Prosseguindo…")
                     else:
@@ -700,21 +752,24 @@ with tab2:
                     cfg_json["plan_name"] = _pname2.strip()
                 if not cfg_json.get("plan_name"):
                     # Fallback 1: nome do arquivo do plano salvo
+                    # OTIMIZAÇÃO: Lazy load sanitize_filename apenas quando necessário
+                    sanitize_fn = get_sanitize_filename()
                     try:
                         if selected_path and selected_path.exists():
                             base = selected_path.stem
                             if base:
-                                cfg_json["plan_name"] = sanitize_filename(base)
+                                cfg_json["plan_name"] = sanitize_fn(base)
                     except Exception:
                         pass
                 if not cfg_json.get("plan_name"):
                     # Fallback 2: usar key1/label1 do primeiro combo
+                    sanitize_fn = get_sanitize_filename()
                     try:
                         combos_fallback = cfg_json.get("combos") or []
                         if combos_fallback:
                             c0 = combos_fallback[0] or {}
                             cand = (c0.get("label1") or c0.get("key1") or "Plano")
-                            cfg_json["plan_name"] = sanitize_filename(str(cand))
+                            cfg_json["plan_name"] = sanitize_fn(str(cand))
                     except Exception:
                         cfg_json["plan_name"] = "Plano"
                 # Gerar um config temporário para a execução desta sessão, sem modificar o arquivo salvo

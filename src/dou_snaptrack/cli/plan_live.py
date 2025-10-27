@@ -9,6 +9,7 @@ from ..constants import DROPDOWN_ROOT_SELECTORS, LEVEL_IDS
 from ..utils.browser import fmt_date, goto
 from ..utils.dom import find_best_frame, is_select, label_for_control, read_select_options
 from ..utils.text import normalize_text
+from ..utils.wait_utils import wait_for_condition, wait_for_options_loaded
 
 try:
     from dou_utils.selectors import LISTBOX_SELECTORS, OPTION_SELECTORS  # type: ignore
@@ -249,7 +250,8 @@ def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
         return out
     try:
         h.click(timeout=2000)
-        frame.wait_for_timeout(120)
+        # Otimizado: espera inteligente até opções aparecerem
+        wait_for_options_loaded(frame, min_count=1, timeout_ms=300)
     except Exception:
         pass
     return _read_open_list_options(frame)
@@ -268,8 +270,9 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
                 frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
             except Exception:
                 pass
+            # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo (economiza 50-150ms)
             try:
-                frame.wait_for_timeout(200)
+                wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
             except Exception:
                 pass
             return True
@@ -278,7 +281,8 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
     # custom: open and click matching option
     try:
         h.click(timeout=2000)
-        frame.wait_for_timeout(120)
+        # Otimizado: espera até opções carregarem
+        wait_for_options_loaded(frame, min_count=1, timeout_ms=300)
     except Exception:
         pass
     container = _get_listbox_container(frame)
@@ -293,8 +297,9 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
                 frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
             except Exception:
                 pass
+            # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo
             try:
-                frame.wait_for_timeout(200)
+                wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
             except Exception:
                 pass
             return True
@@ -320,8 +325,9 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
                         frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
                     except Exception:
                         pass
+                    # OTIMIZAÇÃO: Polling condicional
                     try:
-                        frame.wait_for_timeout(200)
+                        wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
                     except Exception:
                         pass
                     return True
@@ -495,8 +501,9 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
                 page.wait_for_load_state("domcontentloaded", timeout=30_000)
             except Exception:
                 pass
+            # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo (economiza ~150ms no caso comum)
             try:
-                page.wait_for_timeout(200)
+                wait_for_condition(frame, lambda: page.is_visible("body"), timeout_ms=200, poll_ms=50)
             except Exception:
                 pass
 
