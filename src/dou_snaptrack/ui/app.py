@@ -4,7 +4,6 @@ import asyncio
 import json
 import os
 import sys
-import threading
 from dataclasses import dataclass
 from datetime import date as _date
 from functools import lru_cache
@@ -66,13 +65,12 @@ def get_sanitize_filename():
     return _SANITIZE_FILENAME_CACHE
 
 # ---------------- Helpers ----------------
-# Corrigir política do loop no Windows para evitar NotImplementedError com Playwright
-if sys.platform.startswith("win"):
-    try:
-        # No Windows, subprocess (usado pelo Playwright) requer ProactorEventLoop
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-    except Exception:
-        pass
+# CORREÇÃO CRÍTICA: NÃO configurar asyncio no topo do módulo!
+# Streamlit gerencia seu próprio event loop e configurá-lo aqui causa conflito:
+# "Error: It looks like you are using Playwright Sync API inside the asyncio loop"
+# A configuração agora é feita APENAS dentro de threads que precisam de Playwright.
+# Ref: https://github.com/microsoft/playwright-python/issues/178
+
 @dataclass
 class PlanState:
     date: str
@@ -173,277 +171,258 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
     return out
 
 
-def _get_thread_local_playwright_and_browser():
-    """Retorna um recurso Playwright+Browser por thread para evitar erros de troca de thread.
-
-    Não usa cache global do Streamlit; armazena em session_state por thread-id.
-    Otimizado: cache de validação de conexão para reduzir RPC calls.
-    """
-    import asyncio as _asyncio
-    import os as _os
-    import sys as _sys
-    import time as _time
-    from pathlib import Path as _P
-
-    from playwright.sync_api import sync_playwright  # type: ignore
-
-    # Chave por thread da sessão atual
-    tid = threading.get_ident()
-    key = f"_pw_res_tid_{tid}"
-
-    # Verificar se já existe e está conectado
-    res = st.session_state.get(key)
-    if res is not None:
-        # Cache de validação: evita RPC calls excessivas
-        last_check = getattr(res, '_last_connection_check', 0)
-        now = _time.time()
-        
-        # Se verificou nos últimos 5 segundos, assumir válido (otimização)
-        if now - last_check < 5:
-            return res
-        
-        try:
-            is_ok = True
-            try:
-                # Verificação rápida sem forçar RPC pesado
-                is_ok = bool(getattr(res.browser, "is_connected", lambda: True)())
-            except Exception:
-                # Fallback: acesso a contexts (RPC call) apenas se necessário
-                try:
-                    _ = res.browser.contexts  # type: ignore
-                except Exception:
-                    is_ok = False
-            
-            if is_ok:
-                # Atualizar timestamp de validação e retornar
-                res._last_connection_check = now
-                return res
-        except Exception:
-            # Recriar abaixo
-            pass
-
-    # Garantir Proactor loop no Windows (subprocess usado por Playwright)
-    if _sys.platform.startswith("win"):
-        try:
-            _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-            _asyncio.set_event_loop(_asyncio.new_event_loop())
-        except Exception:
-            pass
-
-    p = sync_playwright().start()
-    prefer_edge = (_os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
-    channels = ("msedge", "chrome") if prefer_edge else ("chrome", "msedge")
-    browser = None
-    for ch in channels:
-        try:
-            # Timeout de 10s por tentativa - evita espera excessiva em falhas
-            browser = p.chromium.launch(channel=ch, headless=True, timeout=10000)
-            break
-        except Exception:
-            browser = None
-    if browser is None:
-        exe = _find_system_browser_exe()
-        if exe and _P(exe).exists():
-            try:
-                browser = p.chromium.launch(executable_path=exe, headless=True, timeout=10000)
-            except Exception:
-                browser = None
-    if browser is None:
-        browser = p.chromium.launch(headless=True, timeout=10000)
-
-    class _Resource:
-        def __init__(self, p, b):
-            self.p = p
-            self.browser = b
-            self._tid = threading.get_ident()
-        def close(self):
-            try:
-                self.browser.close()
-            except Exception:
-                pass
-            try:
-                self.p.stop()
-            except Exception:
-                pass
-        def __del__(self):
-            # Evitar fechar a partir de outra thread, o que pode gerar o mesmo erro
-            if threading.get_ident() != getattr(self, "_tid", None):
-                return
-            self.close()
-
-    res = _Resource(p, browser)
-    st.session_state[key] = res
-    return res
+# REMOVIDO: _get_thread_local_playwright_and_browser() - não mais necessário após migração para async API
 
 
-@st.cache_data(show_spinner=False, ttl=300)  # Cache por 5 minutos apenas
+@st.cache_data(show_spinner=False, ttl=300)
 def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20) -> list[str]:
-    # Usa build_plan_live para descobrir pares válidos do dia para um N1 específico (reutilizando Playwright)
-    try:
-        from types import SimpleNamespace
+    """Busca opções N2 (organizações subordinadas) para um N1 específico.
+    
+    VERSÃO ASYNC-COMPATIBLE: Usa plan_live_async com asyncio.run()
+    """
+    import asyncio
+    from types import SimpleNamespace
+    from playwright.async_api import async_playwright
+    from dou_snaptrack.cli.plan_live_async import build_plan_live_async
 
-        from dou_snaptrack.cli.plan_live import build_plan_live
-        _res = _get_thread_local_playwright_and_browser()
-        _res.p
-        args = SimpleNamespace(
-            secao=secao,
-            data=date,
-            plan_out=None,
-            select1=None,
-            select2=None,
-            select3=None,
-            pick1=n1,
-            pick2=None,
-            pick3=None,
-            limit1=None,
-            limit2=limit2,
-            limit3=None,
-            key1_type_default="text",
-            key2_type_default="text",
-            key3_type_default="text",
-            plan_verbose=False,
-            query=None,
-            headful=False,
-            slowmo=0,
-        )
-        # Reuse thread-local UI browser to avoid re-launching a new one inside plan_live
-        # Resiliência: 1 retry leve em caso de erro transitório de navegação
-        cfg = None
-        err: Exception | None = None
-        for _attempt in range(2):
+    async def fetch_n2_options():
+        async with async_playwright() as p:
+            args = SimpleNamespace(
+                secao=secao,
+                data=date,
+                plan_out=None,
+                select1=None,
+                select2=None,
+                pick1=n1,
+                pick2=None,
+                limit1=None,
+                limit2=limit2,
+                headless=True,
+                slowmo=0,
+            )
+            
             try:
-                cfg = build_plan_live(None, args, browser=_res.browser)
-                err = None
-                break
-            except Exception as e2:
-                msg2 = str(e2)
-                err = e2
-                transient = ("ERR_CONNECTION_RESET" in msg2) or ("net::ERR_" in msg2) or ("timeout" in msg2.lower())
-                if transient and _attempt == 0:
-                    try:
-                        # pequeno reset do contexto do browser thread-local
-                        browser = _res.browser
-                        try:
-                            # fecha contexts abertos para limpar estado
-                            for ctx in list(browser.contexts):
-                                try:
-                                    ctx.close()
-                                except Exception:
-                                    pass
-                        except Exception:
-                            pass
-                        # pausa breve
-                        import time as _t
-                        _t.sleep(0.4)
-                        continue
-                    except Exception:
-                        pass
-                break
-        if cfg is None:
-            raise err or RuntimeError("Falha no plan-live (sem detalhes)")
-        combos = cfg.get("combos", [])
-        n2s = sorted({c.get("key2") for c in combos if c.get("key1") == n1 and c.get("key2")})
-        return n2s
-    except Exception as e:
-        # Se o plan-live não gerar combos (ex.: nenhum N2 disponível para o N1 escolhido),
-        # não trate como erro fatal: devolva lista vazia e a UI oferece a opção 'Todos'.
-        msg = str(e)
-        if "Nenhum combo válido" in msg or "nenhum combo" in msg.lower():
-            st.info("Nenhum N2 encontrado para esse órgão hoje. Você pode adicionar o N1 com N2='Todos'.")
-            return []
-        st.error(f"Falha no plan-live: {e}")
+                cfg = await build_plan_live_async(p, args)
+                combos = cfg.get("combos", [])
+                
+                # Extrair lista única de N2 para o N1 escolhido
+                n2_set = set()
+                for c in combos:
+                    k2 = c.get("key2", "")
+                    if k2 and k2 != "Todos":
+                        n2_set.add(k2)
+                
+                return sorted(n2_set)
+            except Exception:
+                return []
+    
+    try:
+        return asyncio.run(fetch_n2_options())
+    except Exception:
         return []
 
 
-@st.cache_data(show_spinner=False, ttl=300)  # Cache por 5 minutos apenas
-def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
-    """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU)."""
+def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
+    """Worker que usa async API do Playwright - compatível com asyncio loop do Streamlit.
+    
+    MIGRAÇÃO ASYNC: Usa playwright.async_api + asyncio.run() para evitar conflito.
+    """
+    import asyncio
     import traceback
     try:
-        import asyncio as _asyncio
-        import sys as _sys
-        if _sys.platform.startswith("win"):
-            try:
-                _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-                _asyncio.set_event_loop(_asyncio.new_event_loop())
-            except Exception:
-                pass
-        from playwright.sync_api import TimeoutError  # type: ignore
+        async def fetch_n1_options():
+            from playwright.async_api import TimeoutError, async_playwright  # type: ignore
 
-        from dou_snaptrack.cli.plan_live import (  # type: ignore
-            _collect_dropdown_roots,
-            _read_dropdown_options,
-            _select_roots,
-        )
-        from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
-        from dou_snaptrack.utils.dom import find_best_frame
-        # Reutiliza Playwright+browser thread-local e cria um novo contexto por chamada
-        _res = _get_thread_local_playwright_and_browser()
-        browser = _res.browser
-        try:
-            context = browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
-            # Aumentar timeout padrão para operações (site DOU pode ser lento)
-            context.set_default_timeout(90_000)  # 90 segundos
-            page = context.new_page()
-            url = build_dou_url(date, secao)
-            goto(page, url)
-            try:
-                try_visualizar_em_lista(page)
-            except Exception:
-                pass
-            frame = find_best_frame(context)
-            # Aguardar um pouco para garantir que os dropdowns estão carregados
-            try:
-                page.wait_for_timeout(1000)  # 1 segundo adicional
-            except Exception:
-                pass
-            # Priorizar IDs canônicos quando disponíveis; fallback para a primeira raiz detectada
-            try:
-                r1, _r2 = _select_roots(frame)
-            except Exception:
-                r1 = None
-            if not r1:
-                roots = _collect_dropdown_roots(frame)
-                r1 = roots[0] if roots else None
-            if not r1:
-                st.error("[ERRO] Nenhum dropdown N1 detectado. Verifique se há publicações para a data/seção escolhidas.")
-                return []
-            opts = _read_dropdown_options(frame, r1)
-            if not opts:
-                st.error("[ERRO] Nenhuma opção encontrada no dropdown N1. Pode ser problema de seletores ou página vazia.")
-                return []
-            texts = []
-            for o in opts:
-                t = (o.get("text") or "").strip()
-                nt = (t or "").strip().lower()
-                if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
-                    continue
-                texts.append(t)
-            uniq = sorted({t for t in texts})
-            if not uniq:
-                st.error("[ERRO] Lista de N1 está vazia após filtragem. Tente outra data/seção ou revise o site.")
-            return uniq
-        except TimeoutError as te:
-            st.error(f"[ERRO] Timeout ao tentar carregar opções N1 ({te}).")
-            st.warning("⏱️ O site do DOU pode estar lento. Tente novamente em alguns segundos ou:")
-            st.info("• Verifique sua conexão com a internet\n• Tente uma data/seção diferente\n• Aguarde alguns minutos e tente novamente")
-            return []
-        except Exception as e:
-            tb = traceback.format_exc(limit=4)
-            st.error(f"[ERRO] Falha ao listar N1 ao vivo: {type(e).__name__}: {e}\n\nTraceback:\n{tb}")
-            st.info("Possíveis causas: Playwright browsers não instalados, venv não ativado, dependências faltando.\n\nPara instalar browsers, rode:")
-            st.code("python -m playwright install", language="powershell")
-            return []
-        finally:
-            try:
-                context.close()
-            except Exception:
-                pass
+            from dou_snaptrack.cli.plan_live_async import (  # type: ignore
+                _collect_dropdown_roots_async,
+                _read_dropdown_options_async,
+                _select_roots_async,
+            )
+            from dou_snaptrack.utils.browser import build_dou_url, goto_async, try_visualizar_em_lista_async
+            from dou_snaptrack.utils.dom import find_best_frame_async
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(channel="chrome", headless=True)
+                try:
+                    context = await browser.new_context(ignore_https_errors=True, viewport={"width": 1366, "height": 900})
+                    context.set_default_timeout(90_000)
+                    page = await context.new_page()
+                    url = build_dou_url(date, secao)
+                    await goto_async(page, url)
+                    try:
+                        await try_visualizar_em_lista_async(page)
+                    except Exception:
+                        pass
+                    frame = await find_best_frame_async(context)
+                    try:
+                        await page.wait_for_timeout(3000)
+                    except Exception:
+                        pass
+                    try:
+                        r1, _r2 = await _select_roots_async(frame)
+                    except Exception:
+                        r1 = None
+                    if not r1:
+                        roots = await _collect_dropdown_roots_async(frame)
+                        r1 = roots[0] if roots else None
+                    if not r1:
+                        return []
+                    opts = await _read_dropdown_options_async(frame, r1)
+                    if not opts:
+                        return []
+                    texts = []
+                    for o in opts:
+                        t = (o.get("text") or "").strip()
+                        nt = (t or "").strip().lower()
+                        if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
+                            continue
+                        texts.append(t)
+                    uniq = sorted({t for t in texts})
+                    return uniq
+                except TimeoutError as te:
+                    st.error(f"[ERRO] Timeout ao tentar carregar opções N1 ({te}).")
+                    st.warning("⏱️ O site do DOU pode estar lento. Tente novamente em alguns segundos.")
+                    return []
+                except Exception as e:
+                    tb = traceback.format_exc(limit=4)
+                    st.error(f"[ERRO] Falha ao listar N1: {type(e).__name__}: {e}\n\n{tb}")
+                    return []
+                finally:
+                    try:
+                        await context.close()
+                    except Exception:
+                        pass
+                    try:
+                        await browser.close()
+                    except Exception:
+                        pass
+        
+        # Executar função async
+        return asyncio.run(fetch_n1_options())
+        
     except Exception as e:
         tb = traceback.format_exc(limit=4)
-        st.error(f"[ERRO] Falha Playwright/UI: {type(e).__name__}: {e}\n\nTraceback:\n{tb}")
-        st.info("Possíveis causas: Playwright browsers não instalados, venv não ativado, dependências faltando.\n\nPara instalar browsers, rode:")
-        st.code("python -m playwright install", language="powershell")
+        st.error(f"[ERRO] Falha Playwright/UI: {type(e).__name__}: {e}\n\n{tb}")
+        return []
+
+
+@st.cache_data(show_spinner=False, ttl=300)
+def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
+    """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU).
+    
+    CORREÇÃO: Executa worker em thread separada para evitar conflito com asyncio loop do Streamlit.
+    A thread cria um novo process isolado sem loop asyncio.
+    """
+    import subprocess
+    import json
+    import tempfile
+    from pathlib import Path
+    
+    # Criar script temporário para executar em processo isolado
+    script_content = f'''
+import sys
+from pathlib import Path
+
+# Add src to path
+src_root = Path(__file__).resolve().parents[2] / "src"
+if str(src_root) not in sys.path:
+    sys.path.insert(0, str(src_root))
+
+from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options, _select_roots
+from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
+from dou_snaptrack.utils.dom import find_best_frame
+from playwright.sync_api import sync_playwright, TimeoutError
+import json
+
+try:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(ignore_https_errors=True, viewport={{"width": 1366, "height": 900}})
+        context.set_default_timeout(90_000)
+        page = context.new_page()
+        
+        url = build_dou_url("{date}", "{secao}")
+        goto(page, url)
+        
+        try:
+            try_visualizar_em_lista(page)
+        except Exception:
+            pass
+        
+        frame = find_best_frame(context)
+        page.wait_for_timeout(3000)
+        
+        try:
+            r1, _r2 = _select_roots(frame)
+        except Exception:
+            r1 = None
+        
+        if not r1:
+            roots = _collect_dropdown_roots(frame)
+            r1 = roots[0] if roots else None
+        
+        if not r1:
+            print(json.dumps({{"error": "Nenhum dropdown N1 detectado"}}))
+            sys.exit(1)
+        
+        opts = _read_dropdown_options(frame, r1)
+        
+        if not opts:
+            print(json.dumps({{"error": "Nenhuma opção encontrada no dropdown N1"}}))
+            sys.exit(1)
+        
+        texts = []
+        for o in opts:
+            t = (o.get("text") or "").strip()
+            nt = (t or "").strip().lower()
+            if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
+                continue
+            texts.append(t)
+        
+        uniq = sorted(set(texts))
+        print(json.dumps({{"success": True, "options": uniq}}))
+        
+        context.close()
+        browser.close()
+
+except TimeoutError as te:
+    print(json.dumps({{"error": f"Timeout: {{te}}"}}))
+    sys.exit(1)
+except Exception as e:
+    print(json.dumps({{"error": f"{{type(e).__name__}}: {{e}}"}}))
+    sys.exit(1)
+'''
+    
+    # Executar em subprocess isolado (sem asyncio loop)
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", script_content],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            cwd=str(Path(__file__).parent.parent.parent)  # Raiz do projeto
+        )
+        
+        if result.returncode != 0:
+            try:
+                error_data = json.loads(result.stdout)
+                st.error(f"[ERRO] {error_data.get('error', 'Erro desconhecido')}")
+            except Exception:
+                st.error(f"[ERRO] Falha ao carregar N1: {result.stderr}")
+            return []
+        
+        data = json.loads(result.stdout)
+        if data.get("success"):
+            return data.get("options", [])
+        else:
+            st.error(f"[ERRO] {data.get('error', 'Erro desconhecido')}")
+            return []
+    
+    except subprocess.TimeoutExpired:
+        st.error("[ERRO] Timeout ao carregar opções N1 (>2 minutos)")
+        return []
+    except Exception as e:
+        st.error(f"[ERRO] Falha ao executar subprocess: {type(e).__name__}: {e}")
         return []
 
 
@@ -962,7 +941,7 @@ with st.sidebar:
     with st.expander("🔧 Manutenção do Artefato", expanded=False):
         st.caption("Gerenciar pairs_DO1_full.json")
         
-        from dou_snaptrack.utils.pairs_updater import get_pairs_file_info, update_pairs_file
+        from dou_snaptrack.utils.pairs_updater import get_pairs_file_info, update_pairs_file_async
         
         info = get_pairs_file_info()
         
@@ -988,21 +967,32 @@ with st.sidebar:
                     progress_bar = st.progress(0.0)
                     status_text = st.empty()
                     
-                    def progress_cb(p, msg):
-                        progress_bar.progress(p)
+                    # MIGRAÇÃO ASYNC: Usar update_pairs_file_async com asyncio.run()
+                    import asyncio
+                    
+                    def progress_callback(pct: float, msg: str):
+                        progress_bar.progress(pct)
                         status_text.text(msg)
                     
-                    result = update_pairs_file(progress_callback=progress_cb)
+                    try:
+                        result = asyncio.run(
+                            update_pairs_file_async(
+                                limit1=5,  # Limitar para teste rápido
+                                progress_callback=progress_callback
+                            )
+                        )
+                    except Exception as e:
+                        result = {"success": False, "error": f"{type(e).__name__}: {e}"}
                     
                     progress_bar.empty()
                     status_text.empty()
                     
-                    if result["success"]:
-                        st.success(f"✅ Atualizado! {result['n1_count']} órgãos, {result['pairs_count']} pares")
-                        st.cache_data.clear()  # Limpar cache para forçar reload
+                    if result.get("success"):
+                        st.success(f"✅ Atualizado! {result.get('n1_count', 0)} órgãos, {result.get('pairs_count', 0)} pares")
+                        st.cache_data.clear()
                         st.rerun()
                     else:
-                        st.error(f"❌ Erro: {result['error']}")
+                        st.error(f"❌ Erro: {result.get('error', 'Erro desconhecido')}")
         
         with col2:
             if st.button("ℹ️ Ver Info", key="info_pairs_btn", use_container_width=True):

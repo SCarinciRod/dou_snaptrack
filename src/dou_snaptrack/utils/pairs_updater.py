@@ -3,8 +3,10 @@
 Este módulo mantém o mapeamento N1→N2 atualizado através de scraping periódico
 do site do DOU, garantindo que a UI sempre tenha dados fidedignos.
 
+**IMPORTANTE**: Versão async para compatibilidade com Streamlit/asyncio.
+
 Uso:
-    # Atualização manual
+    # Atualização manual (CLI)
     python -m dou_snaptrack.utils.pairs_updater
 
     # Atualização automática via UI (chamado quando TTL expira)
@@ -14,6 +16,7 @@ Uso:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import sys
 from datetime import datetime, timedelta
@@ -47,7 +50,11 @@ def is_pairs_file_stale(file_path: Path = DEFAULT_PAIRS_FILE, max_age_days: int 
     return age > timedelta(days=max_age_days)
 
 
-def update_pairs_file(
+# ============================================================================
+# VERSÕES ASYNC (para compatibilidade com Streamlit/asyncio)
+# ============================================================================
+
+async def update_pairs_file_async(
     file_path: Path = DEFAULT_PAIRS_FILE,
     secao: str = "DO1",
     data: str | None = None,
@@ -56,7 +63,7 @@ def update_pairs_file(
     headless: bool = True,
     progress_callback: Any = None,
 ) -> dict[str, Any]:
-    """Atualiza o arquivo de pares fazendo scraping do DOU.
+    """Versão ASYNC de update_pairs_file - compatível com asyncio/Streamlit.
 
     Args:
         file_path: Caminho do arquivo JSON a atualizar
@@ -79,10 +86,8 @@ def update_pairs_file(
     """
     from datetime import date as _date
     from types import SimpleNamespace
-
-    from playwright.sync_api import sync_playwright
-
-    from dou_snaptrack.cli.plan_live import build_plan_live
+    from playwright.async_api import async_playwright
+    from dou_snaptrack.cli.plan_live_async import build_plan_live_async
 
     try:
         # Data padrão = hoje
@@ -93,8 +98,8 @@ def update_pairs_file(
         if progress_callback:
             progress_callback(0.1, f"Iniciando atualização para {secao} - {data}...")
 
-        # Executar scraping
-        with sync_playwright() as p:
+        # Executar scraping com async API
+        async with async_playwright() as p:
             args = SimpleNamespace(
                 secao=secao,
                 data=data,
@@ -110,7 +115,7 @@ def update_pairs_file(
             if progress_callback:
                 progress_callback(0.3, "Scraping site do DOU...")
 
-            cfg = build_plan_live(p, args)
+            cfg = await build_plan_live_async(p, args)
 
         # Extrair pares únicos
         combos = cfg.get("combos", [])
@@ -181,6 +186,49 @@ def update_pairs_file(
             "file": str(file_path),
             "error": f"{type(e).__name__}: {e}",
         }
+
+
+# ============================================================================
+# VERSÕES SYNC (para CLI e retrocompatibilidade)
+# ============================================================================
+
+def update_pairs_file(
+    file_path: Path = DEFAULT_PAIRS_FILE,
+    secao: str = "DO1",
+    data: str | None = None,
+    limit1: int | None = None,
+    limit2: int | None = None,
+    headless: bool = True,
+    progress_callback: Any = None,
+) -> dict[str, Any]:
+    """Versão SYNC (CLI) - wrapper que executa a versão async.
+
+    NOTA: Esta função usa asyncio.run() para executar a versão async.
+    Não deve ser chamada dentro de um loop asyncio ativo (use update_pairs_file_async diretamente).
+
+    Args:
+        file_path: Caminho do arquivo JSON a atualizar
+        secao: Seção do DOU (padrão: DO1)
+        data: Data no formato DD-MM-YYYY (padrão: hoje)
+        limit1: Limite de órgãos N1 a buscar (None = todos)
+        limit2: Limite de N2 por N1 (None = todos)
+        headless: Executar browser em modo headless
+        progress_callback: Função para reportar progresso (ex: st.progress)
+
+    Returns:
+        Dict com estatísticas da atualização
+    """
+    return asyncio.run(
+        update_pairs_file_async(
+            file_path=file_path,
+            secao=secao,
+            data=data,
+            limit1=limit1,
+            limit2=limit2,
+            headless=headless,
+            progress_callback=progress_callback,
+        )
+    )
 
 
 def update_pairs_file_if_stale(
@@ -286,6 +334,16 @@ def main():
         print("  Use --force para atualizar mesmo assim")
         return
 
+    # CORREÇÃO CRÍTICA: Limpar loop asyncio antes de Playwright Sync
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+        if loop and not loop.is_closed():
+            loop.close()
+    except RuntimeError:
+        pass
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
     print(f"🔄 Atualizando {args.file}...")
     result = update_pairs_file(
         file_path=args.file,
@@ -298,13 +356,17 @@ def main():
     )
 
     if result["success"]:
-        print(f"✅ Sucesso!")
-        print(f"   - {result['n1_count']} órgãos (N1)")
-        print(f"   - {result['pairs_count']} pares (N1→N2)")
-        print(f"   - Salvo em: {result['file']}")
-        print(f"   - Timestamp: {result['timestamp']}")
+        print(f"✅ Sucesso!", file=sys.stderr)
+        print(f"   - {result['n1_count']} órgãos (N1)", file=sys.stderr)
+        print(f"   - {result['pairs_count']} pares (N1→N2)", file=sys.stderr)
+        print(f"   - Salvo em: {result['file']}", file=sys.stderr)
+        print(f"   - Timestamp: {result['timestamp']}", file=sys.stderr)
+        # Output JSON no stdout para consumo programático
+        print(json.dumps(result, ensure_ascii=False))
     else:
-        print(f"❌ Erro: {result['error']}")
+        print(f"❌ Erro: {result['error']}", file=sys.stderr)
+        # Output JSON no stdout para consumo programático
+        print(json.dumps(result, ensure_ascii=False))
         sys.exit(1)
 
 

@@ -250,8 +250,9 @@ def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
         return out
     try:
         h.click(timeout=2000)
-        # Otimizado: espera inteligente até opções aparecerem
-        wait_for_options_loaded(frame, min_count=1, timeout_ms=300)
+        # OTIMIZAÇÃO: espera inteligente até opções aparecerem
+        # Timeout aumentado para 2s (DOU pode ser lento) com polling a cada 50ms
+        wait_for_options_loaded(frame, min_count=1, timeout_ms=2000)
     except Exception:
         pass
     return _read_open_list_options(frame)
@@ -281,8 +282,8 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
     # custom: open and click matching option
     try:
         h.click(timeout=2000)
-        # Otimizado: espera até opções carregarem
-        wait_for_options_loaded(frame, min_count=1, timeout_ms=300)
+        # OTIMIZAÇÃO: espera até opções carregarem (timeout 2s para DOU lento)
+        wait_for_options_loaded(frame, min_count=1, timeout_ms=2000)
     except Exception:
         pass
     container = _get_listbox_container(frame)

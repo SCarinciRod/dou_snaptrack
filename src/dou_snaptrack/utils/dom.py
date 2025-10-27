@@ -18,6 +18,40 @@ except Exception:
     _du_read_select_options = None
 
 
+# ============================================================================
+# VERSÕES ASYNC (para compatibilidade com Streamlit/asyncio)
+# ============================================================================
+
+async def find_best_frame_async(context):
+    """Versão async de find_best_frame - implementação manual sem dou_utils."""
+    # NÃO usar dou_utils para evitar mixing sync/async
+    page = context.pages[0]
+    best = page.main_frame
+    best_score = -1
+    for fr in page.frames:
+        score = 0
+        try:
+            score += await fr.get_by_role("combobox").count()
+        except Exception:
+            pass
+        try:
+            score += await fr.locator("select").count()
+        except Exception:
+            pass
+        try:
+            score += await fr.get_by_role("textbox").count()
+        except Exception:
+            pass
+        if score > best_score:
+            best_score = score
+            best = fr
+    return best
+
+
+# ============================================================================
+# VERSÕES SYNC (mantidas para retrocompatibilidade)
+# ============================================================================
+
 def find_best_frame(context):
     if _du_find_best_frame:
         return _du_find_best_frame(context)

@@ -30,6 +30,47 @@ def fmt_date(date_str: str | None = None) -> str:
 def build_dou_url(date_dd_mm_yyyy: str, secao: str) -> str:
     return f"{BASE_DOU}?data={date_dd_mm_yyyy}&secao={secao}"
 
+
+# ============================================================================
+# VERSÕES ASYNC (para compatibilidade com Streamlit/asyncio)
+# ============================================================================
+
+async def goto_async(page, url: str, timeout_ms: int = 90_000) -> None:
+    """Versão async de goto."""
+    await page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+    await page.wait_for_timeout(500)
+    # Fechar cookies
+    for texto in COOKIE_BUTTON_TEXTS:
+        try:
+            btn = page.get_by_role("button", name=re.compile(texto, re.I))
+            if await btn.count() > 0:
+                first = btn.first
+                if await first.is_visible():
+                    await first.click(timeout=1500)
+                    await page.wait_for_timeout(150)
+        except Exception:
+            pass
+
+
+async def try_visualizar_em_lista_async(page) -> bool:
+    """Versão async de try_visualizar_em_lista."""
+    try:
+        btn = page.get_by_role("button", name=re.compile(r"(lista|sum[aá]rio)", re.I))
+        if await btn.count() > 0:
+            first = btn.first
+            if await first.is_visible():
+                await first.click()
+                await page.wait_for_load_state("networkidle", timeout=60_000)
+                return True
+    except Exception:
+        pass
+    return False
+
+
+# ============================================================================
+# VERSÕES SYNC (mantidas para retrocompatibilidade)
+# ============================================================================
+
 def close_cookies(page) -> None:
     if _page_close_cookies:
         return _page_close_cookies(page)
