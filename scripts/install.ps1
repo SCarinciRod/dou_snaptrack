@@ -1,11 +1,12 @@
 param(
   [string]$Python = "python",
   [string]$VenvDir = ".venv",
-  [string]$PythonVersions = "3.11",
+  [string]$PythonVersions = "3.13;3.12;3.11",
   [switch]$AllowWinget,
   [switch]$SkipSmoke,
   [switch]$ForceCleanVenv,
-  [switch]$NoVenv
+  [switch]$NoVenv,
+  [switch]$Quiet
 )
 
 function Run($cmd, [int]$TimeoutSeconds = 30) {
@@ -241,85 +242,262 @@ function Find-PythonCandidate([string[]]$versions) {
 }
 
 function Resolve-Python {
-  param([string]$Versions = "3.12;3.11", [switch]$AllowWinget)
+  param([string]$Versions = "3.13;3.12;3.11", [switch]$AllowWinget)
   $versions = $Versions -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ }
-  Write-Host ("[Python] Procurando Python nas versões: {0}" -f ($versions -join ', '))
+  Write-Host "`n=== Procurando Python ==="
+  Write-Host "[Python] Versões aceitas: $($versions -join ', ')"
+  
   $found = Find-PythonCandidate -versions $versions
-  if ($found) { return $found }
+  if ($found) {
+    Write-Host "[Python] ✓ Encontrado: $found"
+    $ver = Get-PyVer $found
+    if ($ver) { Write-Host "[Python] ✓ Versão: $ver" }
+    return $found
+  }
 
-  # Download e instalação per-user (sem admin), preferindo a primeira versão listada; tenta cada uma
+  Write-Host "`n[Python] Não encontrado no sistema. Iniciando instalação automática..."
+  Write-Host "[Python] Modo: PER-USER (sem necessidade de admin)"
+  Write-Host ""
+
+  # Mapear versões full
+  $versionMap = @{
+    '3.13' = '3.13.0'
+    '3.12' = '3.12.7'
+    '3.11' = '3.11.9'
+  }
+
+  # Tentar instalar cada versão até conseguir
   foreach ($v in $versions) {
-    $full = if ($v -eq '3.12') { '3.12.6' } else { '3.11.9' }
-    $url = "https://www.python.org/ftp/python/$full/python-$full-amd64.exe"
-    $tmp = Join-Path $env:TEMP ("python-{0}-amd64.exe" -f $full)
-    Write-Host "[Python] Baixando instalador $full..."
-    try {
-  Invoke-FileDownloadWithRetry -Url $url -OutFile $tmp -MaxAttempts 4 -TimeoutSec 15
-    } catch {
-      Write-Warning "Download falhou: $_"
+    $full = $versionMap[$v]
+    if (-not $full) {
+      Write-Warning "[Python] Versão $v não mapeada. Pulando..."
       continue
     }
-    Write-Host "[Python] Instalando silenciosamente (per-user)..."
+
+    $url = "https://www.python.org/ftp/python/$full/python-$full-amd64.exe"
+    $tmp = Join-Path $env:TEMP ("python-installer-{0}.exe" -f $full)
+    
+    Write-Host "[Python] Tentando instalar Python $full..."
+    Write-Host "  URL: $url"
+    
+    # Download com retry
     try {
-      Start-Process -FilePath $tmp -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_pip=1 Include_launcher=1 SimpleInstall=1" -Wait -WindowStyle Hidden
+      Write-Host "  [1/3] Baixando instalador..."
+      Invoke-FileDownloadWithRetry -Url $url -OutFile $tmp -MaxAttempts 4 -TimeoutSec 30
+      Write-Host "  [1/3] ✓ Download concluído"
     } catch {
-      Write-Warning "Falha ao executar o instalador: $_"
+      Write-Warning "  [1/3] ✗ Download falhou: $($_.Exception.Message)"
+      continue
     }
+
+    # Verificar se arquivo foi baixado
+    if (-not (Test-Path $tmp)) {
+      Write-Warning "  Arquivo não encontrado após download: $tmp"
+      continue
+    }
+
+    $fileSize = (Get-Item $tmp).Length / 1MB
+    Write-Host "  Tamanho: $([math]::Round($fileSize, 2)) MB"
+
+    # Instalação silenciosa SEM admin
+    # Argumentos críticos:
+    # - /passive ou /quiet: instalação silenciosa
+    # - InstallAllUsers=0: instalação PER-USER (não requer admin)
+    # - PrependPath=1: adiciona ao PATH do usuário
+    # - Include_pip=1: inclui pip
+    # - Include_launcher=1: inclui py.exe launcher
+    # - SimpleInstall=1: instalação simplificada
+    # - TargetDir: diretório específico do usuário (opcional, mas ajuda)
+    
+    $installDir = Join-Path $env:LocalAppData "Programs\Python\Python$($v.Replace('.', ''))"
+    
+    $installArgs = @(
+      "/passive",  # Mostra barra de progresso mas não requer interação
+      "InstallAllUsers=0",  # CRÍTICO: instala só para usuário atual
+      "PrependPath=1",
+      "Include_pip=1",
+      "Include_launcher=1",
+      "SimpleInstall=1",
+      "TargetDir=`"$installDir`""
+    )
+    
+    Write-Host "  [2/3] Instalando Python $v (aguarde 1-2 minutos)..."
+    Write-Host "  Diretório: $installDir"
+    Write-Host "  IMPORTANTE: Instalação PER-USER (sem necessidade de admin)"
+    
+    try {
+      # Usar Start-Process com -Verb RunAs REMOVIDO (não pedir admin)
+      # -Wait garante que esperamos a instalação terminar
+      # -WindowStyle Hidden oculta janela (ou use Normal para debug)
+      $proc = Start-Process -FilePath $tmp -ArgumentList $installArgs -Wait -PassThru -NoNewWindow
+      
+      $exitCode = $proc.ExitCode
+      Write-Host "  [2/3] Instalação finalizada (Exit Code: $exitCode)"
+      
+      # Exit codes do instalador Python:
+      # 0 = Sucesso
+      # 1602 = Usuário cancelou (não deve acontecer em /passive)
+      # 1638 = Outra versão já instalada
+      # 3010 = Sucesso mas requer reinicialização
+      
+      if ($exitCode -eq 0 -or $exitCode -eq 3010) {
+        Write-Host "  [2/3] ✓ Instalação bem-sucedida"
+      } elseif ($exitCode -eq 1638) {
+        Write-Host "  [2/3] ⚠ Python já está instalado"
+      } else {
+        Write-Warning "  [2/3] ✗ Exit code não esperado: $exitCode"
+      }
+      
+    } catch {
+      Write-Warning "  [2/3] ✗ Erro ao executar instalador: $($_.Exception.Message)"
+      continue
+    } finally {
+      # Limpar instalador temporário
+      try {
+        Start-Sleep -Seconds 2  # Aguardar liberação do arquivo
+        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+      } catch {}
+    }
+
+    # Aguardar Python ficar disponível
+    Write-Host "  [3/3] Verificando instalação..."
+    Start-Sleep -Seconds 3
+    
     # Revarrer após instalação
     $found = Find-PythonCandidate -versions $versions
-    if ($found) { return $found }
-  }
-
-  if ($AllowWinget) {
-    foreach ($v in $versions) {
-      Write-Host "[Python] Tentando instalar via winget Python.Python.$v..."
-      try {
-  Run ("winget install -e --id Python.Python.{0} --accept-source-agreements --accept-package-agreements --silent" -f $v) 300
-      } catch {
-        Write-Warning "winget falhou/indisponível: $_"
-        continue
+    if ($found) {
+      Write-Host "  [3/3] ✓ Python $v detectado com sucesso!"
+      Write-Host "  Localização: $found"
+      return $found
+    } else {
+      Write-Warning "  [3/3] ✗ Python não detectado após instalação"
+      Write-Host "  Tentando buscar diretamente em: $installDir"
+      
+      $directPy = Join-Path $installDir "python.exe"
+      if (Test-Path $directPy) {
+        Write-Host "  [3/3] ✓ Encontrado diretamente: $directPy"
+        return $directPy
       }
-      $found = Find-PythonCandidate -versions $versions
-      if ($found) { return $found }
     }
   }
 
-  throw "Python (3.12/3.11) não encontrado nem instalado automaticamente. Instale manualmente (Just for me) e reexecute."
+  # Fallback: winget (se permitido e disponível)
+  if ($AllowWinget) {
+    Write-Host "`n[Python] Tentando instalação via winget..."
+    foreach ($v in $versions) {
+      $wingetId = "Python.Python.$v"
+      Write-Host "[winget] Instalando $wingetId..."
+      
+      try {
+        # winget install com argumentos para instalação silenciosa de usuário
+        $wingetArgs = "install -e --id $wingetId --scope user --accept-source-agreements --accept-package-agreements --silent"
+        Run "winget $wingetArgs" 300
+        
+        Write-Host "[winget] ✓ Comando executado"
+        Start-Sleep -Seconds 5
+        
+        $found = Find-PythonCandidate -versions $versions
+        if ($found) {
+          Write-Host "[winget] ✓ Python detectado após instalação via winget!"
+          return $found
+        }
+      } catch {
+        Write-Warning "[winget] Falha: $($_.Exception.Message)"
+      }
+    }
+  }
+
+  # Se chegou aqui, falhou
+  Write-Host "`n╔════════════════════════════════════════════════════════════════════╗"
+  Write-Host "║  ❌ INSTALAÇÃO AUTOMÁTICA DE PYTHON FALHOU                        ║"
+  Write-Host "╚════════════════════════════════════════════════════════════════════╝"
+  Write-Host ""
+  Write-Host "Por favor, instale Python manualmente:"
+  Write-Host ""
+  Write-Host "1. Acesse: https://www.python.org/downloads/"
+  Write-Host "2. Baixe Python 3.13, 3.12 ou 3.11"
+  Write-Host "3. Durante instalação:"
+  Write-Host "   ☑️  Marque 'Add Python to PATH'"
+  Write-Host "   ☑️  Escolha 'Install for current user only' (NÃO precisa de admin)"
+  Write-Host "4. Após instalação, execute novamente: .\scripts\install.ps1"
+  Write-Host ""
+  
+  throw "Python não encontrado. Instalação manual necessária."
 }
 
 $pyExe = Resolve-Python -Versions $PythonVersions -AllowWinget:$AllowWinget
-Write-Host "[Python] Usando: $pyExe"
 
+Write-Host "`n╔════════════════════════════════════════════════════════════════════╗"
+Write-Host "║           DOU SnapTrack - Instalação Automática                   ║"
+Write-Host "╚════════════════════════════════════════════════════════════════════╝"
+Write-Host "`n[✓] Python encontrado: $pyExe"
+Write-Host "[✓] Modo: Instalação de usuário (sem necessidade de admin)"
+Write-Host "[✓] Tipo: Desenvolvimento (modo editável)"
+Write-Host ""
 
 # --- User-mode streamlined install ---
 $py = $pyExe
-Write-Host "[Install] Modo usuário (-NoVenv). Pulando criação de venv e upgrade de pip."
-Write-Host "[Install] Verificando pip no Python do sistema"
+Write-Host "=== Verificando dependências ==="
+Write-Host "[pip] Verificando gerenciador de pacotes..."
 $pipOk = $false
 $chk = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
-if ($chk.ExitCode -eq 0 -or ($chk.Stdout -match '^(?i)pip\s+\d')) { $pipOk = $true }
+
+if ($chk.ExitCode -eq 0 -or ($chk.Stdout -match '^(?i)pip\s+\d')) {
+  $pipOk = $true
+  # Extrair versão do pip
+  if ($chk.Stdout -match 'pip\s+([\d.]+)') {
+    Write-Host "[pip] ✓ Versão $($matches[1]) encontrada"
+  } else {
+    Write-Host "[pip] ✓ Instalado e funcional"
+  }
+}
+
 if (-not $pipOk) {
-  Write-Warning "[Install] pip não encontrado. Tentando inicializar com ensurepip/get-pip.py (sem admin)."
+  Write-Warning "[pip] Não encontrado. Inicializando pip..."
+  
+  # Tentar ensurepip primeiro
+  Write-Host "[pip] Tentando ensurepip..."
   $ens = Run-GetResult ("& `"{0}`" -m ensurepip --upgrade" -f $py) 180
-  if ($ens.ExitCode -eq 0) { $pipOk = $true }
+  if ($ens.ExitCode -eq 0) {
+    Write-Host "[pip] ✓ Instalado via ensurepip"
+    $pipOk = $true
+  }
+  
+  # Fallback para get-pip.py
   if (-not $pipOk) {
+    Write-Host "[pip] ensurepip falhou. Tentando get-pip.py..."
     $getPip = Join-Path $env:TEMP "get-pip.py"
     try {
-  Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15
-  $null = Run-GetResult ("& `"{0}`" `"{1}`"" -f $py, $getPip) 300
+      Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15
+      $null = Run-GetResult ("& `"{0}`" `"{1}`"" -f $py, $getPip) 300
+      Write-Host "[pip] ✓ Instalado via get-pip.py"
+    } catch {
+      Write-Warning "[pip] Falha no download/instalação de get-pip.py"
     } finally {
       try { Remove-Item -LiteralPath $getPip -Force -ErrorAction SilentlyContinue } catch {}
     }
   }
-  # Rechecar pip
+  
+  # Verificar novamente
   $chk2 = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
-  if ($chk2.ExitCode -eq 0 -or ($chk2.Stdout -match '^(?i)pip\s+\d')) { $pipOk = $true } else { $pipOk = $false }
+  if ($chk2.ExitCode -eq 0 -or ($chk2.Stdout -match '^(?i)pip\s+\d')) {
+    $pipOk = $true
+    Write-Host "[pip] ✓ Verificação final OK"
+  } else {
+    $pipOk = $false
+  }
 }
 if (-not $pipOk) { throw "[Install] pip indisponível após tentativa de bootstrap (ensurepip/get-pip)." }
-Write-Host "[Install] Instalando pacote do projeto (editable, modo usuário)"
+
+Write-Host "`n=== Instalando DOU SnapTrack ==="
+Write-Host "[Install] Instalando pacote em modo editável (desenvolvimento)..."
+Write-Host "  Modo: --user (sem necessidade de admin)"
+
 $succ = $false
 try { $repoPath = (Resolve-Path ".").Path } catch { $repoPath = (Get-Location).Path }
-$rshow = Run-GetResult "$py -m pip show dou-snaptrack" 20
+
+# Verificar se já está instalado em modo editável neste local
+$rshow = Run-GetResult ("& `"{0}`" -m pip show dou-snaptrack" -f $py) 20
 if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
   $editableLoc = $null
   foreach ($line in ($rshow.Stdout -split "`r?`n")) {
@@ -329,31 +507,85 @@ if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
     $a = ($editableLoc -replace '/', '\\').TrimEnd('\\')
     $b = ($repoPath -replace '/', '\\').TrimEnd('\\')
     if ($a.ToLowerInvariant() -eq $b.ToLowerInvariant()) {
-      Write-Host "[Install] Pacote já em modo editável neste repositório. Pulando reinstalação."
+      Write-Host "[Install] ✓ Pacote já instalado em modo editável neste repositório."
+      Write-Host "  Localização: $editableLoc"
       $succ = $true
     }
   }
 }
+
 if (-not $succ) {
+  Write-Host "[Install] Instalando pacote..."
   $r = Run-GetResult ("& `"{0}`" -m pip install --user --no-warn-script-location -e ." -f $py) 900
-  if ($r.ExitCode -eq 0 -or ($r.Stdout -match '(?i)Successfully installed')) { $succ = $true }
-  if (-not $succ) {
-    $msg = "[Install] Falha ao instalar o pacote em modo usuário." +
-           " Detalhe: Exit={0}`nSTDOUT:`n{1}`nSTDERR:`n{2}" -f $r.ExitCode, $r.Stdout, $r.Stderr
+  
+  if ($r.ExitCode -eq 0 -or ($r.Stdout -match '(?i)Successfully installed')) {
+    Write-Host "[Install] ✓ Pacote instalado com sucesso!"
+    $succ = $true
+  } else {
+    $msg = "[Install] ❌ Falha ao instalar o pacote em modo usuário.`n" +
+           "Exit Code: {0}`n`nSTDOUT:`n{1}`n`nSTDERR:`n{2}" -f $r.ExitCode, $r.Stdout, $r.Stderr
     throw $msg
   }
 }
 
 if (-not $SkipSmoke) {
-  Write-Host "[Install] Verificando Playwright"
-  # Evita problemas de aspas: usa o operador de chamada & e escapa apenas as aspas duplas
-  Run ("& `"{0}`" -c `"import importlib; m=importlib.util.find_spec('playwright'); print('ok' if m else 'missing')`"" -f $py)
+  Write-Host "`n=== Configurando Playwright ==="
+  
+  # Verificar se Playwright está instalado
+  Write-Host "[Playwright] Verificando instalação..."
+  $pwCheck = Run-GetResult ("& `"{0}`" -c `"import importlib; m=importlib.util.find_spec('playwright'); print('installed' if m else 'missing')`"" -f $py) 30
+  
+  if ($pwCheck.Stdout -notmatch 'installed') {
+    Write-Warning "[Playwright] Não encontrado. Instalando..."
+    $pwInstall = Run-GetResult ("& `"{0}`" -m pip install --user playwright" -f $py) 300
+    if ($pwInstall.ExitCode -ne 0) {
+      Write-Warning "[Playwright] Falha na instalação. Testes de browser podem falhar."
+    }
+  } else {
+    Write-Host "[Playwright] ✓ Já instalado"
+  }
 
-  Write-Host "[Install] Testando navegador do sistema (Chrome/Edge)"
-  Run "$py scripts\playwright_smoke.py"
+  # Instalar navegadores Playwright (Chrome/Edge) automaticamente
+  Write-Host "[Playwright] Instalando navegadores (Chrome/Edge)..."
+  Write-Host "  (Isso pode levar alguns minutos na primeira vez...)"
+  
+  $browserInstall = Run-GetResult ("& `"{0}`" -m playwright install chromium --with-deps" -f $py) 600
+  
+  if ($browserInstall.ExitCode -eq 0) {
+    Write-Host "[Playwright] ✓ Navegadores instalados com sucesso"
+  } else {
+    Write-Warning "[Playwright] Instalação de navegadores falhou. Tentando sem dependências do sistema..."
+    $browserInstall2 = Run-GetResult ("& `"{0}`" -m playwright install chromium" -f $py) 600
+    
+    if ($browserInstall2.ExitCode -eq 0) {
+      Write-Host "[Playwright] ✓ Navegador Chromium instalado (sem deps do sistema)"
+    } else {
+      Write-Warning "[Playwright] Não foi possível instalar navegadores automaticamente."
+      Write-Warning "  Execute manualmente: $py -m playwright install chromium"
+    }
+  }
+
+  # Smoke test
+  Write-Host "`n[Install] Executando smoke test..."
+  $smokeTest = Run-GetResult ("& `"{0}`" scripts\playwright_smoke.py" -f $py) 60
+  
+  if ($smokeTest.ExitCode -eq 0) {
+    Write-Host "[Install] ✓ Smoke test passou! Navegador funcionando corretamente."
+  } else {
+    Write-Warning "[Install] Smoke test falhou. Saída:"
+    Write-Warning $smokeTest.Stderr
+    Write-Warning "`nVocê pode precisar configurar o navegador manualmente."
+  }
 }
 
-Write-Host "[Install] OK. Para iniciar a UI: scripts\run-ui-managed.ps1 (usando Python do sistema em modo usuário)"
+Write-Host "`n=== Instalação Concluída ==="
+Write-Host "✓ Python: $pyExe"
+Write-Host "✓ Pacote: dou-snaptrack (modo editável)"
+Write-Host "✓ Playwright: Configurado"
+Write-Host "`nPara iniciar a aplicação:"
+Write-Host "  1. Via atalho na Área de Trabalho (se criado)"
+Write-Host "  2. Executar: scripts\run-ui-managed.ps1"
+Write-Host "  3. Duplo clique em: launch_ui.vbs"
 
 # Criar atalho na área de trabalho ao final
 try {
