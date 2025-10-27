@@ -505,9 +505,38 @@ _ensure_state()
 
 with st.sidebar:
     st.header("Configuração")
-    st.session_state.plan.date = st.text_input("Data (DD-MM-AAAA)", st.session_state.plan.date)
+    
+    # Date picker visual (calendário) ao invés de text input
+    from datetime import datetime, timedelta
+    
+    # Converter data string DD-MM-YYYY para date object (se válida)
+    current_date_str = st.session_state.plan.date
+    try:
+        # Parse DD-MM-YYYY
+        parts = current_date_str.split("-")
+        if len(parts) == 3:
+            day, month, year = int(parts[0]), int(parts[1]), int(parts[2])
+            current_date_obj = _date(year, month, day)
+        else:
+            current_date_obj = _date.today()
+    except Exception:
+        current_date_obj = _date.today()
+    
+    # Date picker com calendário visual
+    selected_date = st.date_input(
+        "Data de publicação",
+        value=current_date_obj,
+        min_value=_date(2000, 1, 1),  # DOU digital começou em 2000
+        max_value=_date.today() + timedelta(days=7),  # Permitir até 7 dias no futuro
+        format="DD/MM/YYYY",
+        help="Selecione a data de publicação do DOU para consulta"
+    )
+    
+    # Converter de volta para string DD-MM-YYYY (formato esperado pelo backend)
+    st.session_state.plan.date = selected_date.strftime("%d-%m-%Y")
+    
     st.session_state.plan.secao = st.selectbox("Seção", ["DO1", "DO2", "DO3"], index=0)
-    st.markdown("- Padrão: hoje; altere se necessário.")
+    st.markdown("💡 **Dica**: Use o calendário para selecionar a data facilmente.")
     plan_name_ui = st.text_input("Nome do plano (para agregação)", value=st.session_state.get("plan_name_ui", ""))
     st.session_state["plan_name_ui"] = plan_name_ui
 
