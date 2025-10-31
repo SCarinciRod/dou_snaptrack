@@ -440,7 +440,8 @@ $py = $pyExe
 Write-Host "=== Verificando dependências ==="
 Write-Host "[pip] Verificando gerenciador de pacotes..."
 $pipOk = $false
-$chk = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
+$cmd = "& `"$py`" -m pip --version"
+$chk = Run-GetResult $cmd 30
 
 if ($chk.ExitCode -eq 0 -or ($chk.Stdout -match '^(?i)pip\s+\d')) {
   $pipOk = $true
@@ -457,7 +458,8 @@ if (-not $pipOk) {
   
   # Tentar ensurepip primeiro
   Write-Host "[pip] Tentando ensurepip..."
-  $ens = Run-GetResult ("& `"{0}`" -m ensurepip --upgrade" -f $py) 180
+  $cmd = "& `"$py`" -m ensurepip --upgrade"
+  $ens = Run-GetResult $cmd 180
   if ($ens.ExitCode -eq 0) {
     Write-Host "[pip] ✓ Instalado via ensurepip"
     $pipOk = $true
@@ -469,7 +471,8 @@ if (-not $pipOk) {
     $getPip = Join-Path $env:TEMP "get-pip.py"
     try {
       Invoke-FileDownloadWithRetry -Url "https://bootstrap.pypa.io/get-pip.py" -OutFile $getPip -MaxAttempts 4 -TimeoutSec 15
-      $null = Run-GetResult ("& `"{0}`" `"{1}`"" -f $py, $getPip) 300
+  $cmd = "& `"$py`" `"$getPip`""
+  $null = Run-GetResult $cmd 300
       Write-Host "[pip] ✓ Instalado via get-pip.py"
     } catch {
       Write-Warning "[pip] Falha no download/instalação de get-pip.py"
@@ -479,7 +482,8 @@ if (-not $pipOk) {
   }
   
   # Verificar novamente
-  $chk2 = Run-GetResult ("& `"{0}`" -m pip --version" -f $py) 30
+  $cmd = "& `"$py`" -m pip --version"
+  $chk2 = Run-GetResult $cmd 30
   if ($chk2.ExitCode -eq 0 -or ($chk2.Stdout -match '^(?i)pip\s+\d')) {
     $pipOk = $true
     Write-Host "[pip] ✓ Verificação final OK"
@@ -497,7 +501,8 @@ $succ = $false
 try { $repoPath = (Resolve-Path ".").Path } catch { $repoPath = (Get-Location).Path }
 
 # Verificar se já está instalado em modo editável neste local
-$rshow = Run-GetResult ("& `"{0}`" -m pip show dou-snaptrack" -f $py) 20
+$cmd = "& `"$py`" -m pip show dou-snaptrack"
+$rshow = Run-GetResult $cmd 20
 if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
   $editableLoc = $null
   foreach ($line in ($rshow.Stdout -split "`r?`n")) {
@@ -516,7 +521,8 @@ if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
 
 if (-not $succ) {
   Write-Host "[Install] Instalando pacote..."
-  $r = Run-GetResult ("& `"{0}`" -m pip install --user --no-warn-script-location -e ." -f $py) 900
+  $cmd = "& `"$py`" -m pip install --user --no-warn-script-location -e ."
+  $r = Run-GetResult $cmd 900
   
   if ($r.ExitCode -eq 0 -or ($r.Stdout -match '(?i)Successfully installed')) {
     Write-Host "[Install] ✓ Pacote instalado com sucesso!"
@@ -533,11 +539,13 @@ if (-not $SkipSmoke) {
   
   # Verificar se Playwright está instalado
   Write-Host "[Playwright] Verificando instalação..."
-  $pwCheck = Run-GetResult ("& `"{0}`" -c `"import importlib; m=importlib.util.find_spec('playwright'); print('installed' if m else 'missing')`"" -f $py) 30
+  $cmd = "& `"$py`" -c `"import importlib; m=importlib.util.find_spec('playwright'); print('installed' if m else 'missing')`""
+  $pwCheck = Run-GetResult $cmd 30
   
   if ($pwCheck.Stdout -notmatch 'installed') {
     Write-Warning "[Playwright] Não encontrado. Instalando..."
-    $pwInstall = Run-GetResult ("& `"{0}`" -m pip install --user playwright" -f $py) 300
+  $cmd = "& `"$py`" -m pip install --user playwright"
+  $pwInstall = Run-GetResult $cmd 300
     if ($pwInstall.ExitCode -ne 0) {
       Write-Warning "[Playwright] Falha na instalação. Testes de browser podem falhar."
     }
@@ -549,13 +557,15 @@ if (-not $SkipSmoke) {
   Write-Host "[Playwright] Instalando navegadores (Chrome/Edge)..."
   Write-Host "  (Isso pode levar alguns minutos na primeira vez...)"
   
-  $browserInstall = Run-GetResult ("& `"{0}`" -m playwright install chromium --with-deps" -f $py) 600
+  $cmd = "& `"$py`" -m playwright install chromium --with-deps"
+  $browserInstall = Run-GetResult $cmd 600
   
   if ($browserInstall.ExitCode -eq 0) {
     Write-Host "[Playwright] ✓ Navegadores instalados com sucesso"
   } else {
     Write-Warning "[Playwright] Instalação de navegadores falhou. Tentando sem dependências do sistema..."
-    $browserInstall2 = Run-GetResult ("& `"{0}`" -m playwright install chromium" -f $py) 600
+  $cmd = "& `"$py`" -m playwright install chromium"
+  $browserInstall2 = Run-GetResult $cmd 600
     
     if ($browserInstall2.ExitCode -eq 0) {
       Write-Host "[Playwright] ✓ Navegador Chromium instalado (sem deps do sistema)"
@@ -567,7 +577,8 @@ if (-not $SkipSmoke) {
 
   # Smoke test
   Write-Host "`n[Install] Executando smoke test..."
-  $smokeTest = Run-GetResult ("& `"{0}`" scripts\playwright_smoke.py" -f $py) 60
+  $cmd = "& `"$py`" scripts\playwright_smoke.py"
+  $smokeTest = Run-GetResult $cmd 60
   
   if ($smokeTest.ExitCode -eq 0) {
     Write-Host "[Install] ✓ Smoke test passou! Navegador funcionando corretamente."

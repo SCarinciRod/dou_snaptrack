@@ -1,161 +1,22 @@
 {
   "_metadata": {
     "secao": "DO1",
-    "data_scrape": "12-09-2025",
-    "timestamp": "2025-10-24T14:26:31.115083",
-    "total_n1": 32,
-    "total_pairs": 83,
-    "auto_generated": false,
-    "max_age_days": 7,
-    "migrated_from": "artefatos\\pairs_DO1_full.json"
+    "data_scrape": "24-10-2025",
+    "timestamp": "2025-10-27T09:51:35.604391",
+    "total_n1": 3,
+    "total_pairs": 3,
+    "auto_generated": true,
+    "max_age_days": 7
   },
   "pairs": {
-    "Presidência da República": [
-      "Conselho de Governo",
-      "Câmara de Comércio Exterior"
+    "Atos do Poder Judiciário": [
+      "Supremo Tribunal Federal"
     ],
-    "Ministério da Agricultura e Pecuária": [
-      "Gabinete do Ministro",
-      "Secretaria Executiva"
+    "Atos do Poder Legislativo": [
+      "Todos"
     ],
-    "Ministério das Cidades": [
-      "Gabinete do Ministro"
-    ],
-    "Ministério da Ciência, Tecnologia e Inovação": [
-      "Comissão Técnica Nacional de Biossegurança",
-      "Conselho Nacional de Controle de Experimentação Animal",
-      "Conselho Nacional de Desenvolvimento Científico e Tecnológico"
-    ],
-    "Ministério das Comunicações": [
-      "Agência Nacional de Telecomunicações"
-    ],
-    "Ministério da Cultura": [
-      "Agência Nacional do Cinema",
-      "Instituto do Patrimônio Histórico e Artístico Nacional"
-    ],
-    "Ministério da Defesa": [
-      "Comando da Aeronáutica",
-      "Comando do Exército",
-      "Gabinete do Ministro"
-    ],
-    "Ministério do Desenvolvimento Agrário e Agricultura Familiar": [
-      "Instituto Nacional de Colonização e Reforma Agrária"
-    ],
-    "Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome": [
-      "Comissão Intergestores Tripartite do Sistema Único de Assistência Social"
-    ],
-    "Ministério do Desenvolvimento, Indústria, Comércio e Serviços": [
-      "Gabinete do Ministro",
-      "Secretaria de Desenvolvimento Industrial, Inovação, Comércio e Serviços",
-      "Superintendência da Zona Franca de Manaus"
-    ],
-    "Ministério da Educação": [
-      "Fundo Nacional de Desenvolvimento da Educação",
-      "Instituto Federal de Educação, Ciência e Tecnologia de Mato Grosso",
-      "Instituto Federal de Educação, Ciência e Tecnologia de Rondônia",
-      "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",
-      "Secretaria de Regulação e Supervisão da Educação Superior",
-      "Universidade Federal do Espírito Santo"
-    ],
-    "Ministério do Empreendedorismo, da Microempresa e da Empresa de Pequeno Porte": [
-      "Secretaria Nacional de Microempresa e Empresa de Pequeno Porte"
-    ],
-    "Ministério do Esporte": [
-      "Gabinete do Ministro"
-    ],
-    "Ministério da Fazenda": [
-      "Caixa Econômica Federal",
-      "Comissão de Valores Mobiliários",
-      "Conselho Administrativo de Recursos Fiscais",
-      "Gabinete do Ministro",
-      "Secretaria Especial da Receita Federal do Brasil",
-      "Secretaria de Prêmios e Apostas",
-      "Secretaria do Tesouro Nacional"
-    ],
-    "Ministério da Gestão e da Inovação em Serviços Públicos": [
-      "Instituto Nacional de Tecnologia da Informação",
-      "Secretaria do Patrimônio da União"
-    ],
-    "Ministério da Igualdade Racial": [
-      "Gabinete da Ministra"
-    ],
-    "Ministério da Integração e do Desenvolvimento Regional": [
-      "Departamento Nacional de Obras Contra as Secas",
-      "Secretaria Executiva",
-      "Secretaria Nacional de Proteção e Defesa Civil",
-      "Superintendência do Desenvolvimento do Nordeste"
-    ],
-    "Ministério da Justiça e Segurança Pública": [
-      "Conselho Administrativo de Defesa Econômica",
-      "Polícia Federal",
-      "Secretaria Nacional de Justiça"
-    ],
-    "Ministério do Meio Ambiente e Mudança do Clima": [
-      "Comitê Nacional de Manejo Integrado do Fogo",
-      "Gabinete da Ministra",
-      "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis",
-      "Instituto Chico Mendes de Conservação da Biodiversidade"
-    ],
-    "Ministério de Minas e Energia": [
-      "Agência Nacional de Energia Elétrica",
-      "Agência Nacional de Mineração",
-      "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
-      "Secretaria Nacional de Petróleo, Gás Natural e Biocombustíveis",
-      "Secretaria Nacional de Transição Energética e Planejamento"
-    ],
-    "Ministério do Planejamento e Orçamento": [
-      "Gabinete da Ministra",
-      "Secretaria de Orçamento Federal"
-    ],
-    "Ministério de Portos e Aeroportos": [
-      "Agência Nacional de Transportes Aquaviários"
-    ],
-    "Ministério da Previdência Social": [
-      "Instituto Nacional do Seguro Social",
-      "Superintendência Nacional de Previdência Complementar"
-    ],
-    "Ministério da Saúde": [
-      "Agência Nacional de Vigilância Sanitária",
-      "Conselho Nacional de Saúde",
-      "Gabinete do Ministro",
-      "Secretaria Executiva"
-    ],
-    "Ministério do Trabalho e Emprego": [
-      "Secretaria de Inspeção do Trabalho",
-      "Secretaria de Qualificação, Emprego e Renda",
-      "Secretaria de Relações do Trabalho"
-    ],
-    "Ministério dos Transportes": [
-      "Agência Nacional de Transportes Terrestres",
-      "Departamento Nacional de Infraestrutura de Transportes"
-    ],
-    "Banco Central do Brasil": [
-      "Área de Administração",
-      "Área de Regulação"
-    ],
-    "Controladoria-Geral da União": [
-      "Gabinete do Ministro"
-    ],
-    "Conselho Nacional do Ministério Público": [
-      "Corregedoria Nacional do Ministério Público"
-    ],
-    "Ministério Público da União": [
-      "Atos do Procurador-Geral da República",
-      "Escola Superior",
-      "Ministério Público Militar",
-      "Ministério Público do Trabalho"
-    ],
-    "Tribunal de Contas da União": [
-      "2ª Câmara"
-    ],
-    "Entidades de Fiscalização do Exercício das Profissões Liberais": [
-      "CONSELHO REGIONAL DE EDUCAÇÃO FÍSICA DA 19ª REGIÃO",
-      "CONSELHO REGIONAL DE ODONTOLOGIA DA PARAÍBA",
-      "Conselho Federal de Fisioterapia e Terapia Ocupacional",
-      "Conselho Federal de Medicina Veterinária",
-      "Conselho Federal de Odontologia",
-      "Conselho Federal de Profissionais de Relações Públicas",
-      "Conselho Regional de Contabilidade do Espírito Santo"
+    "Atos do Congresso Nacional": [
+      "Todos"
     ]
   }
 }

@@ -232,3 +232,292 @@ playwright._impl._errors.Error: Browser.new_context: Protocol error (Browser.set
 [2025-10-21 10:45:38] INFO dou_utils.content_fetcher: [ENRICH] updated 23/23 items (overwrite=True, min_len=None)
 [2025-10-21 10:47:37] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=23 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
 [2025-10-21 10:47:53] INFO dou_utils.content_fetcher: [ENRICH] updated 23/23 items (overwrite=True, min_len=None)
+[2025-10-23 14:31:37] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 14:31:48] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 14:42:14] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 14:42:21] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 14:47:09] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 14:47:16] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 14:59:06] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 14:59:15] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 15:05:36] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 15:05:42] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 15:07:28] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 15:07:35] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-23 15:16:07] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-23 15:16:15] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-24 07:27:06] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:27:14] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-24 07:27:53] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:28:01] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-24 07:29:34] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=60 parallel=10 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:29:41] INFO dou_utils.content_fetcher: [ENRICH] updated 60/60 items (overwrite=True, min_len=None)
+[2025-10-24 07:36:06] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:36:10] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:36:10] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:36:10] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:37:10] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:37:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:37:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:37:11] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:37:37] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:37:38] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:37:38] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:37:38] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:39:58] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:39:59] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:39:59] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:40:00] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:40:40] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:40:41] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:40:41] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:40:41] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:42:43] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:42:44] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:42:44] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:42:44] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:43:10] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:43:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:43:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:43:11] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:44:34] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:44:35] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:44:35] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:44:39] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:50:30] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:50:31] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:50:31] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:50:31] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:51:04] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:51:05] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:51:05] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:51:05] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:52:38] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:52:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:52:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:52:42] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:53:05] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:53:06] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:53:06] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:53:06] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:53:59] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 07:54:04] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:54:04] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 07:54:04] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 07:59:31] INFO dou_snaptrack.cli.reporting: [ENRICH] skipped: enrich_missing=False
+[2025-10-24 08:01:39] INFO dou_snaptrack.cli.reporting: [ENRICH] skipped: no items
+[2025-10-24 08:02:19] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:02:23] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:02:23] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:02:23] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:05:21] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:05:22] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:05:22] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:05:24] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:07:08] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:07:09] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:07:09] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:07:09] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:07:42] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:07:43] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:07:43] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:07:43] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:08:41] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:08:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:08:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:08:42] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:09:10] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:09:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:11] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:11] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:09:21] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:09:22] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:22] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:22] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:09:41] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:09:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:42] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:09:42] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:10:05] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:10:06] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:10:06] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:10:06] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 08:10:37] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 08:10:38] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:10:38] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 08:10:38] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 10:04:04] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=12 parallel=8 timeout=15s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 10:04:08] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 10:04:08] INFO dou_utils.content_fetcher: [ENRICH] browser fallback not available (playwright not installed)
+[2025-10-24 10:04:13] INFO dou_utils.content_fetcher: [ENRICH] updated 12/12 items (overwrite=True, min_len=None)
+[2025-10-24 10:27:22] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 10:27:24] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 10:34:01] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 10:34:08] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 10:37:21] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 10:37:25] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 10:43:47] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 10:44:07] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 10:56:29] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 10:56:37] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:00:33] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:00:41] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:02:31] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:02:41] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:03:50] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:03:55] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:04:03] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:04:08] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:05:05] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:05:20] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:07:34] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:07:48] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:10:08] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:10:19] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:10:51] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:11:07] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:11:33] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:11:47] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:14:16] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:14:29] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:14:59] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:15:15] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:17:09] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:17:14] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:17:39] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:17:44] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:22:31] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 11:22:34] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:31:17] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:31:31] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:34:31] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:34:37] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:35:13] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:35:23] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:36:11] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:36:17] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:37:14] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:37:19] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:40:57] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:41:05] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 11:42:22] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 11:42:27] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:04:23] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:04:28] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:09:09] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:09:15] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:09:35] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:09:40] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:10:16] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:10:24] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:10:45] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:10:49] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:11:00] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:11:11] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:13:13] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:13:18] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:15:52] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 12:15:55] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:19:22] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:19:30] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:24:13] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 12:24:20] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:26:44] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 12:26:47] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:33:59] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:34:05] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:45:10] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=4 timeout=30s overwrite=True force_refresh=True browser_fallback=False short_len_threshold=800
+[2025-10-24 12:45:15] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:48:54] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 12:48:57] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 12:57:07] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 12:57:09] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:03:25] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:03:37] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:04:07] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:04:17] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:04:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:04:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:04:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:04:58] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:05:11] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:05:11] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:05:11] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:05:11] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:05:40] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:05:49] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:05:49] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:05:49] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:05:49] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:07:42] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:07:51] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:07:51] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:07:51] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:07:51] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:10:23] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:10:32] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:10:32] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:10:32] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:10:32] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:11:19] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:11:31] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:11:31] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:11:31] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:11:31] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:13:21] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:13:29] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:13:29] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:13:29] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:13:29] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:19:13] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:19:37] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:20:13] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:21:18] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:21:27] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:21:27] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:21:27] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:21:27] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:26:05] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:26:48] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:27:44] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:28:11] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:29:04] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:30:14] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:30:51] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:31:34] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:33:57] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:34:21] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:34:51] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:35:22] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:35:53] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:36:12] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:37:14] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=2 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:37:23] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:37:23] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:37:23] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:37:23] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:38:26] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:38:28] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:38:28] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:38:28] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:38:28] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 13:54:47] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 13:54:50] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 13:54:50] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 13:54:50] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 13:54:50] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-24 14:33:01] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=34 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-24 14:33:13] INFO dou_utils.content_fetcher: [ENRICH] updated 34/34 items (overwrite=True, min_len=None)
+[2025-10-24 14:33:13] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 34/34 items com 'texto'
+[2025-10-24 14:33:13] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PORTARIA DIRAP Nº 522/2SM1, DE 21 DE OUTUBRO DE 20
+[2025-10-24 14:33:13] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 244, primeiros 200: Art. 1º Aprovar o Aviso de Convocação do Processo Seletivo de Profissionais de Nível Médio, com vistas à Prestação do Serviço Militar Temporário, em caráter voluntário, para o ano de 2026 (QSCon 2026)
+[2025-10-30 10:56:47] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=6 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-30 10:57:00] INFO dou_utils.content_fetcher: [ENRICH] updated 6/6 items (overwrite=True, min_len=None)
+[2025-10-30 10:57:00] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 6/6 items com 'texto'
+[2025-10-30 10:57:00] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: DESPACHO DO PRESIDENTE DA REPÚBLICA
+[2025-10-30 10:57:00] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 211, primeiros 200: DO PRESIDENTE DA REPÚBLICA MENSAGEM Nº 1.585, de 29 de outubro de 2025. Restituição ao Congresso Nacional de autógrafo do Projeto de Lei que, sancionado, se transforma na Lei nº 15.245, de 29 de outub
+[2025-10-30 11:02:19] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=59 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-10-30 11:02:30] INFO dou_utils.content_fetcher: [ENRICH] updated 59/59 items (overwrite=True, min_len=None)
+[2025-10-30 11:02:30] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 59/59 items com 'texto'
+[2025-10-30 11:02:30] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: RESOLUÇÃO GECEX Nº 812, DE 28 DE OUTUBRO DE 2025
+[2025-10-30 11:02:30] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 3900, primeiros 200: Art. 1º Fica alterada a Tarifa Externa Comum - TEC, de que trata o Anexo I da Resolução Gecex nº 272, de 19 de novembro de 2021, conforme quadro a seguir: SITUAÇÃO ATUAL MODIFICAÇÃO APROVADA NCM DESCR

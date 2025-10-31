@@ -1,10 +1,12 @@
 {
-  "data": "15-10-2025",
+  "data": "21-10-2025",
   "secaoDefault": "DO1",
   "defaults": {
     "scrape_detail": false,
-    "summary_lines": 0,
-    "summary_mode": "center"
+    "summary_lines": 7,
+    "summary_mode": "center",
+    "max_links": 15,
+    "max_scrolls": 12
   },
   "combos": [
     {

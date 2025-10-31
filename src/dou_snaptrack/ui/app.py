@@ -9,6 +9,7 @@ from datetime import date as _date
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
+import traceback  # Certificar que está no escopo global
 
 # Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
 SRC_ROOT = Path(__file__).resolve().parents[2]
@@ -176,49 +177,96 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
 
 @st.cache_data(show_spinner=False, ttl=300)
 def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20) -> list[str]:
-    """Busca opções N2 (organizações subordinadas) para um N1 específico.
-    
-    VERSÃO ASYNC-COMPATIBLE: Usa plan_live_async com asyncio.run()
-    """
-    import asyncio
-    from types import SimpleNamespace
-    from playwright.async_api import async_playwright
-    from dou_snaptrack.cli.plan_live_async import build_plan_live_async
+    """Descobre as opções do dropdown N2 diretamente do site (como no combo do DOU)."""
+    import subprocess
+    import json
+    import sys
+    import tempfile
+    from pathlib import Path
 
+    script_content = f'''
+import json
+import sys
+from playwright.async_api import async_playwright
+from types import SimpleNamespace
+from dou_snaptrack.cli.plan_live_async import build_plan_live_async
+
+try:
     async def fetch_n2_options():
         async with async_playwright() as p:
             args = SimpleNamespace(
-                secao=secao,
-                data=date,
+                secao="{secao}",
+                data="{date}",
                 plan_out=None,
                 select1=None,
                 select2=None,
-                pick1=n1,
+                pick1="{n1}",
                 pick2=None,
                 limit1=None,
-                limit2=limit2,
+                limit2={limit2},
                 headless=True,
                 slowmo=0,
             )
-            
-            try:
-                cfg = await build_plan_live_async(p, args)
-                combos = cfg.get("combos", [])
-                
-                # Extrair lista única de N2 para o N1 escolhido
-                n2_set = set()
-                for c in combos:
-                    k2 = c.get("key2", "")
-                    if k2 and k2 != "Todos":
-                        n2_set.add(k2)
-                
-                return sorted(n2_set)
-            except Exception:
-                return []
-    
+
+            cfg = await build_plan_live_async(p, args)
+            combos = cfg.get("combos", [])
+            n2_set = set()
+            for c in combos:
+                k1 = c.get("key1")
+                k2 = c.get("key2")
+                if k1 == "{n1}" and k2 and k2 != "Todos":
+                    n2_set.add(k2)
+            return sorted(n2_set)
+
+    import asyncio
+    result = asyncio.run(fetch_n2_options())
+    print(json.dumps({{"success": True, "options": result}}))
+except Exception as e:
+    print(json.dumps({{"error": f"{{type(e).__name__}}: {{e}}"}}))
+    sys.exit(1)
+'''
+
     try:
-        return asyncio.run(fetch_n2_options())
-    except Exception:
+        result = subprocess.run(
+            [sys.executable, "-c", script_content],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            cwd=str(Path(__file__).parent.parent.parent)  # Raiz do projeto
+        )
+
+        stdout_lines = result.stdout.strip().splitlines() if result.stdout else []
+        json_line = stdout_lines[-1] if stdout_lines else ""
+
+        if result.returncode != 0:
+            try:
+                error_data = json.loads(json_line)
+                st.error(f"[ERRO] {error_data.get('error', 'Erro desconhecido')}")
+            except json.JSONDecodeError:
+                st.error(f"[ERRO] Falha ao carregar N2. Return code: {result.returncode}")
+                if result.stderr:
+                    st.error(f"STDERR: {result.stderr[:300]}")
+            return []
+
+        try:
+            data = json.loads(json_line)
+        except json.JSONDecodeError as je:
+            st.error(f"[ERRO] JSON inválido: {je}")
+            st.error(f"Saída completa: {result.stdout[:500]}")
+            return []
+
+        if data.get("success"):
+            return data.get("options", [])
+        else:
+            st.error(f"[ERRO] {data.get('error', 'Erro desconhecido')}")
+            return []
+
+    except subprocess.TimeoutExpired:
+        st.error("[ERRO] Timeout ao carregar opções N2 (>2 minutos)")
+        return []
+    except Exception as e:
+        st.error(f"[ERRO] Falha ao executar subprocess: {type(e).__name__}: {e}")
+        st.error(f"Traceback: {traceback.format_exc()[:500]}")
         return []
 
 
@@ -317,12 +365,13 @@ def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     import json
     import tempfile
     from pathlib import Path
-    
-    # Criar script temporário para executar em processo isolado
-    # Passar src_path como argumento porque __file__ não existe em 'python -c'
-    src_path = str(SRC_ROOT / "src").replace("\\", "\\\\")  # Escapar barras para Windows
-    
-    script_content = f'''
+    import sys
+
+    try:
+        # Criar script temporário para executar em processo isolado
+        src_path = str(SRC_ROOT / "src").replace("\\", "\\\\")  # Escapar barras para Windows
+        
+        script_content = f'''
 import sys
 
 # Add src to path (passado como literal porque __file__ não existe em python -c)
@@ -395,8 +444,7 @@ except Exception as e:
     sys.exit(1)
 '''
     
-    # Executar em subprocess isolado (sem asyncio loop)
-    try:
+        # Executar em subprocess isolado (sem asyncio loop)
         result = subprocess.run(
             [sys.executable, "-c", script_content],
             capture_output=True,
@@ -437,9 +485,9 @@ except Exception as e:
         return []
     except Exception as e:
         st.error(f"[ERRO] Falha ao executar subprocess: {type(e).__name__}: {e}")
-        import traceback
         st.error(f"Traceback: {traceback.format_exc()[:500]}")
         return []
+    return []  # Garantir retorno de lista em todos os caminhos
 
 
 def _run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True) -> dict[str, Any]:
@@ -485,7 +533,7 @@ def _run_report(in_dir: Path, kind: str, out_dir: Path, base_name: str, split_by
 # ---------------- UI ----------------
 st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
 
-# OTIMIZAÇÃO: Lazy load batch_runner apenas quando necessário (startup mais rápido)
+# OTIMIZAÇÃO: Lazy load batch_runner apenas quando necessário
 # Detect another UI and register this one
 batch_funcs = get_batch_runner()
 other_ui = batch_funcs['detect_other_ui']()
