@@ -1,0 +1,42 @@
+{
+  "source": "e-agendas",
+  "pairs_file": "pairs_eagendas_latest.json",
+  "filters": {
+    "limit_orgaos": 5,
+    "limit_cargos_per_orgao": null,
+    "limit_agentes_per_cargo": null,
+    "select_orgaos": null
+  },
+  "combos": [
+    {
+      "orgao_value": "1163",
+      "orgao_label": "AEB - Agência Espacial Brasileira (desde 16/09/2022) - Ativo",
+      "cargo_value": "DIRETOR DE GESTÃO DE PORTFÓLIO (DGEP)",
+      "cargo_label": "DIRETOR DE GESTÃO DE PORTFÓLIO (DGEP) - (desde 09-10-2022) - Ativo",
+      "agente_value": "24738",
+      "agente_label": "RODRIGO LEONARDI (desde 22/08/2023) - APO ativo"
+    },
+    {
+      "orgao_value": "1163",
+      "orgao_label": "AEB - Agência Espacial Brasileira (desde 16/09/2022) - Ativo",
+      "cargo_value": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE)",
+      "cargo_label": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE) - (desde 09-10-2022) - Ativo",
+      "agente_value": "16323",
+      "agente_label": "MARCIO AKIRA HARADA (desde 17/01/2023) - APO ativo"
+    },
+    {
+      "orgao_value": "1163",
+      "orgao_label": "AEB - Agência Espacial Brasileira (desde 16/09/2022) - Ativo",
+      "cargo_value": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE)",
+      "cargo_label": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE) - (desde 09-10-2022) - Ativo",
+      "agente_value": "31916",
+      "agente_label": "ROGERIO LUIZ VERISSIMO CRUZ (desde 10/01/2024) - APO ativo"
+    }
+  ],
+  "stats": {
+    "total_orgaos": 1,
+    "total_cargos": 2,
+    "total_agentes": 3,
+    "total_combos": 3
+  }
+}

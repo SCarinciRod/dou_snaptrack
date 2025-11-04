@@ -1,0 +1,80 @@
+{
+  "url": "https://eagendas.cgu.gov.br/",
+  "timestamp": "2025-11-03 09:46:59",
+  "hierarchy": [
+    {
+      "orgao": "AEB - Agência Espacial Brasileira (desde 16/09/2022) - Ativo",
+      "orgao_value": "1163",
+      "cargos": [
+        {
+          "cargo": "DIRETOR DE GESTÃO DE PORTFÓLIO (DGEP) - (desde 09-10-2022) - Ativo",
+          "cargo_value": "DIRETOR DE GESTÃO DE PORTFÓLIO (DGEP)",
+          "agentes": [
+            {
+              "agente": "RODRIGO LEONARDI (desde 22/08/2023) - APO ativo",
+              "agente_value": "24738"
+            }
+          ]
+        },
+        {
+          "cargo": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE) - (desde 09-10-2022) - Ativo",
+          "cargo_value": "DIRETOR DE GOVERNANÇA DO SETOR ESPACIAL (DGSE)",
+          "agentes": [
+            {
+              "agente": "MARCIO AKIRA HARADA (desde 17/01/2023) - APO ativo",
+              "agente_value": "16323"
+            },
+            {
+              "agente": "ROGERIO LUIZ VERISSIMO CRUZ (desde 10/01/2024) - APO ativo",
+              "agente_value": "31916"
+            }
+          ]
+        },
+        {
+          "cargo": "DIRETOR DE INTELIGÊNCIA ESTRATÉGICA E NOVOS NEGÓCIOS (DIEN) - (desde 09-10-2022) - Ativo",
+          "cargo_value": "DIRETOR DE INTELIGÊNCIA ESTRATÉGICA E NOVOS NEGÓCIOS (DIEN)",
+          "agentes": [
+            {
+              "agente": "Aline Bessa Veloso  (desde 20/07/2023) - APO ativo",
+              "agente_value": "23903"
+            },
+            {
+              "agente": "PAOLO GESSINI (desde 26/10/2023) - APO ativo",
+              "agente_value": "31936"
+            }
+          ]
+        },
+        {
+          "cargo": "DIRETOR DE PLANEJAMENTO, ORÇAMENTO E ADMINISTRAÇÃO (DPOA) - (desde 09-10-2022) - Ativo",
+          "cargo_value": "DIRETOR DE PLANEJAMENTO, ORÇAMENTO E ADMINISTRAÇÃO (DPOA)",
+          "agentes": [
+            {
+              "agente": "VANESSA MURTA REZENDE (desde 10/10/2023) - APO ativo",
+              "agente_value": "26049"
+            }
+          ]
+        },
+        {
+          "cargo": "PRESIDENTE DA AEB - (desde 09-10-2022) - Ativo",
+          "cargo_value": "PRESIDENTE DA AEB",
+          "agentes": [
+            {
+              "agente": "MARCO ANTONIO CHAMON (desde 30/06/2023) - APO ativo",
+              "agente_value": "23126"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgao": "AGU - Advocacia-Geral da União (desde 16/09/2022) - Ativo",
+      "orgao_value": "514",
+      "cargos": []
+    }
+  ],
+  "stats": {
+    "total_orgaos": 227,
+    "total_cargos": 232,
+    "total_agentes": 7
+  }
+}
