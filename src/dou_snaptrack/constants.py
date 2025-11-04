@@ -15,3 +15,17 @@ LEVEL_IDS = {
     1: ["slcOrgs"],      # Órgão (N1)
     2: ["slcOrgsSubs"],  # Subordinada/Unidade (N2)
 }
+
+# URL do E-Agendas
+EAGENDAS_URL = "https://eagendas.cgu.gov.br/"
+
+# IDs específicos do E-Agendas (a serem mapeados conforme necessário)
+EAGENDAS_LEVEL_IDS = {
+    1: [],  # A definir após mapeamento
+    2: [],  # A definir após mapeamento
+}
+
+# Seletores específicos do E-Agendas
+EAGENDAS_SELECTORS = {
+    "search_button": ["Pesquisar", "Buscar", "Procurar", "Search"],
+}

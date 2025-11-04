@@ -7,6 +7,7 @@ from typing import Any
 
 # use import absoluto para maior robustez
 from dou_snaptrack.constants import BASE_DOU
+from dou_snaptrack.constants import EAGENDAS_URL
 
 # Delegar helpers para dou_utils.page_utils (fonte única de verdade)
 try:
@@ -29,6 +30,38 @@ def fmt_date(date_str: str | None = None) -> str:
 
 def build_dou_url(date_dd_mm_yyyy: str, secao: str) -> str:
     return f"{BASE_DOU}?data={date_dd_mm_yyyy}&secao={secao}"
+
+def build_url(site: str, path: str | None = None, **params) -> str:
+    """Constrói URL para diferentes sites do projeto.
+    
+    Args:
+        site: Nome do site ('dou' ou 'eagendas')
+        path: Caminho adicional na URL (opcional)
+        **params: Parâmetros de query string
+    
+    Returns:
+        URL completa
+    
+    Examples:
+        build_url('dou', date='01-01-2025', secao='DO1')
+        build_url('eagendas', path='/agendas/list')
+    """
+    if site.lower() in ('dou', 'diario'):
+        base = BASE_DOU
+    elif site.lower() in ('eagendas', 'e-agendas', 'agendas'):
+        base = EAGENDAS_URL
+    else:
+        raise ValueError(f"Site desconhecido: {site}")
+    
+    url = base.rstrip('/')
+    if path:
+        url = f"{url}/{path.lstrip('/')}"
+    
+    if params:
+        query = '&'.join(f"{k}={v}" for k, v in params.items() if v is not None)
+        url = f"{url}?{query}" if '?' not in url else f"{url}&{query}"
+    
+    return url
 
 
 # ============================================================================
@@ -106,17 +139,7 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     2) executable_path via env PLAYWRIGHT_CHROME_PATH ou CHROME_PATH
     3) fallback padrão (usa binário do ms-playwright, pode exigir download)
     """
-    # Garantir loop Proactor no Windows antes de iniciar Playwright
-    try:
-        import asyncio as _asyncio
-        import sys as _sys
-        if _sys.platform.startswith("win"):
-            _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-            _asyncio.set_event_loop(_asyncio.new_event_loop())
-    except Exception:
-        pass
     from pathlib import Path
-
     from playwright.sync_api import sync_playwright  # type: ignore
 
     p = sync_playwright().start()
