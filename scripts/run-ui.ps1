@@ -22,6 +22,13 @@ if ($env:PYTHONPATH) {
   $env:PYTHONPATH = $srcDir
 }
 
+# Configure Playwright to use local browser cache (same path as installer)
+$pwBrowsers = Join-Path $root "$VenvDir\pw-browsers"
+if (Test-Path $pwBrowsers) {
+  $env:PLAYWRIGHT_BROWSERS_PATH = $pwBrowsers
+  Write-Host "[Run] PLAYWRIGHT_BROWSERS_PATH: $pwBrowsers"
+}
+
 # Streamlit run from repo root
 $app = "src\dou_snaptrack\ui\app.py"
 if ($Dev) {

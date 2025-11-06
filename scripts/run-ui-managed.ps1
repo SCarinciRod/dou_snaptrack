@@ -188,6 +188,15 @@ $psi.CreateNoWindow = $true
 $psi.EnvironmentVariables["STREAMLIT_LOG_LEVEL"] = "warning"
 $psi.EnvironmentVariables["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 
+# Configure Playwright to use local browser cache (same path as installer)
+if ($isVenv) {
+  $pwBrowsers = Join-Path $root "$VenvDir\pw-browsers"
+  if (Test-Path $pwBrowsers) {
+    $psi.EnvironmentVariables["PLAYWRIGHT_BROWSERS_PATH"] = $pwBrowsers
+    Write-Log "PLAYWRIGHT_BROWSERS_PATH configurado: $pwBrowsers"
+  }
+}
+
 # Ensure Python can import project packages from src/ even when launched via shortcut
 $currentPyPath = $env:PYTHONPATH
 $desiredPyPath = Join-Path $root 'src'
