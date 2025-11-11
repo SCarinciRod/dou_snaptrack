@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 from pathlib import Path
@@ -202,10 +203,8 @@ def _read_open_list_options(frame) -> list[dict[str, Any]]:
                 opts.append({"text": text, "value": val, "dataValue": dv, "dataIndex": di})
             except Exception:
                 pass
-    try:
+    with contextlib.suppress(Exception):
         frame.page.keyboard.press("Escape")
-    except Exception:
-        pass
     # dedupe
     seen = set()
     uniq: list[dict[str, Any]] = []
@@ -248,13 +247,11 @@ def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
             except Exception:
                 out.append(o)
         return out
-    try:
+    with contextlib.suppress(Exception):
         h.click(timeout=2000)
         # OTIMIZAÇÃO: espera inteligente até opções aparecerem
         # Timeout aumentado para 2s (DOU pode ser lento) com polling a cada 50ms
         wait_for_options_loaded(frame, min_count=1, timeout_ms=2000)
-    except Exception:
-        pass
     return _read_open_list_options(frame)
 
 
@@ -267,25 +264,19 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
         try:
             h.select_option(label=text)
             # Espera mais curta e específica
-            try:
+            with contextlib.suppress(Exception):
                 frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-            except Exception:
-                pass
             # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo (economiza 50-150ms)
-            try:
+            with contextlib.suppress(Exception):
                 wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
-            except Exception:
-                pass
             return True
         except Exception:
             pass
     # custom: open and click matching option
-    try:
+    with contextlib.suppress(Exception):
         h.click(timeout=2000)
         # OTIMIZAÇÃO: espera até opções carregarem (timeout 2s para DOU lento)
         wait_for_options_loaded(frame, min_count=1, timeout_ms=2000)
-    except Exception:
-        pass
     container = _get_listbox_container(frame)
     if not container:
         return False
@@ -294,15 +285,11 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
         opt = container.get_by_role("option", name=re.compile(rf"^{re.escape(text)}$", re.I)).first
         if opt and opt.count() > 0 and opt.is_visible():
             opt.click(timeout=3000)
-            try:
+            with contextlib.suppress(Exception):
                 frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-            except Exception:
-                pass
             # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo
-            try:
+            with contextlib.suppress(Exception):
                 wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
-            except Exception:
-                pass
             return True
     except Exception:
         pass
@@ -322,22 +309,16 @@ def _select_by_text(frame, root: dict[str, Any], text: str) -> bool:
                 t = normalize_text((o.text_content() or "").strip())
                 if nt and (t == nt or nt in t):
                     o.click(timeout=3000)
-                    try:
+                    with contextlib.suppress(Exception):
                         frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-                    except Exception:
-                        pass
                     # OTIMIZAÇÃO: Polling condicional
-                    try:
+                    with contextlib.suppress(Exception):
                         wait_for_condition(frame, lambda: frame.page.is_visible("body"), timeout_ms=200, poll_ms=50)
-                    except Exception:
-                        pass
                     return True
             except Exception:
                 pass
-    try:
+    with contextlib.suppress(Exception):
         frame.page.keyboard.press("Escape")
-    except Exception:
-        pass
     return False
 
 
@@ -350,6 +331,7 @@ def _filter_opts(options: list[dict[str, Any]], select_regex: str | None, pick_l
             out = [o for o in opts if pat.search(o.get("text") or "")]
         except re.error:
             out = []
+        # Robust fallback: se regex compila mas não encontrou nada, tenta match por tokens normalizados
         if not out:
             tokens = [t.strip() for t in select_regex.splitlines() if t.strip()]
             tokens_norm = [normalize_text(t) for t in tokens]
@@ -386,15 +368,18 @@ def _build_keys(opts: list[dict[str, Any]], key_type: str) -> list[str]:
             di = o.get("dataIndex")
             if di not in (None, ""):
                 keys.append(str(di))
-    seen = set(); out: list[str] = []
+    seen = set()
+    out: list[str] = []
     for k in keys:
-        if k in seen: continue
-        seen.add(k); out.append(k)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(k)
     return out
 
 
 def build_plan_live(p, args, browser=None) -> dict[str, Any]:
-    """Gera um plano dinâmico L1×L2 diretamente do site (sem N3).
+    """Gera um plano dinâmico L1xL2 diretamente do site (sem N3).
 
     This implementation starts a local Playwright context so all browser
     operations happen in the same thread. The provided `p` argument is ignored
@@ -435,7 +420,8 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
                                 r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
                             ):
                                 if Path(c).exists():
-                                    exe = c; break
+                                    exe = c
+                                    break
                         if exe and Path(exe).exists():
                             try:
                                 browser = pctx.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
@@ -491,22 +477,20 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
                 roots_tmp = _collect_dropdown_roots(frame)
                 r1 = roots_tmp[0] if roots_tmp else None
             if not r1:
-                if v: print("[plan-live][skip] N1 não encontrado após atualização do DOM.")
+                if v:
+                    print("[plan-live][skip] N1 não encontrado após atualização do DOM.")
                 continue
 
             if not _select_by_text(frame, r1, k1):
-                if v: print(f"[plan-live][skip] N1 '{k1}' não pôde ser selecionado.")
+                if v:
+                    print(f"[plan-live][skip] N1 '{k1}' não pôde ser selecionado.")
                 continue
             # Espera mais curta e específica após seleção
-            try:
+            with contextlib.suppress(Exception):
                 page.wait_for_load_state("domcontentloaded", timeout=30_000)
-            except Exception:
-                pass
             # OTIMIZAÇÃO: Polling condicional ao invés de wait fixo (economiza ~150ms no caso comum)
-            try:
+            with contextlib.suppress(Exception):
                 wait_for_condition(frame, lambda: page.is_visible("body"), timeout_ms=200, poll_ms=50)
-            except Exception:
-                pass
 
             # Re-collect after selection in case the DOM updated
             _, r2 = _select_roots(frame)
@@ -515,7 +499,8 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
                 o2 = _read_dropdown_options(frame, r2)
                 o2 = _filter_opts(o2, getattr(args, "select2", None), getattr(args, "pick2", None), getattr(args, "limit2", None))
                 k2_list = _build_keys(o2, getattr(args, "key2_type_default", "text"))
-                if v: print(f"[plan-live] N1='{k1}' => N2 válidos: {len(k2_list)}")
+                if v:
+                    print(f"[plan-live] N1='{k1}' => N2 válidos: {len(k2_list)}")
             else:
                 k2_list = []
 
@@ -545,7 +530,7 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
                     break
 
         if not combos:
-            raise RuntimeError("Nenhum combo válido L1×L2 foi gerado.")
+            raise RuntimeError("Nenhum combo válido L1xL2 foi gerado.")
 
         cfg = {
             "data": data,
@@ -585,20 +570,14 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
             cfg["defaults"]["bulletin_out"] = out_b
 
         # Encerramento do contexto e, se aplicável, do browser local
-        try:
+        with contextlib.suppress(Exception):
             context.close()
-        except Exception:
-            pass
         if must_close_browser and browser is not None:
-            try:
+            with contextlib.suppress(Exception):
                 browser.close()
-            except Exception:
-                pass
     finally:
         if pctx_mgr is not None:
-            try:
+            with contextlib.suppress(Exception):
                 pctx_mgr.__exit__(None, None, None)
-            except Exception:
-                pass
 
     return cfg

@@ -86,7 +86,9 @@ async def update_pairs_file_async(
     """
     from datetime import date as _date
     from types import SimpleNamespace
+
     from playwright.async_api import async_playwright
+
     from dou_snaptrack.cli.plan_live_async import build_plan_live_async
 
     try:
@@ -356,7 +358,7 @@ def main():
     )
 
     if result["success"]:
-        print(f"✅ Sucesso!", file=sys.stderr)
+        print("✅ Sucesso!", file=sys.stderr)
         print(f"   - {result['n1_count']} órgãos (N1)", file=sys.stderr)
         print(f"   - {result['pairs_count']} pares (N1→N2)", file=sys.stderr)
         print(f"   - Salvo em: {result['file']}", file=sys.stderr)

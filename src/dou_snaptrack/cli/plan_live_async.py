@@ -6,13 +6,13 @@ MIGRAÇÃO PLAYWRIGHT SYNC → ASYNC
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import os
 import re
 from pathlib import Path
 from typing import Any
 
-from playwright.async_api import async_playwright, Page, FrameLocator
-
+from playwright.async_api import async_playwright
 
 # ============================================================================
 # FUNÇÕES AUXILIARES ASYNC
@@ -21,7 +21,7 @@ from playwright.async_api import async_playwright, Page, FrameLocator
 async def _collect_dropdown_roots_async(frame) -> list[dict[str, Any]]:
     """Versão async de _collect_dropdown_roots."""
     from dou_snaptrack.cli.plan_live import DROPDOWN_ROOT_SELECTORS
-    
+
     roots: list[dict[str, Any]] = []
     seen = set()
 
@@ -104,7 +104,7 @@ async def _locate_root_by_id_async(frame, elem_id: str) -> dict[str, Any] | None
 async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     """Versão async de _select_roots."""
     from dou_snaptrack.cli.plan_live import LEVEL_IDS
-    
+
     r1 = None
     r2 = None
     try:
@@ -126,14 +126,14 @@ async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, A
 
 async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     """Versão async simplificada de _read_dropdown_options."""
-    from dou_snaptrack.cli.plan_live import normalize_text, OPTION_SELECTORS, LISTBOX_SELECTORS
-    
+    from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+
     if not root:
         return []
     h = root.get("handle")
     if h is None:
         return []
-    
+
     def _is_placeholder_text(t: str) -> bool:
         nt = normalize_text(t or "")
         if not nt:
@@ -145,7 +145,7 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
             "selecione uma opcao", "selecione a unidade", "selecione um orgao",
         ]
         return any(nt == p or nt.startswith(p + " ") for p in placeholders)
-    
+
     # Para <select> nativo
     try:
         tag = await h.evaluate("el => el.tagName")
@@ -170,16 +170,16 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
                 if not _is_placeholder_text(t):
                     out.append(o)
             return out
-    except Exception as e:
+    except Exception:
         pass
-    
+
     # Para custom dropdown: clicar e ler opções
     try:
         await h.click(timeout=2000)
-        await frame.page.wait_for_timeout(2000)  # Aguardar opções carregarem
-    except Exception as e:
+        await frame.page.wait_for_timeout(400)  # Aguardar opções carregarem
+    except Exception:
         pass
-    
+
     # Buscar container de listbox
     container = None
     for sel in LISTBOX_SELECTORS:
@@ -189,9 +189,9 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
             if count > 0:
                 container = loc.first
                 break
-        except Exception as e:
+        except Exception:
             pass
-    
+
     if not container:
         # Tentar na page inteira
         page = frame.page
@@ -202,19 +202,31 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
                 if count > 0:
                     container = loc.first
                     break
-            except Exception as e:
+            except Exception:
                 pass
-    
+
     if not container:
         return []
-    
-    # Ler opções do container
+
+    # Scroll até o fim (para listas virtualizadas)
+    try:
+        for _ in range(60):
+            try:
+                await container.evaluate('(el)=>{el.scrollTop=el.scrollHeight}')
+            except Exception:
+                with contextlib.suppress(Exception):
+                    await frame.page.keyboard.press('End')
+            await frame.page.wait_for_timeout(80)
+    except Exception:
+        pass
+
+    # Ler opções do container (pós-scroll)
     opts: list[dict[str, Any]] = []
     for sel in OPTION_SELECTORS:
         try:
             cands = container.locator(sel)
             cnt = await cands.count()
-        except Exception as e:
+        except Exception:
             cnt = 0
         for i in range(cnt):
             o = cands.nth(i)
@@ -226,44 +238,42 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
                 if _is_placeholder_text(text):
                     continue
                 opts.append({"text": text, "index": i})
-            except Exception as e:
+            except Exception:
                 pass
-    
+
     return opts
 
 
 async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
     """Versão async de _select_by_text."""
-    from dou_snaptrack.cli.plan_live import normalize_text, OPTION_SELECTORS, LISTBOX_SELECTORS
-    
+    from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+
     h = root.get("handle")
     if h is None:
         return False
-    
+
     # Para <select> nativo
     try:
         tag = await h.evaluate("el => el.tagName")
         if tag and tag.lower() == "select":
             try:
                 await h.select_option(label=text)
-                try:
+                with contextlib.suppress(Exception):
                     await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-                except Exception:
-                    pass
                 await frame.page.wait_for_timeout(200)
                 return True
             except Exception:
                 pass
     except Exception:
         pass
-    
+
     # Custom dropdown: clicar e selecionar opção
     try:
         await h.click(timeout=2000)
         await frame.page.wait_for_timeout(2000)  # Aguardar opções carregarem
     except Exception:
         pass
-    
+
     # Buscar container de listbox
     container = None
     for sel in LISTBOX_SELECTORS:
@@ -274,7 +284,7 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
                 break
         except Exception:
             pass
-    
+
     if not container:
         page = frame.page
         for sel in LISTBOX_SELECTORS:
@@ -285,24 +295,22 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
                     break
             except Exception:
                 pass
-    
+
     if not container:
         return False
-    
+
     # Tentar match exato por role
     try:
         opt = container.get_by_role("option", name=re.compile(rf"^{re.escape(text)}$", re.I)).first
         if opt and await opt.count() > 0 and await opt.is_visible():
             await opt.click(timeout=3000)
-            try:
+            with contextlib.suppress(Exception):
                 await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-            except Exception:
-                pass
             await frame.page.wait_for_timeout(200)
             return True
     except Exception:
         pass
-    
+
     # Fallback: buscar por texto normalizado
     nt = normalize_text(text)
     for sel in OPTION_SELECTORS:
@@ -319,22 +327,91 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
                 t = normalize_text((await o.text_content() or "").strip())
                 if nt and (t == nt or nt in t):
                     await o.click(timeout=3000)
-                    try:
+                    with contextlib.suppress(Exception):
                         await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-                    except Exception:
-                        pass
                     await frame.page.wait_for_timeout(200)
                     return True
             except Exception:
                 pass
-    
+
     # Fechar dropdown se não encontrou
-    try:
+    with contextlib.suppress(Exception):
         await frame.page.keyboard.press("Escape")
+
+    return False
+
+
+async def _count_options_async(frame, root: dict[str, Any]) -> int:
+    """Conta opções visíveis/avaliáveis para um root de dropdown (<select> ou custom)."""
+    if not root:
+        return 0
+    h = root.get("handle")
+    if h is None:
+        return 0
+    try:
+        tag = await h.evaluate("el => el.tagName && el.tagName.toLowerCase()")
+    except Exception:
+        tag = None
+    if tag == "select":
+        try:
+            return await h.evaluate("sel => sel.options?.length || 0")
+        except Exception:
+            return 0
+    # custom: abrir, contar opções e fechar
+    try:
+        await h.click(timeout=1500)
+        await frame.page.wait_for_timeout(200)
     except Exception:
         pass
-    
-    return False
+    count = 0
+    try:
+        from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS
+        container = None
+        for sel in LISTBOX_SELECTORS:
+            try:
+                loc = frame.locator(sel)
+                if await loc.count() > 0:
+                    container = loc.first
+                    break
+            except Exception:
+                pass
+        if not container:
+            page = frame.page
+            for sel in LISTBOX_SELECTORS:
+                try:
+                    loc = page.locator(sel)
+                    if await loc.count() > 0:
+                        container = loc.first
+                        break
+                except Exception:
+                    pass
+        if container:
+            # leve scroll antes de contar
+            with contextlib.suppress(Exception):
+                await container.evaluate('(el)=>{el.scrollTop=el.scrollHeight}')
+            for sel in OPTION_SELECTORS:
+                try:
+                    cands = container.locator(sel)
+                    count = max(count, await cands.count())
+                except Exception:
+                    pass
+    finally:
+        with contextlib.suppress(Exception):
+            await frame.page.keyboard.press('Escape')
+    return int(count)
+
+
+async def wait_n2_repopulated_async(frame, n2_root: dict[str, Any], prev_count: int, timeout_ms: int = 20_000, poll_ms: int = 150) -> None:
+    """Aguarda N2 ser repopulado após seleção de N1.
+    Considera tanto <select> quanto dropdown custom (abrindo para contar se necessário).
+    """
+    import time
+    start = time.time()
+    while (time.time() - start) * 1000 < timeout_ms:
+        cur = await _count_options_async(frame, n2_root)
+        if cur != prev_count and cur > 0:
+            return
+        await frame.page.wait_for_timeout(poll_ms)
 
 
 # ============================================================================
@@ -344,7 +421,7 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
 async def build_plan_live_async(p, args) -> dict[str, Any]:
     """Versão async de build_plan_live."""
     v = bool(getattr(args, "plan_verbose", False))
-    
+
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)
 
@@ -372,7 +449,7 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
                         break
             if exe and Path(exe).exists():
                 browser = await p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
-    
+
     if not browser:
         browser = await p.chromium.launch(headless=not headful, slow_mo=slowmo)
 
@@ -381,36 +458,30 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
     page = await context.new_page()
 
     # Import funções de utilities
+    from dou_snaptrack.cli.plan_live import _build_keys, _filter_opts
     from dou_snaptrack.utils.browser import build_dou_url, goto_async, try_visualizar_em_lista_async
     from dou_snaptrack.utils.dom import find_best_frame_async
-    from dou_snaptrack.cli.plan_live import (
-        _filter_opts, _build_keys, normalize_text
-    )
 
     secao = getattr(args, "secao", "DO1")
     data = getattr(args, "data", None)
-    
+
     url = build_dou_url(data or "", secao)
     await goto_async(page, url)
-    
-    try:
+
+    with contextlib.suppress(Exception):
         await try_visualizar_em_lista_async(page)
-    except Exception:
-        pass
 
     frame = await find_best_frame_async(context)
-    
+
     # Aguardar dropdowns carregarem - site DOU pode carregar via AJAX
     await page.wait_for_timeout(5000)
-    
+
     # Aguardar especificamente o dropdown #slcOrgs estar populado
-    try:
+    with contextlib.suppress(Exception):
         await page.wait_for_function(
             "() => document.querySelector('#slcOrgs')?.options?.length > 2",
             timeout=10000
         )
-    except Exception:
-        pass  # Continuar mesmo se timeout
 
     # Detectar raízes N1/N2
     try:
@@ -441,11 +512,16 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
     # Iterar sobre N1
     for k1 in k1_list:
         # Selecionar N1 (USAR ASYNC)
+        # Registrar contagem anterior de N2 (se existir)
+        prev_n2_count = 0
+        if r2:
+            prev_n2_count = await _count_options_async(frame, r2)
+
         await _select_by_text_async(frame, r1, k1)
-        
-        # Aguardar AJAX
+
+        # Aguardar AJAX base
         await page.wait_for_load_state("domcontentloaded", timeout=30_000)
-        await page.wait_for_timeout(500)
+        await page.wait_for_timeout(800)
 
         # Re-detectar N2 (USAR ASYNC)
         try:
@@ -455,8 +531,10 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
         except Exception:
             pass
 
-        # Ler opções N2 (USAR ASYNC)
+        # Aguardar repopulação de N2 e ler opções completas
         if r2:
+            with contextlib.suppress(Exception):
+                await wait_n2_repopulated_async(frame, r2, prev_n2_count, timeout_ms=25_000, poll_ms=150)
             opts2 = await _read_dropdown_options_async(frame, r2)
             opts2 = _filter_opts(
                 opts2,
@@ -465,7 +543,7 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
                 getattr(args, "limit2", None)
             )
             k2_list = _build_keys(opts2, getattr(args, "key2_type_default", "text"))
-            
+
             if v:
                 print(f"[plan-live-async] N1='{k1}' => N2 válidos: {len(k2_list)}")
         else:
@@ -473,13 +551,15 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
 
         # Criar combos
         if k2_list:
-            for k2 in k2_list:
-                combos.append({
+            combos.extend([
+                {
                     "key1": k1,
                     "label1": k1,
                     "key2": k2,
                     "label2": k2,
-                })
+                }
+                for k2 in k2_list
+            ])
         else:
             combos.append({
                 "key1": k1,
@@ -520,5 +600,5 @@ def build_plan_live_sync_wrapper(p, args) -> dict[str, Any]:
     async def run():
         async with async_playwright() as p_async:
             return await build_plan_live_async(p_async, args)
-    
+
     return asyncio.run(run())

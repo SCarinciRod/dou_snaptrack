@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import sys
+import traceback  # Certificar que está no escopo global
 from dataclasses import dataclass
 from datetime import date as _date
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
-import traceback  # Certificar que está no escopo global
+from typing import TYPE_CHECKING, Any
+
+import streamlit as st
 
 # Garantir que a pasta src/ esteja no PYTHONPATH (execução via streamlit run src/...)
 SRC_ROOT = Path(__file__).resolve().parents[2]
@@ -18,11 +21,10 @@ if str(SRC_ROOT) not in sys.path:
 
 # OTIMIZAÇÃO: Lazy imports - só carrega quando necessário
 # Streamlit é leve, pode carregar logo
-import streamlit as st
 
 # OTIMIZAÇÃO: Imports pesados apenas quando TYPE_CHECKING ou sob demanda
 if TYPE_CHECKING:
-    from playwright.sync_api import sync_playwright
+    pass
 
 # Funções lazy loading para imports pesados
 def _lazy_import_batch_runner():
@@ -156,9 +158,8 @@ def _load_pairs_file_cached(path_str: str) -> dict[str, list[str]]:
 
 
 def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[dict[str, Any]]:
-    out = []
-    for n2 in n2_list:
-        out.append({
+    return [
+        {
             "key1_type": key_type,
             "key1": n1,
             "key2_type": key_type,
@@ -168,21 +169,34 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
             "label1": "",
             "label2": "",
             "label3": "",
-        })
-    return out
+        }
+        for n2 in n2_list
+    ]
 
 
 # REMOVIDO: _get_thread_local_playwright_and_browser() - não mais necessário após migração para async API
 
 
 @st.cache_data(show_spinner=False, ttl=300)
-def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = 20) -> list[str]:
-    """Descobre as opções do dropdown N2 diretamente do site (como no combo do DOU)."""
-    import subprocess
+def _plan_live_fetch_n2(secao: str, date: str, n1: str, limit2: int | None = None) -> list[str]:
+    """Descobre as opções do dropdown N2 diretamente do site (como no combo do DOU).
+
+    Ajuste: limit2 padrão agora é None para evitar truncar lista de N2 (antes 20).
+    Se quiser limitar por performance, passe explicitamente um inteiro.
+    """
     import json
+    import re
+    import subprocess
     import sys
-    import tempfile
     from pathlib import Path
+
+    # Se limit2 é None, passar literal None (não aplicar corte no builder)
+    _limit2_literal = "None" if limit2 in (None, 0) else str(int(limit2))
+
+    # IMPORTANTE: quando N1 contém vírgulas (ex.: "Ministério da Ciência, Tecnologia e Inovação"),
+    # usar select1 com regex ancorada para evitar split por vírgula em pick1.
+    _select1_pattern = "^" + re.escape(str(n1)) + "$"
+    _select1_literal = json.dumps(_select1_pattern, ensure_ascii=False)
 
     script_content = f'''
 import json
@@ -198,12 +212,12 @@ try:
                 secao="{secao}",
                 data="{date}",
                 plan_out=None,
-                select1=None,
+                select1={_select1_literal},
                 select2=None,
-                pick1="{n1}",
+                pick1=None,
                 pick2=None,
                 limit1=None,
-                limit2={limit2},
+                limit2={_limit2_literal},
                 headless=True,
                 slowmo=0,
             )
@@ -272,7 +286,6 @@ except Exception as e:
 
 def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
     """Worker que usa async API do Playwright - compatível com asyncio loop do Streamlit.
-    
     MIGRAÇÃO ASYNC: Usa playwright.async_api + asyncio.run() para evitar conflito.
     """
     import asyncio
@@ -288,7 +301,7 @@ def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
             )
             from dou_snaptrack.utils.browser import build_dou_url, goto_async, try_visualizar_em_lista_async
             from dou_snaptrack.utils.dom import find_best_frame_async
-            
+
             async with async_playwright() as p:
                 browser = await p.chromium.launch(channel="chrome", headless=True)
                 try:
@@ -297,15 +310,11 @@ def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
                     page = await context.new_page()
                     url = build_dou_url(date, secao)
                     await goto_async(page, url)
-                    try:
+                    with contextlib.suppress(Exception):
                         await try_visualizar_em_lista_async(page)
-                    except Exception:
-                        pass
                     frame = await find_best_frame_async(context)
-                    try:
+                    with contextlib.suppress(Exception):
                         await page.wait_for_timeout(3000)
-                    except Exception:
-                        pass
                     try:
                         r1, _r2 = await _select_roots_async(frame)
                     except Exception:
@@ -325,7 +334,7 @@ def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
                         if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
                             continue
                         texts.append(t)
-                    uniq = sorted({t for t in texts})
+                    uniq = sorted(set(texts))
                     return uniq
                 except TimeoutError as te:
                     st.error(f"[ERRO] Timeout ao tentar carregar opções N1 ({te}).")
@@ -336,18 +345,14 @@ def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
                     st.error(f"[ERRO] Falha ao listar N1: {type(e).__name__}: {e}\n\n{tb}")
                     return []
                 finally:
-                    try:
+                    with contextlib.suppress(Exception):
                         await context.close()
-                    except Exception:
-                        pass
-                    try:
+                    with contextlib.suppress(Exception):
                         await browser.close()
-                    except Exception:
-                        pass
-        
+
         # Executar função async
         return asyncio.run(fetch_n1_options())
-        
+
     except Exception as e:
         tb = traceback.format_exc(limit=4)
         st.error(f"[ERRO] Falha Playwright/UI: {type(e).__name__}: {e}\n\n{tb}")
@@ -357,20 +362,19 @@ def _plan_live_fetch_n1_options_worker(secao: str, date: str) -> list[str]:
 @st.cache_data(show_spinner=False, ttl=300)
 def _plan_live_fetch_n1_options(secao: str, date: str) -> list[str]:
     """Descobre as opções do dropdown N1 diretamente do site (como no combo do DOU).
-    
+
     CORREÇÃO: Executa worker em thread separada para evitar conflito com asyncio loop do Streamlit.
     A thread cria um novo process isolado sem loop asyncio.
     """
-    import subprocess
     import json
-    import tempfile
-    from pathlib import Path
+    import subprocess
     import sys
+    from pathlib import Path
 
     try:
         # Criar script temporário para executar em processo isolado
         src_path = str(SRC_ROOT / "src").replace("\\", "\\\\")  # Escapar barras para Windows
-        
+
         script_content = f'''
 import sys
 
@@ -391,37 +395,37 @@ try:
         context = browser.new_context(ignore_https_errors=True, viewport={{"width": 1366, "height": 900}})
         context.set_default_timeout(90_000)
         page = context.new_page()
-        
+
         url = build_dou_url("{date}", "{secao}")
         goto(page, url)
-        
+
         try:
             try_visualizar_em_lista(page)
         except Exception:
             pass
-        
+
         frame = find_best_frame(context)
         page.wait_for_timeout(3000)
-        
+
         try:
             r1, _r2 = _select_roots(frame)
         except Exception:
             r1 = None
-        
+
         if not r1:
             roots = _collect_dropdown_roots(frame)
             r1 = roots[0] if roots else None
-        
+
         if not r1:
             print(json.dumps({{"error": "Nenhum dropdown N1 detectado"}}))
             sys.exit(1)
-        
+
         opts = _read_dropdown_options(frame, r1)
-        
+
         if not opts:
             print(json.dumps({{"error": "Nenhuma opção encontrada no dropdown N1"}}))
             sys.exit(1)
-        
+
         texts = []
         for o in opts:
             t = (o.get("text") or "").strip()
@@ -429,10 +433,10 @@ try:
             if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
                 continue
             texts.append(t)
-        
+
         uniq = sorted(set(texts))
         print(json.dumps({{"success": True, "options": uniq}}))
-        
+
         context.close()
         browser.close()
 
@@ -443,7 +447,7 @@ except Exception as e:
     print(json.dumps({{"error": f"{{type(e).__name__}}: {{e}}"}}))
     sys.exit(1)
 '''
-    
+
         # Executar em subprocess isolado (sem asyncio loop)
         result = subprocess.run(
             [sys.executable, "-c", script_content],
@@ -452,11 +456,11 @@ except Exception as e:
             timeout=120,
             cwd=str(Path(__file__).parent.parent.parent)  # Raiz do projeto
         )
-        
+
         # Extrair apenas a última linha do stdout (JSON), ignorando logs anteriores
         stdout_lines = result.stdout.strip().splitlines() if result.stdout else []
         json_line = stdout_lines[-1] if stdout_lines else ""
-        
+
         if result.returncode != 0:
             try:
                 error_data = json.loads(json_line)
@@ -466,20 +470,20 @@ except Exception as e:
                 if result.stderr:
                     st.error(f"STDERR: {result.stderr[:300]}")
             return []
-        
+
         try:
             data = json.loads(json_line)
         except json.JSONDecodeError as je:
             st.error(f"[ERRO] JSON inválido: {je}")
             st.error(f"Saída completa: {result.stdout[:500]}")
             return []
-            
+
         if data.get("success"):
             return data.get("options", [])
         else:
             st.error(f"[ERRO] {data.get('error', 'Erro desconhecido')}")
             return []
-    
+
     except subprocess.TimeoutExpired:
         st.error("[ERRO] Timeout ao carregar opções N1 (>2 minutos)")
         return []
@@ -569,10 +573,10 @@ _ensure_state()
 
 with st.sidebar:
     st.header("Configuração")
-    
+
     # Date picker visual (calendário) ao invés de text input
-    from datetime import datetime, timedelta
-    
+    from datetime import timedelta
+
     # Converter data string DD-MM-YYYY para date object (se válida)
     current_date_str = st.session_state.plan.date
     try:
@@ -585,7 +589,7 @@ with st.sidebar:
             current_date_obj = _date.today()
     except Exception:
         current_date_obj = _date.today()
-    
+
     # Date picker com calendário visual
     selected_date = st.date_input(
         "Data de publicação",
@@ -595,10 +599,10 @@ with st.sidebar:
         format="DD/MM/YYYY",
         help="Selecione a data de publicação do DOU para consulta"
     )
-    
+
     # Converter de volta para string DD-MM-YYYY (formato esperado pelo backend)
     st.session_state.plan.date = selected_date.strftime("%d-%m-%Y")
-    
+
     st.session_state.plan.secao = st.selectbox("Seção", ["DO1", "DO2", "DO3"], index=0)
     st.markdown("💡 **Dica**: Use o calendário para selecionar a data facilmente.")
     plan_name_ui = st.text_input("Nome do plano (para agregação)", value=st.session_state.get("plan_name_ui", ""))
@@ -628,7 +632,8 @@ with st.sidebar:
                     r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
                 ):
                     if Path(c).exists():
-                        exe_hint = c; break
+                        exe_hint = c
+                        break
             st.write({
                 "OS": f"{_plat.system()} {_plat.release()}",
                 "Python": pyver,
@@ -644,20 +649,23 @@ with st.sidebar:
                     to_del = []
                     for k, v in list(st.session_state.items()):
                         if isinstance(k, str) and k.startswith("_pw_res_tid_"):
-                            try:
+                            with contextlib.suppress(Exception):
                                 if hasattr(v, "close"):
                                     v.close()
-                            except Exception:
-                                pass
                             to_del.append(k)
                     for k in to_del:
-                        try:
-                            del st.session_state[k]
-                        except Exception:
-                            pass
+                        # Remover silenciosamente se existir
+                        st.session_state.pop(k, None)
                     st.success("Navegador reiniciado para esta sessão.")
                 except Exception as _e2:
                     st.error(f"Falha ao reiniciar navegador: {_e2}")
+            # Limpar cache de dados (inclui resultados de N1/N2)
+            if st.button("Limpar cache de dados (N1/N2)"):
+                try:
+                    st.cache_data.clear()
+                    st.success("Cache limpo.")
+                except Exception as _e3:
+                    st.warning(f"Falha ao limpar cache: {_e3}")
         except Exception as _e:
             st.write(f"[diag] erro: {_e}")
 
@@ -681,10 +689,12 @@ with tab1:
     # Carregar N2 conforme N1 escolhido
     n2_list: list[str] = []
     can_load_n2 = bool(n1)
-    if st.button("Carregar Organizações Subordinadas") and can_load_n2:
-        with st.spinner("Obtendo lista do DOU…"):
-            n2_list = _plan_live_fetch_n2(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""), str(n1))
+    if st.button("Carregar Organizações Subordinadas (todas)") and can_load_n2:
+        with st.spinner("Obtendo lista completa do DOU…"):
+            # Sem limite: pode ser grande em DO3 (centenas). Cache evita repetição.
+            n2_list = _plan_live_fetch_n2(str(st.session_state.plan.secao or ""), str(st.session_state.plan.date or ""), str(n1), limit2=None)
         st.session_state["live_n2_for_" + str(n1)] = n2_list
+        st.caption(f"{len(n2_list)} suborganizações encontradas para '{n1}'.")
     if n1:
         n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
 
@@ -730,7 +740,8 @@ with tab1:
         _pname = st.session_state.get("plan_name_ui")
         if isinstance(_pname, str) and _pname.strip():
             cfg["plan_name"] = _pname.strip()
-        ppath = Path(plan_path); ppath.parent.mkdir(parents=True, exist_ok=True)
+        ppath = Path(plan_path)
+        ppath.parent.mkdir(parents=True, exist_ok=True)
         ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
         st.success(f"Plano salvo em {plan_path}")
 
@@ -768,7 +779,7 @@ with tab2:
         est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
     except Exception:
         est_jobs_prev = 1
-    
+
     # Lazy import apenas quando realmente usado
     from dou_snaptrack.utils.parallel import recommend_parallel
     suggested_workers = recommend_parallel(est_jobs_prev, prefer_process=True)
@@ -848,10 +859,8 @@ with tab2:
                 out_dir_tmp = Path("resultados") / override_date
                 out_dir_tmp.mkdir(parents=True, exist_ok=True)
                 pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"
-                try:
+                with contextlib.suppress(Exception):
                     pass_cfg_path.write_text(json.dumps(cfg_json, ensure_ascii=False, indent=2), encoding="utf-8")
-                except Exception:
-                    pass
                 st.caption(f"Iniciando captura… log em resultados/{override_date}/batch_run.log")
                 rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=False, prefer_edge=True)
             st.write(rep or {"info": "Sem relatório"})
@@ -865,7 +874,8 @@ with tab2:
 
 with tab3:
     st.subheader("Boletim por Plano (agregados)")
-    results_root = Path("resultados"); results_root.mkdir(parents=True, exist_ok=True)
+    results_root = Path("resultados")
+    results_root.mkdir(parents=True, exist_ok=True)
     # Formato e política padronizada de resumo (sem escolhas do usuário)
     # Padrões fixos: summary_lines=7, summary_mode="center", keywords=None
     st.caption("Os resumos são gerados com parâmetros padronizados (modo center, 7 linhas) e captura profunda automática.")
@@ -877,11 +887,9 @@ with tab3:
     with st.expander("Agregação manual (quando necessário)"):
         day_dirs = []
         try:
-            for d in results_root.iterdir():
-                if d.is_dir():
-                    day_dirs.append(d)
+            day_dirs = [d for d in results_root.iterdir() if d.is_dir()]
         except Exception:
-            pass
+            day_dirs = []
         day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
         if not day_dirs:
             st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar uma pasta do dia.")
@@ -913,11 +921,9 @@ with tab3:
     # Seletor 1: escolher a pasta da data (resultados/<data>)
     day_dirs: list[Path] = []
     try:
-        for d in results_root.iterdir():
-            if d.is_dir():
-                day_dirs.append(d)
+            day_dirs = [d for d in results_root.iterdir() if d.is_dir()]
     except Exception:
-        pass
+            day_dirs = []
     day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
     if not day_dirs:
         st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano com 'Nome do plano' para gerar agregados.")
@@ -975,10 +981,7 @@ with tab3:
                         except Exception:
                             pass
                     # Garantir deep-mode ligado para relatório (não offline)
-                    try:
-                        os.environ["DOU_OFFLINE_REPORT"] = "0"
-                    except Exception:
-                        pass
+                    os.environ["DOU_OFFLINE_REPORT"] = "0"
                     report_from_aggregated(
                         [str(p) for p in files], kind2, str(out_path),
                         date_label=str(sel_day), secao_label=secao_label,
@@ -1022,10 +1025,7 @@ with tab3:
                 st.warning(f"Não foi possível remover o arquivo local: {lb_path} — {_e}")
             # Limpar dados da sessão para evitar re-download e liberar memória
             for k in ("last_bulletin_data", "last_bulletin_name", "last_bulletin_path"):
-                try:
-                    del st.session_state[k]
-                except Exception:
-                    pass
+                st.session_state.pop(k, None)
 
 
 # ======================== TAB 4: Manutenção do Artefato de Pares ========================
@@ -1033,11 +1033,11 @@ with st.sidebar:
     st.divider()
     with st.expander("🔧 Manutenção do Artefato", expanded=False):
         st.caption("Gerenciar pairs_DO1_full.json")
-        
+
         from dou_snaptrack.utils.pairs_updater import get_pairs_file_info, update_pairs_file_async
-        
+
         info = get_pairs_file_info()
-        
+
         if info["exists"]:
             st.metric("Status", "✅ Existe" if not info["is_stale"] else "⚠️ Obsoleto")
             if info["age_days"] is not None:
@@ -1050,23 +1050,23 @@ with st.sidebar:
                 st.caption(f"Última atualização: {info['last_update'][:19]}")
         else:
             st.warning("⚠️ Arquivo não encontrado")
-        
+
         st.divider()
-        
+
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🔄 Atualizar Agora", key="update_pairs_btn", use_container_width=True):
                 with st.spinner("Scraping DOU para atualizar pares..."):
                     progress_bar = st.progress(0.0)
                     status_text = st.empty()
-                    
+
                     # MIGRAÇÃO ASYNC: Usar update_pairs_file_async com asyncio.run()
                     import asyncio
-                    
+
                     def progress_callback(pct: float, msg: str):
                         progress_bar.progress(pct)
                         status_text.text(msg)
-                    
+
                     try:
                         result = asyncio.run(
                             update_pairs_file_async(
@@ -1076,19 +1076,19 @@ with st.sidebar:
                         )
                     except Exception as e:
                         result = {"success": False, "error": f"{type(e).__name__}: {e}"}
-                    
+
                     progress_bar.empty()
                     status_text.empty()
-                    
+
                     if result.get("success"):
                         st.success(f"✅ Atualizado! {result.get('n1_count', 0)} órgãos, {result.get('pairs_count', 0)} pares")
                         st.cache_data.clear()
                         st.rerun()
                     else:
                         st.error(f"❌ Erro: {result.get('error', 'Erro desconhecido')}")
-        
+
         with col2:
-            if st.button("ℹ️ Ver Info", key="info_pairs_btn", use_container_width=True):
+            if st.button("Info", key="info_pairs_btn", use_container_width=True):
                 st.json(info, expanded=True)
 
             st.caption("Arquivo do boletim removido do servidor. Os JSONs permanecem em 'resultados/'.")
