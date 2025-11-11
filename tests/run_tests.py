@@ -21,9 +21,6 @@ def suite_imports():
         "dou_snaptrack",
         "dou_snaptrack.constants",
         "dou_snaptrack.utils.browser",
-        "dou_snaptrack.mappers.eagendas_pairs",
-        "dou_snaptrack.mappers.eagendas_pairs_fast",
-        "dou_snaptrack.mappers.eagendas_pairs_optimized",
         "dou_snaptrack.mappers.eagendas_selectize",
     ]
     ok = True
