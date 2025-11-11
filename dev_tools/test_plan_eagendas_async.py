@@ -43,14 +43,14 @@ def test_eagendas_async_smoke():
         print("\n" + "=" * 80)
         print("RESULTADO DO TESTE")
         print("=" * 80)
-        print(f"✅ Plan gerado com sucesso!")
-        print(f"\nEstatísticas:")
+        print("✅ Plan gerado com sucesso!")
+        print("\nEstatísticas:")
         print(f"  Órgãos: {plan['stats']['total_orgaos']}")
         print(f"  Cargos: {plan['stats']['total_cargos']}")
         print(f"  Agentes: {plan['stats']['total_agentes']}")
         print(f"  Total combos: {plan['stats']['total_combos']}")
 
-        print(f"\n📄 Plan salvo em: planos/eagendas_plan_test_async.json")
+        print("\n📄 Plan salvo em: planos/eagendas_plan_test_async.json")
 
         # Mostrar primeiros 3 combos
         print("\n🔍 Primeiros 3 combos:")

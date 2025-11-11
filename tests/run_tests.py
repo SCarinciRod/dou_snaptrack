@@ -22,6 +22,8 @@ def suite_imports():
         "dou_snaptrack.constants",
         "dou_snaptrack.utils.browser",
         "dou_snaptrack.mappers.eagendas_selectize",
+        "dou_snaptrack.cli.plan_live_eagendas_async",
+        "dou_snaptrack.utils.eagendas_calendar",
     ]
     ok = True
     for m in mods:

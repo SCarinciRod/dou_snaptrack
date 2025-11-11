@@ -22,7 +22,6 @@ from typing import Any
 
 from playwright.async_api import async_playwright
 
-
 # ============================================================================
 # HELPERS ASYNC PARA SELECTIZE.JS
 # ============================================================================
@@ -363,7 +362,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
     if v:
         print(f"[plan-eagendas-async] URL: {url}")
-        print(f"[plan-eagendas-async] Detectando dropdowns...")
+        print("[plan-eagendas-async] Detectando dropdowns...")
 
     # ========================================================================
     # NÍVEL 1: ÓRGÃOS
@@ -393,7 +392,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         ok = await _select_by_label_and_text_async(frame, LABEL_ORGAO, org_text)
         if not ok:
             if v:
-                print(f"[plan-eagendas-async]   ⚠️  Falha ao selecionar órgão")
+                print("[plan-eagendas-async]   ⚠️  Falha ao selecionar órgão")
             continue
 
         # Aguardar N2 (Cargo) repopular
@@ -527,7 +526,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
     if v:
         print(f"\n[plan-eagendas-async] ✅ Gerados {len(combos)} combos")
-        print(f"[plan-eagendas-async] Estatísticas:")
+        print("[plan-eagendas-async] Estatísticas:")
         print(f"  Órgãos: {stats['total_orgaos']}")
         print(f"  Cargos: {stats['total_cargos']}")
         print(f"  Agentes: {stats['total_agentes']}")
