@@ -19,10 +19,10 @@ from typing import Any
 def load_eagendas_pairs(pairs_file: str | Path | None = None) -> dict[str, Any]:
     """
     Carrega o artefato de pares Órgão→Cargo→Agente.
-    
+
     Args:
         pairs_file: Caminho para arquivo JSON. Se None, usa artefatos/pairs_eagendas_latest.json
-    
+
     Returns:
         Dict com estrutura:
         {
@@ -52,14 +52,14 @@ def load_eagendas_pairs(pairs_file: str | Path | None = None) -> dict[str, Any]:
     """
     if pairs_file is None:
         pairs_file = Path(__file__).parent.parent.parent.parent / "artefatos" / "pairs_eagendas_latest.json"
-    
+
     pairs_path = Path(pairs_file)
     if not pairs_path.exists():
         raise FileNotFoundError(
             f"Artefato de pares não encontrado: {pairs_path}\n"
             f"Execute: python scripts/map_eagendas_full.py"
         )
-    
+
     data = json.loads(pairs_path.read_text(encoding='utf-8'))
     return data
 
@@ -74,7 +74,7 @@ def build_plan_eagendas(
 ) -> dict[str, Any]:
     """
     Gera plan de combos para e-agendas a partir do artefato de pares.
-    
+
     Args:
         pairs_file: Caminho para artefato JSON (None = latest)
         limit_orgaos: Limite de órgãos a processar (None = todos)
@@ -82,7 +82,7 @@ def build_plan_eagendas(
         limit_agentes_per_cargo: Limite de agentes por cargo (None = todos)
         select_orgaos: Lista de valores de órgãos específicos (None = todos)
         verbose: Se True, imprime estatísticas
-    
+
     Returns:
         Dict com:
         {
@@ -110,46 +110,46 @@ def build_plan_eagendas(
     """
     if verbose:
         print(f"[plan-eagendas] Carregando pares: {pairs_file or 'latest'}")
-    
+
     data = load_eagendas_pairs(pairs_file)
     hierarchy = data.get("hierarchy", [])
-    
+
     # Filtros
     if select_orgaos:
         hierarchy = [o for o in hierarchy if o.get("orgao_value") in select_orgaos]
-    
+
     if limit_orgaos:
         hierarchy = hierarchy[:limit_orgaos]
-    
+
     combos: list[dict[str, Any]] = []
     stats_orgaos = 0
     stats_cargos = 0
     stats_agentes = 0
-    
+
     for orgao_data in hierarchy:
         orgao_label = orgao_data.get("orgao", "")
         orgao_value = orgao_data.get("orgao_value", "")
         cargos = orgao_data.get("cargos", [])
-        
+
         if limit_cargos_per_orgao:
             cargos = cargos[:limit_cargos_per_orgao]
-        
+
         stats_orgaos += 1
-        
+
         for cargo_data in cargos:
             cargo_label = cargo_data.get("cargo", "")
             cargo_value = cargo_data.get("cargo_value", "")
             agentes = cargo_data.get("agentes", [])
-            
+
             if limit_agentes_per_cargo:
                 agentes = agentes[:limit_agentes_per_cargo]
-            
+
             stats_cargos += 1
-            
+
             for agente_data in agentes:
                 agente_label = agente_data.get("agente", "")
                 agente_value = agente_data.get("agente_value", "")
-                
+
                 combos.append({
                     "orgao_value": orgao_value,
                     "orgao_label": orgao_label,
@@ -159,7 +159,7 @@ def build_plan_eagendas(
                     "agente_label": agente_label,
                 })
                 stats_agentes += 1
-    
+
     plan = {
         "source": "e-agendas",
         "pairs_file": str(pairs_file) if pairs_file else "pairs_eagendas_latest.json",
@@ -177,14 +177,14 @@ def build_plan_eagendas(
             "total_combos": len(combos),
         }
     }
-    
+
     if verbose:
-        print(f"[plan-eagendas] Estatísticas:")
+        print("[plan-eagendas] Estatísticas:")
         print(f"  Órgãos: {stats_orgaos}")
         print(f"  Cargos: {stats_cargos}")
         print(f"  Agentes: {stats_agentes}")
         print(f"  Total de combos: {len(combos)}")
-    
+
     return plan
 
 
@@ -195,7 +195,7 @@ def save_plan_eagendas(
 ) -> None:
     """
     Salva plan de combos em arquivo JSON.
-    
+
     Args:
         plan: Dict retornado por build_plan_eagendas()
         output_file: Caminho para salvar JSON
@@ -203,12 +203,12 @@ def save_plan_eagendas(
     """
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     output_path.write_text(
         json.dumps(plan, indent=2, ensure_ascii=False),
         encoding='utf-8'
     )
-    
+
     if verbose:
         print(f"[plan-eagendas] Plan salvo: {output_path.absolute()}")
 
@@ -219,12 +219,12 @@ def save_plan_eagendas(
 
 if __name__ == "__main__":
     import sys
-    
+
     # Exemplo 1: Plan completo (todos os pares)
     print("=" * 80)
     print("EXEMPLO 1: Plan completo")
     print("=" * 80)
-    
+
     try:
         plan_full = build_plan_eagendas(verbose=True)
         save_plan_eagendas(
@@ -238,11 +238,11 @@ if __name__ == "__main__":
         print("\nExecute primeiro:")
         print("  python scripts/map_eagendas_full.py")
         sys.exit(1)
-    
+
     print("\n" + "=" * 80)
     print("EXEMPLO 2: Plan com limites (teste)")
     print("=" * 80)
-    
+
     plan_test = build_plan_eagendas(
         limit_orgaos=2,
         limit_cargos_per_orgao=3,
@@ -255,16 +255,16 @@ if __name__ == "__main__":
         verbose=True
     )
     print("\n✅ Plan de teste gerado!")
-    
+
     print("\n" + "=" * 80)
     print("EXEMPLO 3: Plan para órgãos específicos")
     print("=" * 80)
-    
+
     # Obter primeiro órgão do artefato para exemplo
     data = load_eagendas_pairs()
     if data["hierarchy"]:
         first_orgao_value = data["hierarchy"][0].get("orgao_value")
-        
+
         plan_specific = build_plan_eagendas(
             select_orgaos=[first_orgao_value],
             verbose=True
@@ -275,7 +275,7 @@ if __name__ == "__main__":
             verbose=True
         )
         print("\n✅ Plan específico gerado!")
-    
+
     print("\n" + "=" * 80)
     print("TODOS OS PLANS GERADOS COM SUCESSO!")
     print("=" * 80)

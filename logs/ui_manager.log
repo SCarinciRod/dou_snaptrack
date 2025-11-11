@@ -810,3 +810,146 @@
 2025-10-31T09:55:05 [mgr] PYTHONPATH set for child: C:\Projetos\src
 2025-10-31T09:55:08 [mgr] Porta 8504 disponÃ­vel
 2025-10-31T09:55:08 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 44556)
+2025-11-04T10:59:22 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-04T10:59:22 [mgr] Inicializando UI manager (Port=8501)
+2025-11-04T10:59:22 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-04T10:59:22 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-04T10:59:30 [mgr] Usando porta 8501
+2025-11-04T10:59:30 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-04T10:59:41 [mgr] Porta 8501 disponÃ­vel
+2025-11-04T10:59:42 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 27892)
+2025-11-04T13:35:49 [mgr] Browser encerrado. Terminando Streamlit (PID 36432)
+2025-11-04T13:35:49 [mgr] UI manager finalizado.
+2025-11-07T07:30:08 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-07T07:30:08 [mgr] Inicializando UI manager (Port=8501)
+2025-11-07T07:30:08 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-07T07:30:08 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-07T07:30:12 [mgr] Usando porta 8501
+2025-11-07T07:30:12 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-07T07:30:12 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-07T07:30:30 [mgr] Porta 8501 disponÃ­vel
+2025-11-07T07:30:31 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 45048)
+2025-11-07T07:31:36 [mgr] Browser encerrado. Terminando Streamlit (PID 28288)
+2025-11-07T07:31:37 [mgr] UI manager finalizado.
+2025-11-10T09:59:11 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T09:59:11 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T09:59:11 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T09:59:11 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T09:59:16 [mgr] Usando porta 8501
+2025-11-10T09:59:16 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T09:59:16 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T09:59:27 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T09:59:27 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 33136)
+2025-11-10T12:56:20 [mgr] Browser encerrado. Terminando Streamlit (PID 41812)
+2025-11-10T12:56:22 [mgr] UI manager finalizado.
+2025-11-10T12:56:37 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T12:56:37 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T12:56:37 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T12:56:37 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T12:56:42 [mgr] Usando porta 8501
+2025-11-10T12:56:42 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T12:56:42 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T12:56:52 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T12:56:53 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 33828)
+2025-11-10T13:11:33 [mgr] Browser encerrado. Terminando Streamlit (PID 29792)
+2025-11-10T13:11:33 [mgr] UI manager finalizado.
+2025-11-10T13:13:27 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T13:13:27 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T13:13:27 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T13:13:27 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T13:13:32 [mgr] Usando porta 8501
+2025-11-10T13:13:32 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T13:13:32 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T13:13:39 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T13:13:40 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 46012)
+2025-11-10T13:28:17 [mgr] Browser encerrado. Terminando Streamlit (PID 6764)
+2025-11-10T13:28:17 [mgr] UI manager finalizado.
+2025-11-10T13:28:27 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T13:28:27 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T13:28:27 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T13:28:27 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T13:28:32 [mgr] Porta 8501 ocupada (PID=0); tentando prÃ³ximaâ€¦
+2025-11-10T13:28:34 [mgr] Usando porta 8502
+2025-11-10T13:28:34 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T13:28:34 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T13:28:41 [mgr] Porta 8502 disponÃ­vel
+2025-11-10T13:28:42 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 43268)
+2025-11-10T13:35:48 [mgr] Browser encerrado. Terminando Streamlit (PID 35196)
+2025-11-10T13:35:48 [mgr] UI manager finalizado.
+2025-11-10T13:35:57 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T13:35:58 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T13:35:58 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T13:35:58 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T13:36:03 [mgr] Usando porta 8501
+2025-11-10T13:36:04 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T13:36:04 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T13:36:12 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T13:36:12 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 34824)
+2025-11-10T13:59:30 [mgr] Browser encerrado. Terminando Streamlit (PID 45504)
+2025-11-10T13:59:30 [mgr] UI manager finalizado.
+2025-11-10T13:59:40 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T13:59:40 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T13:59:40 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T13:59:40 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T13:59:46 [mgr] Usando porta 8501
+2025-11-10T13:59:46 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T13:59:46 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T13:59:50 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T13:59:51 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 21608)
+2025-11-10T14:07:09 [mgr] Browser encerrado. Terminando Streamlit (PID 12940)
+2025-11-10T14:07:09 [mgr] UI manager finalizado.
+2025-11-10T14:07:19 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T14:07:19 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T14:07:19 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T14:07:19 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T14:07:25 [mgr] Usando porta 8501
+2025-11-10T14:07:25 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T14:07:25 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T14:07:32 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T14:07:32 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 1020)
+2025-11-10T14:16:38 [mgr] Browser encerrado. Terminando Streamlit (PID 15668)
+2025-11-10T14:16:39 [mgr] UI manager finalizado.
+2025-11-10T14:16:48 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T14:16:48 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T14:16:48 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T14:16:48 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T14:16:53 [mgr] Usando porta 8501
+2025-11-10T14:16:53 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T14:16:53 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T14:16:57 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T14:16:58 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 30612)
+2025-11-10T14:21:26 [mgr] Browser encerrado. Terminando Streamlit (PID 34988)
+2025-11-10T14:21:26 [mgr] UI manager finalizado.
+2025-11-10T14:56:33 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T14:56:33 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T14:56:33 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T14:56:33 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T14:56:39 [mgr] Usando porta 8501
+2025-11-10T14:56:40 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T14:56:40 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T14:56:48 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T14:56:48 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 36316)
+2025-11-10T14:57:51 [mgr] Browser encerrado. Terminando Streamlit (PID 34388)
+2025-11-10T14:57:51 [mgr] UI manager finalizado.
+2025-11-10T15:04:20 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-10T15:04:20 [mgr] Inicializando UI manager (Port=8501)
+2025-11-10T15:04:20 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-10T15:04:20 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-10T15:04:25 [mgr] Usando porta 8501
+2025-11-10T15:04:25 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-10T15:04:25 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-10T15:04:28 [mgr] Porta 8501 disponÃ­vel
+2025-11-10T15:04:29 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 2292)
+2025-11-10T15:07:14 [mgr] Browser encerrado. Terminando Streamlit (PID 22332)
+2025-11-10T15:07:14 [mgr] UI manager finalizado.
+2025-11-11T07:52:12 [mgr] Pulando instalaÃ§Ã£o: dependÃªncias bÃ¡sicas jÃ¡ presentes (cache vÃ¡lida).
+2025-11-11T07:52:12 [mgr] Inicializando UI manager (Port=8501)
+2025-11-11T07:52:12 [mgr] Python: C:\Projetos\.venv\Scripts\python.exe
+2025-11-11T07:52:12 [mgr] ui.lock presente; deixado intocado para aviso no app.
+2025-11-11T07:52:17 [mgr] Usando porta 8501
+2025-11-11T07:52:17 [mgr] PLAYWRIGHT_BROWSERS_PATH configurado: C:\Projetos\.venv\pw-browsers
+2025-11-11T07:52:17 [mgr] PYTHONPATH set for child: C:\Projetos\src
+2025-11-11T07:52:24 [mgr] Porta 8501 disponÃ­vel
+2025-11-11T07:52:25 [mgr] Browser iniciado: C:\Program Files\Google\Chrome\Application\chrome.exe (PID 31636)
+2025-11-11T07:57:11 [mgr] Browser encerrado. Terminando Streamlit (PID 11368)
+2025-11-11T07:57:11 [mgr] UI manager finalizado.

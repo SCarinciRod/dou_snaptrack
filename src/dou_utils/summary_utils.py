@@ -59,16 +59,16 @@ def split_sentences(pt_text: str) -> list[str]:
 
 def clean_text_for_summary(text: str) -> str:
     """Remove cabeçalhos DOU, metadados e juridiquês, retornando texto limpo para sumarização.
-    
+
     Args:
         text: Texto completo do ato/publicação
-        
+
     Returns:
         Texto limpo, preferencialmente do Art. 1º se existir
     """
     if not text:
         return ""
-    
+
     # CRÍTICO: Remover cabeçalho DOU inline ANTES de tudo
     # Padrão: Brasão...Diário Oficial...Publicado/Edição...Seção/Página...Órgão:...até tipo do ato
     # Captura múltiplos níveis de órgão (ex: Ministério/Universidade/Pró-Reitoria/Departamento)
@@ -81,11 +81,11 @@ def clean_text_for_summary(text: str) -> str:
         count=1,
         flags=re.I | re.DOTALL
     )
-    
+
     # Limpar resíduo comum "do Ministro" após remoção do cabeçalho
     if len(t) < len(text):  # Apenas se regex removeu algo
         t = re.sub(r"^(?:do|da|de)\s+\w+\s+", "", t, count=1, flags=re.I)
-    
+
     # Se a regex não encontrou padrão DOU, tentar fallback conservador
     # MAS APENAS se o texto tem múltiplas linhas E contém padrões típicos de cabeçalho
     if t == text:  # Regex não removeu nada
@@ -95,10 +95,10 @@ def clean_text_for_summary(text: str) -> str:
         if lines_count > 3 and has_metadata_pattern:
             t = remove_dou_metadata(t)
         # Senão, o texto já está limpo (ex: Art. 1º vindo de extract já processado)
-    
+
     t = strip_legalese_preamble(t)
     t = _WHITESPACE_PATTERN.sub(" ", t).strip()
-    
+
     # Padrões adicionais para limpeza
     patterns = [
         r"Este conteúdo não substitui.*?$",
@@ -106,14 +106,14 @@ def clean_text_for_summary(text: str) -> str:
     ]
     for pat in patterns:
         t = re.sub(pat, "", t, flags=re.I | re.DOTALL)
-    
+
     t = _DOC_TYPE_PREFIX_PATTERN.sub("", t)
     t = t.strip()
-    
+
     # Preferir conteúdo do Art. 1º quando existir (para atos articulados)
     a1 = extract_article1_section(t)
     result = (a1 or t).strip()
-    
+
     return result
 
 def _has_article_markers(text: str) -> bool:
@@ -150,10 +150,10 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
     """Sumariza texto removendo cabeçalhos DOU e selecionando sentenças relevantes."""
     if not text:
         return ""
-    
+
     base = clean_text_for_summary(text)
     sents = split_sentences(base)
-    
+
     # Robust fallback: se não houver sentenças, sintetizar a partir das primeiras palavras
     if not sents:
         words = re.findall(r"\w+[\w-]*", base)
@@ -161,7 +161,7 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
             return ""
         chunk = " ".join(words[: max(12, max_lines * 14)]).strip()
         return chunk + ("" if chunk.endswith(".") else ".")
-    
+
     if len(sents) <= max_lines:
         return "\n".join(sents[:max_lines])
 
@@ -247,7 +247,7 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
 
     # Garantir inclusão da sentença prioritária, se houver espaço e ainda não selecionada
     if pri_idx and pri_idx[0] not in picked_idx:
-        picked_idx = sorted((picked_idx + [pri_idx[0]])[: max_lines])
+        picked_idx = sorted(([*picked_idx, pri_idx[0]])[: max_lines])
 
     if len(picked_idx) < max_lines:
         need = max_lines - len(picked_idx)

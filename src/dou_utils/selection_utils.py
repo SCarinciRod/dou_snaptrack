@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
@@ -37,14 +38,10 @@ SENTINELA_PREFIX = "selecionar "
 
 def is_sentinel(value: str | None, label: str | None) -> bool:
     v = (value or "").strip().lower()
-    l = (label or "").strip().lower()
-    if not v and not l:
+    lbl = (label or "").strip().lower()
+    if not v and not lbl:
         return True
-    if l.startswith(SENTINELA_PREFIX):
-        return True
-    if v.startswith(SENTINELA_PREFIX):
-        return True
-    return False
+    return bool(lbl.startswith(SENTINELA_PREFIX) or v.startswith(SENTINELA_PREFIX))
 
 async def collect_dropdowns(frame: Frame, selector: str = "select") -> list:
     return await frame.query_selector_all(selector)
@@ -230,10 +227,8 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
             return True
     except Exception:
         pass
-    try:
+    with contextlib.suppress(Exception):
         page.keyboard.press("Escape")
-    except Exception:
-        pass
     return False
 
 

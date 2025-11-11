@@ -1,0 +1,55 @@
+{
+  "data": "10-11-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério da Ciência, Tecnologia e Inovação"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Todos"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 3,
+  "itens": [
+    {
+      "titulo": "PORTARIA MCTI Nº 792, DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mcti-n-792-de-7-de-novembro-de-2025-667762340",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-mcti-n-792-de-7-de-novembro-de-2025-667762340",
+      "orgao": "Ministério da Ciência, Tecnologia e Inovação",
+      "title_friendly": "Portaria Mcti Nº 792 De 7 De Novembro De 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667762205",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667762205",
+      "orgao": "Ministério da Ciência, Tecnologia e Inovação",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667766662",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667766662",
+      "orgao": "Ministério da Ciência, Tecnologia e Inovação",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    }
+  ],
+  "enriquecido": false,
+  "_timings": {
+    "nav_sec": 7.448,
+    "view_sec": 1.148,
+    "select_sec": 25.543,
+    "collect_sec": 0.511,
+    "total_sec": 34.661,
+    "inpage_reuse": false
+  }
+}

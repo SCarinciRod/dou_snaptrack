@@ -27,6 +27,7 @@ Saída:
 
 from __future__ import annotations
 
+import contextlib
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -144,10 +145,8 @@ def derive_label(frame, handle, base_label: str, info: dict[str, Any], options_p
 
     # NOVO: se label é genérico e temos id, usar id
     cid = attrs.get("id")
-    if cid:
-        # Se base_label vazio ou genérico explicitamente
-        if not base_label or _looks_generic(base_label):
-            return cid
+    if cid and (not base_label or _looks_generic(base_label)):
+        return cid
 
     # fallback
     return base_label or cid or ""
@@ -264,10 +263,8 @@ def discover_dropdown_roots(frame) -> list[DropdownRoot]:
             base_label = ""
 
         info = {}
-        try:
+        with contextlib.suppress(Exception):
             info = elem_common_info(frame, h)
-        except Exception:
-            pass
 
         options_preview: list[dict[str, Any]] = []
         if _is_select(h):

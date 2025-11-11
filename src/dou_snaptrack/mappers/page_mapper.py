@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 from dou_utils.dropdown_strategies import collect_open_list_options, open_dropdown_robust
@@ -15,52 +16,85 @@ def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> 
 
     # 1) get_by_role('combobox')
     cb = frame.get_by_role("combobox")
-    try: m = cb.count()
-    except Exception: m = 0
+    try:
+        m = cb.count()
+    except Exception:
+        m = 0
     for i in range(min(m, max_per_type)):
         h = cb.nth(i)
         try:
             box = h.bounding_box()
-            if not box: continue
-            key = ("role=combobox", i, round(box["y"],2), round(box["x"],2))
-            if key in seen: continue
+            if not box:
+                continue
+            key = ("role=combobox", i, round(box["y"], 2), round(box["x"], 2))
+            if key in seen:
+                continue
             seen.add(key)
-            roots.append({"kind":"combobox","sel":"role=combobox","index":i,"handle":h,"y":box["y"],"x":box["x"]})
+            roots.append({
+                "kind": "combobox",
+                "sel": "role=combobox",
+                "index": i,
+                "handle": h,
+                "y": box["y"],
+                "x": box["x"]
+            })
         except Exception:
             pass
 
     # 2) <select>
     sel = frame.locator("select")
-    try: n = sel.count()
-    except Exception: n = 0
+    try:
+        n = sel.count()
+    except Exception:
+        n = 0
     for i in range(min(n, max_per_type)):
         h = sel.nth(i)
         try:
             box = h.bounding_box()
-            if not box: continue
-            key = ("select", i, round(box["y"],2), round(box["x"],2))
-            if key in seen: continue
+            if not box:
+                continue
+            key = ("select", i, round(box["y"], 2), round(box["x"], 2))
+            if key in seen:
+                continue
             seen.add(key)
-            roots.append({"kind":"select","sel":"select","index":i,"handle":h,"y":box["y"],"x":box["x"]})
+            roots.append({
+                "kind": "select",
+                "sel": "select",
+                "index": i,
+                "handle": h,
+                "y": box["y"],
+                "x": box["x"]
+            })
         except Exception:
             pass
 
     # 3) heurísticas extras
     for selroot in DROPDOWN_ROOT_SELECTORS:
         loc = frame.locator(selroot)
-        try: c = loc.count()
-        except Exception: c = 0
+        try:
+            c = loc.count()
+        except Exception:
+            c = 0
         if c == 0:
             continue
         for i in range(min(c, max_per_type)):
             h = loc.nth(i)
             try:
                 box = h.bounding_box()
-                if not box: continue
-                key = (selroot, i, round(box["y"],2), round(box["x"],2))
-                if key in seen: continue
+                if not box:
+                    continue
+                key = (selroot, i, round(box["y"], 2), round(box["x"], 2))
+                if key in seen:
+                    continue
                 seen.add(key)
-                roots.append({"kind":"unknown","sel":selroot,"index":i,"handle":h,"y":box["y"],"x":box["x"]})
+                roots.append({
+                    "kind": "unknown",
+                    "sel": selroot,
+                    "index": i,
+                    "handle": h,
+                    "y": box["y"],
+                    "x": box["x"]
+                })
             except Exception:
                 pass
 
@@ -71,11 +105,13 @@ def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> 
     enriched = []
     for r in roots:
         h = r["handle"]
-        try: el_id = h.get_attribute("id")
-        except Exception: el_id = None
+        try:
+            el_id = h.get_attribute("id")
+        except Exception:
+            el_id = None
         lab = ""
-        try: lab = label_for_control(frame, h)
-        except Exception: pass
+        with contextlib.suppress(Exception):
+            lab = label_for_control(frame, h)
         info = elem_common_info(frame, h)
         enriched.append({**r, "id_attr": el_id, "label": lab or (info.get("attrs") or {}).get("aria-label") or "", "info": info})
 
@@ -105,9 +141,8 @@ def map_dropdowns(frame, open_combos: bool = False, max_per_type: int = 120) -> 
         try:
             if is_select(h):
                 meta["options"] = read_select_options(h)
-            elif open_combos:
-                if open_dropdown_robust(frame, h):
-                    meta["options"] = collect_open_list_options(frame)
+            elif open_combos and open_dropdown_robust(frame, h):
+                meta["options"] = collect_open_list_options(frame)
         except Exception:
             pass
         results.append(meta)
@@ -128,8 +163,10 @@ def map_elements_by_category(frame, max_per_type=100) -> dict[str, Any]:
     }
     for name, loc in categories.items():
         items = []
-        try: cnt = loc.count()
-        except Exception: cnt = 0
+        try:
+            cnt = loc.count()
+        except Exception:
+            cnt = 0
         for i in range(min(cnt, max_per_type)):
             el = loc.nth(i)
             items.append(elem_common_info(frame, el))

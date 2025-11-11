@@ -1,8 +1,8 @@
-﻿import sys
+﻿import asyncio
 import json
-import asyncio
-from types import SimpleNamespace
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
@@ -10,15 +10,16 @@ if str(SRC_ROOT) not in sys.path:
 
 async def main():
     from playwright.async_api import async_playwright
+
     from dou_snaptrack.cli.plan_live_async import build_plan_live_async
-    
+
     if len(sys.argv) != 5:
         print(json.dumps([]))
         sys.exit(0)
-    
+
     secao, date, n1, limit2 = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
     limit2 = int(limit2) if limit2 != "None" else None
-    
+
     args = SimpleNamespace(
         secao=secao, data=date, plan_out=None,
         select1=None, select2=None,
@@ -27,7 +28,7 @@ async def main():
         headless=True, slowmo=0, plan_verbose=False,
         key1_type_default="text", key2_type_default="text"
     )
-    
+
     async with async_playwright() as p:
         try:
             cfg = await build_plan_live_async(p, args)

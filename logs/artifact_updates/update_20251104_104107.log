@@ -1,0 +1,1399 @@
+[2025-11-04 10:41:07,782] INFO __main__: ================================================================================
+[2025-11-04 10:41:07,783] INFO __main__: ATUALIZAÇÃO MENSAL DO ARTEFATO E-AGENDAS
+[2025-11-04 10:41:07,783] INFO __main__: ================================================================================
+[2025-11-04 10:41:07,783] INFO __main__: Data/Hora: 2025-11-04 10:41:07
+[2025-11-04 10:41:07,787] INFO __main__: [1/5] Fazendo backup do artefato atual...
+[2025-11-04 10:41:07,811] INFO __main__:   Backup salvo: pairs_eagendas_backup_20251104_104107.json
+[2025-11-04 10:41:07,812] INFO __main__: [2/5] Iniciando navegador (modo headless)...
+[2025-11-04 10:41:26,432] INFO __main__: [3/5] Navegando para e-agendas...
+[2025-11-04 10:41:40,948] INFO __main__: [4/5] Iniciando mapeamento completo OTIMIZADO...
+[2025-11-04 10:41:40,949] INFO __main__:   ⏱️  Tempo estimado: 5-15 minutos (30x mais rápido!)
+[2025-11-04 10:41:40,950] INFO __main__: 
+[2025-11-04 10:43:16,642] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").first
+    - locator resolved to <div class="option " data-value="1163" data-selectable="">AEB - Agência Espacial Brasileira (desde 16/09/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:21,793] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(1)
+    - locator resolved to <div data-value="514" data-selectable="" class="option selected">AGU - Advocacia-Geral da União (desde 16/09/2022)…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:26,942] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(2)
+    - locator resolved to <div class="option" data-value="1183" data-selectable="">ANA - Agência Nacional de Águas e Saneamento Bási…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:32,098] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(3)
+    - locator resolved to <div class="option " data-value="1223" data-selectable="">ANAC - Agência Nacional de Aviação Civil (desde 1…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:37,303] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(4)
+    - locator resolved to <div class="option " data-value="1175" data-selectable="">ANATEL - Agência Nacional de Telecomunicações (de…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:42,454] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(5)
+    - locator resolved to <div class="option " data-value="1194" data-selectable="">ANCINE - Agência Nacional do Cinema (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:43:47,633] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(6)
+    - locator resolved to <div class="option " data-value="1169" data-selectable="">ANEEL - Agência Nacional de Energia Elétrica (des…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    10 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 10:43:52,814] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(7)
+    - locator resolved to <div class="option " data-value="1337" data-selectable="">ANM - Agência Nacional de Mineração (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+
+[2025-11-04 10:43:57,957] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(8)
+    - locator resolved to <div class="option " data-value="1176" data-selectable="">ANP - Agência Nacional do Petróleo, Gás Natural e…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:03,138] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(9)
+    - locator resolved to <div class="option " data-value="857" data-selectable="">ANPD - Autoridade Nacional de Proteção de Dados (…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:08,297] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(10)
+    - locator resolved to <div class="option " data-value="1181" data-selectable="">ANS - Agência Nacional de Saúde Suplementar (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:13,518] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(11)
+    - locator resolved to <div class="option " data-value="1191" data-selectable="">ANTAQ - Agência Nacional de Transportes Aquaviári…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:18,787] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(12)
+    - locator resolved to <div class="option " data-value="1190" data-selectable="">ANTT - Agência Nacional de Transportes Terrestres…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:23,944] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(13)
+    - locator resolved to <div class="option " data-value="1178" data-selectable="">ANVISA - Agência Nacional de Vigilância Sanitária…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:29,094] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(14)
+    - locator resolved to <div class="option " data-value="521" data-selectable="">BCB - Banco Central do Brasil (desde 16/09/2022) …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:34,254] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(15)
+    - locator resolved to <div class="option " data-value="1065" data-selectable="">CADE - Conselho Administrativo de Defesa Econômic…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:39,415] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(16)
+    - locator resolved to <div class="option " data-value="1051" data-selectable="">CAPES - Fundação Coordenação de Aperfeiçoamento d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    10 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 10:44:44,570] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(17)
+    - locator resolved to <div class="option " data-value="659" data-selectable="">CC-PR - Casa Civil da Presidência da República (d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:49,851] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(18)
+    - locator resolved to <div class="option " data-value="1433" data-selectable="">CCCPM - Caixa de Construções de Casas para o Pess…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:44:55,157] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(19)
+    - locator resolved to <div class="option " data-value="1426" data-selectable="">CDC - Companhia Docas do Ceará (desde 08/05/2023)…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:00,328] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(20)
+    - locator resolved to <div class="option " data-value="1425" data-selectable="">CDP - Companhia Docas do Pará (desde 20/04/2023) …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:05,508] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(21)
+    - locator resolved to <div class="option " data-value="1094" data-selectable="">CEFET-MG - Centro Federal de Educação Tecnológica…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:10,682] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(22)
+    - locator resolved to <div class="option " data-value="1095" data-selectable="">CEFET-RJ - Centro Federal de Educação Tecnológica…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:15,848] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(23)
+    - locator resolved to <div class="option " data-value="1428" data-selectable="">CEITEC/S.A. - Centro Nacional de Tecnologia Eletr…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:21,022] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(24)
+    - locator resolved to <div class="option " data-value="1026" data-selectable="">CEX - Comando do Exército (desde 16/09/2022) - At…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:26,177] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(25)
+    - locator resolved to <div class="option " data-value="1439" data-selectable="">CFIAE - Caixa de Financiamento Imobiliário da Aer…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:31,370] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(26)
+    - locator resolved to <div class="option " data-value="832" data-selectable="">CGU - Controladoria-Geral da União (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:36,579] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(27)
+    - locator resolved to <div class="option " data-value="1040" data-selectable="">CNEN - Comissão Nacional de Energia Nuclear (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:41,757] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(28)
+    - locator resolved to <div class="option " data-value="1005" data-selectable="">CNPq - Conselho Nacional de Desenvolvimento Cient…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:46,928] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(29)
+    - locator resolved to <div class="option " data-value="871" data-selectable="">COAF - Conselho de Controle de Atividades Finance…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:52,236] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(30)
+    - locator resolved to <div class="option " data-value="1438" data-selectable="">CODEVASF - Companhia de Desenvolvimento dos Vales…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:45:57,389] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(31)
+    - locator resolved to <div class="option " data-value="1015" data-selectable="">COMAER - Comando da Aeronáutica (desde 16/09/2022…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:02,565] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(32)
+    - locator resolved to <div class="option " data-value="1437" data-selectable="">CONAB - Companhia Nacional de Abastecimento (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:07,725] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(33)
+    - locator resolved to <div class="option " data-value="1055" data-selectable="">CP II - Colégio Pedro II (desde 16/09/2022) - Ati…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:12,926] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(34)
+    - locator resolved to <div class="option " data-value="1122" data-selectable="">CVM - Comissão de Valores Mobiliários (desde 16/0…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:18,091] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(35)
+    - locator resolved to <div class="option " data-value="1192" data-selectable="">DNIT - Departamento Nacional de Infraestrutura de…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:23,243] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(36)
+    - locator resolved to <div class="option " data-value="1069" data-selectable="">DNOCS - Departamento Nacional de Obras Contra as …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:28,401] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(37)
+    - locator resolved to <div class="option " data-value="1375" data-selectable="">EBSERH - EBSERH - Empresa Brasileira de Serviços …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:33,801] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(38)
+    - locator resolved to <div class="option " data-value="1431" data-selectable="">EBSERH/HUPES-UFBA - EBSERH - Filial Complexo Hosp…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:39,180] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(39)
+    - locator resolved to <div class="option " data-value="1380" data-selectable="">ECT - Empresa Brasileira de Correios e Telégrafos…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:44,591] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(40)
+    - locator resolved to <div class="option " data-value="1193" data-selectable="">EMGEA - Empresa Gestora de Ativos (desde 26/06/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:49,941] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(41)
+    - locator resolved to <div class="option " data-value="1129" data-selectable="">ENAP - Fundação Escola Nacional de Administração …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:46:55,266] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(42)
+    - locator resolved to <div class="option " data-value="1135" data-selectable="">FBN - Fundação Biblioteca Nacional (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:00,448] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(43)
+    - locator resolved to <div class="option " data-value="1142" data-selectable="">FCP - Fundação Cultural Palmares (desde 16/09/202…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    10 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 10:47:05,620] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(44)
+    - locator resolved to <div class="option " data-value="1059" data-selectable="">FCRB - Fundação Casa de Rui Barbosa (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:10,825] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(45)
+    - locator resolved to <div class="option " data-value="1064" data-selectable="">FIOCRUZ - Fundação Oswaldo Cruz (desde 16/09/2022…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:16,089] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(46)
+    - locator resolved to <div class="option " data-value="1054" data-selectable="">FNDE - Fundo Nacional de Desenvolvimento da Educa…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:21,305] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(47)
+    - locator resolved to <div class="option " data-value="1164" data-selectable="">FOSORIO - Fundação Osório (desde 16/09/2022) - At…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:26,581] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(48)
+    - locator resolved to <div class="option " data-value="1117" data-selectable="">FUFOP - Fundação Universidade Federal de Ouro Pre…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:31,820] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(49)
+    - locator resolved to <div class="option " data-value="1061" data-selectable="">FUNAG - Fundação Alexandre de Gusmão (desde 16/09…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:37,007] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(50)
+    - locator resolved to <div class="option " data-value="1032" data-selectable="">FUNAI - Fundação Nacional do Índio (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:42,175] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(51)
+    - locator resolved to <div class="option " data-value="1157" data-selectable="">FUNARTE - Fundação Nacional de Artes (desde 16/09…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:47,346] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(52)
+    - locator resolved to <div class="option " data-value="1156" data-selectable="">FUNASA - Fundação Nacional de Saúde (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:52,638] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(53)
+    - locator resolved to <div class="option " data-value="1039" data-selectable="">FUNDACENTRO - Fundação Jorge Duprat Figueiredo, d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:47:57,810] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(54)
+    - locator resolved to <div class="option " data-value="1056" data-selectable="">FUNDAJ - Fundação Joaquim Nabuco (desde 16/09/202…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    10 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 10:48:02,961] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(55)
+    - locator resolved to <div class="option " data-value="1288" data-selectable="">FUNPRESP-EXE - Fundação de Previdência Complement…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:08,232] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(56)
+    - locator resolved to <div class="option " data-value="1141" data-selectable="">FUNRei - Fundação Universidade Federal de São Joã…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:13,391] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(57)
+    - locator resolved to <div class="option " data-value="1120" data-selectable="">FURG - Fundação Universidade Federal do Rio Grand…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:18,549] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(58)
+    - locator resolved to <div class="option " data-value="512" data-selectable="">GSI/PR - Gabinete de Segurança Institucional da P…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:23,702] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(59)
+    - locator resolved to <div class="option " data-value="1430" data-selectable="">HEMOBRAS - Empresa Brasileira de Hemoderivados e …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:28,889] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(60)
+    - locator resolved to <div class="option " data-value="1013" data-selectable="">HFA - Hospital das Forças Armadas (desde 16/09/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:34,048] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(61)
+    - locator resolved to <div class="option " data-value="1145" data-selectable="">IBAMA - Instituto Brasileiro do Meio Ambiente e d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:39,198] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(62)
+    - locator resolved to <div class="option " data-value="1003" data-selectable="">IBGE - Fundação Instituto Brasileiro de Geografia…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:44,361] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(63)
+    - locator resolved to <div class="option " data-value="1242" data-selectable="">IBRAM - Instituto Brasileiro de Museus (desde 16/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:49,546] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(64)
+    - locator resolved to <div class="option " data-value="1232" data-selectable="">ICMBio - Instituto Chico Mendes de Conservação da…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:54,695] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(65)
+    - locator resolved to <div class="option " data-value="1263" data-selectable="">IF BAIANO - Instituto Federal de Educação, Ciênci…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:48:59,866] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(66)
+    - locator resolved to <div class="option " data-value="1256" data-selectable="">IF-GOIANO - Instituto Federal de Educação, Ciênci…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:05,018] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(67)
+    - locator resolved to <div class="option " data-value="1234" data-selectable="">IFAC - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:10,166] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(68)
+    - locator resolved to <div class="option " data-value="1243" data-selectable="">IFAL - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:15,340] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(69)
+    - locator resolved to <div class="option " data-value="1253" data-selectable="">IFAM - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:20,572] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(70)
+    - locator resolved to <div class="option " data-value="1235" data-selectable="">IFAP - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:25,719] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(71)
+    - locator resolved to <div class="option " data-value="1236" data-selectable="">IFB - Instituto Federal de Educação, Ciência e Te…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:30,865] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(72)
+    - locator resolved to <div class="option " data-value="1093" data-selectable="">IFBA - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:36,019] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(73)
+    - locator resolved to <div class="option " data-value="1262" data-selectable="">IFC - Instituto Federal de Educação, Ciência e Te…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:41,234] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(74)
+    - locator resolved to <div class="option " data-value="1254" data-selectable="">IFCE - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    10 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 10:49:46,405] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(75)
+    - locator resolved to <div class="option " data-value="1255" data-selectable="">IFES - Instituto Federal de Educação, Ciência e T…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:51,616] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(76)
+    - locator resolved to <div class="option " data-value="1267" data-selectable="">IFF - Instituto Federal de Educação, Ciência e Te…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 500ms
+
+[2025-11-04 10:49:54,052] INFO __main__: Fechando navegador...

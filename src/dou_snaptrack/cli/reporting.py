@@ -6,11 +6,11 @@ import re
 from pathlib import Path
 from typing import Any
 
+# CRÍTICO: Aplicar patch para corrigir bug de texto cortado em resumos
+import dou_utils.bulletin_patch  # noqa: F401
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
 from dou_utils.summarize import summarize_text as _summarize_text
-# CRÍTICO: Aplicar patch para corrigir bug de texto cortado em resumos
-import dou_utils.bulletin_patch  # noqa: F401
 
 from ..adapters.utils import generate_bulletin as _generate_bulletin
 from ..utils.text import sanitize_filename
@@ -189,7 +189,7 @@ def report_from_aggregated(
             short_len_threshold=int(short_len_threshold),
             browser_timeout_sec=max(20, fetch_timeout_sec),
         ).enrich_items(agg, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
-        
+
         # CRÍTICO: Limpar cabeçalhos DOU de todos os items após enrich
         # O fetcher salva HTML completo com "Brasão do Brasil... Diário Oficial..."
         # Precisamos limpar ANTES da sumarização para evitar cabeçalhos nos resumos
@@ -198,7 +198,7 @@ def report_from_aggregated(
             texto_bruto = it.get("texto") or ""
             if texto_bruto:
                 it["texto"] = clean_text_for_summary(texto_bruto)
-        
+
         # DEBUG: Verificar se items têm texto após enrich + limpeza
         with_texto = sum(1 for i in agg if i.get("texto"))
         logger.info(f"[DEBUG] Após enrich+limpeza: {with_texto}/{len(agg)} items com 'texto'")
@@ -247,10 +247,7 @@ def report_from_aggregated(
 def find_aggregated_by_plan(in_dir: str, plan_name: str) -> list[str]:
     """Lista arquivos agregados do padrão {plan}_{secao}_{data}.json do plano indicado."""
     plan_safe = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", plan_name).strip(" _")
-    out = []
-    for f in sorted(Path(in_dir).glob(f"{plan_safe}_*_*.json")):
-        out.append(str(f))
-    return out
+    return [str(f) for f in sorted(Path(in_dir).glob(f"{plan_safe}_*_*_.json"))]
 
 
 def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
@@ -397,7 +394,7 @@ def split_and_report_by_n1(
             short_len_threshold=int(short_len_threshold),
             browser_timeout_sec=max(20, fetch_timeout_sec),
         )
-        for _k, items in groups.items():
+        for items in groups.values():
             fetcher.enrich_items(items, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
     else:
         if summary_lines <= 0:

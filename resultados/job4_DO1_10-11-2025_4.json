@@ -1,0 +1,104 @@
+{
+  "data": "10-11-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério da Fazenda"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Gabinete do Ministro"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 10,
+  "itens": [
+    {
+      "titulo": "PORTARIA MF Nº 2.687, DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mf-n-2.687-de-7-de-novembro-de-2025-667752555",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-mf-n-2.687-de-7-de-novembro-de-2025-667752555",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "Portaria Mf Nº 2.687 De 7 De Novembro De 2025"
+    },
+    {
+      "titulo": "PORTARIA MF Nº 2.688, DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-mf-n-2.688-de-7-de-novembro-de-2025-667774884",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-mf-n-2.688-de-7-de-novembro-de-2025-667774884",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "Portaria Mf Nº 2.688 De 7 De Novembro De 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667750881",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667750881",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667775929",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667775929",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667760019",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667760019",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667766509",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667766509",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667763135",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667763135",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667777511",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667777511",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667669266",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667669266",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    },
+    {
+      "titulo": "DESPACHO DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/despacho-de-7-de-novembro-de-2025-667765306",
+      "detail_url": "https://www.in.gov.br/web/dou/-/despacho-de-7-de-novembro-de-2025-667765306",
+      "orgao": "Ministério da Fazenda",
+      "title_friendly": "DESPACHO DE 7 DE NOVEMBRO DE 2025"
+    }
+  ],
+  "enriquecido": false,
+  "_timings": {
+    "nav_sec": 4.877,
+    "view_sec": 0.486,
+    "select_sec": 25.584,
+    "collect_sec": 0.493,
+    "total_sec": 31.449,
+    "inpage_reuse": false
+  }
+}

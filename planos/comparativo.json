@@ -1,0 +1,180 @@
+{
+  "data": "10-11-2025",
+  "secaoDefault": "DO1",
+  "defaults": {
+    "scrape_detail": false,
+    "summary_lines": 0,
+    "summary_mode": "center"
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Ciência, Tecnologia e Inovação",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Defesa",
+      "key2_type": "text",
+      "key2": "Comando da Aeronáutica",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Defesa",
+      "key2_type": "text",
+      "key2": "Estado-Maior Conjunto das Forças Armadas",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Fazenda",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Fazenda",
+      "key2_type": "text",
+      "key2": "Conselho Nacional de Política Fazendária",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Fazenda",
+      "key2_type": "text",
+      "key2": "Secretaria Especial da Receita Federal do Brasil",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Relações Exteriores",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério de Minas e Energia",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério de Minas e Energia",
+      "key2_type": "text",
+      "key2": "Agência Nacional do Petróleo, Gás Natural e Biocombustíveis",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério de Portos e Aeroportos",
+      "key2_type": "text",
+      "key2": "Agência Nacional de Aviação Civil",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério de Portos e Aeroportos",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério do Planejamento e Orçamento",
+      "key2_type": "text",
+      "key2": "Gabinete da Ministra",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério do Planejamento e Orçamento",
+      "key2_type": "text",
+      "key2": "Secretaria de Orçamento Federal",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Presidência da República",
+      "key2_type": "text",
+      "key2": "Secretaria-Geral",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    }
+  ],
+  "output": {
+    "pattern": "{topic}_{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  }
+}

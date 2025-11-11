@@ -11,6 +11,7 @@ mantendo ordem configurável e logging.
 
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Iterable
 from typing import Any
 
@@ -162,10 +163,8 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
                 break
     except Exception:
         for _ in range(10):
-            try:
+            with contextlib.suppress(Exception):
                 frame.page.keyboard.press("End")
-            except Exception:
-                pass
             frame.wait_for_timeout(60)
 
     option_selectors = [
@@ -212,9 +211,7 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
         seen.add(key)
         uniq.append(o)
 
-    try:
+    with contextlib.suppress(Exception):
         frame.page.keyboard.press("Escape")
         frame.wait_for_timeout(80)
-    except Exception:
-        pass
     return uniq

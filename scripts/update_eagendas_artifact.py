@@ -19,6 +19,7 @@ from pathlib import Path
 from datetime import datetime
 import logging
 import shutil
+import os
 
 # Forçar UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -27,6 +28,7 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='repla
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from dou_snaptrack.utils.browser import launch_browser, new_context, goto, build_url
+from dou_snaptrack.mappers.eagendas_pairs_optimized import map_eagendas_pairs_optimized
 from dou_snaptrack.mappers.eagendas_pairs_fast import map_eagendas_pairs_fast
 
 # Setup logging
@@ -43,6 +45,67 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Progress printer (ASCII-only, single-line updating)
+# ---------------------------------------------------------------------------
+class ProgressPrinter:
+    """Exibe progresso em uma única linha no console (sem emojis/Unicode).
+
+    Uso: passe progress.update como callback para o mapper.
+    """
+
+    def __init__(self) -> None:
+        self.total: int | None = None
+        self.start_ts = datetime.now()
+        self._last_len = 0
+
+    def _elapsed_str(self) -> str:
+        delta = datetime.now() - self.start_ts
+        total = int(delta.total_seconds())
+        h = total // 3600
+        m = (total % 3600) // 60
+        s = total % 60
+        return f"{h:02d}:{m:02d}:{s:02d}"
+
+    def update(self, current: int, total: int, message: str = "") -> None:
+        # Atualiza total na primeira chamada
+        if self.total is None:
+            self.total = max(1, int(total or 1))
+
+        total = max(1, int(total or self.total or 1))
+        current = max(0, min(int(current), total))
+
+        # Barra de progresso ASCII
+        width = 30
+        frac = current / total if total else 0
+        filled = int(width * frac)
+        bar = "#" * filled + "-" * (width - filled)
+        pct = f"{frac * 100:5.1f}%"
+
+        # Mensagem curta
+        msg = (message or "").strip().replace("\n", " ")
+        if len(msg) > 50:
+            msg = msg[:47] + "..."
+
+        line = f"[e-agendas] {current:>4}/{total:<4} {pct} |{bar}| {msg} | {self._elapsed_str()}"
+
+        # Impressão com retorno de carro (sem pular linha)
+        try:
+            sys.stdout.write("\r" + line + (" " * max(0, self._last_len - len(line))))
+            sys.stdout.flush()
+            self._last_len = len(line)
+        except Exception:
+            # fallback para ambientes sem TTY
+            print(line)
+
+    def done(self) -> None:
+        try:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
 
 
 def update_artifact():
@@ -86,7 +149,7 @@ def update_artifact():
         try:
             context = new_context(browser)
             page = context.new_page()
-            page.set_default_timeout(5000)  # Timeout 5s
+            page.set_default_timeout(9000)  # Timeout aumentado para 9s
             
             # [3] Navegar
             logger.info("[3/5] Navegando para e-agendas...")
@@ -95,15 +158,46 @@ def update_artifact():
             
             # [4] Mapear
             logger.info("[4/5] Iniciando mapeamento completo OTIMIZADO...")
-            logger.info("  ⏱️  Tempo estimado: 5-15 minutos (30x mais rápido!)")
+            logger.info("  Tempo estimado: 5-15 minutos (30x mais rapido)")
             logger.info("")
+
+            # Permitir limitar via env para testes locais (opcional)
+            def _env_int(name: str) -> int | None:
+                try:
+                    v = (os.environ.get(name, "").strip() or "")
+                    return int(v) if v else None
+                except Exception:
+                    return None
+
+            limit_orgaos = _env_int("EAGENDAS_LIMIT_ORGAOS")
+            limit_cargos_per_orgao = _env_int("EAGENDAS_LIMIT_CARGOS")
+
+            progress = ProgressPrinter()
             
-            result = map_eagendas_pairs_fast(
+            result = map_eagendas_pairs_optimized(
                 page=page,
-                limit_orgaos=None,  # TODOS
-                limit_cargos_per_orgao=None,  # TODOS
-                verbose=True
+                limit_orgaos=limit_orgaos,  # None = TODOS
+                limit_cargos_per_orgao=limit_cargos_per_orgao,  # None = TODOS
+                verbose=True,
+                progress_callback=progress.update,
             )
+
+            # Fallback: se nada foi coletado, tentar mapper fast (DOM-based)
+            try:
+                if not result.get("hierarchy"):
+                    logger.warning("Resultado vazio com otimizado; tentando fallback fast...")
+                    result = map_eagendas_pairs_fast(
+                        page=page,
+                        limit_orgaos=limit_orgaos,
+                        limit_cargos_per_orgao=limit_cargos_per_orgao,
+                        verbose=True,
+                        progress_callback=progress.update,
+                    )
+            except Exception:
+                pass
+
+            # Finaliza linha de progresso
+            progress.done()
             
             # [5] Salvar
             logger.info("[5/5] Salvando resultados...")

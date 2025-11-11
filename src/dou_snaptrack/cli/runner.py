@@ -36,7 +36,7 @@ def run_once(context, date: str, secao: str,
     try:
         EditionRunnerService, EditionRunParams = get_edition_runner()
     except Exception as e:
-        raise RuntimeError(str(e))
+        raise RuntimeError(str(e)) from e
 
     summarizer = _make_summarizer(summary)
     runner = EditionRunnerService(context)
@@ -61,10 +61,10 @@ def run_once(context, date: str, secao: str,
     # Our EditionRunnerService opens/closes its own page; to reuse, we can set a duck-typed attribute the service checks.
     if page is not None:
         try:
-            setattr(runner, "_precreated_page", page)
-            setattr(runner, "_keep_page_open", bool(keep_page_open))
+            runner._precreated_page = page
+            runner._keep_page_open = bool(keep_page_open)
             # Allow in-page reuse when caller is explicitly reusing a page/tab
-            setattr(runner, "_allow_inpage_reuse", True)
+            runner._allow_inpage_reuse = True
         except Exception:
             pass
     result = runner.run(params, summarizer_fn=summarizer)

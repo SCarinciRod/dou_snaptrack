@@ -1,0 +1,103 @@
+{
+  "data": "10-11-2025",
+  "secaoDefault": "DO2",
+  "defaults": {
+    "scrape_detail": false,
+    "summary_lines": 0,
+    "summary_mode": "center"
+  },
+  "combos": [
+    {
+      "key1_type": "text",
+      "key1": "Controladoria-Geral da União",
+      "key2_type": "text",
+      "key2": "Gabinete do Ministro",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Controladoria-Geral da União",
+      "key2_type": "text",
+      "key2": "Secretaria Executiva",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Defensoria Pública da União",
+      "key2_type": "text",
+      "key2": "Secretaria-Geral Executiva",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Defensoria Pública da União",
+      "key2_type": "text",
+      "key2": "Gabinete do Defensor Público-Geral Federal",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério Público da União",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Integração e do Desenvolvimento Regional",
+      "key2_type": "text",
+      "key2": "Secretaria Executiva",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério da Integração e do Desenvolvimento Regional",
+      "key2_type": "text",
+      "key2": "Departamento Nacional de Obras Contra as Secas",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    },
+    {
+      "key1_type": "text",
+      "key1": "Ministério das Mulheres",
+      "key2_type": "text",
+      "key2": "Todos",
+      "key3_type": null,
+      "key3": null,
+      "label1": "",
+      "label2": "",
+      "label3": ""
+    }
+  ],
+  "output": {
+    "pattern": "{topic}_{secao}_{date}_{idx}.json",
+    "report": "batch_report.json"
+  }
+}

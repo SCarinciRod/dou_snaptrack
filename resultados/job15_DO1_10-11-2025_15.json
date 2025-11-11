@@ -1,0 +1,48 @@
+{
+  "data": "10-11-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Presidência da República"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Secretaria-Geral"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 2,
+  "itens": [
+    {
+      "titulo": "PORTARIA SG/PR Nº 202, DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sg/pr-n-202-de-7-de-novembro-de-2025-667763462",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-sg/pr-n-202-de-7-de-novembro-de-2025-667763462",
+      "orgao": "Presidência da República",
+      "title_friendly": "Portaria: Pr Nº 202 De 7 De Novembro De 2025"
+    },
+    {
+      "titulo": "PORTARIA SG/PR Nº 203, DE 7 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-sg/pr-n-203-de-7-de-novembro-de-2025-667766841",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-sg/pr-n-203-de-7-de-novembro-de-2025-667766841",
+      "orgao": "Presidência da República",
+      "title_friendly": "Portaria: Pr Nº 203 De 7 De Novembro De 2025"
+    }
+  ],
+  "enriquecido": false,
+  "_timings": {
+    "nav_sec": 4.877,
+    "view_sec": 1.147,
+    "select_sec": 25.603,
+    "collect_sec": 0.516,
+    "total_sec": 32.152,
+    "inpage_reuse": false
+  }
+}

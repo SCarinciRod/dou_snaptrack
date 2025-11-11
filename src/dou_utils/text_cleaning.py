@@ -105,7 +105,9 @@ def split_doc_header(text: str) -> tuple[str | None, str]:
                 # body é o restante após esta linha aproximada
                 idx = raw.find(s)
                 if idx != -1:
-                    body = raw[idx + len(s):].lstrip(" \t\r\n—-:")
+                    tail = raw[idx + len(s):]
+                    tail = re.sub(r'^[\s\-:—]+', '', tail)
+                    body = tail
                     return header, body
                 return header, raw
         return None, text
@@ -143,7 +145,8 @@ def split_doc_header(text: str) -> tuple[str | None, str]:
     pattern = re.escape(header[:80])  # usar prefixo para casar de forma robusta
     m_body = re.search(pattern, raw, flags=re.I)
     if m_body:
-        body = raw[m_body.end():].lstrip(" \t\r\n—-:")
+        tail2 = raw[m_body.end():]
+        body = re.sub(r'^[\s\-:—]+', '', tail2)
     else:
         body = raw
 
@@ -220,7 +223,7 @@ def strip_legalese_preamble(text: str) -> str:
             cut_idx = max(cut_idx, i + len(m))
             break
     if cut_idx >= 0:
-        t = t[cut_idx:].lstrip(" -:;—")
+        t = re.sub(r'^[\s\-:;—]+', '', t[cut_idx:])
         low = t.lower()
 
     # Remover preâmbulos comuns no início
@@ -235,7 +238,7 @@ def strip_legalese_preamble(text: str) -> str:
     ]
     for pat in preambles:
         t = re.sub(pat, "", t, flags=re.I)
-        t = t.strip(" -:;— ")
+        t = re.sub(r'^[\s\-:;—]+|[\s\-:;—]+$', '', t)
 
     # Importante: preservar marcadores "Art."/"Artigo" para permitir recorte posterior do Art. 1º
     # (a normalização que removia "Art." impedia extract_article1_section de localizar os artigos)

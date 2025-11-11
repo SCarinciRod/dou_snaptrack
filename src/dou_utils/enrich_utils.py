@@ -71,11 +71,10 @@ def make_friendly_title(item: dict[str, Any], date: str | None = None, secao: st
     raw_title = (item.get("titulo") or item.get("title") or "").strip()
     link = item.get("detail_url") or item.get("link") or ""
     act_type = _detect_act_type(raw_title) or _detect_act_type(link) or ""
-    if not act_type:
+    if not act_type and _looks_numeric_title(raw_title):
         # Se o texto é muito numérico, tentar inferir pelo slug
-        if _looks_numeric_title(raw_title):
-            slug = _slug_from_url(link)
-            act_type = _detect_act_type(slug) or ""
+        slug = _slug_from_url(link)
+        act_type = _detect_act_type(slug) or ""
 
     # Se o título já parece descritivo, apenas limpar e truncar
     def _clean_title(t: str) -> str:

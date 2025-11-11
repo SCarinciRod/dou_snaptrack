@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import gzip
 import hashlib
 import re
@@ -140,10 +141,8 @@ class Fetcher:
                     page = browser.new_page()
                     page.set_default_timeout(self.browser_timeout_sec * 1000)
                     page.goto(url, wait_until="networkidle")
-                    try:
+                    with contextlib.suppress(Exception):
                         page.wait_for_timeout(500)
-                    except Exception:
-                        pass
                     html = page.content()
                 finally:
                     browser.close()
@@ -169,10 +168,8 @@ class Fetcher:
                     page.set_default_timeout(self.browser_timeout_sec * 1000)
                     page.goto(url, wait_until="domcontentloaded")
                     # Pequeno atraso para render estável
-                    try:
+                    with contextlib.suppress(Exception):
                         page.wait_for_timeout(500)
-                    except Exception:
-                        pass
 
                     js = r"""
                     (() => {
@@ -338,13 +335,11 @@ class Fetcher:
         targets: list[tuple[dict, str]] = []
         for it in items:
             txt = (it.get("texto") or it.get("ementa") or "").strip()
-            need = False
-            if overwrite:
-                need = True
-            elif not txt:
-                need = True
-            elif min_len is not None and len(txt) < min_len:
-                need = True
+            need = bool(
+                overwrite
+                or not txt
+                or (min_len is not None and len(txt) < min_len)
+            )
             if not need:
                 continue
             url = it.get("detail_url") or it.get("link") or ""

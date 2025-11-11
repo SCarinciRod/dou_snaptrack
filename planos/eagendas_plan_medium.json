@@ -3,8 +3,8 @@
   "pairs_file": "pairs_eagendas_latest.json",
   "filters": {
     "limit_orgaos": 5,
-    "limit_cargos_per_orgao": null,
-    "limit_agentes_per_cargo": null,
+    "limit_cargos_per_orgao": 5,
+    "limit_agentes_per_cargo": 5,
     "select_orgaos": null
   },
   "combos": [

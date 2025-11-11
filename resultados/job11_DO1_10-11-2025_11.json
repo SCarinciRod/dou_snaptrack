@@ -1,0 +1,41 @@
+{
+  "data": "10-11-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério de Portos e Aeroportos"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Gabinete do Ministro"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 1,
+  "itens": [
+    {
+      "titulo": "PORTARIA Nº 632, DE 5 DE NOVEMBRO DE 2025",
+      "link": "/web/dou/-/portaria-n-632-de-5-de-novembro-de-2025-667750484",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-n-632-de-5-de-novembro-de-2025-667750484",
+      "orgao": "Ministério de Portos e Aeroportos",
+      "title_friendly": "Portaria Nº 632 De 5 De Novembro De 2025"
+    }
+  ],
+  "enriquecido": false,
+  "_timings": {
+    "nav_sec": 3.788,
+    "view_sec": 1.082,
+    "select_sec": 25.903,
+    "collect_sec": 0.522,
+    "total_sec": 31.303,
+    "inpage_reuse": false
+  }
+}

@@ -44,8 +44,8 @@ class MultiLevelCascadeSelector:
         key3: str | None = None,
         key3_type: str | None = None,
         label3: str | None = None,
-        repop_timeout_ms: int = 15_000,
-        repop_poll_ms: int = 250
+        repop_timeout_ms: int = 25_000,
+        repop_poll_ms: int = 150
     ) -> dict[str, Any]:
         """
         Executa seleção hierárquica. Retorna dicionário:

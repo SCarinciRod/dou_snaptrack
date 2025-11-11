@@ -1,6 +1,9 @@
 # element_utils.py
 # Funções para extrair informações de elementos HTML com Playwright
 
+import contextlib
+
+
 def compute_css_path(frame, locator):
     try:
         return locator.evaluate("""
@@ -65,14 +68,10 @@ def compute_xpath(frame, locator):
 
 def elem_common_info(frame, locator):
     info = {"visible": None, "box": None, "attrs": {}, "text": None, "cssPath": None, "xpath": None}
-    try:
+    with contextlib.suppress(Exception):
         info["visible"] = locator.is_visible()
-    except Exception:
-        pass
-    try:
+    with contextlib.suppress(Exception):
         info["box"] = locator.bounding_box()
-    except Exception:
-        pass
     for a in [
         "id", "name", "class", "role", "placeholder", "aria-label", "aria-haspopup", "aria-expanded",
         "value", "data-value", "data-index", "data-option-index"
@@ -83,12 +82,10 @@ def elem_common_info(frame, locator):
                 info["attrs"][a] = v
         except Exception:
             pass
-    try:
+    with contextlib.suppress(Exception):
         t = locator.text_content()
         if t:
             info["text"] = t.strip()
-    except Exception:
-        pass
     info["cssPath"] = compute_css_path(frame, locator)
     info["xpath"] = compute_xpath(frame, locator)
     return info

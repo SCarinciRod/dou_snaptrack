@@ -42,11 +42,13 @@ def _build_keys(opts: list[dict[str, Any]], key_type: str) -> list[str]:
             di = o.get("dataIndex")
             if di not in (None, ""):
                 keys.append(str(di))
-    seen = set(); out: list[str] = []
+    seen = set()
+    out: list[str] = []
     for k in keys:
         if k in seen:
             continue
-        seen.add(k); out.append(k)
+        seen.add(k)
+        out.append(k)
     return out
 
 
@@ -83,9 +85,11 @@ def build_plan_from_pairs(pairs_file: str, args) -> dict[str, Any]:
             elif k1_def == "value":
                 k1_type, k1_value = ("value", str(o1.get("value"))) if o1.get("value") not in (None, "") else ("text", (o1.get("text") or "").strip())
             elif k1_def == "dataValue":
-                dv = o1.get("dataValue"); k1_type, k1_value = ("dataValue", str(dv)) if dv not in (None, "") else ("text", (o1.get("text") or "").strip())
+                dv = o1.get("dataValue")
+                k1_type, k1_value = ("dataValue", str(dv)) if dv not in (None, "") else ("text", (o1.get("text") or "").strip())
             elif k1_def == "dataIndex":
-                di = o1.get("dataIndex"); k1_type, k1_value = ("dataIndex", str(di)) if di not in (None, "") else ("text", (o1.get("text") or "").strip())
+                di = o1.get("dataIndex")
+                k1_type, k1_value = ("dataIndex", str(di)) if di not in (None, "") else ("text", (o1.get("text") or "").strip())
             else:
                 k1_type, k1_value = _best_key_for_option(o1)
         else:
@@ -98,9 +102,11 @@ def build_plan_from_pairs(pairs_file: str, args) -> dict[str, Any]:
                 elif k2_def == "value":
                     k2_type, k2_value = ("value", str(o2.get("value"))) if o2.get("value") not in (None, "") else ("text", (o2.get("text") or "").strip())
                 elif k2_def == "dataValue":
-                    dv2 = o2.get("dataValue"); k2_type, k2_value = ("dataValue", str(dv2)) if dv2 not in (None, "") else ("text", (o2.get("text") or "").strip())
+                    dv2 = o2.get("dataValue")
+                    k2_type, k2_value = ("dataValue", str(dv2)) if dv2 not in (None, "") else ("text", (o2.get("text") or "").strip())
                 elif k2_def == "dataIndex":
-                    di2 = o2.get("dataIndex"); k2_type, k2_value = ("dataIndex", str(di2)) if di2 not in (None, "") else ("text", (o2.get("text") or "").strip())
+                    di2 = o2.get("dataIndex")
+                    k2_type, k2_value = ("dataIndex", str(di2)) if di2 not in (None, "") else ("text", (o2.get("text") or "").strip())
                 else:
                     k2_type, k2_value = _best_key_for_option(o2)
             else:

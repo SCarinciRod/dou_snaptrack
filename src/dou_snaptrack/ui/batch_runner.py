@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import subprocess
@@ -21,11 +22,11 @@ _SRC_ROOT = str(Path(__file__).resolve().parents[2])
 def _ensure_pythonpath() -> None:
     """Garante src/ no PYTHONPATH de forma eficiente (skip se já configurado)."""
     cur_pp = os.environ.get("PYTHONPATH", "")
-    
+
     # Otimização: skip se já está no path
     if _SRC_ROOT in cur_pp:
         return
-    
+
     sep = ";" if os.name == "nt" else ":"
     os.environ["PYTHONPATH"] = f"{_SRC_ROOT}{sep}{cur_pp}" if cur_pp else _SRC_ROOT
 
@@ -64,7 +65,8 @@ def _pid_alive_windows(pid: int) -> bool:
         return False
 
 def _ensure_results_dir() -> Path:
-    p = Path("resultados"); p.mkdir(parents=True, exist_ok=True)
+    p = Path("resultados")
+    p.mkdir(parents=True, exist_ok=True)
     return p
 
 def detect_other_execution() -> dict[str, Any] | None:
@@ -90,10 +92,8 @@ def detect_other_execution() -> dict[str, Any] | None:
         if alive:
             return {"pid": pid, "started": started, "lock_path": str(LOCK_PATH)}
         # Not alive: remove stale lock
-        try:
+        with contextlib.suppress(Exception):
             LOCK_PATH.unlink(missing_ok=True)
-        except Exception:
-            pass
         return None
     except Exception:
         return None
@@ -120,20 +120,16 @@ def detect_other_ui() -> dict[str, Any] | None:
             info = _win_get_process_info(pid) if pid else {}
             alive = bool(info) and _pid_alive_windows(pid)
             if not alive or not _is_our_streamlit_process(info):
-                try:
+                with contextlib.suppress(Exception):
                     UI_LOCK_PATH.unlink(missing_ok=True)
-                except Exception:
-                    pass
                 return None
             return {"pid": pid, "started": started, "lock_path": str(UI_LOCK_PATH)}
         else:
             # Non-Windows best-effort: if pid dir exists, consider alive
             alive = pid > 0 and Path(f"/proc/{pid}").exists()
             if not alive:
-                try:
+                with contextlib.suppress(Exception):
                     UI_LOCK_PATH.unlink(missing_ok=True)
-                except Exception:
-                    pass
                 return None
             return {"pid": pid, "started": started, "lock_path": str(UI_LOCK_PATH)}
     except Exception:
@@ -141,23 +137,19 @@ def detect_other_ui() -> dict[str, Any] | None:
 
 def clear_ui_lock() -> None:
     """Best-effort removal of the UI lock file."""
-    try:
+    with contextlib.suppress(Exception):
         UI_LOCK_PATH.unlink(missing_ok=True)
-    except Exception:
-        pass
 
 def register_this_ui_instance() -> None:
     """Register current process as the active UI instance (overwrites previous lock)."""
     _ensure_results_dir()
     meta = {"pid": os.getpid(), "started": datetime.now().isoformat(timespec="seconds")}
-    try:
+    with contextlib.suppress(Exception):
         UI_LOCK_PATH.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
-    except Exception:
-        pass
 
 def _win_get_process_info(pid: int) -> dict:
     """Fetch process info on Windows via tasklist (otimizado, sem PowerShell).
-    
+
     Returns {} on failure. Usa tasklist CSV que é 75% mais rápido que PowerShell.
     """
     try:
@@ -169,13 +161,13 @@ def _win_get_process_info(pid: int) -> dict:
         stdout = (out.stdout or "").strip()
         if not stdout or stdout.lower().startswith("info:"):
             return {}
-        
+
         # Parse CSV com biblioteca nativa
         import csv
         import io
         reader = csv.reader(io.StringIO(stdout))
         row = next(reader, [])
-        
+
         if len(row) >= 2:
             # tasklist /V format: Image Name, PID, Session Name, Session#, Mem Usage, Status, User, CPU Time, Window Title
             return {
@@ -188,7 +180,7 @@ def _win_get_process_info(pid: int) -> dict:
         pass  # Timeout, retornar vazio
     except Exception:
         pass
-    
+
     # Fallback para PowerShell apenas se tasklist falhar (raro)
     try:
         ps = (
@@ -209,7 +201,7 @@ def _win_get_process_info(pid: int) -> dict:
         pass
     except Exception:
         pass
-    
+
     return {}
 
 
@@ -226,11 +218,11 @@ def _is_our_streamlit_process(info: dict) -> bool:
         venv_py = (repo_root / ".venv" / "Scripts" / "python.exe").as_posix().lower().replace("/", "\\")
         app_path = (repo_root / "src" / "dou_snaptrack" / "ui" / "app.py").as_posix().lower().replace("/", "\\")
         # Accept either exe equals venv python or command line contains it
-        if venv_py and (venv_py in exe or venv_py in cmd):
-            # Must be running streamlit against our app
-            if "streamlit" in cmd and app_path in cmd:
-                return True
-        return False
+        return bool(
+            venv_py
+            and (venv_py in exe or venv_py in cmd)
+            and ("streamlit" in cmd and app_path in cmd)
+        )
     except Exception:
         return False
 
@@ -264,10 +256,8 @@ class _UILock:
         _ensure_results_dir()
         # Write metadata (pid, started) so we can show info and target termination
         meta = {"pid": os.getpid(), "started": datetime.now().isoformat(timespec="seconds")}
-        try:
+        with contextlib.suppress(Exception):
             self.path.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
-        except Exception:
-            pass
         try:
             self._fp = open(self.path, "r+b")
         except FileNotFoundError:
@@ -302,14 +292,14 @@ class _UILock:
                     self._fp.close()
                 except Exception as e:
                     errors.append(f"close: {e}")
-            
+
             # Best-effort cleanup of lock artifacts
             for lock_file in [self.path, Path(str(self.path) + ".lock")]:
                 try:
                     lock_file.unlink(missing_ok=True)
                 except Exception as e:
                     errors.append(f"unlink {lock_file.name}: {e}")
-        
+
         # Log erros para debug (importante para detectar leaks)
         if errors:
             try:
@@ -317,7 +307,7 @@ class _UILock:
                 logging.warning(f"Lock cleanup warnings for {self.path.name}: {'; '.join(errors)}")
             except Exception:
                 pass  # Logging falhou, mas não deve quebrar cleanup
-        
+
         return False
 
 
@@ -441,7 +431,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
 
         rep_path = out_dir_path / "batch_report.json"
         rep = json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
-        
+
         # Pós-processo: se houver arquivos agregados, remover JSONs individuais (otimizado com threading)
         try:
             agg = rep.get("aggregated") if isinstance(rep, dict) else None
@@ -449,7 +439,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
             if agg and isinstance(agg, list) and outs and isinstance(outs, list) and len(outs) > 0:
                 # Deletar em paralelo para performance (3-5x mais rápido)
                 from concurrent.futures import ThreadPoolExecutor
-                
+
                 def _safe_delete(path: str) -> tuple[str, bool]:
                     """Delete file and return (path, success)."""
                     try:
@@ -457,13 +447,13 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
                         return (path, True)
                     except Exception:
                         return (path, False)
-                
+
                 # Max 4 workers para I/O (sweet spot)
                 with ThreadPoolExecutor(max_workers=4) as executor:
                     results = list(executor.map(_safe_delete, outs))
-                
+
                 deleted = [p for p, success in results if success]
-                
+
                 # Update report on disk
                 if rep_path.exists() and deleted:
                     try:

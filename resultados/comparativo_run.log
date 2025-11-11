@@ -1,0 +1,25 @@
+[Parent] total_jobs=15 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=8
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=8 first_idx=1
+[Parent] Scheduling bucket 2/2 size=7 first_idx=9
+[Parent] 2 futures scheduled
+[Parent] total_jobs=15 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=8
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=8 first_idx=1
+[Parent] total_jobs=15 parallel=2 reuse_page=True
+[Parent] buckets=2 desired_size=8
+[Parent] ProcessPoolExecutor started
+[Parent] Scheduling bucket 1/2 size=8 first_idx=1
+[Worker FAIL] A process in the process pool was terminated abruptly while the future was running or pending.
+[Worker FAIL] A process in the process pool was terminated abruptly while the future was running or pending.
+
+[REPORT] resultados\batch_report.json — jobs=15 ok=0 fail=0 items=0
+[Parent] total_jobs=15 parallel=1 reuse_page=False
+[Parent] buckets=1 desired_size=15
+[Parent] Running single bucket inline (thread, no ProcessPool)
+[Parent] Scheduling bucket 1/1 size=15 first_idx=1
+[Parent] Inline (thread) done: ok=15 fail=0 items=63
+
+[REPORT] resultados\batch_report.json — jobs=15 ok=15 fail=0 items=63

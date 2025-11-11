@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 # Prefer dou_utils implementations when available, fallback to local
@@ -30,18 +31,12 @@ async def find_best_frame_async(context):
     best_score = -1
     for fr in page.frames:
         score = 0
-        try:
+        with contextlib.suppress(Exception):
             score += await fr.get_by_role("combobox").count()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             score += await fr.locator("select").count()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             score += await fr.get_by_role("textbox").count()
-        except Exception:
-            pass
         if score > best_score:
             best_score = score
             best = fr
@@ -60,18 +55,12 @@ def find_best_frame(context):
     best_score = -1
     for fr in page.frames:
         score = 0
-        try:
+        with contextlib.suppress(Exception):
             score += fr.get_by_role("combobox").count()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             score += fr.locator("select").count()
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             score += fr.get_by_role("textbox").count()
-        except Exception:
-            pass
         if score > best_score:
             best_score = score
             best = fr
@@ -164,22 +153,22 @@ def compute_xpath(frame, locator) -> str | None:
 
 def elem_common_info(frame, locator) -> dict[str, Any]:
     info = {"visible": None, "box": None, "attrs": {}, "text": None, "cssPath": None, "xpath": None}
-    try: info["visible"] = locator.is_visible()
-    except Exception: pass
-    try: info["box"] = locator.bounding_box()
-    except Exception: pass
+    with contextlib.suppress(Exception):
+        info["visible"] = locator.is_visible()
+    with contextlib.suppress(Exception):
+        info["box"] = locator.bounding_box()
     for a in ["id","name","class","role","placeholder","aria-label","aria-haspopup","aria-expanded",
               "value","data-value","data-index","data-option-index"]:
         try:
             v = locator.get_attribute(a)
-            if v is not None: info["attrs"][a] = v
+            if v is not None:
+                info["attrs"][a] = v
         except Exception:
             pass
-    try:
+    with contextlib.suppress(Exception):
         t = locator.text_content()
-        if t: info["text"] = t.strip()
-    except Exception:
-        pass
+        if t:
+            info["text"] = t.strip()
     info["cssPath"] = compute_css_path(frame, locator)
     info["xpath"] = compute_xpath(frame, locator)
     return info

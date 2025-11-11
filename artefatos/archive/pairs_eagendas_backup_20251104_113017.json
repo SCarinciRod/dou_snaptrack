@@ -1,0 +1,18 @@
+{
+  "url": "https://eagendas.cgu.gov.br/",
+  "timestamp": "2025-11-04 11:29:11",
+  "hierarchy": [],
+  "stats": {
+    "total_orgaos": 0,
+    "total_cargos": 0,
+    "total_agentes": 0,
+    "orgaos_sem_cargos": 0,
+    "cargos_sem_agentes": 0
+  },
+  "update_info": {
+    "update_date": "2025-11-04T11:29:21.722386",
+    "update_type": "monthly_automatic",
+    "duration_seconds": 29.941834,
+    "log_file": "C:\\Projetos\\logs\\artifact_updates\\update_20251104_112851.log"
+  }
+}

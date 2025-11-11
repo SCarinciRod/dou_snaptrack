@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import pathlib
 import platform
 import subprocess
@@ -47,11 +48,9 @@ def main():  # pragma: no cover
     # Fallback: streamlit direto. Não usar headless para permitir abrir navegador.
     cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--browser.gatherUsageStats=false"]
     print("[INFO] Iniciando UI diretamente:", " ".join(cmd))
-    try:
+    with contextlib.suppress(Exception):
         # Tenta abrir o navegador para a URL padrão; Streamlit pode não abrir automaticamente em alguns casos.
         webbrowser.open("http://localhost:8501", new=2)
-    except Exception:
-        pass
     return subprocess.call(cmd)
 
 

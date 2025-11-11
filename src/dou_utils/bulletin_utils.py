@@ -10,6 +10,7 @@ Função principal:
 
 from __future__ import annotations
 
+import contextlib
 import html as html_lib
 import re
 from abc import ABC, abstractmethod
@@ -133,7 +134,7 @@ def _summarize_item(
     # Separar cabeçalho do corpo para o resumo não repetir o cabeçalho do ato
     use_base = base
     try:
-        header, body = _split_doc_header(base)
+        _header, body = _split_doc_header(base)
         # Só usar o body se ele tiver conteúdo razoável (evita ficar vazio quando só há título)
         if body and len(body.strip()) >= 30:
             use_base = body
@@ -229,10 +230,8 @@ def _summarize_item(
     # Pós-processamento: limitar a N frases e limpar resíduos/metadata
     if snippet:
         # Remover ruídos comuns no início do resumo (ANEXO, NR, códigos)
-        try:
+        with contextlib.suppress(Exception):
             snippet = re.sub(r"^(ANEXO(\s+[IVXLCDM]+)?|NR)\b[:\-\s]*", "", snippet, flags=re.I).strip()
-        except Exception:
-            pass
         snippet = _cap_sentences(snippet, max_lines)
         snippet = _final_clean_snippet(snippet)
         # Salvaguarda: se após o pós-processamento o resumo ficar vazio, reconstruir com header/título

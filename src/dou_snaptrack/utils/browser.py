@@ -1,13 +1,13 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 from datetime import datetime
 from typing import Any
 
 # use import absoluto para maior robustez
-from dou_snaptrack.constants import BASE_DOU
-from dou_snaptrack.constants import EAGENDAS_URL
+from dou_snaptrack.constants import BASE_DOU, EAGENDAS_URL
 
 # Delegar helpers para dou_utils.page_utils (fonte única de verdade)
 try:
@@ -33,15 +33,15 @@ def build_dou_url(date_dd_mm_yyyy: str, secao: str) -> str:
 
 def build_url(site: str, path: str | None = None, **params) -> str:
     """Constrói URL para diferentes sites do projeto.
-    
+
     Args:
         site: Nome do site ('dou' ou 'eagendas')
         path: Caminho adicional na URL (opcional)
         **params: Parâmetros de query string
-    
+
     Returns:
         URL completa
-    
+
     Examples:
         build_url('dou', date='01-01-2025', secao='DO1')
         build_url('eagendas', path='/agendas/list')
@@ -52,15 +52,15 @@ def build_url(site: str, path: str | None = None, **params) -> str:
         base = EAGENDAS_URL
     else:
         raise ValueError(f"Site desconhecido: {site}")
-    
+
     url = base.rstrip('/')
     if path:
         url = f"{url}/{path.lstrip('/')}"
-    
+
     if params:
         query = '&'.join(f"{k}={v}" for k, v in params.items() if v is not None)
         url = f"{url}?{query}" if '?' not in url else f"{url}&{query}"
-    
+
     return url
 
 
@@ -140,10 +140,11 @@ def launch_browser(headful: bool = False, slowmo: int = 0):
     3) fallback padrão (usa binário do ms-playwright, pode exigir download)
     """
     from pathlib import Path
+
     from playwright.sync_api import sync_playwright  # type: ignore
 
     p = sync_playwright().start()
-    launch_args: dict[str, Any] = dict(headless=not headful, slow_mo=slowmo)
+    launch_args: dict[str, Any] = {"headless": not headful, "slow_mo": slowmo}
 
     # 1) Tentar canais do sistema na ordem preferida
     prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
@@ -226,10 +227,8 @@ def goto(page, url: str, retries: int = 2) -> None:
                 try:
                     # Pequeno backoff e reset suave do page
                     page.wait_for_timeout(400)
-                    try:
+                    with contextlib.suppress(Exception):
                         page.goto("about:blank", timeout=5_000)
-                    except Exception:
-                        pass
                     page.wait_for_timeout(300)
                 except Exception:
                     pass

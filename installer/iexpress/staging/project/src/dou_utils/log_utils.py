@@ -101,9 +101,10 @@ def configure_logging(level: str | None = None):
         ch.setFormatter(formatter)
         root.addHandler(ch)
 
-        # Arquivo (rotativo) se log_file definido
-        log_file = getattr(log_conf, "log_file", None)
-        if log_file:
+        # Arquivo (rotativo) se log_file definido (pode ser desabilitado por env)
+        disable_file_log = os.environ.get("DOU_DISABLE_FILE_LOG", "0") in ("1", "true", "True")
+        log_file = os.environ.get("DOU_LOG_FILE") or getattr(log_conf, "log_file", None)
+        if log_file and not disable_file_log:
             _ensure_log_dir(log_file)
             try:
                 fh = RotatingFileHandler(

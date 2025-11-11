@@ -17,6 +17,7 @@ Saída via DetailData (models.DetailData) - espera-se que esse dataclass já exi
 
 from __future__ import annotations
 
+import contextlib
 import re
 from datetime import datetime
 from typing import Any
@@ -237,7 +238,7 @@ def _extract_pdf(page, advanced: bool) -> str | None:
 
 
 def _extract_edicao_pagina(page) -> dict[str, str | None]:
-    result = {"edicao": None, "pagina": None}
+    result: dict[str, str | None] = {"edicao": None, "pagina": None}
     try:
         body_text = text_of(page.locator("article")) or text_of(page.locator("main")) or (page.inner_text("body") or "")
         m_ed = re.search(r"Edi[cç][aã]o\s*:\s*(\d+)", body_text, re.I)
@@ -283,10 +284,8 @@ def scrape_detail_structured(
             used_fallback = True
         detail.data_publicacao_raw = raw_pub
         if norm:
-            try:
+            with contextlib.suppress(Exception):
                 detail.data_publicacao = datetime.strptime(norm, "%Y-%m-%d")
-            except Exception:
-                pass
 
         # Órgão / Tipo
         detail.orgao = find_dt_dd_value(page, r"(Órgão|Orgao)")
@@ -343,10 +342,8 @@ def scrape_detail_structured(
     except Exception as e:
         logger.error("Detail scrape error", extra={"url": url, "err": str(e)})
     finally:
-        try:
+        with contextlib.suppress(Exception):
             page.close()
-        except Exception:
-            pass
     return detail
 
 

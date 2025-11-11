@@ -50,9 +50,7 @@ def is_placeholder_text(text: str | None) -> bool:
     if norm in {"", "0", "-", "--"}:
         return True
     # valores numéricos simples sem contexto costumam ser placeholders
-    if _ONLY_NUM_PAT.match(norm):
-        return True
-    return False
+    return bool(_ONLY_NUM_PAT.match(norm))
 
 
 def is_sentinel_option(opt: dict[str, Any] | None) -> bool:
@@ -70,6 +68,4 @@ def is_sentinel_option(opt: dict[str, Any] | None) -> bool:
     if is_placeholder_text(txt) and is_placeholder_text(val):
         return True
     # Se texto vazio e value placeholder
-    if is_placeholder_text(txt):
-        return True
-    return False
+    return bool(is_placeholder_text(txt))

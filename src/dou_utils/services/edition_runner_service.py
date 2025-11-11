@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -28,7 +29,7 @@ class EditionRunParams:
     label3: str | None = None
 
     query: str | None = None
-    max_links: int = 30
+    max_links: int = 100
     max_scrolls: int = 30
     scroll_pause_ms: int = 250
     stable_rounds: int = 2
@@ -60,7 +61,8 @@ class EditionRunnerService:
                 try:
                     req = route.request
                     rtype = getattr(req, "resource_type", lambda: "")()
-                    if rtype in ("image", "media", "font", "stylesheet"):
+                    # Não bloquear stylesheet para evitar quebra de dropdown/renderização dinâmica
+                    if rtype in ("image", "media", "font"):
                         return route.abort()
                     url = req.url
                     if any(url.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".woff", ".woff2")):
@@ -126,10 +128,8 @@ class EditionRunnerService:
             except Exception:
                 pass
         if not selres.get("ok"):
-            try:
+            with contextlib.suppress(Exception):
                 page.close()
-            except Exception:
-                pass
             return {
                 "data": params.date,
                 "secao": params.secao,
@@ -195,12 +195,10 @@ class EditionRunnerService:
             result["itens"] = out.get("itens", [])
             # Ensure each enriched item carries the originating N1 (orgão) metadata
             for it in result.get("itens", []):
-                try:
+                with contextlib.suppress(Exception):
                     if not it.get("orgao"):
                         # prefer label when available
                         it["orgao"] = params.label1 or params.key1
-                except Exception:
-                    pass
             result["total"] = len(result["itens"])
             result["enriquecido"] = True
         else:
@@ -213,10 +211,8 @@ class EditionRunnerService:
                     if durl:
                         it = {**it, "detail_url": durl}
                     # Attach originating N1 (orgão) so downstream bulletin can group by it
-                    try:
+                    with contextlib.suppress(Exception):
                         it["orgao"] = params.label1 or params.key1
-                    except Exception:
-                        pass
                 except Exception:
                     pass
                 norm_items.append(it)
@@ -228,10 +224,8 @@ class EditionRunnerService:
             result["enriquecido"] = False
 
         if not self._keep_page_open:
-            try:
+            with contextlib.suppress(Exception):
                 page.close()
-            except Exception:
-                pass
         total_elapsed = time.time() - t0
         timings = {
             "nav_sec": round(t_after_nav - t0, 3),
@@ -241,10 +235,8 @@ class EditionRunnerService:
             "total_sec": round(total_elapsed, 3),
             "inpage_reuse": bool(inpage),
         }
-        try:
+        with contextlib.suppress(Exception):
             result["_timings"] = timings
-        except Exception:
-            pass
         print(
             f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} inpage={int(inpage)} "
             f"timings: nav={timings['nav_sec']:.1f}s view={timings['view_sec']:.1f}s "

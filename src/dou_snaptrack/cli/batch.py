@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import multiprocessing as mp
 import os
@@ -52,7 +53,8 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
                 jj["secao"] = base_secao
             rep = max(1, int(jj.get("repeat", cfg.get("repeat", 1))))
             for r in range(1, rep + 1):
-                jj_r = dict(jj); jj_r["_repeat"] = r
+                jj_r = dict(jj)
+                jj_r["_repeat"] = r
                 jobs.append(jj_r)
 
     topics = cfg.get("topics") or []
@@ -82,7 +84,8 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
                     jj["summary_mode"] = t_summary_mode
                 rep = max(1, int(jj.get("repeat", topic_repeat)))
                 for r in range(1, rep + 1):
-                    jj_r = dict(jj); jj_r["_repeat"] = r
+                    jj_r = dict(jj)
+                    jj_r["_repeat"] = r
                     jobs.append(jj_r)
 
     if not topics and combos:
@@ -97,7 +100,8 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
             jj["_combo_index"] = idx
             rep = max(1, int(jj.get("repeat", cfg.get("repeat", 1))))
             for r in range(1, rep + 1):
-                jj_r = dict(jj); jj_r["_repeat"] = r
+                jj_r = dict(jj)
+                jj_r["_repeat"] = r
                 jobs.append(jj_r)
 
     return jobs
@@ -123,7 +127,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         is_main_proc = (_mp.current_process().name == "MainProcess")
         if log_file:
             Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-            _log_fp = open(log_file, "a", encoding="utf-8", buffering=1)
+            _log_fp = open(log_file, "a", encoding="utf-8", buffering=1)  # noqa: SIM115 - keep handle open for worker lifetime
             if not is_main_proc:
                 sys.stdout = _log_fp  # type: ignore
                 sys.stderr = _log_fp  # type: ignore
@@ -188,7 +192,8 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                     r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
                 ):
                     if Path(c).exists():
-                        exe = c; break
+                        exe = c
+                        break
             if exe:
                 try:
                     browser = p.chromium.launch(executable_path=exe, **launch_opts)
@@ -230,9 +235,12 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
 
                 data = job.get("data")
                 secao = job.get("secao", defaults.get("secaoDefault", "DO1"))
-                key1_type = job.get("key1_type"); key1 = job.get("key1")
-                key2_type = job.get("key2_type"); key2 = job.get("key2")
-                label1 = job.get("label1"); label2 = job.get("label2")
+                key1_type = job.get("key1_type")
+                key1 = job.get("key1")
+                key2_type = job.get("key2_type")
+                key2 = job.get("key2")
+                label1 = job.get("label1")
+                label2 = job.get("label2")
 
                 max_links = int(_get(job, "max_links", "max_links", 30) or 30)
                 do_scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", True))
@@ -278,7 +286,32 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                         page_cache[k] = page
                     keep_open = True
 
-                def _run_with_retry(cur_page) -> dict[str, Any] | None:
+                def _run_with_retry(
+                    cur_page,
+                    *,
+                    data=data,
+                    secao=secao,
+                    key1=key1,
+                    key1_type=key1_type,
+                    key2=key2,
+                    key2_type=key2_type,
+                    job=job,
+                    max_links=max_links,
+                    out_path=out_path,
+                    do_scrape_detail=do_scrape_detail,
+                    detail_timeout=detail_timeout,
+                    fallback_date=fallback_date,
+                    label1=label1,
+                    label2=label2,
+                    max_scrolls=max_scrolls,
+                    scroll_pause_ms=scroll_pause_ms,
+                    stable_rounds=stable_rounds,
+                    bulletin=bulletin,
+                    bulletin_out=bulletin_out,
+                    s_cfg=s_cfg,
+                    detail_parallel=detail_parallel,
+                    keep_open=keep_open,
+                ) -> dict[str, Any] | None:
                     # Single retry path in case of closed page/context issues during reuse
                     for attempt in (1, 2):
                         try:
@@ -342,10 +375,8 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                         "elapsed_sec": elapsed,
                         "timings": timings,
                     }
-                    try:
+                    with contextlib.suppress(Exception):
                         report["metrics"]["jobs"].append(job_metrics)
-                    except Exception:
-                        pass
                 except Exception as e:
                     print(f"[FAIL] Job {j_idx}: {e}")
                     report["fail"] += 1
@@ -356,18 +387,12 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         finally:
             # Close cached pages
             for p in page_cache.values():
-                try:
+                with contextlib.suppress(Exception):
                     p.close()
-                except Exception:
-                    pass
-            try:
+            with contextlib.suppress(Exception):
                 context.close()
-            except Exception:
-                pass
-            try:
+            with contextlib.suppress(Exception):
                 browser.close()
-            except Exception:
-                pass
     # Ensure file buffer is flushed before returning
     try:
         if _log_fp:
@@ -445,8 +470,10 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         try:
             for line in state_file_path.read_text(encoding="utf-8").splitlines():
                 try:
-                    obj = json.loads(line); h = obj.get("hash")
-                    if h: global_seen.add(h)
+                    obj = json.loads(line)
+                    h = obj.get("hash")
+                    if h:
+                        global_seen.add(h)
                 except Exception:
                     pass
         except Exception:
@@ -489,9 +516,10 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         # Choose 2-3 buckets depending on job count and available parallelism
         bucket_count = min(parallel, max(1, min(3, math.ceil(len(only_group_idxs) / max(2, min_bucket)))))
         desired_size = max(1, math.ceil(len(only_group_idxs) / bucket_count))
-        buckets = []
-        for start in range(0, len(only_group_idxs), desired_size):
-            buckets.append(only_group_idxs[start:start + desired_size])
+        buckets = [
+            only_group_idxs[start:start + desired_size]
+            for start in range(0, len(only_group_idxs), desired_size)
+        ]
     else:
         # Multiple groups: keep each group in its own bucket when possible, otherwise chunk large groups
         if len(unique_groups) <= max(1, parallel):
@@ -500,10 +528,11 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         else:
             bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
             desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
-            pseudo_groups: list[list[int]] = []
-            for _, idxs in unique_groups:
-                for start in range(0, len(idxs), desired_size):
-                    pseudo_groups.append(idxs[start:start + desired_size])
+            pseudo_groups: list[list[int]] = [
+                idxs[start:start + desired_size]
+                for _, idxs in unique_groups
+                for start in range(0, len(idxs), desired_size)
+            ]
             buckets = [[] for _ in range(bucket_count)]
             for gi, chunk in enumerate(pseudo_groups):
                 buckets[gi % bucket_count].extend(chunk)
@@ -676,13 +705,11 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                 except TimeoutError:
                     _log("[Parent] Timeout aguardando workers. Fazendo fallback para execução inline…")
                     # Cancelar e cair para thread-pool paralelo
-                    try:
+                    with contextlib.suppress(Exception):
                         ex.shutdown(wait=False, cancel_futures=True)
-                    except Exception:
-                        pass
                     with ThreadPoolExecutor(max_workers=max(1, parallel)) as tpex:
                         futs = []
-                        for w_id, bucket in enumerate(buckets):
+                        for bucket in buckets:
                             if not bucket:
                                 continue
                             payload = {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
@@ -16,9 +17,10 @@ def remove_placeholders(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
         "selecionar organizacao subordinada","selecionar organização subordinada",
         "selecionar tipo do ato","selecionar","todos"
     }
-    out=[]
+    out = []
     for o in options or []:
-        if normalize_text(o.get("text")) in bad: continue
+        if normalize_text(o.get("text")) in bad:
+            continue
         out.append(o)
     return out
 
@@ -57,8 +59,10 @@ def find_dropdown_by_id_or_label(page, wanted_ids: list[str], label_regex: str |
     if label_regex:
         pat = re.compile(label_regex, re.I)
         cb = page.get_by_role("combobox")
-        try: n = cb.count()
-        except Exception: n = 0
+        try:
+            n = cb.count()
+        except Exception:
+            n = 0
         for i in range(min(n, 30)):
             loc = cb.nth(i)
             try:
@@ -100,16 +104,23 @@ def select_by_text_or_attrs(page, root: dict[str,Any], option: dict[str,Any]) ->
         val = option.get("value")
         if val not in (None, ""):
             try:
-                sel.select_option(value=str(val)); page.wait_for_load_state("networkidle", timeout=60_000); return True
-            except Exception: pass
+                sel.select_option(value=str(val))
+                page.wait_for_load_state("networkidle", timeout=60_000)
+                return True
+            except Exception:
+                pass
         di = option.get("dataIndex")
         if di not in (None, ""):
             try:
-                sel.select_option(index=int(di)); page.wait_for_load_state("networkidle", timeout=60_000); return True
-            except Exception: pass
+                sel.select_option(index=int(di))
+                page.wait_for_load_state("networkidle", timeout=60_000)
+                return True
+            except Exception:
+                pass
         try:
             sel.select_option(label=option.get("text") or "")
-            page.wait_for_load_state("networkidle", timeout=60_000); return True
+            page.wait_for_load_state("networkidle", timeout=60_000)
+            return True
         except Exception:
             pass
     # Combobox custom
@@ -134,7 +145,9 @@ def select_by_text_or_attrs(page, root: dict[str,Any], option: dict[str,Any]) ->
                         name = o.get("text") or ""
                         opt = page.get_by_role("option", name=name).first
                         if opt and opt.count() > 0 and opt.is_visible():
-                            opt.click(timeout=4000); page.wait_for_load_state("networkidle", timeout=60_000); return True
+                            opt.click(timeout=4000)
+                            page.wait_for_load_state("networkidle", timeout=60_000)
+                            return True
                     except Exception:
                         pass
     # texto exato
@@ -142,11 +155,13 @@ def select_by_text_or_attrs(page, root: dict[str,Any], option: dict[str,Any]) ->
     try:
         opt = page.get_by_role("option", name=txt).first
         if opt and opt.count() > 0 and opt.is_visible():
-            opt.click(timeout=4000); page.wait_for_load_state("networkidle", timeout=60_000); return True
+            opt.click(timeout=4000)
+            page.wait_for_load_state("networkidle", timeout=60_000)
+            return True
     except Exception:
         pass
-    try: page.keyboard.press("Escape")
-    except Exception: pass
+    with contextlib.suppress(Exception):
+        page.keyboard.press("Escape")
     return False
 
 def wait_n2_repopulated(page, n2_root, prev_count: int, timeout_ms: int = 15_000) -> None:
@@ -221,8 +236,8 @@ def map_pairs(page, secao: str, data: str,
                 if opened:
                     _scroll_listbox_to_end(page)
                     o2_all = collect_open_list_options(page)
-                    try: page.keyboard.press('Escape')
-                    except Exception: pass
+                    with contextlib.suppress(Exception):
+                        page.keyboard.press('Escape')
                 else:
                     o2_all = []
             o2_all = remove_placeholders(o2_all)

@@ -1,0 +1,41 @@
+{
+  "data": "10-11-2025",
+  "secao": "DO1",
+  "selecoes": [
+    {
+      "level": 1,
+      "type": "text",
+      "key": "Ministério da Defesa"
+    },
+    {
+      "level": 2,
+      "type": "text",
+      "key": "Estado-Maior Conjunto das Forças Armadas"
+    },
+    {
+      "level": 3,
+      "type": null,
+      "key": null
+    }
+  ],
+  "query": "",
+  "total": 1,
+  "itens": [
+    {
+      "titulo": "PORTARIA EMCFA-MD Nº 4.823, de 24 de outubro de 2025",
+      "link": "/web/dou/-/portaria-emcfa-md-n-4.823-de-24-de-outubro-de-2025-667764407",
+      "detail_url": "https://www.in.gov.br/web/dou/-/portaria-emcfa-md-n-4.823-de-24-de-outubro-de-2025-667764407",
+      "orgao": "Ministério da Defesa",
+      "title_friendly": "Portaria Emcfa Md Nº 4.823 De 24 De Outubro De 2025"
+    }
+  ],
+  "enriquecido": false,
+  "_timings": {
+    "nav_sec": 4.59,
+    "view_sec": 1.271,
+    "select_sec": 25.573,
+    "collect_sec": 0.511,
+    "total_sec": 31.953,
+    "inpage_reuse": false
+  }
+}

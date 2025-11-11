@@ -53,9 +53,10 @@ def _looks_like_dropdown_list(lst: Any) -> bool:
     for el in lst:
         if isinstance(el, dict):
             opts = el.get("options")
-            if isinstance(opts, list) and (opts and isinstance(opts[0], dict) and ("text" in opts[0] or "value" in opts[0])):
-                hits += 1
-            elif any(k in el for k in ("label", "name")):
+            if (
+                (isinstance(opts, list) and (opts and isinstance(opts[0], dict) and ("text" in opts[0] or "value" in opts[0])))
+                or any(k in el for k in ("label", "name"))
+            ):
                 hits += 1
     # Considere válido se maioria dos elementos parecem dropdowns
     return hits >= max(1, len(lst) // 2)
@@ -78,9 +79,8 @@ def _looks_like_pairs_list(lst: Any) -> bool:
     # Heurística: itens com n1Option dict e n2Options list
     good = 0
     for el in lst:
-        if isinstance(el, dict):
-            if isinstance(el.get("n1Option"), dict) and isinstance(el.get("n2Options"), list):
-                good += 1
+        if isinstance(el, dict) and isinstance(el.get("n1Option"), dict) and isinstance(el.get("n2Options"), list):
+            good += 1
     return good >= max(1, len(lst) // 2)
 
 
@@ -107,9 +107,8 @@ class DropdownExtractor:
         candidates: list[list[dict[str, Any]]] = []
 
         def push(val):
-            if isinstance(val, list) and val:
-                if _looks_like_dropdown_list(val):
-                    candidates.append(val)
+            if isinstance(val, list) and val and _looks_like_dropdown_list(val):
+                candidates.append(val)
 
         data = raw.get("data") if isinstance(raw, dict) else None
         mapping = data.get("mapping") if isinstance(data, dict) else None
@@ -211,7 +210,7 @@ class PlanFromMapService:
         use_level3 = False
         if enable_level3 and d3:
             opts3 = self._prep_opts(d3, select3, pick3, limit3, filter_sentinels)
-            use_level3 = True if opts3 else False
+            use_level3 = bool(opts3)
 
         combos = generate_cartesian(opts1, opts2, opts3 if use_level3 else None, max_combos)
         logger.info("PlanFromMapService combos=%s", len(combos))
@@ -228,9 +227,8 @@ class PlanFromMapService:
                 hay = " | ".join(fields)
                 if rx.search(hay):
                     return dd
-                if fold_ok:
-                    if rx.search(_strip_accents(hay)):
-                        return dd
+                if fold_ok and rx.search(_strip_accents(hay)):
+                    return dd
             return None
         return self._dropdowns[idx] if idx < len(self._dropdowns) else None
 

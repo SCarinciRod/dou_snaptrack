@@ -163,10 +163,9 @@ def _read_dropdown_options(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
                 opts.append({"text": text, "value": val, "dataValue": dv, "dataIndex": di})
             except Exception:
                 pass
-    try:
+    import contextlib
+    with contextlib.suppress(Exception):
         frame.page.keyboard.press("Escape")
-    except Exception:
-        pass
     # dedupe
     seen = set()
     uniq: list[dict[str, Any]] = []
@@ -217,7 +216,9 @@ def run_list(context, data: str, secao: str, level: int,
     opts1 = _read_dropdown_options(frame, r1) if r1 else []
     _print_list(lab1, 1, opts1)
 
-    lab2 = lab3 = ""; opts2: list[dict[str, Any]] = []; opts3: list[dict[str, Any]] = []
+    lab2 = lab3 = ""
+    opts2: list[dict[str, Any]] = []
+    opts3: list[dict[str, Any]] = []
     if level >= 2 and len(roots) > 1:
         r2 = roots[1]
         lab2 = label_for_control(frame, r2["handle"]) or ""

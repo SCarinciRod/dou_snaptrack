@@ -1,0 +1,1770 @@
+[2025-11-04 11:09:59,328] INFO __main__: ================================================================================
+[2025-11-04 11:09:59,333] INFO __main__: ATUALIZAÇÃO MENSAL DO ARTEFATO E-AGENDAS
+[2025-11-04 11:09:59,334] INFO __main__: ================================================================================
+[2025-11-04 11:09:59,335] INFO __main__: Data/Hora: 2025-11-04 11:09:59
+[2025-11-04 11:09:59,344] INFO __main__: [1/5] Fazendo backup do artefato atual...
+[2025-11-04 11:09:59,407] INFO __main__:   Backup salvo: pairs_eagendas_backup_20251104_110959.json
+[2025-11-04 11:09:59,412] INFO __main__: [2/5] Iniciando navegador (modo headless)...
+[2025-11-04 11:10:16,129] INFO __main__: [3/5] Navegando para e-agendas...
+[2025-11-04 11:10:21,969] INFO __main__: [4/5] Iniciando mapeamento completo OTIMIZADO...
+[2025-11-04 11:10:21,970] INFO __main__:   Tempo estimado: 5-15 minutos (30x mais rapido)
+[2025-11-04 11:10:21,970] INFO __main__: 
+[2025-11-04 11:12:51,110] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").first
+    - locator resolved to <div class="option " data-value="1163" data-selectable="">AEB - Agência Espacial Brasileira (desde 16/09/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:00,362] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(1)
+    - locator resolved to <div data-value="514" data-selectable="" class="option selected">AGU - Advocacia-Geral da União (desde 16/09/2022)…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:09,699] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(2)
+    - locator resolved to <div class="option" data-value="1183" data-selectable="">ANA - Agência Nacional de Águas e Saneamento Bási…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:19,042] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(3)
+    - locator resolved to <div class="option " data-value="1223" data-selectable="">ANAC - Agência Nacional de Aviação Civil (desde 1…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:28,332] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(4)
+    - locator resolved to <div class="option " data-value="1175" data-selectable="">ANATEL - Agência Nacional de Telecomunicações (de…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:37,642] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(5)
+    - locator resolved to <div class="option " data-value="1194" data-selectable="">ANCINE - Agência Nacional do Cinema (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:46,884] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(6)
+    - locator resolved to <div class="option " data-value="1169" data-selectable="">ANEEL - Agência Nacional de Energia Elétrica (des…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:13:56,166] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(7)
+    - locator resolved to <div class="option " data-value="1337" data-selectable="">ANM - Agência Nacional de Mineração (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:05,603] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(8)
+    - locator resolved to <div class="option " data-value="1176" data-selectable="">ANP - Agência Nacional do Petróleo, Gás Natural e…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:14,859] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(9)
+    - locator resolved to <div class="option " data-value="857" data-selectable="">ANPD - Autoridade Nacional de Proteção de Dados (…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:24,184] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(10)
+    - locator resolved to <div class="option " data-value="1181" data-selectable="">ANS - Agência Nacional de Saúde Suplementar (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:33,431] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(11)
+    - locator resolved to <div class="option " data-value="1191" data-selectable="">ANTAQ - Agência Nacional de Transportes Aquaviári…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:42,665] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(12)
+    - locator resolved to <div class="option " data-value="1190" data-selectable="">ANTT - Agência Nacional de Transportes Terrestres…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:14:51,908] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(13)
+    - locator resolved to <div class="option " data-value="1178" data-selectable="">ANVISA - Agência Nacional de Vigilância Sanitária…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:01,114] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(14)
+    - locator resolved to <div class="option " data-value="521" data-selectable="">BCB - Banco Central do Brasil (desde 16/09/2022) …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:10,394] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(15)
+    - locator resolved to <div class="option " data-value="1065" data-selectable="">CADE - Conselho Administrativo de Defesa Econômic…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:19,620] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(16)
+    - locator resolved to <div class="option " data-value="1051" data-selectable="">CAPES - Fundação Coordenação de Aperfeiçoamento d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:28,861] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(17)
+    - locator resolved to <div class="option " data-value="659" data-selectable="">CC-PR - Casa Civil da Presidência da República (d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:38,102] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(18)
+    - locator resolved to <div class="option " data-value="1433" data-selectable="">CCCPM - Caixa de Construções de Casas para o Pess…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:47,340] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(19)
+    - locator resolved to <div class="option " data-value="1426" data-selectable="">CDC - Companhia Docas do Ceará (desde 08/05/2023)…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:15:56,604] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(20)
+    - locator resolved to <div class="option " data-value="1425" data-selectable="">CDP - Companhia Docas do Pará (desde 20/04/2023) …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:06,102] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(21)
+    - locator resolved to <div class="option " data-value="1094" data-selectable="">CEFET-MG - Centro Federal de Educação Tecnológica…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    16 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:15,382] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(22)
+    - locator resolved to <div class="option " data-value="1095" data-selectable="">CEFET-RJ - Centro Federal de Educação Tecnológica…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:24,800] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(23)
+    - locator resolved to <div class="option " data-value="1428" data-selectable="">CEITEC/S.A. - Centro Nacional de Tecnologia Eletr…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:34,182] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(24)
+    - locator resolved to <div class="option " data-value="1026" data-selectable="">CEX - Comando do Exército (desde 16/09/2022) - At…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:43,523] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(25)
+    - locator resolved to <div class="option " data-value="1439" data-selectable="">CFIAE - Caixa de Financiamento Imobiliário da Aer…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:16:53,001] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(26)
+    - locator resolved to <div class="option " data-value="832" data-selectable="">CGU - Controladoria-Geral da União (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:02,605] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(27)
+    - locator resolved to <div class="option " data-value="1040" data-selectable="">CNEN - Comissão Nacional de Energia Nuclear (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    15 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:12,282] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(28)
+    - locator resolved to <div class="option " data-value="1005" data-selectable="">CNPq - Conselho Nacional de Desenvolvimento Cient…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    16 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:21,710] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(29)
+    - locator resolved to <div class="option " data-value="871" data-selectable="">COAF - Conselho de Controle de Atividades Finance…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:31,066] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(30)
+    - locator resolved to <div class="option " data-value="1438" data-selectable="">CODEVASF - Companhia de Desenvolvimento dos Vales…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:40,541] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(31)
+    - locator resolved to <div class="option " data-value="1015" data-selectable="">COMAER - Comando da Aeronáutica (desde 16/09/2022…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    16 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:50,028] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(32)
+    - locator resolved to <div class="option " data-value="1437" data-selectable="">CONAB - Companhia Nacional de Abastecimento (desd…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:17:59,447] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(33)
+    - locator resolved to <div class="option " data-value="1055" data-selectable="">CP II - Colégio Pedro II (desde 16/09/2022) - Ati…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:08,936] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(34)
+    - locator resolved to <div class="option " data-value="1122" data-selectable="">CVM - Comissão de Valores Mobiliários (desde 16/0…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:18,331] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(35)
+    - locator resolved to <div class="option " data-value="1192" data-selectable="">DNIT - Departamento Nacional de Infraestrutura de…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:27,610] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(36)
+    - locator resolved to <div class="option " data-value="1069" data-selectable="">DNOCS - Departamento Nacional de Obras Contra as …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:36,962] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(37)
+    - locator resolved to <div class="option " data-value="1375" data-selectable="">EBSERH - EBSERH - Empresa Brasileira de Serviços …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:46,453] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(38)
+    - locator resolved to <div class="option " data-value="1431" data-selectable="">EBSERH/HUPES-UFBA - EBSERH - Filial Complexo Hosp…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:18:55,872] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(39)
+    - locator resolved to <div class="option " data-value="1380" data-selectable="">ECT - Empresa Brasileira de Correios e Telégrafos…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:05,268] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(40)
+    - locator resolved to <div class="option " data-value="1193" data-selectable="">EMGEA - Empresa Gestora de Ativos (desde 26/06/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:14,888] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(41)
+    - locator resolved to <div class="option " data-value="1129" data-selectable="">ENAP - Fundação Escola Nacional de Administração …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:24,198] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(42)
+    - locator resolved to <div class="option " data-value="1135" data-selectable="">FBN - Fundação Biblioteca Nacional (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:33,422] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(43)
+    - locator resolved to <div class="option " data-value="1142" data-selectable="">FCP - Fundação Cultural Palmares (desde 16/09/202…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:42,654] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(44)
+    - locator resolved to <div class="option " data-value="1059" data-selectable="">FCRB - Fundação Casa de Rui Barbosa (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:19:51,894] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(45)
+    - locator resolved to <div class="option " data-value="1064" data-selectable="">FIOCRUZ - Fundação Oswaldo Cruz (desde 16/09/2022…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:01,131] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(46)
+    - locator resolved to <div class="option " data-value="1054" data-selectable="">FNDE - Fundo Nacional de Desenvolvimento da Educa…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:10,375] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(47)
+    - locator resolved to <div class="option " data-value="1164" data-selectable="">FOSORIO - Fundação Osório (desde 16/09/2022) - At…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:19,640] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(48)
+    - locator resolved to <div class="option " data-value="1117" data-selectable="">FUFOP - Fundação Universidade Federal de Ouro Pre…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:28,900] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(49)
+    - locator resolved to <div class="option " data-value="1061" data-selectable="">FUNAG - Fundação Alexandre de Gusmão (desde 16/09…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:38,139] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(50)
+    - locator resolved to <div class="option " data-value="1032" data-selectable="">FUNAI - Fundação Nacional do Índio (desde 16/09/2…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:47,366] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(51)
+    - locator resolved to <div class="option " data-value="1157" data-selectable="">FUNARTE - Fundação Nacional de Artes (desde 16/09…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:20:56,656] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(52)
+    - locator resolved to <div class="option " data-value="1156" data-selectable="">FUNASA - Fundação Nacional de Saúde (desde 16/09/…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:05,997] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(53)
+    - locator resolved to <div class="option " data-value="1039" data-selectable="">FUNDACENTRO - Fundação Jorge Duprat Figueiredo, d…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:15,358] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(54)
+    - locator resolved to <div class="option " data-value="1056" data-selectable="">FUNDAJ - Fundação Joaquim Nabuco (desde 16/09/202…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:24,608] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(55)
+    - locator resolved to <div class="option " data-value="1288" data-selectable="">FUNPRESP-EXE - Fundação de Previdência Complement…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:33,937] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(56)
+    - locator resolved to <div class="option " data-value="1141" data-selectable="">FUNRei - Fundação Universidade Federal de São Joã…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:43,255] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(57)
+    - locator resolved to <div class="option " data-value="1120" data-selectable="">FURG - Fundação Universidade Federal do Rio Grand…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:21:52,499] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(58)
+    - locator resolved to <div class="option " data-value="512" data-selectable="">GSI/PR - Gabinete de Segurança Institucional da P…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:22:01,742] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Timeout 9000ms exceeded.
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(59)
+    - locator resolved to <div class="option " data-value="1430" data-selectable="">HEMOBRAS - Empresa Brasileira de Hemoderivados e …</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    17 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:22:09,737] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao selecionar opção: Locator.click: Target page, context or browser has been closed
+Call log:
+  - waiting for locator(".selectize-dropdown").first.locator(".option").nth(60)
+    - locator resolved to <div class="option " data-value="1013" data-selectable="">HFA - Hospital das Forças Armadas (desde 16/09/20…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    14 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+[2025-11-04 11:22:09,756] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,768] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,776] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,787] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,796] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,807] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,886] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,907] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,917] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,929] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,938] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,949] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,956] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,965] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,970] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,979] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,987] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:09,993] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,001] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,012] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,022] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,033] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,042] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,050] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,056] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,063] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,071] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,079] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,087] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,096] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,208] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,216] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,225] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,233] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,241] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,249] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,256] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,264] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,272] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,282] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,290] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,298] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,306] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,312] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,320] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,327] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,335] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,343] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,351] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,359] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,368] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,374] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,383] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,389] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,396] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,404] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,413] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,421] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,428] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,435] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,442] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,451] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,459] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,467] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,475] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,483] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,491] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,500] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,508] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,516] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,524] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,532] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,542] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,550] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,555] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,562] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,569] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,576] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,582] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,589] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,596] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,608] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,615] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,625] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,633] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,651] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,660] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,668] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,676] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,685] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,696] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,703] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,712] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,719] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,727] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,734] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,744] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,751] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,761] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,769] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,776] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,785] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,791] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,800] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,806] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,814] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,821] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,830] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,839] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,848] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,854] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,863] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,870] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,877] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,885] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,893] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,902] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,913] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,925] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,932] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,938] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,945] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,952] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,965] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,973] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,980] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,988] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:10,996] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,002] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,008] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,016] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,023] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,032] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,038] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,046] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,052] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,060] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,070] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,081] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,086] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,094] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,102] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,109] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,116] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,136] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,144] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,153] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,160] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,172] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,181] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,188] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,197] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,203] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,211] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,219] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,227] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,237] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,244] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,255] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,264] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,272] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,282] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,292] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,303] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,313] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,322] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Cargo': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,332] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,333] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,341] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,343] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,351] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,352] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,359] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,360] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,366] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,366] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,375] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,376] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,386] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,388] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,388] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [10/227] Progresso...
+[2025-11-04 11:22:11,396] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,397] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,405] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,405] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,413] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,414] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,421] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,422] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,429] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,430] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,440] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,441] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,450] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,451] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,460] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,460] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,469] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,470] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,478] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,478] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,478] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [20/227] Progresso...
+[2025-11-04 11:22:11,490] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,491] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,502] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,503] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,511] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,512] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,520] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,521] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,532] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,532] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,543] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,544] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,554] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,555] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,565] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,565] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,573] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,573] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,582] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,582] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,583] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [30/227] Progresso...
+[2025-11-04 11:22:11,590] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,590] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,596] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,597] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,602] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,602] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,609] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,610] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,616] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,616] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,623] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,624] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,630] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,630] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,636] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,636] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,644] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,645] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,654] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,655] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,655] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [40/227] Progresso...
+[2025-11-04 11:22:11,662] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,662] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,669] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,669] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,677] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,678] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,684] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,684] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,693] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,694] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,704] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,704] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,742] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,746] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,758] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,762] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,784] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,785] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,795] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,796] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,796] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [50/227] Progresso...
+[2025-11-04 11:22:11,807] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,807] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,815] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,815] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,822] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,822] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,829] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,830] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,836] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,838] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,845] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,846] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,853] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,853] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,861] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,861] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,869] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,870] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,880] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,880] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,881] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [60/227] Progresso...
+[2025-11-04 11:22:11,887] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,888] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,897] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,897] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,905] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,905] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,914] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,914] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,922] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,922] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,931] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,932] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,942] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,944] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,953] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,953] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,963] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,963] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,970] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,971] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,979] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [70/227] Progresso...
+[2025-11-04 11:22:11,988] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,989] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:11,998] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:11,998] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,006] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,006] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,016] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,016] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,024] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,024] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,034] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,034] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,040] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,041] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,048] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,048] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,055] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,056] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,061] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,062] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,062] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [80/227] Progresso...
+[2025-11-04 11:22:12,070] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,071] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,075] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,077] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,086] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,086] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,092] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,092] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,100] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,100] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,105] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,106] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,114] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,114] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,120] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,121] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,131] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,131] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,140] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,141] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,141] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [90/227] Progresso...
+[2025-11-04 11:22:12,148] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,149] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,153] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,154] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,160] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,161] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,167] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,167] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,173] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,174] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,180] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,181] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,187] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,187] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,194] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,194] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,200] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,200] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,206] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,207] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,207] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [100/227] Progresso...
+[2025-11-04 11:22:12,217] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,218] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,224] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,226] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,233] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,233] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,243] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,244] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,250] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,250] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,257] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,257] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,262] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,263] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,271] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,272] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,278] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,279] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,286] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,286] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,288] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [110/227] Progresso...
+[2025-11-04 11:22:12,294] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,294] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,301] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,301] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,306] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,308] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,314] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,314] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,321] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,322] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,326] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,326] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,333] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,333] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,339] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,339] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,345] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,346] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,355] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,356] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,356] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [120/227] Progresso...
+[2025-11-04 11:22:12,361] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,362] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,368] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,369] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,377] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,378] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,383] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,384] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,392] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,392] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,398] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,398] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,403] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,403] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,410] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,410] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,415] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,416] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,423] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,423] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,424] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [130/227] Progresso...
+[2025-11-04 11:22:12,431] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,432] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,439] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,440] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,448] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,448] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,453] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,454] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,459] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,460] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,465] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,466] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,471] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,472] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,478] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,479] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,485] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,486] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,493] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,494] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,494] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [140/227] Progresso...
+[2025-11-04 11:22:12,500] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,500] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,506] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,506] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,514] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,515] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,525] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,525] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,533] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,533] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,539] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,540] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,546] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,548] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,554] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,554] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,560] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,561] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,567] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,567] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,568] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [150/227] Progresso...
+[2025-11-04 11:22:12,572] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,573] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,581] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,581] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,589] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,589] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,596] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,596] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,602] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,602] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,612] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,612] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,617] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,617] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,622] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,623] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,630] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,630] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,636] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,638] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,638] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [160/227] Progresso...
+[2025-11-04 11:22:12,645] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,645] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,654] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,654] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,659] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,660] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,665] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,665] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,672] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,672] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,679] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,680] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,687] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,688] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,693] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,694] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,700] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,700] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,707] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,707] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,708] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [170/227] Progresso...
+[2025-11-04 11:22:12,713] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,714] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,719] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,720] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,726] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,727] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,731] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,732] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,738] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,738] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,743] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,743] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,751] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,752] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,756] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,757] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,762] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,763] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,776] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,776] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,777] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [180/227] Progresso...
+[2025-11-04 11:22:12,783] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,783] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,789] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,790] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,799] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,799] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,805] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,806] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,812] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,813] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,818] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,819] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,826] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,827] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,833] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,833] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,839] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,840] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,848] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,848] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,849] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [190/227] Progresso...
+[2025-11-04 11:22:12,854] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,854] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,859] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,859] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,865] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,865] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,871] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,871] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,876] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,876] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,881] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,881] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,886] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,886] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,893] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,894] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,899] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,900] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,906] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,906] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,906] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [200/227] Progresso...
+[2025-11-04 11:22:12,913] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,913] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,917] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,918] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,924] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,924] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,931] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,932] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,938] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,939] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,943] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,944] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,949] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,949] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,956] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,957] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,964] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,964] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,970] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,970] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,970] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [210/227] Progresso...
+[2025-11-04 11:22:12,974] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,975] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,979] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,980] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,987] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,988] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:12,993] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:12,994] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,001] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,001] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,008] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,009] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,016] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,016] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,023] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,024] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,033] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,033] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,041] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,042] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,042] INFO dou_snaptrack.mappers.eagendas_pairs_fast: [220/227] Progresso...
+[2025-11-04 11:22:13,049] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,050] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,056] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,056] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,065] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,066] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,074] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,075] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,084] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,085] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,092] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,093] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,099] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,100] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,105] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Erro ao buscar selectize 'Órgão ou entidade': Locator.count: Target page, context or browser has been closed
+[2025-11-04 11:22:13,106] ERROR dou_snaptrack.mappers.eagendas_pairs_fast: Dropdown 'Órgão ou entidade' não encontrado ao reabrir
+[2025-11-04 11:22:13,106] INFO dou_snaptrack.mappers.eagendas_pairs_fast: 
+✅ Mapeamento concluído em 710.8s
+[2025-11-04 11:22:13,106] INFO dou_snaptrack.mappers.eagendas_pairs_fast:   Órgãos: 2
+[2025-11-04 11:22:13,108] INFO dou_snaptrack.mappers.eagendas_pairs_fast:   Cargos: 232
+[2025-11-04 11:22:13,108] INFO dou_snaptrack.mappers.eagendas_pairs_fast:   Agentes: 1135
+[2025-11-04 11:22:13,109] INFO __main__: [5/5] Salvando resultados...
+[2025-11-04 11:22:13,151] INFO __main__:   ✅ Artefato timestamped: pairs_eagendas_20251104_110959.json
+[2025-11-04 11:22:13,188] INFO __main__:   ✅ Artefato mensal: pairs_eagendas_202511.json
+[2025-11-04 11:22:13,220] INFO __main__:   ✅ Latest atualizado: pairs_eagendas_latest.json
+[2025-11-04 11:22:13,220] INFO __main__: 
+[2025-11-04 11:22:13,220] INFO __main__: ================================================================================
+[2025-11-04 11:22:13,221] INFO __main__: ATUALIZAÇÃO CONCLUÍDA COM SUCESSO!
+[2025-11-04 11:22:13,221] INFO __main__: ================================================================================
+[2025-11-04 11:22:13,222] INFO __main__:   Tempo total: 0.2h (12 min)
+[2025-11-04 11:22:13,223] INFO __main__:   Órgãos processados: 227
+[2025-11-04 11:22:13,223] INFO __main__:   Cargos mapeados: 232
+[2025-11-04 11:22:13,223] INFO __main__:   Agentes públicos: 1135
+[2025-11-04 11:22:13,223] INFO __main__:   Órgãos sem cargos: 0
+[2025-11-04 11:22:13,224] INFO __main__:   Cargos sem agentes: 0
+[2025-11-04 11:22:13,224] INFO __main__: 
+[2025-11-04 11:22:13,224] INFO __main__: PRÓXIMA ATUALIZAÇÃO: ~30 dias
+[2025-11-04 11:22:13,224] INFO __main__: ================================================================================
+[2025-11-04 11:22:13,226] INFO __main__: Fechando navegador...

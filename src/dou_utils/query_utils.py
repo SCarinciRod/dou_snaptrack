@@ -1,6 +1,7 @@
 # query_utils.py
 # Utilitários para aplicar busca e coletar links no DOU
 
+import contextlib
 import re
 
 
@@ -29,10 +30,8 @@ def apply_query(frame, query: str):
     if not sb:
         print("[Aviso] Campo de busca não encontrado; seguindo sem query.")
         return
-    try:
+    with contextlib.suppress(Exception):
         sb.scroll_into_view_if_needed(timeout=1500)
-    except Exception:
-        pass
     try:
         sb.fill(query)
     except Exception:
@@ -50,23 +49,16 @@ def apply_query(frame, query: str):
         except Exception:
             pass
     # Aguarde o conteúdo aparecer sem travar em "networkidle" longo
-    try:
+    with contextlib.suppress(Exception):
         frame.page.wait_for_load_state("domcontentloaded", timeout=20000)
-    except Exception:
-        pass
-    try:
+    with contextlib.suppress(Exception):
         frame.locator("a[href*='/web/dou/']").first.wait_for(state="visible", timeout=20000)
-    except Exception:
-        # se não houver âncoras visíveis, seguimos com a coleta
-        pass
 
-def collect_links(frame, max_links: int = 30, max_scrolls: int = 30, scroll_pause_ms: int = 250, stable_rounds: int = 2):
+def collect_links(frame, max_links: int = 100, max_scrolls: int = 30, scroll_pause_ms: int = 250, stable_rounds: int = 2):
     page = frame.page
     # Aguarda breve estabilização
-    try:
+    with contextlib.suppress(Exception):
         page.wait_for_timeout(250)
-    except Exception:
-        pass
 
     selectors = [
         "#hierarchy_content a[href*='/web/dou/']",
@@ -139,20 +131,14 @@ def collect_links(frame, max_links: int = 30, max_scrolls: int = 30, scroll_paus
             break
         last = count
         last_scroll_h = sh
-        try:
+        with contextlib.suppress(Exception):
             active_frame.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             # Só scroll na página se necessário; maioria dos sites carrega dentro do frame
             if count < max_links:
                 page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        except Exception:
-            pass
-        try:
+        with contextlib.suppress(Exception):
             active_frame.wait_for_timeout(scroll_pause_ms)
-        except Exception:
-            pass
 
     # Extrair itens de forma vetorizada (menos RPCs)
     try:

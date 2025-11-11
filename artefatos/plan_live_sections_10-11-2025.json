@@ -1,0 +1,227 @@
+[
+  {
+    "secao": "DO1",
+    "url": "https://www.in.gov.br/leiturajornal?data=10-11-2025&secao=DO1",
+    "roots": [
+      {
+        "kind": "select",
+        "id": "slcOrgs",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 64,
+        "total_options": 29,
+        "sample_options": [
+          "Selecionar Organização Principal",
+          "Todos",
+          "Atos do Poder Judiciário",
+          "Presidência da República",
+          "Ministério da Agricultura e Pecuária",
+          "Ministério da Ciência, Tecnologia e Inovação",
+          "Ministério das Comunicações",
+          "Ministério da Cultura",
+          "Ministério da Defesa",
+          "Ministério do Desenvolvimento Agrário e Agricultura Familiar"
+        ],
+        "maybe_n1": true,
+        "maybe_n2": false
+      },
+      {
+        "kind": "select",
+        "id": "slcOrgsSubs",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 458.65625,
+        "total_options": 68,
+        "sample_options": [
+          "Selecionar Organização Subordinada",
+          "Todos",
+          "Agência Nacional de Aviação Civil",
+          "Agência Nacional de Energia Elétrica",
+          "Agência Nacional de Mineração",
+          "Agência Nacional de Saúde Suplementar",
+          "Agência Nacional de Telecomunicações",
+          "Agência Nacional de Transportes Aquaviários",
+          "Agência Nacional de Transportes Terrestres",
+          "Agência Nacional de Vigilância Sanitária"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": true
+      },
+      {
+        "kind": "select",
+        "id": "slcTipo",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 853.3125,
+        "total_options": 21,
+        "sample_options": [
+          "Selecionar Tipo do Ato",
+          "Todos",
+          "Acórdão",
+          "Ata",
+          "Ato",
+          "Ato Declaratório",
+          "Ato Normativo",
+          "Autorização",
+          "Aviso de Consulta Pública",
+          "Ação Direta de Inconstitucionalidade e Ação Declaratória de Constitucionalidade"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": false
+      }
+    ]
+  },
+  {
+    "secao": "DO2",
+    "url": "https://www.in.gov.br/leiturajornal?data=10-11-2025&secao=DO2",
+    "roots": [
+      {
+        "kind": "select",
+        "id": "slcOrgs",
+        "tag": "select",
+        "label": "",
+        "y": 291.328125,
+        "x": 64,
+        "total_options": 42,
+        "sample_options": [
+          "Selecionar Organização Principal",
+          "Todos",
+          "Presidência da República",
+          "Ministério da Agricultura e Pecuária",
+          "Ministério das Cidades",
+          "Ministério da Ciência, Tecnologia e Inovação",
+          "Ministério das Comunicações",
+          "Ministério da Cultura",
+          "Ministério da Defesa",
+          "Ministério do Desenvolvimento Agrário e Agricultura Familiar"
+        ],
+        "maybe_n1": true,
+        "maybe_n2": false
+      },
+      {
+        "kind": "select",
+        "id": "slcOrgsSubs",
+        "tag": "select",
+        "label": "",
+        "y": 291.328125,
+        "x": 458.65625,
+        "total_options": 189,
+        "sample_options": [
+          "Selecionar Organização Subordinada",
+          "Todos",
+          "Advocacia-Geral da União",
+          "Agência Espacial Brasileira",
+          "Agência Nacional de Aviação Civil",
+          "Agência Nacional de Mineração",
+          "Agência Nacional de Proteção de Dados",
+          "Agência Nacional de Telecomunicações",
+          "Agência Nacional de Transportes Aquaviários",
+          "Agência Nacional de Transportes Terrestres"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": true
+      },
+      {
+        "kind": "select",
+        "id": "slcTipo",
+        "tag": "select",
+        "label": "",
+        "y": 291.328125,
+        "x": 853.3125,
+        "total_options": 13,
+        "sample_options": [
+          "Selecionar Tipo do Ato",
+          "Todos",
+          "Ato",
+          "Ato Concessório",
+          "Decisão",
+          "Despacho",
+          "Edital",
+          "Edital de Citação",
+          "Edital de Notificação",
+          "Portaria"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": false
+      }
+    ]
+  },
+  {
+    "secao": "DO3",
+    "url": "https://www.in.gov.br/leiturajornal?data=10-11-2025&secao=DO3",
+    "roots": [
+      {
+        "kind": "select",
+        "id": "slcOrgs",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 64,
+        "total_options": 44,
+        "sample_options": [
+          "Selecionar Organização Principal",
+          "Todos",
+          "Presidência da República",
+          "Ministério da Agricultura e Pecuária",
+          "Ministério das Cidades",
+          "Ministério da Ciência, Tecnologia e Inovação",
+          "Ministério das Comunicações",
+          "Ministério da Cultura",
+          "Ministério da Defesa",
+          "Ministério do Desenvolvimento Agrário e Agricultura Familiar"
+        ],
+        "maybe_n1": true,
+        "maybe_n2": false
+      },
+      {
+        "kind": "select",
+        "id": "slcOrgsSubs",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 458.65625,
+        "total_options": 403,
+        "sample_options": [
+          "Selecionar Organização Subordinada",
+          "Todos",
+          "ASSOCIACÃO DOS PROPRIETÁRIOS DE UNIDADES AUTÔNOMAS DO CONDOMÍNIO RIVIERA PARK",
+          "ASSOCIAÇÃO APARECIDENSE DE EDUCAÇÃO",
+          "ASSOCIAÇÃO DOS GUARDAS MUNICIPAIS DO MUNICÍPIO DE LAURO DE FREITAS",
+          "ASSUPERO ENSINO SUPERIOR LTDA.",
+          "Advocacia-Geral da União",
+          "Agência Nacional de Aviação Civil",
+          "Agência Nacional de Mineração",
+          "Agência Nacional de Saúde Suplementar"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": true
+      },
+      {
+        "kind": "select",
+        "id": "slcTipo",
+        "tag": "select",
+        "label": "",
+        "y": 290.328125,
+        "x": 853.3125,
+        "total_options": 100,
+        "sample_options": [
+          "Selecionar Tipo do Ato",
+          "Todos",
+          "Ata",
+          "Ato",
+          "Aviso",
+          "Aviso aos Acionistas",
+          "Aviso de Adiamento",
+          "Aviso de Adjudicação",
+          "Aviso de Alteração",
+          "Aviso de Anulação"
+        ],
+        "maybe_n1": false,
+        "maybe_n2": false
+      }
+    ]
+  }
+]

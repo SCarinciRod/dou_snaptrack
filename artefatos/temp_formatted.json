@@ -1,0 +1,131 @@
+﻿{
+    "url":  "https://eagendas.cgu.gov.br",
+    "timestamp":  "2025-11-06 15:10:12",
+    "hierarchy":  [
+                      {
+                          "orgao":  "PresidÃªncia da RepÃºblica",
+                          "orgao_value":  "511",
+                          "cargos":  [
+                                         {
+                                             "cargo":  "CHEFE DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "CHEFE DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "MARCO AURELIO SANTANA RIBEIRO",
+                                                                 "agente_value":  "14411"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "ASSESSOR ESPECIAL DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "ASSESSOR ESPECIAL DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "Sergio Soares Xavier Ferreira",
+                                                                 "agente_value":  "25814"
+                                                             },
+                                                             {
+                                                                 "agente":  "ANA HELENA BRITTO GERMOGLIO COELHO",
+                                                                 "agente_value":  "25815"
+                                                             },
+                                                             {
+                                                                 "agente":  "Claudia Troiano",
+                                                                 "agente_value":  "25915"
+                                                             },
+                                                             {
+                                                                 "agente":  "NEUDICLEIA NERES DE OLIVEIRA",
+                                                                 "agente_value":  "25916"
+                                                             },
+                                                             {
+                                                                 "agente":  "TCHENNA FERNANDES MASO",
+                                                                 "agente_value":  "39719"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "CHEFE DO GABINETE ADJUNTO DE GESTÃƒO INTERNA DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "CHEFE DO GABINETE ADJUNTO DE GESTÃƒO INTERNA DO GABINETE PESSOAL DO PRESIDENTE DA REPÃšBLICA",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "SWEDENBERGER DO NASCIMENTO BARBOSA",
+                                                                 "agente_value":  "41217"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "SECRETÃRIO ESPECIAL DA SECRETARIA ESPECIAL DE ASSUNTOS ESTRATÃ‰GICOS - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "SECRETÃRIO ESPECIAL DA SECRETARIA ESPECIAL DE ASSUNTOS ESTRATÃ‰GICOS",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "-1",
+                                                                 "agente_value":  "-1"
+                                                             }
+                                                         ]
+                                         }
+                                     ]
+                      },
+                      {
+                          "orgao":  "Gabinete de SeguranÃ§a Institucional da PresidÃªncia da RepÃºblica",
+                          "orgao_value":  "512",
+                          "cargos":  [
+                                         {
+                                             "cargo":  "SECRETÃRIO-EXECUTIVO ADJUNTO - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "SECRETÃRIO-EXECUTIVO ADJUNTO",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "LINCOLN BERNARDES JUNIOR",
+                                                                 "agente_value":  "25579"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "SECRETÃRIO-EXECUTIVO - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "SECRETÃRIO-EXECUTIVO",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "WASHINGTON ROCHA TRIANI",
+                                                                 "agente_value":  "41819"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "ASSESSOR ESPECIAL DE COMUNICAÃ‡ÃƒO SOCIAL - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "ASSESSOR ESPECIAL DE COMUNICAÃ‡ÃƒO SOCIAL",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "HERON CLEMENTINO DE ANDRADE",
+                                                                 "agente_value":  "16823"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "CHEFE DE GABINETE DO MINISTRO - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "CHEFE DE GABINETE DO MINISTRO",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "MARCO AURELIO DE ANDRADE LIMA",
+                                                                 "agente_value":  "14432"
+                                                             }
+                                                         ]
+                                         },
+                                         {
+                                             "cargo":  "MINISTRO DE ESTADO CHEFE DO GABINETE DE SEGURANÃ‡A INSTITUCIONAL DA PRESIDÃŠNCIA DA REPÃšBLICA - (desde 09-10-2022) - Ativo",
+                                             "cargo_value":  "MINISTRO DE ESTADO CHEFE DO GABINETE DE SEGURANÃ‡A INSTITUCIONAL DA PRESIDÃŠNCIA DA REPÃšBLICA",
+                                             "agentes":  [
+                                                             {
+                                                                 "agente":  "MARCOS ANTONIO AMARO DOS SANTOS",
+                                                                 "agente_value":  "20834"
+                                                             }
+                                                         ]
+                                         }
+                                     ]
+                      }
+                  ],
+    "stats":  {
+                  "total_orgaos":  2,
+                  "total_cargos":  10,
+                  "total_agentes":  13,
+                  "orgaos_sem_cargos":  0,
+                  "cargos_sem_agentes":  1
+              }
+}
