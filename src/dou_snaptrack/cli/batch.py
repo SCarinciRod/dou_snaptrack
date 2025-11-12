@@ -230,6 +230,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                 job = jobs[j_idx - 1]
                 start_ts = time.time()
                 print(f"\n[PW{os.getpid()}] [Job {j_idx}/{len(jobs)}] {job.get('topic','')}: {job.get('query','')}")
+                print(f"[DEBUG] Job {j_idx} start_ts={start_ts:.3f}")
                 out_name = render_out_filename(out_pattern, {**job, "_job_index": j_idx})
                 out_path = out_dir / out_name
 
@@ -358,7 +359,18 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                     report["outputs"].append(str(out_path))
                     report["items_total"] += (result.get("total", 0) if isinstance(result, dict) else 0)
                     elapsed = time.time() - start_ts
-                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={0 if not isinstance(result, dict) else result.get('total', 0)}")
+                    items_count = 0 if not isinstance(result, dict) else result.get('total', 0)
+                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={items_count}")
+                    # DEBUG: Compare wall-clock time vs reported timings
+                    try:
+                        if isinstance(result, dict):
+                            reported_total = result.get("_timings", {}).get("total_sec", 0)
+                            if reported_total > 0:
+                                diff = abs(elapsed - reported_total)
+                                if diff > 5:  # More than 5s difference
+                                    print(f"[TIMING WARN] Job {j_idx}: wall-clock={elapsed:.1f}s vs reported={reported_total:.1f}s (diff={diff:.1f}s)")
+                    except Exception:
+                        pass
                     # Telemetria por job
                     try:
                         timings = (result.get("_timings") or {}) if isinstance(result, dict) else {}
