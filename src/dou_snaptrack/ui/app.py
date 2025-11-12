@@ -1618,6 +1618,64 @@ with main_tab_eagendas:
         if date_start > date_end:
             st.warning("⚠️ Corrija o período de pesquisa")
 
+    st.divider()
+
+    # Seção 5: Geração de Documento
+    st.markdown("### 5️⃣ Gerar Documento DOCX")
+    st.caption("Gere um documento Word com as agendas coletadas, organizadas por agente")
+
+    # Verificar se há arquivo JSON de exemplo para testar
+    from pathlib import Path
+    json_example = Path("resultados") / "eagendas_eventos_exemplo.json"
+    has_example = json_example.exists()
+
+    if has_example:
+        col_doc1, col_doc2 = st.columns([3, 1])
+
+        with col_doc1:
+            st.info("📝 Dados de exemplo disponíveis para teste")
+
+        with col_doc2:
+            if st.button("📄 Gerar Documento", key="gen_doc_example", use_container_width=True):
+                try:
+                    from dou_utils.eagendas_document import generate_eagendas_document_from_json
+
+                    # Gerar documento de exemplo
+                    out_path = Path("resultados") / "eagendas_agentes_exemplo.docx"
+
+                    with st.spinner("Gerando documento DOCX..."):
+                        result = generate_eagendas_document_from_json(
+                            json_path=json_example,
+                            out_path=out_path,
+                            include_metadata=True,
+                            title="Agendas de Agentes Públicos - Exemplo"
+                        )
+
+                    st.success("✅ Documento gerado com sucesso!")
+                    st.metric("Agentes", result["agents"])
+                    st.metric("Eventos", result["events"])
+                    st.caption(result["period"])
+
+                    # Oferecer download
+                    with open(out_path, "rb") as f:
+                        st.download_button(
+                            label="⬇️ Baixar Documento DOCX",
+                            data=f,
+                            file_name=out_path.name,
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            use_container_width=True
+                        )
+
+                except ImportError:
+                    st.error("❌ python-docx não está instalado. Execute: pip install python-docx")
+                except Exception as e:
+                    st.error(f"❌ Erro ao gerar documento: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
+    else:
+        st.info("💡 Execute a coleta de eventos primeiro ou use o script de teste para gerar dados de exemplo")
+        st.code("python scripts/test_eagendas_document.py", language="bash")
+
 
 # ======================== TAB 4: Manutenção do Artefato de Pares ========================
 with st.sidebar:
