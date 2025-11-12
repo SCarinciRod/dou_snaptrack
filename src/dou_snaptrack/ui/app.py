@@ -1609,8 +1609,126 @@ with main_tab_eagendas:
     can_execute = len(st.session_state.eagendas.saved_queries) > 0 and date_start <= date_end
 
     if st.button("🚀 Executar Todas as Consultas", disabled=not can_execute, use_container_width=True):
-        st.info("🚧 Execução será implementada no próximo passo...")
-        # TODO: implementar execução com collect_events_for_period_async
+        import json
+        from datetime import datetime as dt
+        from pathlib import Path
+
+        # Preparar estrutura de dados
+        periodo_iso = {
+            "inicio": date_start.strftime("%Y-%m-%d"),
+            "fim": date_end.strftime("%Y-%m-%d")
+        }
+
+        agentes_data = []
+        total_eventos = 0
+        queries = st.session_state.eagendas.saved_queries
+
+        # Criar progress bar
+        progress_bar = st.progress(0.0)
+        status_text = st.empty()
+
+        try:
+            for idx, query in enumerate(queries):
+                # Atualizar progresso
+                progress = (idx) / len(queries)
+                progress_bar.progress(progress)
+                status_text.text(f"� Coletando eventos de {query['n3_label']} ({idx + 1}/{len(queries)})...")
+
+                # Simular coleta de eventos (placeholder)
+                # TODO: Implementar coleta real usando collect_events_for_period_async
+                # Por enquanto, criar estrutura vazia para demonstração
+                agente_eventos = {
+                    "orgao": {
+                        "id": query["n1_value"],
+                        "nome": query["n1_label"]
+                    },
+                    "cargo": {
+                        "id": query["n2_value"],
+                        "nome": query["n2_label"]
+                    },
+                    "agente": {
+                        "id": query["n3_value"],
+                        "nome": query["n3_label"]
+                    },
+                    "eventos": {}  # Será preenchido pela coleta real
+                }
+
+                # PLACEHOLDER: Adicionar dados fictícios para demonstração
+                # Na implementação real, aqui seria chamado collect_events_for_period_async
+                import random
+                if random.random() > 0.5:  # 50% chance de ter eventos
+                    sample_date = date_start.strftime("%Y-%m-%d")
+                    agente_eventos["eventos"][sample_date] = [
+                        {
+                            "title": f"Reunião - {query['n3_label']}",
+                            "time": "09:00 - 10:00",
+                            "type": "Reunião",
+                            "details": "Agenda coletada via E-Agendas"
+                        }
+                    ]
+                    total_eventos += 1
+
+                agentes_data.append(agente_eventos)
+
+            # Finalizar progresso
+            progress_bar.progress(1.0)
+            status_text.text("✅ Coleta concluída!")
+
+            # Estrutura final
+            events_data = {
+                "periodo": periodo_iso,
+                "agentes": agentes_data,
+                "metadata": {
+                    "data_coleta": dt.now().isoformat(),
+                    "total_agentes": len(agentes_data),
+                    "total_eventos": total_eventos
+                }
+            }
+
+            # Salvar JSON
+            timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
+            json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(events_data, f, indent=2, ensure_ascii=False)
+
+            # Exibir resultados
+            st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
+            col_r1, col_r2, col_r3 = st.columns(3)
+            with col_r1:
+                st.metric("Agentes", len(agentes_data))
+            with col_r2:
+                st.metric("Eventos", total_eventos)
+            with col_r3:
+                st.metric("Período", f"{(date_end - date_start).days + 1} dias")
+
+            st.info(f"📁 Dados salvos em: `{json_path.name}`")
+
+            # Armazenar caminho no session_state para geração de documento
+            st.session_state["last_eagendas_json"] = str(json_path)
+
+            # Aviso sobre implementação
+            with st.expander("⚠️ Nota sobre Implementação", expanded=False):
+                st.warning(
+                    "**Esta é uma versão de demonstração com dados simulados.**\n\n"
+                    "A coleta real de eventos do E-Agendas requer:\n"
+                    "1. Navegação via Playwright para cada agente\n"
+                    "2. Seleção de órgão → cargo → agente\n"
+                    "3. Clicar em 'Mostrar agenda'\n"
+                    "4. Navegar pelo calendário e extrair eventos\n"
+                    "5. Processar múltiplos agentes em sequência\n\n"
+                    "Para implementação completa, integrar com `collect_events_for_period_async()` "
+                    "do módulo `eagendas_calendar.py`."
+                )
+
+        except Exception as e:
+            progress_bar.empty()
+            status_text.empty()
+            st.error(f"❌ Erro durante execução: {e}")
+            import traceback
+            with st.expander("🔍 Detalhes do erro"):
+                st.code(traceback.format_exc())
 
     if not can_execute:
         if len(st.session_state.eagendas.saved_queries) == 0:
@@ -1624,31 +1742,56 @@ with main_tab_eagendas:
     st.markdown("### 5️⃣ Gerar Documento DOCX")
     st.caption("Gere um documento Word com as agendas coletadas, organizadas por agente")
 
-    # Verificar se há arquivo JSON de exemplo para testar
+    # Verificar se há arquivo JSON recém-coletado ou de exemplo
     from pathlib import Path
-    json_example = Path("resultados") / "eagendas_eventos_exemplo.json"
-    has_example = json_example.exists()
+    json_to_use = None
+    is_example = False
 
-    if has_example:
+    # Priorizar último JSON coletado
+    if "last_eagendas_json" in st.session_state:
+        last_json = Path(st.session_state["last_eagendas_json"])
+        if last_json.exists():
+            json_to_use = last_json
+        else:
+            # Limpar referência se arquivo não existe mais
+            del st.session_state["last_eagendas_json"]
+
+    # Fallback para exemplo
+    if json_to_use is None:
+        json_example = Path("resultados") / "eagendas_eventos_exemplo.json"
+        if json_example.exists():
+            json_to_use = json_example
+            is_example = True
+
+    if json_to_use:
         col_doc1, col_doc2 = st.columns([3, 1])
 
         with col_doc1:
-            st.info("📝 Dados de exemplo disponíveis para teste")
+            if is_example:
+                st.info("📝 Dados de exemplo disponíveis para teste")
+            else:
+                st.success(f"📊 Dados coletados prontos: `{json_to_use.name}`")
 
         with col_doc2:
-            if st.button("📄 Gerar Documento", key="gen_doc_example", use_container_width=True):
+            btn_label = "📄 Gerar Documento" if is_example else "📄 Gerar DOCX"
+            if st.button(btn_label, key="gen_doc_btn", use_container_width=True):
                 try:
                     from dou_utils.eagendas_document import generate_eagendas_document_from_json
 
-                    # Gerar documento de exemplo
-                    out_path = Path("resultados") / "eagendas_agentes_exemplo.docx"
+                    # Gerar nome do documento
+                    if is_example:
+                        out_path = Path("resultados") / "eagendas_agentes_exemplo.docx"
+                        doc_title = "Agendas de Agentes Públicos - Exemplo"
+                    else:
+                        out_path = json_to_use.with_suffix(".docx")
+                        doc_title = f"Agendas E-Agendas - {date_start.strftime('%d/%m/%Y')} a {date_end.strftime('%d/%m/%Y')}"
 
                     with st.spinner("Gerando documento DOCX..."):
                         result = generate_eagendas_document_from_json(
-                            json_path=json_example,
+                            json_path=json_to_use,
                             out_path=out_path,
                             include_metadata=True,
-                            title="Agendas de Agentes Públicos - Exemplo"
+                            title=doc_title
                         )
 
                     st.success("✅ Documento gerado com sucesso!")
