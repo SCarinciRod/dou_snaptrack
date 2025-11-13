@@ -19,15 +19,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-try:
-    from docx import Document
-    from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-    from docx.shared import Pt, RGBColor
-except ImportError:
-    Document = None
-    WD_PARAGRAPH_ALIGNMENT = None
-    Pt = None
-    RGBColor = None
+# IMPORTANTE: Imports de python-docx são lazy (dentro das funções)
+# Isso segue o padrão usado pelo módulo DOU e evita ImportError no topo
 
 from .log_utils import get_logger
 
@@ -123,7 +116,11 @@ def _add_header(doc, title: str, subtitle: str | None = None):
         title: Título principal
         subtitle: Subtítulo opcional
     """
-    if not doc or WD_PARAGRAPH_ALIGNMENT is None or Pt is None or RGBColor is None:
+    # Import lazy (só executa quando função é chamada)
+    try:
+        from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+        from docx.shared import Pt, RGBColor
+    except ImportError:
         return
 
     # Título principal
@@ -151,7 +148,13 @@ def _add_agent_section(doc, agente_nome: str, eventos: list[dict[str, Any]]):
         agente_nome: Nome do agente público
         eventos: Lista de eventos do agente
     """
-    if not doc or not eventos or Pt is None or RGBColor is None:
+    # Import lazy (só executa quando função é chamada)
+    try:
+        from docx.shared import Pt, RGBColor
+    except ImportError:
+        return
+
+    if not doc or not eventos:
         return
 
     # Cabeçalho do agente
@@ -249,10 +252,12 @@ def generate_eagendas_document(
         ImportError: Se python-docx não estiver instalado
         Exception: Se houver erro na geração do documento
     """
-    if Document is None:
-        raise ImportError(
-            "python-docx não está instalado. Execute: pip install python-docx"
-        )
+    # Import lazy (padrão usado pelo módulo DOU)
+    try:
+        from docx import Document
+    except ImportError:
+        logger.error("Módulo python-docx não encontrado. Instale com: pip install python-docx")
+        raise
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)

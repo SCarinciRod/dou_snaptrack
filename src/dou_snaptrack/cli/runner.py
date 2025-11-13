@@ -1,11 +1,24 @@
 from __future__ import annotations
 
+import sys as _sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from ..adapters.services import get_edition_runner
-from ..adapters.utils import generate_bulletin as _generate_bulletin, summarize_text as _summarize_text
+try:
+    from ..adapters.utils import generate_bulletin as _generate_bulletin, summarize_text as _summarize_text  # type: ignore
+except Exception as _e:  # pragma: no cover - fallback path
+    # Fallback direto para dou_utils caso o adapters.utils não esteja visível em subprocessos
+    try:
+        from dou_utils.bulletin_utils import generate_bulletin as _generate_bulletin  # type: ignore
+    except Exception:
+        _generate_bulletin = None  # type: ignore
+    try:
+        from dou_utils.summarize import summarize_text as _summarize_text  # type: ignore
+    except Exception:
+        _summarize_text = None  # type: ignore
+    print(f"[WARN] fallback imports in runner.py: adapters.utils indisponível: {_e} | sys.path[:5]={list(_sys.path[:5])}")
 from ..cli.summary_config import SummaryConfig
 
 

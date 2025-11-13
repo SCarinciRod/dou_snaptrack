@@ -12,6 +12,7 @@ ARQUITETURA:
 - Cada nível depende da seleção do anterior
 - Selectize.js requer estratégias específicas de abertura/leitura/seleção
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -26,6 +27,7 @@ from playwright.async_api import async_playwright
 # HELPERS ASYNC PARA SELECTIZE.JS
 # ============================================================================
 
+
 async def _find_selectize_by_label_async(frame, label_text: str) -> dict[str, Any] | None:
     """Versão async de find_selectize_by_label."""
     try:
@@ -39,8 +41,8 @@ async def _find_selectize_by_label_async(frame, label_text: str) -> dict[str, An
         )
 
         if await selectize.count() == 0:
-            parent = label_loc.locator('xpath=ancestor::div[1]')
-            selectize = parent.locator('.selectize-control').first
+            parent = label_loc.locator("xpath=ancestor::div[1]")
+            selectize = parent.locator(".selectize-control").first
 
         if await selectize.count() > 0:
             bbox = None
@@ -52,7 +54,7 @@ async def _find_selectize_by_label_async(frame, label_text: str) -> dict[str, An
             return {
                 "label": label_text,
                 "selector": selectize,
-                "input": selectize.locator('.selectize-input').first,
+                "input": selectize.locator(".selectize-input").first,
                 "bbox": bbox,
             }
         return None
@@ -64,20 +66,20 @@ async def _is_selectize_disabled_async(selectize_control: dict) -> bool:
     """Verifica se controle Selectize está desabilitado (async)."""
     try:
         selector = selectize_control["selector"]
-        class_attr = await selector.get_attribute('class') or ''
-        if 'disabled' in class_attr or 'locked' in class_attr:
+        class_attr = await selector.get_attribute("class") or ""
+        if "disabled" in class_attr or "locked" in class_attr:
             return True
 
         with contextlib.suppress(Exception):
-            aria_dis = await selector.get_attribute('aria-disabled')
+            aria_dis = await selector.get_attribute("aria-disabled")
             if aria_dis and aria_dis.lower() in {"true", "1"}:
                 return True
 
         inp = selectize_control.get("input")
         if inp and await inp.count() > 0:
             with contextlib.suppress(Exception):
-                icls = await inp.get_attribute('class') or ''
-                if 'disabled' in icls:
+                icls = await inp.get_attribute("class") or ""
+                if "disabled" in icls:
                     return True
 
         return False
@@ -86,28 +88,47 @@ async def _is_selectize_disabled_async(selectize_control: dict) -> bool:
 
 
 async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms: int = 1500) -> bool:
-    """Abre dropdown Selectize clicando no input (async)."""
+    """Abre dropdown Selectize usando focus + ArrowDown (async)."""
     try:
         inp = selectize_control.get("input")
         if not inp or await inp.count() == 0:
             return False
 
-        await inp.click(timeout=3000)
+        # ESTRATÉGIA CORRETA: Focus + ArrowDown (funciona melhor que click)
+        await inp.focus()
+        await page.keyboard.press("ArrowDown")
         await page.wait_for_timeout(wait_ms)
 
         # Verificar se dropdown apareceu
-        dropdown = page.locator('.selectize-dropdown.single').first
+        dropdown = page.locator(".selectize-dropdown").first
         if await dropdown.count() > 0 and await dropdown.is_visible():
             return True
 
-        # Fallback: tentar clicar no arrow-down se existir
-        arrow = selectize_control["selector"].locator('.selectize-input .arrow-down, .selectize-input .caret').first
-        if await arrow.count() > 0:
-            await arrow.click(timeout=2000)
+        # Fallback: tentar click simples
+        with contextlib.suppress(Exception):
+            await inp.click(timeout=3000, force=True)
             await page.wait_for_timeout(wait_ms)
 
-        dropdown = page.locator('.selectize-dropdown.single').first
-        return await dropdown.count() > 0 and await dropdown.is_visible()
+            dropdown = page.locator(".selectize-dropdown").first
+            if await dropdown.count() > 0 and await dropdown.is_visible():
+                return True
+
+        # Fallback 2: JavaScript API
+        with contextlib.suppress(Exception):
+            await inp.evaluate("""
+                (element) => {
+                    if (element.selectize) {
+                        element.selectize.open();
+                    }
+                }
+            """)
+            await page.wait_for_timeout(wait_ms)
+
+            dropdown = page.locator(".selectize-dropdown").first
+            if await dropdown.count() > 0 and await dropdown.is_visible():
+                return True
+
+        return False
 
     except Exception:
         return False
@@ -116,25 +137,42 @@ async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms:
 async def _get_selectize_options_async(frame, include_empty: bool = False) -> list[dict[str, Any]]:
     """Lê opções do dropdown Selectize aberto (async)."""
     DEFAULT_EXCLUDE = [
-        "selecione", "selecione uma opção", "selecione um item",
-        "selecione o órgão", "selecione o cargo", "selecione o agente",
+        "selecione",
+        "selecione uma opção",
+        "selecione um item",
+        "selecione o órgão",
+        "selecione o cargo",
+        "selecione o agente",
         "todos os ocupantes",
     ]
 
     opts: list[dict[str, Any]] = []
     try:
-        dropdown = frame.page.locator('.selectize-dropdown.single').first
+        # Buscar dropdown (remover .single para aceitar qualquer tipo)
+        dropdown = frame.page.locator(".selectize-dropdown").first
         if await dropdown.count() == 0 or not await dropdown.is_visible():
             return []
 
         # Scroll para carregar todas as opções (caso virtualizado)
         for _ in range(30):
             with contextlib.suppress(Exception):
-                await dropdown.evaluate('(el)=>{el.scrollTop=el.scrollHeight}')
+                await dropdown.evaluate("(el)=>{el.scrollTop=el.scrollHeight}")
             await frame.page.wait_for_timeout(50)
 
-        # Ler opções
-        items = dropdown.locator('.selectize-dropdown-content .option')
+        # Ler opções - tentar múltiplos seletores
+        items_found = False
+        items = None
+
+        for selector in [".selectize-dropdown-content .option", ".option", "div[data-value]"]:
+            items = dropdown.locator(selector)
+            cnt = await items.count()
+            if cnt > 0:
+                items_found = True
+                break
+
+        if not items_found or items is None:
+            return []
+
         cnt = await items.count()
 
         for i in range(cnt):
@@ -144,19 +182,21 @@ async def _get_selectize_options_async(frame, include_empty: bool = False) -> li
                     continue
 
                 text = (await item.text_content() or "").strip()
-                value = await item.get_attribute('data-value') or text
+                value = await item.get_attribute("data-value") or text
 
                 # Filtrar placeholders genéricos
                 tnorm = text.lower()
                 if not include_empty and any(tnorm == p or tnorm.startswith(p + " ") for p in DEFAULT_EXCLUDE):
                     continue
 
-                opts.append({
-                    "text": text,
-                    "value": value,
-                    "index": i,
-                    "handle": item,
-                })
+                opts.append(
+                    {
+                        "text": text,
+                        "value": value,
+                        "index": i,
+                        "handle": item,
+                    }
+                )
             except Exception:
                 pass
 
@@ -249,11 +289,9 @@ async def _select_by_label_and_text_async(frame, label: str, text: str) -> bool:
 # FILTRO DE OPÇÕES (reutilizar lógica do plan_live)
 # ============================================================================
 
+
 def _filter_opts(
-    opts: list[dict[str, Any]],
-    select_pattern: str | None,
-    pick_values: list[str] | None,
-    limit: int | None
+    opts: list[dict[str, Any]], select_pattern: str | None, pick_values: list[str] | None, limit: int | None
 ) -> list[dict[str, Any]]:
     """Filtra opções por padrão regex, lista de valores ou limite."""
     import re
@@ -285,9 +323,13 @@ def _filter_opts(
 # BUILD_PLAN_EAGENDAS_ASYNC
 # ============================================================================
 
+
 async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     """
     Gera plan de combos para e-agendas navegando no site (async).
+
+    NOVA VERSÃO: Usa JavaScript API do Selectize ao invés de interação DOM.
+    Isso é muito mais confiável e rápido.
 
     Args:
         p: playwright async instance
@@ -316,6 +358,11 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     combos: list[dict[str, Any]] = []
     stats = {"total_orgaos": 0, "total_cargos": 0, "total_agentes": 0}
 
+    # IDs FIXOS dos dropdowns e-agendas
+    DD_ORGAO_ID = "filtro_orgao_entidade"
+    DD_CARGO_ID = "filtro_cargo"
+    DD_AGENTE_ID = "filtro_servidor"
+
     # Launch browser
     browser = None
     try:
@@ -339,40 +386,97 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                 browser = await p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
 
     if not browser:
-        browser = await p.chromium.launch(headless=not headful, slow_mo=slowmo)
+        msg = (
+            "Nenhum browser disponível. Tentativas:\n"
+            "  1. channel='chrome' falhou\n"
+            "  2. channel='msedge' falhou\n"
+            "  3. Não encontrou Chrome/Edge em caminhos padrão\n"
+            "Certifique-se de ter Chrome ou Edge instalado."
+        )
+        raise RuntimeError(msg)
 
     context = await browser.new_context(ignore_https_errors=True)
     context.set_default_timeout(90_000)
     page = await context.new_page()
 
-    # Importar constantes
     from dou_snaptrack.constants import EAGENDAS_URL
 
     url = EAGENDAS_URL
     await page.goto(url, wait_until="domcontentloaded", timeout=60_000)
-    await page.wait_for_timeout(3000)  # Aguardar Selectize inicializar
+    await page.wait_for_timeout(5000)  # Aguardar Selectize inicializar
 
-    # Frame principal (assumindo não haver iframe, mas preparado para isso)
     frame = page.main_frame
-
-    # Labels dos dropdowns (ajustar conforme site real)
-    LABEL_ORGAO = "Órgão ou entidade"
-    LABEL_CARGO = "Cargo"
-    LABEL_AGENTE = "Agente público"
 
     if v:
         print(f"[plan-eagendas-async] URL: {url}")
         print("[plan-eagendas-async] Detectando dropdowns...")
 
+    # Helper async para obter opções via JavaScript API
+    async def get_selectize_options_js(element_id: str) -> list[dict[str, Any]]:
+        """Obter opções do Selectize via JavaScript API."""
+        try:
+            opts = await frame.evaluate(
+                """
+                (id) => {
+                    const el = document.getElementById(id);
+                    if (!el || !el.selectize) return [];
+
+                    const s = el.selectize;
+                    const out = [];
+
+                    if (s.options) {
+                        for (const [val, raw] of Object.entries(s.options)) {
+                            const v = String(val ?? '');
+                            const t = raw?.text || raw?.label || raw?.nome || raw?.name || v;
+                            out.push({ value: v, text: String(t) });
+                        }
+                    }
+
+                    return out;
+                }
+                """,
+                element_id,
+            )
+            return opts or []
+        except Exception:
+            return []
+
+    # Helper async para setar valor via JavaScript API
+    async def set_selectize_value_js(element_id: str, value: str) -> bool:
+        """Setar valor no Selectize via JavaScript API."""
+        try:
+            success = await frame.evaluate(
+                """
+                (args) => {
+                    const { id, value } = args;
+                    const el = document.getElementById(id);
+                    if (!el || !el.selectize) return false;
+
+                    el.selectize.setValue(String(value), false);
+
+                    // Disparar eventos
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    return true;
+                }
+                """,
+                {"id": element_id, "value": value},
+            )
+            return bool(success)
+        except Exception:
+            return False
+
     # ========================================================================
     # NÍVEL 1: ÓRGÃOS
     # ========================================================================
-    opts_orgao = await _read_selectize_options_for_label_async(frame, LABEL_ORGAO)
+    opts_orgao = await get_selectize_options_js(DD_ORGAO_ID)
+
+    # Filtrar placeholders
+    opts_orgao = [o for o in opts_orgao if o.get("text") and "selecione" not in o["text"].lower()]
+
     opts_orgao = _filter_opts(
-        opts_orgao,
-        getattr(args, "select1", None),
-        getattr(args, "pick1", None),
-        getattr(args, "limit1", None)
+        opts_orgao, getattr(args, "select1", None), getattr(args, "pick1", None), getattr(args, "limit1", None)
     )
 
     if v:
@@ -388,25 +492,26 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         if v:
             print(f"\n[plan-eagendas-async] Processando: {org_text}")
 
-        # Selecionar N1
-        ok = await _select_by_label_and_text_async(frame, LABEL_ORGAO, org_text)
-        if not ok:
+        # Selecionar N1 via JavaScript API
+        success = await set_selectize_value_js(DD_ORGAO_ID, org_value)
+        if not success:
             if v:
                 print("[plan-eagendas-async]   ⚠️  Falha ao selecionar órgão")
             continue
 
         # Aguardar N2 (Cargo) repopular
-        await page.wait_for_timeout(1500)
+        await page.wait_for_timeout(2000)
 
         # ====================================================================
         # NÍVEL 2: CARGOS
         # ====================================================================
-        opts_cargo = await _read_selectize_options_for_label_async(frame, LABEL_CARGO)
+        opts_cargo = await get_selectize_options_js(DD_CARGO_ID)
+
+        # Filtrar placeholders
+        opts_cargo = [o for o in opts_cargo if o.get("text") and "selecione" not in o["text"].lower()]
+
         opts_cargo = _filter_opts(
-            opts_cargo,
-            getattr(args, "select2", None),
-            getattr(args, "pick2", None),
-            getattr(args, "limit2", None)
+            opts_cargo, getattr(args, "select2", None), getattr(args, "pick2", None), getattr(args, "limit2", None)
         )
 
         if v:
@@ -416,14 +521,16 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
         if not opts_cargo:
             # Sem cargos: criar combo só com órgão
-            combos.append({
-                "orgao_label": org_text,
-                "orgao_value": org_value,
-                "cargo_label": "Todos",
-                "cargo_value": "Todos",
-                "agente_label": "Todos",
-                "agente_value": "Todos",
-            })
+            combos.append(
+                {
+                    "orgao_label": org_text,
+                    "orgao_value": org_value,
+                    "cargo_label": "Todos",
+                    "cargo_value": "Todos",
+                    "agente_label": "Todos",
+                    "agente_value": "Todos",
+                }
+            )
             continue
 
         # Iterar N2 (Cargos)
@@ -431,9 +538,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             cargo_text = cargo["text"]
             cargo_value = cargo.get("value", cargo_text)
 
-            # Selecionar N2
-            ok = await _select_by_label_and_text_async(frame, LABEL_CARGO, cargo_text)
-            if not ok:
+            # Selecionar N2 via JavaScript API
+            success = await set_selectize_value_js(DD_CARGO_ID, cargo_value)
+            if not success:
                 if v:
                     print(f"[plan-eagendas-async]     ⚠️  Falha ao selecionar cargo: {cargo_text}")
                 continue
@@ -444,12 +551,19 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             # ================================================================
             # NÍVEL 3: AGENTES
             # ================================================================
-            opts_agente = await _read_selectize_options_for_label_async(frame, LABEL_AGENTE)
+            opts_agente = await get_selectize_options_js(DD_AGENTE_ID)
+
+            # Filtrar placeholders E "Todos os ocupantes"
+            opts_agente = [
+                o
+                for o in opts_agente
+                if o.get("text")
+                and "selecione" not in o["text"].lower()
+                and "todos os ocupantes" not in o["text"].lower()
+            ]
+
             opts_agente = _filter_opts(
-                opts_agente,
-                getattr(args, "select3", None),
-                getattr(args, "pick3", None),
-                getattr(args, "limit3", None)
+                opts_agente, getattr(args, "select3", None), getattr(args, "pick3", None), getattr(args, "limit3", None)
             )
 
             if v:
@@ -459,14 +573,16 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
             if not opts_agente:
                 # Sem agentes: criar combo só com órgão+cargo
-                combos.append({
-                    "orgao_label": org_text,
-                    "orgao_value": org_value,
-                    "cargo_label": cargo_text,
-                    "cargo_value": cargo_value,
-                    "agente_label": "Todos",
-                    "agente_value": "Todos",
-                })
+                combos.append(
+                    {
+                        "orgao_label": org_text,
+                        "orgao_value": org_value,
+                        "cargo_label": cargo_text,
+                        "cargo_value": cargo_value,
+                        "agente_label": "Todos",
+                        "agente_value": "Todos",
+                    }
+                )
                 continue
 
             # Criar combo para cada agente
@@ -474,17 +590,19 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                 agente_text = agente["text"]
                 agente_value = agente.get("value", agente_text)
 
-                combos.append({
-                    "orgao_label": org_text,
-                    "orgao_value": org_value,
-                    "cargo_label": cargo_text,
-                    "cargo_value": cargo_value,
-                    "agente_label": agente_text,
-                    "agente_value": agente_value,
-                })
+                combos.append(
+                    {
+                        "orgao_label": org_text,
+                        "orgao_value": org_value,
+                        "cargo_label": cargo_text,
+                        "cargo_value": cargo_value,
+                        "agente_label": agente_text,
+                        "agente_value": agente_value,
+                    }
+                )
 
             # Reset N2 para próximo cargo (selecionar órgão novamente)
-            await _select_by_label_and_text_async(frame, LABEL_ORGAO, org_text)
+            await set_selectize_value_js(DD_ORGAO_ID, org_value)
             await page.wait_for_timeout(800)
 
     await browser.close()
@@ -512,13 +630,14 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             "total_cargos": stats["total_cargos"],
             "total_agentes": stats["total_agentes"],
             "total_combos": len(combos),
-        }
+        },
     }
 
     # Salvar plan se especificado
     plan_out = getattr(args, "plan_out", None)
     if plan_out:
         import json
+
         Path(plan_out).parent.mkdir(parents=True, exist_ok=True)
         Path(plan_out).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
         if v:
@@ -538,8 +657,10 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 # WRAPPER SÍNCRONO
 # ============================================================================
 
+
 def build_plan_eagendas_sync_wrapper(args) -> dict[str, Any]:
     """Wrapper síncrono que roda async via asyncio.run()."""
+
     async def run():
         async with async_playwright() as p_async:
             return await build_plan_eagendas_async(p_async, args)
