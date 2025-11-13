@@ -4,6 +4,7 @@ import asyncio
 import contextlib
 import json
 import os
+import subprocess
 import sys
 import traceback  # Certificar que está no escopo global
 from dataclasses import dataclass
@@ -1584,6 +1585,104 @@ with main_tab_eagendas:
             st.success("🗑️ Consultas removidas")
             st.rerun()
 
+    # Sub-seção: Salvar/Carregar Listas de Agentes
+    st.markdown("#### 💾 Gerenciar Listas de Agentes")
+    
+    listas_dir = Path("planos") / "eagendas_listas"
+    listas_dir.mkdir(parents=True, exist_ok=True)
+    
+    col_save, col_load = st.columns(2)
+    
+    with col_save:
+        st.caption("💾 Salvar lista atual")
+        lista_name = st.text_input(
+            "Nome da lista:",
+            placeholder="Ex: Ministros_CADE",
+            key="eagendas_lista_name",
+            help="Nome para identificar esta lista de agentes"
+        )
+        
+        can_save = len(st.session_state.eagendas.saved_queries) > 0 and lista_name.strip()
+        if st.button("💾 Salvar Lista", disabled=not can_save, use_container_width=True):
+            # Sanitizar nome do arquivo
+            safe_name = "".join(c if c.isalnum() or c in "_ -" else "_" for c in lista_name.strip())
+            file_path = listas_dir / f"{safe_name}.json"
+            
+            # Preparar dados para salvar
+            lista_data = {
+                "nome": lista_name.strip(),
+                "criado_em": _date.today().strftime("%Y-%m-%d"),
+                "total_agentes": len(st.session_state.eagendas.saved_queries),
+                "queries": st.session_state.eagendas.saved_queries
+            }
+            
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(lista_data, f, indent=2, ensure_ascii=False)
+                st.success(f"✅ Lista '{lista_name}' salva com sucesso!")
+                st.caption(f"📁 {file_path}")
+            except Exception as e:
+                st.error(f"❌ Erro ao salvar lista: {e}")
+    
+    with col_load:
+        st.caption("📂 Carregar lista salva")
+        
+        # Listar arquivos JSON disponíveis
+        lista_files = sorted(listas_dir.glob("*.json"))
+        
+        if lista_files:
+            # Ler metadados das listas
+            lista_options = []
+            for file_path in lista_files:
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    nome = data.get("nome", file_path.stem)
+                    total = data.get("total_agentes", len(data.get("queries", [])))
+                    criado = data.get("criado_em", "")
+                    lista_options.append({
+                        "label": f"{nome} ({total} agentes) - {criado}",
+                        "path": file_path,
+                        "data": data
+                    })
+                except Exception:
+                    # Ignorar arquivos corrompidos
+                    continue
+            
+            if lista_options:
+                selected_lista_label = st.selectbox(
+                    "Selecione uma lista:",
+                    [opt["label"] for opt in lista_options],
+                    key="eagendas_lista_select"
+                )
+                
+                col_load_btn, col_del_btn = st.columns(2)
+                
+                with col_load_btn:
+                    if st.button("📂 Carregar", use_container_width=True):
+                        # Encontrar a lista selecionada
+                        selected_opt = next((opt for opt in lista_options if opt["label"] == selected_lista_label), None)
+                        if selected_opt:
+                            st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
+                            st.success(f"✅ Lista carregada: {selected_opt['data']['total_agentes']} agentes")
+                            st.rerun()
+                
+                with col_del_btn:
+                    if st.button("🗑️ Excluir", use_container_width=True, type="secondary"):
+                        # Confirmar exclusão
+                        selected_opt = next((opt for opt in lista_options if opt["label"] == selected_lista_label), None)
+                        if selected_opt:
+                            try:
+                                selected_opt["path"].unlink()
+                                st.success("🗑️ Lista excluída")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Erro ao excluir: {e}")
+            else:
+                st.info("Nenhuma lista disponível")
+        else:
+            st.info("Nenhuma lista salva ainda")
+
     # Mostrar lista de consultas salvas
     queries = st.session_state.eagendas.saved_queries
     if queries:
@@ -1609,9 +1708,7 @@ with main_tab_eagendas:
     can_execute = len(st.session_state.eagendas.saved_queries) > 0 and date_start <= date_end
 
     if st.button("🚀 Executar Todas as Consultas", disabled=not can_execute, use_container_width=True):
-        import json
         from datetime import datetime as dt
-        from pathlib import Path
 
         # Preparar estrutura de dados
         periodo_iso = {
@@ -1619,109 +1716,112 @@ with main_tab_eagendas:
             "fim": date_end.strftime("%Y-%m-%d")
         }
 
-        agentes_data = []
-        total_eventos = 0
         queries = st.session_state.eagendas.saved_queries
 
         # Criar progress bar
         progress_bar = st.progress(0.0)
         status_text = st.empty()
+        status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
 
         try:
-            for idx, query in enumerate(queries):
-                # Atualizar progresso
-                progress = (idx) / len(queries)
-                progress_bar.progress(progress)
-                status_text.text(f"� Coletando eventos de {query['n3_label']} ({idx + 1}/{len(queries)})...")
-
-                # Simular coleta de eventos (placeholder)
-                # TODO: Implementar coleta real usando collect_events_for_period_async
-                # Por enquanto, criar estrutura vazia para demonstração
-                agente_eventos = {
-                    "orgao": {
-                        "id": query["n1_value"],
-                        "nome": query["n1_label"]
-                    },
-                    "cargo": {
-                        "id": query["n2_value"],
-                        "nome": query["n2_label"]
-                    },
-                    "agente": {
-                        "id": query["n3_value"],
-                        "nome": query["n3_label"]
-                    },
-                    "eventos": {}  # Será preenchido pela coleta real
-                }
-
-                # PLACEHOLDER: Adicionar dados fictícios para demonstração
-                # Na implementação real, aqui seria chamado collect_events_for_period_async
-                import random
-                if random.random() > 0.5:  # 50% chance de ter eventos
-                    sample_date = date_start.strftime("%Y-%m-%d")
-                    agente_eventos["eventos"][sample_date] = [
-                        {
-                            "title": f"Reunião - {query['n3_label']}",
-                            "time": "09:00 - 10:00",
-                            "type": "Reunião",
-                            "details": "Agenda coletada via E-Agendas"
-                        }
-                    ]
-                    total_eventos += 1
-
-                agentes_data.append(agente_eventos)
-
-            # Finalizar progresso
-            progress_bar.progress(1.0)
-            status_text.text("✅ Coleta concluída!")
-
-            # Estrutura final
-            events_data = {
-                "periodo": periodo_iso,
-                "agentes": agentes_data,
-                "metadata": {
-                    "data_coleta": dt.now().isoformat(),
-                    "total_agentes": len(agentes_data),
-                    "total_eventos": total_eventos
-                }
+            # Preparar input para subprocess
+            subprocess_input = {
+                "queries": queries,
+                "periodo": periodo_iso
             }
 
-            # Salvar JSON
-            timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
-            json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
-            json_path.parent.mkdir(parents=True, exist_ok=True)
+            # Caminho do script de coleta
+            script_path = Path(__file__).parent / "eagendas_collect_subprocess.py"
 
-            with open(json_path, "w", encoding="utf-8") as f:
-                json.dump(events_data, f, indent=2, ensure_ascii=False)
+            # Executar subprocess
+            progress_bar.progress(0.1)
+            status_text.text("🌐 Navegando no E-Agendas...")
 
-            # Exibir resultados
-            st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
-            col_r1, col_r2, col_r3 = st.columns(3)
-            with col_r1:
-                st.metric("Agentes", len(agentes_data))
-            with col_r2:
-                st.metric("Eventos", total_eventos)
-            with col_r3:
-                st.metric("Período", f"{(date_end - date_start).days + 1} dias")
+            result = subprocess.run(
+                [sys.executable, str(script_path)],
+                input=json.dumps(subprocess_input),
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minutos timeout
+            )
 
-            st.info(f"📁 Dados salvos em: `{json_path.name}`")
+            # Processar resultado
+            if result.returncode != 0:
+                # Erro no subprocess
+                try:
+                    error_data = json.loads(result.stdout)
+                    error_msg = error_data.get("error", "Erro desconhecido")
+                except Exception:
+                    error_msg = result.stderr or "Erro ao executar coleta"
 
-            # Armazenar caminho no session_state para geração de documento
-            st.session_state["last_eagendas_json"] = str(json_path)
+                progress_bar.empty()
+                status_text.empty()
+                st.error(f"❌ Erro durante coleta: {error_msg}")
 
-            # Aviso sobre implementação
-            with st.expander("⚠️ Nota sobre Implementação", expanded=False):
-                st.warning(
-                    "**Esta é uma versão de demonstração com dados simulados.**\n\n"
-                    "A coleta real de eventos do E-Agendas requer:\n"
-                    "1. Navegação via Playwright para cada agente\n"
-                    "2. Seleção de órgão → cargo → agente\n"
-                    "3. Clicar em 'Mostrar agenda'\n"
-                    "4. Navegar pelo calendário e extrair eventos\n"
-                    "5. Processar múltiplos agentes em sequência\n\n"
-                    "Para implementação completa, integrar com `collect_events_for_period_async()` "
-                    "do módulo `eagendas_calendar.py`."
-                )
+                # Logs de debug
+                if result.stderr:
+                    with st.expander("🔍 Logs do processo"):
+                        st.code(result.stderr)
+            else:
+                # Parsear resultado JSON
+                try:
+                    response = json.loads(result.stdout)
+                except json.JSONDecodeError:
+                    progress_bar.empty()
+                    status_text.empty()
+                    st.error("❌ Erro ao parsear resposta do subprocess")
+                    with st.expander("🔍 Output raw"):
+                        st.code(result.stdout)
+                else:
+                    if not response.get("success"):
+                        progress_bar.empty()
+                        status_text.empty()
+                        st.error(f"❌ Coleta falhou: {response.get('error', 'Erro desconhecido')}")
+                        if "traceback" in response:
+                            with st.expander("🔍 Traceback"):
+                                st.code(response["traceback"])
+                    else:
+                        # Extrair dados
+                        events_data = response.get("data", {})
+                        agentes_data = events_data.get("agentes", [])
+                        total_eventos = events_data.get("metadata", {}).get("total_eventos", 0)
 
+                        # Finalizar progresso
+                        progress_bar.progress(1.0)
+                        status_text.text("✅ Coleta concluída!")
+
+                        # Salvar JSON
+                        timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
+                        json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
+                        json_path.parent.mkdir(parents=True, exist_ok=True)
+
+                        with open(json_path, "w", encoding="utf-8") as f:
+                            json.dump(events_data, f, indent=2, ensure_ascii=False)
+
+                        # Exibir resultados
+                        st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
+                        col_r1, col_r2, col_r3 = st.columns(3)
+                        with col_r1:
+                            st.metric("Agentes", len(agentes_data))
+                        with col_r2:
+                            st.metric("Eventos", total_eventos)
+                        with col_r3:
+                            st.metric("Período", f"{(date_end - date_start).days + 1} dias")
+
+                        st.info(f"📁 Dados salvos em: `{json_path.name}`")
+
+                        # Armazenar caminho no session_state para geração de documento
+                        st.session_state["last_eagendas_json"] = str(json_path)
+
+                        # Mostrar logs do processo se houver
+                        if result.stderr:
+                            with st.expander("📋 Logs da coleta"):
+                                st.text(result.stderr)
+
+        except subprocess.TimeoutExpired:
+            progress_bar.empty()
+            status_text.empty()
+            st.error("❌ Timeout: A coleta demorou mais de 5 minutos")
         except Exception as e:
             progress_bar.empty()
             status_text.empty()
@@ -1775,49 +1875,116 @@ with main_tab_eagendas:
         with col_doc2:
             btn_label = "📄 Gerar Documento" if is_example else "📄 Gerar DOCX"
             if st.button(btn_label, key="gen_doc_btn", use_container_width=True):
-                try:
-                    from dou_utils.eagendas_document import generate_eagendas_document_from_json
+                # Import via adapter (padrão usado pelo DOU) - falha silenciosa se lxml corrompido
+                from dou_snaptrack.adapters.eagendas_adapter import generate_eagendas_document_from_json
+                
+                if generate_eagendas_document_from_json is None:
+                    st.error("❌ **Módulo python-docx não encontrado ou corrompido**")
+                    st.warning("🔧 Este é um problema comum no Windows com lxml corrompido")
+                    
+                    with st.expander("🔍 Detalhes do erro"):
+                        st.code("O módulo eagendas_document não pôde ser carregado (lxml corrompido)", language="text")
+                        st.code(f"Python: {sys.executable}", language="text")
+                    
+                    st.divider()
+                    st.markdown("**💡 Solução recomendada:**")
+                    fix_cmd = f'"{sys.executable}" -m pip uninstall -y lxml python-docx\n"{sys.executable}" -m pip install --no-cache-dir lxml python-docx'
+                    st.code(fix_cmd, language="powershell")
+                    st.caption("Execute os comandos acima no PowerShell, reinicie a UI e tente novamente")
+                else:
+                    try:
+                        # Gerar nome do documento
+                        if is_example:
+                            out_path = Path("resultados") / "eagendas_agentes_exemplo.docx"
+                            doc_title = "Agendas de Agentes Públicos - Exemplo"
+                        else:
+                            out_path = json_to_use.with_suffix(".docx")
+                            doc_title = f"Agendas E-Agendas - {date_start.strftime('%d/%m/%Y')} a {date_end.strftime('%d/%m/%Y')}"
 
-                    # Gerar nome do documento
-                    if is_example:
-                        out_path = Path("resultados") / "eagendas_agentes_exemplo.docx"
-                        doc_title = "Agendas de Agentes Públicos - Exemplo"
-                    else:
-                        out_path = json_to_use.with_suffix(".docx")
-                        doc_title = f"Agendas E-Agendas - {date_start.strftime('%d/%m/%Y')} a {date_end.strftime('%d/%m/%Y')}"
+                        with st.spinner("Gerando documento DOCX..."):
+                            result = generate_eagendas_document_from_json(
+                                json_path=json_to_use,
+                                out_path=out_path,
+                                include_metadata=True,
+                                title=doc_title
+                            )
 
-                    with st.spinner("Gerando documento DOCX..."):
-                        result = generate_eagendas_document_from_json(
-                            json_path=json_to_use,
-                            out_path=out_path,
-                            include_metadata=True,
-                            title=doc_title
-                        )
+                        st.success("✅ Documento gerado com sucesso!")
+                        st.metric("Agentes", result["agents"])
+                        st.metric("Eventos", result["events"])
+                        st.caption(result["period"])
 
-                    st.success("✅ Documento gerado com sucesso!")
-                    st.metric("Agentes", result["agents"])
-                    st.metric("Eventos", result["events"])
-                    st.caption(result["period"])
+                        # Oferecer download
+                        with open(out_path, "rb") as f:
+                            st.download_button(
+                                label="⬇️ Baixar Documento DOCX",
+                                data=f,
+                                file_name=out_path.name,
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                use_container_width=True
+                            )
+                        # Persistir em sessão para permitir download separado e remoção posterior
+                        try:
+                            with open(out_path, "rb") as _df:
+                                st.session_state["last_eagendas_doc_bytes"] = _df.read()
+                            st.session_state["last_eagendas_doc_name"] = out_path.name
+                            st.session_state["last_eagendas_doc_path"] = str(out_path)
+                        except Exception:
+                            pass
 
-                    # Oferecer download
-                    with open(out_path, "rb") as f:
-                        st.download_button(
-                            label="⬇️ Baixar Documento DOCX",
-                            data=f,
-                            file_name=out_path.name,
-                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            use_container_width=True
-                        )
-
-                except ImportError:
-                    st.error("❌ python-docx não está instalado. Execute: pip install python-docx")
-                except Exception as e:
-                    st.error(f"❌ Erro ao gerar documento: {e}")
-                    import traceback
-                    st.code(traceback.format_exc())
+                    except Exception as e:
+                        st.error(f"❌ Erro ao gerar documento: {e}")
+                        with st.expander("🔍 Traceback completo"):
+                            import traceback
+                            st.code(traceback.format_exc())
     else:
         st.info("💡 Execute a coleta de eventos primeiro ou use o script de teste para gerar dados de exemplo")
         st.code("python scripts/test_eagendas_document.py", language="bash")
+
+    # Download separado de documento gerado anteriormente (padrão usado pelo boletim DOU)
+    _doc_bytes = st.session_state.get("last_eagendas_doc_bytes")
+    _doc_name = st.session_state.get("last_eagendas_doc_name")
+    _doc_path = st.session_state.get("last_eagendas_doc_path")
+    
+    if _doc_bytes and _doc_name:
+        st.divider()
+        dl_clicked = st.download_button(
+            label="⬇️ Baixar último DOCX gerado",
+            data=_doc_bytes,
+            file_name=_doc_name,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            use_container_width=True,
+            key="dl_last_eagendas_doc"
+        )
+        if dl_clicked:
+            # Remover arquivo gerado no servidor após o download
+            try:
+                if _doc_path:
+                    from pathlib import Path as _P
+                    p = _P(str(_doc_path))
+                    if p.exists():
+                        p.unlink(missing_ok=True)
+                        st.toast("🗑️ Arquivo DOCX removido do servidor")
+            except Exception as _e:
+                st.warning(f"Não foi possível remover o arquivo local: {_doc_path} — {_e}")
+            
+            # Remover também o JSON de origem se existir
+            try:
+                if "last_eagendas_json" in st.session_state:
+                    json_path_str = st.session_state["last_eagendas_json"]
+                    from pathlib import Path as _P
+                    json_p = _P(json_path_str)
+                    if json_p.exists():
+                        json_p.unlink(missing_ok=True)
+                        st.toast(f"🗑️ JSON de dados ({json_p.name}) removido")
+                    st.session_state.pop("last_eagendas_json", None)
+            except Exception as _e:
+                # Falha silenciosa - JSON não é crítico
+                pass
+            
+            # Limpar dados da sessão para evitar re-download e liberar memória
+            for k in ("last_eagendas_doc_bytes", "last_eagendas_doc_name", "last_eagendas_doc_path"):
+                st.session_state.pop(k, None)
 
 
 # ======================== TAB 4: Manutenção do Artefato de Pares ========================

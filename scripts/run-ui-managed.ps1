@@ -216,19 +216,10 @@ $p = New-Object System.Diagnostics.Process
 $p.StartInfo = $psi
 [void]$p.Start()
 
-# Open log file with sharing; we'll capture output on failure and at shutdown
-try {
-  $fs = [System.IO.File]::Open($uiLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
-  $stdoutWriter = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
-  $stderrWriter = $stdoutWriter
-} catch {
-  # Fallback to temp file if even per-run log is blocked
-  $tmpLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("ui_streamlit_{0}.log" -f $tsLog))
-  $fs = [System.IO.File]::Open($tmpLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
-  $stdoutWriter = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
-  $stderrWriter = $stdoutWriter
-  Write-Log ("Falha ao abrir $uiLog; usando temporário: $tmpLog")
-}
+# OTIMIZAÇÃO: Não gravar logs automaticamente - só capturar em caso de erro
+# Mantém stdout/stderr redirecionados mas não escreve em disco até erro ocorrer
+$stdoutBuffer = New-Object System.Collections.Generic.List[string]
+$stderrBuffer = New-Object System.Collections.Generic.List[string]
 
 # Esperar porta ficar disponível para abrir o navegador
 function Test-Port($port) {
@@ -248,14 +239,22 @@ while (-not (Test-Port $Port)) {
   Start-Sleep -Milliseconds 300
   if ($p.HasExited) {
     Write-Log "Streamlit terminou prematuramente (exit=$($p.ExitCode))"
+    # ERRO: Gravar logs agora
     try {
-      # Capture any remaining output to help diagnose failures
+      $fs = [System.IO.File]::Open($uiLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
+      $writer = New-Object System.IO.StreamWriter($fs, [System.Text.Encoding]::UTF8)
+      $writer.WriteLine("=== ERRO: Streamlit terminou prematuramente (exit=$($p.ExitCode)) ===")
       $outAll = $p.StandardOutput.ReadToEnd()
       $errAll = $p.StandardError.ReadToEnd()
-      if ($outAll) { $stdoutWriter.WriteLine($outAll) }
-      if ($errAll) { $stderrWriter.WriteLine($errAll) }
-      $stdoutWriter.Flush(); $stderrWriter.Flush()
-    } catch {}
+      if ($outAll) { $writer.WriteLine("STDOUT:"); $writer.WriteLine($outAll) }
+      if ($errAll) { $writer.WriteLine("STDERR:"); $writer.WriteLine($errAll) }
+      $writer.Flush()
+      $writer.Close()
+      $fs.Close()
+      Write-Log "Logs de erro salvos em: $uiLog"
+    } catch {
+      Write-Log "Falha ao salvar logs de erro: $_"
+    }
     exit $p.ExitCode
   }
 }
@@ -306,14 +305,9 @@ try {
 } catch {}
 Write-Log "Browser encerrado. Terminando Streamlit (PID $($p.Id))"
 try { Stop-Process -Id $p.Id -Force } catch {}
-# After stopping, drain remaining output to log
+# OTIMIZAÇÃO: Não gravar logs de saída normal - só em caso de erro (já tratado acima)
 try {
   $null = $p.WaitForExit(2000)
-  $outTail = $p.StandardOutput.ReadToEnd()
-  $errTail = $p.StandardError.ReadToEnd()
-  if ($outTail) { $stdoutWriter.WriteLine($outTail) }
-  if ($errTail) { $stderrWriter.WriteLine($errTail) }
-  $stdoutWriter.Flush(); $stderrWriter.Flush()
 } catch {}
 Write-Log "UI manager finalizado."
 exit 0

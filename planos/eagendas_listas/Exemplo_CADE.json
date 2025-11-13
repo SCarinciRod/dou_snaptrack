@@ -1,0 +1,25 @@
+{
+  "nome": "Exemplo CADE",
+  "criado_em": "2025-11-13",
+  "total_agentes": 2,
+  "queries": [
+    {
+      "n1_label": "Advocacia-Geral da União",
+      "n1_value": "514",
+      "n2_label": "Presidente",
+      "n2_value": "1001",
+      "n3_label": "Alexandre Cordeiro Macedo",
+      "n3_value": "5001",
+      "person_label": "Alexandre Cordeiro Macedo (Presidente)"
+    },
+    {
+      "n1_label": "Advocacia-Geral da União",
+      "n1_value": "514",
+      "n2_label": "Conselheiro",
+      "n2_value": "1002",
+      "n3_label": "Luiz Augusto Azevedo de Almeida Hoffmann",
+      "n3_value": "5002",
+      "person_label": "Luiz Augusto Azevedo de Almeida Hoffmann (Conselheiro)"
+    }
+  ]
+}
