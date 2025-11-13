@@ -243,8 +243,8 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
             "key2": n2,
             "key3_type": None,
             "key3": None,
-            "label1": "",
-            "label2": "",
+            "label1": n1,  # Usar key como label inicial (usuário pode editar depois)
+            "label2": n2,  # Usar key como label inicial
             "label3": "",
         }
         for n2 in n2_list
@@ -1086,17 +1086,159 @@ with tab1:
             st.session_state.plan.combos.extend(add)
             st.success("Adicionado N1 com N2='Todos'.")
 
-    st.write("Plano atual:")
-    st.dataframe(st.session_state.plan.combos)
-
-    cols = st.columns(2)
-    with cols[0]:
-        if st.button("Limpar plano"):
-            st.session_state.plan.combos = []
-            st.success("Plano limpo.")
+    st.divider()
+    st.subheader("📝 Gerenciar Plano")
+    
+    # Sub-seção: Carregar plano existente para edição
+    with st.expander("📂 Carregar Plano Salvo para Editar"):
+        plans_dir, _ = _ensure_dirs()
+        plan_candidates = []
+        try:
+            for p in plans_dir.glob("*.json"):
+                try:
+                    txt = p.read_text(encoding="utf-8", errors="ignore")
+                    if any(k in txt for k in ('"combos"', '"secaoDefault"', '"output"')):
+                        plan_candidates.append(p)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        plan_candidates = sorted(set(plan_candidates))
+        
+        if not plan_candidates:
+            st.info("Nenhum plano salvo disponível.")
+        else:
+            labels = [f"{p.stem} ({len(json.loads(p.read_text(encoding='utf-8')).get('combos', []))} combos)"
+                     for p in plan_candidates]
+            
+            selected_idx = st.selectbox(
+                "Selecione um plano para editar:",
+                range(len(labels)),
+                format_func=lambda i: labels[i],
+                key="edit_plan_selector"
+            )
+            
+            col_load, col_info = st.columns([1, 2])
+            with col_load:
+                if st.button("📥 Carregar para Edição", use_container_width=True):
+                    try:
+                        selected_plan = plan_candidates[selected_idx]
+                        cfg = json.loads(selected_plan.read_text(encoding="utf-8"))
+                        
+                        # Carregar dados do plano para o estado da sessão
+                        st.session_state.plan.date = cfg.get("data", _date.today().strftime("%d-%m-%Y"))
+                        st.session_state.plan.secao = cfg.get("secaoDefault", "DO1")
+                        st.session_state.plan.combos = cfg.get("combos", [])
+                        st.session_state.plan.defaults = cfg.get("defaults", {
+                            "scrape_detail": False,
+                            "summary_lines": 0,
+                            "summary_mode": "center",
+                        })
+                        
+                        # Salvar nome do plano para facilitar resalvar
+                        plan_name = cfg.get("plan_name", selected_plan.stem)
+                        st.session_state["plan_name_ui"] = plan_name
+                        st.session_state["loaded_plan_path"] = str(selected_plan)
+                        
+                        st.success(f"✅ Plano '{selected_plan.stem}' carregado com {len(st.session_state.plan.combos)} combos!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Erro ao carregar plano: {e}")
+            
+            with col_info:
+                try:
+                    preview_plan = plan_candidates[selected_idx]
+                    preview_cfg = json.loads(preview_plan.read_text(encoding="utf-8"))
+                    st.caption(f"📅 Data: {preview_cfg.get('data', 'N/A')}")
+                    st.caption(f"📰 Seção: {preview_cfg.get('secaoDefault', 'N/A')}")
+                    st.caption(f"📦 Combos: {len(preview_cfg.get('combos', []))}")
+                except Exception:
+                    pass
+    
+    # Visualização e edição do plano atual
+    st.markdown("#### 📋 Plano Atual")
+    
+    if not st.session_state.plan.combos:
+        st.info("📭 Nenhum combo no plano. Use as opções acima para adicionar combos ou carregar um plano salvo.")
+    else:
+        st.caption(f"Total: **{len(st.session_state.plan.combos)} combos**")
+        
+        # Criar DataFrame com checkbox para seleção
+        import pandas as pd
+        
+        # Extrair labels com checkbox para marcar remoção
+        display_data = []
+        for i, combo in enumerate(st.session_state.plan.combos):
+            display_data.append({
+                "Remover?": False,
+                "ID": i,
+                "Órgão": combo.get("label1", combo.get("key1", "")),
+                "Sub-órgão": combo.get("label2", combo.get("key2", "")),
+            })
+        
+        df_display = pd.DataFrame(display_data)
+        
+        # Tabela editável com checkbox
+        edited_df = st.data_editor(
+            df_display,
+            use_container_width=True,
+            num_rows="fixed",
+            column_config={
+                "Remover?": st.column_config.CheckboxColumn(
+                    "Remover?",
+                    help="Marque para remover este combo",
+                    default=False,
+                    width="small"
+                ),
+                "ID": st.column_config.NumberColumn("ID", disabled=True, width="small"),
+                "Órgão": st.column_config.TextColumn("Órgão", width="large"),
+                "Sub-órgão": st.column_config.TextColumn("Sub-órgão", width="large"),
+            },
+            hide_index=True,
+            key="plan_combos_editor",
+            disabled=["ID"]
+        )
+        
+        # Botões de ação
+        st.markdown("**Ações:**")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("💾 Salvar Edições", use_container_width=True, type="primary",
+                        help="Aplica as mudanças de texto"):
+                for i, combo in enumerate(st.session_state.plan.combos):
+                    if i < len(edited_df):
+                        new_orgao = edited_df.iloc[i]["Órgão"]
+                        new_sub = edited_df.iloc[i]["Sub-órgão"]
+                        combo["label1"] = new_orgao
+                        combo["label2"] = new_sub
+                        combo["key1"] = new_orgao
+                        combo["key2"] = new_sub
+                st.success("✅ Edições salvas!")
+                st.rerun()
+        
+        with col2:
+            selected_count = int(edited_df["Remover?"].sum())
+            btn_label = f"🗑️ Remover Marcados ({selected_count})"
+            if st.button(btn_label, use_container_width=True, disabled=selected_count == 0,
+                        help="Remove combos marcados"):
+                new_combos = []
+                for i, combo in enumerate(st.session_state.plan.combos):
+                    if i < len(edited_df) and not edited_df.iloc[i]["Remover?"]:
+                        new_combos.append(combo)
+                st.session_state.plan.combos = new_combos
+                st.success(f"✅ {selected_count} combo(s) removido(s)")
+                st.rerun()
+        
+        with col3:
+            if st.button("🗑️ Limpar Tudo", use_container_width=True,
+                        help="Remove TODOS os combos"):
+                st.session_state.plan.combos = []
+                st.success("🗑️ Plano limpo")
+                st.rerun()
 
     st.divider()
-    st.subheader("Salvar plano")
+    st.subheader("💾 Salvar Plano")
     # OTIMIZAÇÃO: Criação lazy de diretórios apenas quando necessário
     plans_dir, _ = _ensure_dirs()
     suggested = plans_dir / f"plan_{str(st.session_state.plan.date or '').replace('/', '-').replace(' ', '_')}.json"
