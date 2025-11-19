@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 import traceback  # Certificar que está no escopo global
 from dataclasses import dataclass
 from datetime import date as _date
@@ -79,6 +80,59 @@ def get_sanitize_filename():
 # Cache para módulos e-agendas
 _PLAN_LIVE_EAGENDAS_CACHE = None
 _EAGENDAS_CALENDAR_CACHE = None
+
+
+def _resolve_combo_label(combo: dict[str, Any], label_field: str, key_field: str) -> str:
+    """Resolve o texto exibido no editor evitando strings vazias do arquivo."""
+    value = combo.get(label_field)
+    if not value:
+        value = combo.get(key_field)
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    return str(value)
+
+
+@lru_cache(maxsize=128)
+def _plan_metadata(path_str: str, stamp: float | None) -> dict[str, Any]:
+    """Extrai metadados leves de um plano para evitar reprocessar JSON a cada rerun."""
+    # stamp participa apenas da chave do cache para invalidar quando o arquivo muda
+    _ = stamp
+    path = Path(path_str)
+    try:
+        cfg = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {"path": path_str, "stem": path.stem, "combos": 0, "data": None, "secao": None}
+
+    combos = cfg.get("combos") or []
+    return {
+        "path": path_str,
+        "stem": path.stem,
+        "combos": len(combos),
+        "data": cfg.get("data"),
+        "secao": cfg.get("secaoDefault"),
+    }
+
+
+@st.cache_data(show_spinner=False, ttl=30)
+def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
+    """Lista planos salvos com cache curto para evitar travamento por I/O repetido."""
+    plans_dir = Path("planos")
+    if not plans_dir.exists():
+        return []
+
+    entries: list[dict[str, Any]] = []
+    for plan_path in plans_dir.glob("*.json"):
+        with contextlib.suppress(Exception):
+            stat = plan_path.stat()
+            meta = _plan_metadata(str(plan_path), stat.st_mtime)
+            meta["mtime"] = stat.st_mtime
+            meta["size_kb"] = round(stat.st_size / 1024, 1)
+            entries.append(meta)
+
+    entries.sort(key=lambda item: item["stem"].lower())
+    return entries
 
 
 def _lazy_import_plan_live_eagendas():
@@ -1092,25 +1146,23 @@ with tab1:
     # Sub-seção: Carregar plano existente para edição
     with st.expander("📂 Carregar Plano Salvo para Editar"):
         plans_dir, _ = _ensure_dirs()
-        plan_candidates = []
-        try:
-            for p in plans_dir.glob("*.json"):
-                try:
-                    txt = p.read_text(encoding="utf-8", errors="ignore")
-                    if any(k in txt for k in ('"combos"', '"secaoDefault"', '"output"')):
-                        plan_candidates.append(p)
-                except Exception:
-                    pass
-        except Exception:
-            pass
-        plan_candidates = sorted(set(plan_candidates))
-        
-        if not plan_candidates:
+        refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
+        head_actions = st.columns([3, 1])
+        with head_actions[1]:
+            if st.button("↻ Atualizar", key="refresh_plan_editor", help="Recarrega a lista de planos salvos"):
+                st.session_state["plan_list_refresh_token"] = time.time()
+                st.rerun()
+
+        plan_entries = _list_saved_plan_files(refresh_token)
+
+        if not plan_entries:
             st.info("Nenhum plano salvo disponível.")
         else:
-            labels = [f"{p.stem} ({len(json.loads(p.read_text(encoding='utf-8')).get('combos', []))} combos)"
-                     for p in plan_candidates]
-            
+            labels = [
+                f"{entry['stem']} ({entry['combos']} combos)"
+                for entry in plan_entries
+            ]
+
             selected_idx = st.selectbox(
                 "Selecione um plano para editar:",
                 range(len(labels)),
@@ -1122,7 +1174,7 @@ with tab1:
             with col_load:
                 if st.button("📥 Carregar para Edição", use_container_width=True):
                     try:
-                        selected_plan = plan_candidates[selected_idx]
+                        selected_plan = Path(plan_entries[selected_idx]["path"])
                         cfg = json.loads(selected_plan.read_text(encoding="utf-8"))
                         
                         # Carregar dados do plano para o estado da sessão
@@ -1146,14 +1198,13 @@ with tab1:
                         st.error(f"❌ Erro ao carregar plano: {e}")
             
             with col_info:
-                try:
-                    preview_plan = plan_candidates[selected_idx]
-                    preview_cfg = json.loads(preview_plan.read_text(encoding="utf-8"))
-                    st.caption(f"📅 Data: {preview_cfg.get('data', 'N/A')}")
-                    st.caption(f"📰 Seção: {preview_cfg.get('secaoDefault', 'N/A')}")
-                    st.caption(f"📦 Combos: {len(preview_cfg.get('combos', []))}")
-                except Exception:
-                    pass
+                meta = plan_entries[selected_idx]
+                st.caption(f"📅 Data: {meta.get('data') or 'N/A'}")
+                st.caption(f"📰 Seção: {meta.get('secao') or 'N/A'}")
+                st.caption(f"📦 Combos: {meta.get('combos', 0)}")
+                size_kb = meta.get("size_kb")
+                if size_kb is not None:
+                    st.caption(f"💾 Tamanho: {size_kb} KB")
     
     # Visualização e edição do plano atual
     st.markdown("#### 📋 Plano Atual")
@@ -1169,11 +1220,13 @@ with tab1:
         # Extrair labels com checkbox para marcar remoção
         display_data = []
         for i, combo in enumerate(st.session_state.plan.combos):
+            orgao_label = _resolve_combo_label(combo, "label1", "key1")
+            sub_label = _resolve_combo_label(combo, "label2", "key2")
             display_data.append({
                 "Remover?": False,
                 "ID": i,
-                "Órgão": combo.get("label1", combo.get("key1", "")),
-                "Sub-órgão": combo.get("label2", combo.get("key2", "")),
+                "Órgão": orgao_label,
+                "Sub-órgão": sub_label,
             })
         
         df_display = pd.DataFrame(display_data)
@@ -1212,8 +1265,6 @@ with tab1:
                         new_sub = edited_df.iloc[i]["Sub-órgão"]
                         combo["label1"] = new_orgao
                         combo["label2"] = new_sub
-                        combo["key1"] = new_orgao
-                        combo["key2"] = new_sub
                 st.success("✅ Edições salvas!")
                 st.rerun()
         
@@ -1259,31 +1310,34 @@ with tab1:
         ppath.parent.mkdir(parents=True, exist_ok=True)
         ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
         st.success(f"Plano salvo em {plan_path}")
+        st.session_state["plan_list_refresh_token"] = time.time()
 
 with tab2:
     st.subheader("Escolha o plano de pesquisa")
     # OTIMIZAÇÃO: Criação lazy de diretórios
     plans_dir, _ = _ensure_dirs()
-    plan_candidates = []
-    try:
-        for p in plans_dir.glob("*.json"):
-            try:
-                txt = p.read_text(encoding="utf-8", errors="ignore")
-                if any(k in txt for k in ('"combos"', '"secaoDefault"', '"output"')):
-                    plan_candidates.append(p)
-            except Exception:
-                pass
-    except Exception:
-        pass
-    plan_candidates = sorted(set(plan_candidates))
-    if not plan_candidates:
+    refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
+    header_cols = st.columns([3, 1])
+    with header_cols[1]:
+        if st.button("↻ Atualizar", key="refresh_plan_runner", help="Recarrega lista de planos"):
+            st.session_state["plan_list_refresh_token"] = time.time()
+            st.rerun()
+
+    plan_entries = _list_saved_plan_files(refresh_token)
+
+    if not plan_entries:
         st.info("Nenhum plano salvo ainda. Informe um caminho válido abaixo.")
         plan_to_run = st.text_input("Arquivo do plano (JSON)", "batch_today.json")
         selected_path = Path(plan_to_run)
     else:
-        labels = [str(p) for p in plan_candidates]
-        choice = st.selectbox("Selecione o plano salvo", labels, index=0)
-        selected_path = Path(choice)
+        labels = [f"{entry['stem']} ({entry['combos']} combos)" for entry in plan_entries]
+        choice_idx = st.selectbox(
+            "Selecione o plano salvo",
+            range(len(labels)),
+            format_func=lambda i: labels[i],
+            index=0,
+        )
+        selected_path = Path(plan_entries[choice_idx]["path"])
 
     # Paralelismo adaptativo (heurística baseada em CPU e nº de jobs)
     # OTIMIZAÇÃO: Import lazy apenas quando necessário (não carrega no startup)
