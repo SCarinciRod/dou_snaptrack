@@ -1193,7 +1193,7 @@ with tab1:
                         st.session_state["loaded_plan_path"] = str(selected_plan)
                         
                         st.success(f"✅ Plano '{selected_plan.stem}' carregado com {len(st.session_state.plan.combos)} combos!")
-                        st.rerun()
+                        # Removido st.rerun() para evitar travamento - o estado atualiza automaticamente
                     except Exception as e:
                         st.error(f"❌ Erro ao carregar plano: {e}")
             
@@ -1212,7 +1212,15 @@ with tab1:
     if not st.session_state.plan.combos:
         st.info("📭 Nenhum combo no plano. Use as opções acima para adicionar combos ou carregar um plano salvo.")
     else:
-        st.caption(f"Total: **{len(st.session_state.plan.combos)} combos**")
+        num_combos = len(st.session_state.plan.combos)
+        st.caption(f"Total: **{num_combos} combos**")
+        
+        # Verificar se há muitos combos que podem causar lentidão/travamento
+        MAX_COMBOS_SAFE = 200
+        if num_combos > MAX_COMBOS_SAFE:
+            st.warning(f"⚠️ **Plano grande detectado ({num_combos} combos)**")
+            st.info("💡 Planos com muitos combos podem causar lentidão na edição. Considere dividir em planos menores ou usar a linha de comando para execução.")
+            # Permitir edição mesmo assim, mas com aviso
         
         # Criar DataFrame com checkbox para seleção
         import pandas as pd
