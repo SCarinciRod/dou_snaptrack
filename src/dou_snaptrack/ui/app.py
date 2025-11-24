@@ -82,16 +82,56 @@ _PLAN_LIVE_EAGENDAS_CACHE = None
 _EAGENDAS_CALENDAR_CACHE = None
 
 
-def _resolve_combo_label(combo: dict[str, Any], label_field: str, key_field: str) -> str:
-    """Resolve o texto exibido no editor evitando strings vazias do arquivo."""
-    value = combo.get(label_field)
-    if not value:
-        value = combo.get(key_field)
-    if value is None:
-        return ""
-    if isinstance(value, str):
-        return value
-    return str(value)
+def _render_hierarchy_selector(
+    title: str,
+    load_button_text: str,
+    load_key: str,
+    options_key: str,
+    select_key: str,
+    current_key: str,
+    label_key: str,
+    level: int,
+    parent_value: str | None = None,
+    parent_label: str | None = None,
+    n2_value: str | None = None,
+) -> None:
+    """Helper para renderizar seletores hierárquicos N1/N2/N3 de forma consistente."""
+    st.markdown(f"**{title}**")
+
+    # Botão de carregamento
+    load_condition = (level == 1) or (level == 2 and parent_value) or (level == 3 and parent_value and n2_value)
+    if load_condition and st.button(load_button_text, key=load_key):
+        spinner_text = f"Obtendo {title.lower().split(' ')[0]} do E-Agendas..."
+        if parent_label:
+            spinner_text = f"Obtendo {title.lower().split(' ')[0]} para '{parent_label}'..."
+        with st.spinner(spinner_text):
+            result = _eagendas_fetch_hierarchy(level=level, n1_value=parent_value, n2_value=n2_value)
+            if result["success"]:
+                st.session_state[options_key] = result["options"]
+                st.success(f"✅ {len(result['options'])} {title.lower().split(' ')[0]} carregados")
+            else:
+                st.error(f"❌ Erro ao carregar {title.lower().split(' ')[0]}: {result['error']}")
+                st.session_state[options_key] = []
+
+    # Selectbox se opções disponíveis
+    options = st.session_state.get(options_key, [])
+    if options:
+        labels = [opt["label"] for opt in options]
+        selected_label = st.selectbox(f"Selecione o {title.lower().split(' ')[0]}:", labels, key=select_key)
+        # Encontrar o value correspondente
+        selected_value = next((opt["value"] for opt in options if opt["label"] == selected_label), None)
+        st.session_state.eagendas.__dict__[current_key.split('.')[-1]] = selected_value
+        st.session_state[label_key] = selected_label
+    else:
+        # Mensagem condicional
+        if level == 1:
+            st.info("Clique em 'Carregar Órgãos' para começar")
+        elif level == 2 and parent_value:
+            st.info("Clique em 'Carregar Cargos'")
+        elif level == 3 and parent_value and n2_value:
+            st.info("Clique em 'Carregar Agentes'")
+        else:
+            st.caption(f"Selecione {'um órgão' if level == 2 else 'um cargo'} primeiro")
 
 
 @lru_cache(maxsize=128)
@@ -626,7 +666,6 @@ except Exception as e:
         st.error(f"[ERRO] Falha ao executar subprocess: {type(e).__name__}: {e}")
         st.error(f"Traceback: {traceback.format_exc()[:500]}")
         return []
-    return []  # Garantir retorno de lista em todos os caminhos
 
 
 # ======================== E-AGENDAS: Funções de Fetch ========================
@@ -945,10 +984,12 @@ def _run_report(
     except Exception as e:
         st.error(f"Falha ao gerar boletim: {e}")
         return []
-
-
-# ---------------- UI ----------------
 st.set_page_config(page_title="SnapTrack DOU ", layout="wide")
+
+def _resolve_combo_label(combo: dict[str, Any], label_key: str, key_key: str) -> str:
+    """Resolve o label de um combo, preferindo label sobre key."""
+    return combo.get(label_key) or combo.get(key_key) or ""
+
 
 # OTIMIZAÇÃO: Lazy load batch_runner apenas quando necessário
 # Detect another UI and register this one
@@ -1655,82 +1696,50 @@ with main_tab_eagendas:
     col_n1, col_n2, col_n3 = st.columns(3)
 
     with col_n1:
-        st.markdown("**Órgão (N1)**")
-        if st.button("Carregar Órgãos", key="eagendas_load_n1"):
-            with st.spinner("Obtendo lista de órgãos do E-Agendas..."):
-                result = _eagendas_fetch_hierarchy(level=1)
-                if result["success"]:
-                    st.session_state["eagendas_n1_options"] = result["options"]
-                    st.success(f"✅ {len(result['options'])} órgãos carregados")
-                else:
-                    st.error(f"❌ Erro ao carregar órgãos: {result['error']}")
-                    st.session_state["eagendas_n1_options"] = []
-
-        n1_options = st.session_state.get("eagendas_n1_options", [])
-        if n1_options:
-            n1_labels = [opt["label"] for opt in n1_options]
-            selected_n1_label = st.selectbox("Selecione o órgão:", n1_labels, key="eagendas_sel_n1")
-            # Encontrar o value correspondente
-            selected_n1_value = next((opt["value"] for opt in n1_options if opt["label"] == selected_n1_label), None)
-            st.session_state.eagendas.current_n1 = selected_n1_value
-            st.session_state["eagendas_current_n1_label"] = selected_n1_label
-        else:
-            st.info("Clique em 'Carregar Órgãos' para começar")
+        _render_hierarchy_selector(
+            title="Órgão (N1)",
+            load_button_text="Carregar Órgãos",
+            load_key="eagendas_load_n1",
+            options_key="eagendas_n1_options",
+            select_key="eagendas_sel_n1",
+            current_key="eagendas.current_n1",
+            label_key="eagendas_current_n1_label",
+            level=1,
+        )
 
     with col_n2:
-        st.markdown("**Cargo (N2)**")
         n1_selected = st.session_state.eagendas.current_n1
-        if n1_selected and st.button("Carregar Cargos", key="eagendas_load_n2"):
-            n1_label = st.session_state.get("eagendas_current_n1_label", "N1")
-            with st.spinner(f"Obtendo cargos para '{n1_label}'..."):
-                result = _eagendas_fetch_hierarchy(level=2, n1_value=n1_selected)
-                if result["success"]:
-                    st.session_state["eagendas_n2_options"] = result["options"]
-                    st.success(f"✅ {len(result['options'])} cargos carregados")
-                else:
-                    st.error(f"❌ Erro ao carregar cargos: {result['error']}")
-                    st.session_state["eagendas_n2_options"] = []
-
-        n2_options = st.session_state.get("eagendas_n2_options", [])
-        if n2_options:
-            n2_labels = [opt["label"] for opt in n2_options]
-            selected_n2_label = st.selectbox("Selecione o cargo:", n2_labels, key="eagendas_sel_n2")
-            # Encontrar o value correspondente
-            selected_n2_value = next((opt["value"] for opt in n2_options if opt["label"] == selected_n2_label), None)
-            st.session_state.eagendas.current_n2 = selected_n2_value
-            st.session_state["eagendas_current_n2_label"] = selected_n2_label
-        elif n1_selected:
-            st.info("Clique em 'Carregar Cargos'")
-        else:
-            st.caption("Selecione um órgão primeiro")
+        n1_label = st.session_state.get("eagendas_current_n1_label", "N1")
+        _render_hierarchy_selector(
+            title="Cargo (N2)",
+            load_button_text="Carregar Cargos",
+            load_key="eagendas_load_n2",
+            options_key="eagendas_n2_options",
+            select_key="eagendas_sel_n2",
+            current_key="eagendas.current_n2",
+            label_key="eagendas_current_n2_label",
+            level=2,
+            parent_value=n1_selected,
+            parent_label=n1_label,
+        )
 
     with col_n3:
-        st.markdown("**Agente (N3)**")
         n2_selected = st.session_state.eagendas.current_n2
         n1_selected = st.session_state.eagendas.current_n1
-        if n2_selected and st.button("Carregar Agentes", key="eagendas_load_n3"):
-            n2_label = st.session_state.get("eagendas_current_n2_label", "N2")
-            with st.spinner(f"Obtendo agentes para '{n2_label}'..."):
-                result = _eagendas_fetch_hierarchy(level=3, n1_value=n1_selected, n2_value=n2_selected)
-                if result["success"]:
-                    st.session_state["eagendas_n3_options"] = result["options"]
-                    st.success(f"✅ {len(result['options'])} agentes carregados")
-                else:
-                    st.error(f"❌ Erro ao carregar agentes: {result['error']}")
-                    st.session_state["eagendas_n3_options"] = []
-
-        n3_options = st.session_state.get("eagendas_n3_options", [])
-        if n3_options:
-            n3_labels = [opt["label"] for opt in n3_options]
-            selected_n3_label = st.selectbox("Selecione o agente:", n3_labels, key="eagendas_sel_n3")
-            # Encontrar o value correspondente
-            selected_n3_value = next((opt["value"] for opt in n3_options if opt["label"] == selected_n3_label), None)
-            st.session_state.eagendas.current_n3 = selected_n3_value
-            st.session_state["eagendas_current_n3_label"] = selected_n3_label
-        elif n2_selected:
-            st.info("Clique em 'Carregar Agentes'")
-        else:
-            st.caption("Selecione um cargo primeiro")
+        n2_label = st.session_state.get("eagendas_current_n2_label", "N2")
+        _render_hierarchy_selector(
+            title="Agente (N3)",
+            load_button_text="Carregar Agentes",
+            load_key="eagendas_load_n3",
+            options_key="eagendas_n3_options",
+            select_key="eagendas_sel_n3",
+            current_key="eagendas.current_n3",
+            label_key="eagendas_current_n3_label",
+            level=3,
+            parent_value=n1_selected,
+            parent_label=n2_label,
+            n2_value=n2_selected,
+        )
 
     st.divider()
 
