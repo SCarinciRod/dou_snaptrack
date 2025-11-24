@@ -218,8 +218,6 @@ $p.StartInfo = $psi
 
 # OTIMIZAÇÃO: Não gravar logs automaticamente - só capturar em caso de erro
 # Mantém stdout/stderr redirecionados mas não escreve em disco até erro ocorrer
-$stdoutBuffer = New-Object System.Collections.Generic.List[string]
-$stderrBuffer = New-Object System.Collections.Generic.List[string]
 
 # Esperar porta ficar disponível para abrir o navegador
 function Test-Port($port) {
