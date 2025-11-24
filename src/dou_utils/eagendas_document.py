@@ -21,7 +21,6 @@ from typing import Any
 
 # IMPORTANTE: Imports de python-docx são lazy (dentro das funções)
 # Isso segue o padrão usado pelo módulo DOU e evita ImportError no topo
-
 from .log_utils import get_logger
 
 logger = get_logger(__name__)

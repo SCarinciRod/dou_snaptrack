@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
 """Adapter utilities bridging dou_snaptrack to dou_utils.
 
 This module provides thin wrappers/import shims for optional utilities that live
@@ -11,9 +14,6 @@ Exposed symbols:
  - generate_bulletin: callable or None
  - summarize_text: callable or None
 """
-
-from collections.abc import Callable
-from typing import Any
 
 # Default to None; import best-available implementations from dou_utils
 generate_bulletin: Callable[..., Any] | None

@@ -103,7 +103,7 @@ class EditionRunnerService:
         # CRITICAL FIX: Reset t0 after determining reuse to avoid accumulating idle time from previous jobs
         if inpage:
             t0 = time.time()
-        
+
         if do_nav:
             _goto(page, url)
         t_after_nav = time.time()

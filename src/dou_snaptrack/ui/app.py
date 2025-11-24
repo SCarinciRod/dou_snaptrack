@@ -828,7 +828,7 @@ def _eagendas_fetch_hierarchy(
         with open(debug_script, 'w', encoding='utf-8') as f:
             f.write(script_content)
         print(f"[DEBUG] Script salvo em: {debug_script}")
-        
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as tmp:
             tmp.write(script_content)
             tmp_script = tmp.name
@@ -1142,7 +1142,7 @@ with tab1:
 
     st.divider()
     st.subheader("📝 Gerenciar Plano")
-    
+
     # Sub-seção: Carregar plano existente para edição
     with st.expander("📂 Carregar Plano Salvo para Editar"):
         plans_dir, _ = _ensure_dirs()
@@ -1169,14 +1169,14 @@ with tab1:
                 format_func=lambda i: labels[i],
                 key="edit_plan_selector"
             )
-            
+
             col_load, col_info = st.columns([1, 2])
             with col_load:
                 if st.button("📥 Carregar para Edição", use_container_width=True):
                     try:
                         selected_plan = Path(plan_entries[selected_idx]["path"])
                         cfg = json.loads(selected_plan.read_text(encoding="utf-8"))
-                        
+
                         # Carregar dados do plano para o estado da sessão
                         st.session_state.plan.date = cfg.get("data", _date.today().strftime("%d-%m-%Y"))
                         st.session_state.plan.secao = cfg.get("secaoDefault", "DO1")
@@ -1186,17 +1186,17 @@ with tab1:
                             "summary_lines": 0,
                             "summary_mode": "center",
                         })
-                        
+
                         # Salvar nome do plano para facilitar resalvar
                         plan_name = cfg.get("plan_name", selected_plan.stem)
                         st.session_state["plan_name_ui"] = plan_name
                         st.session_state["loaded_plan_path"] = str(selected_plan)
-                        
+
                         st.success(f"✅ Plano '{selected_plan.stem}' carregado com {len(st.session_state.plan.combos)} combos!")
                         # Removido st.rerun() para evitar travamento - o estado atualiza automaticamente
                     except Exception as e:
                         st.error(f"❌ Erro ao carregar plano: {e}")
-            
+
             with col_info:
                 meta = plan_entries[selected_idx]
                 st.caption(f"📅 Data: {meta.get('data') or 'N/A'}")
@@ -1205,26 +1205,26 @@ with tab1:
                 size_kb = meta.get("size_kb")
                 if size_kb is not None:
                     st.caption(f"💾 Tamanho: {size_kb} KB")
-    
+
     # Visualização e edição do plano atual
     st.markdown("#### 📋 Plano Atual")
-    
+
     if not st.session_state.plan.combos:
         st.info("📭 Nenhum combo no plano. Use as opções acima para adicionar combos ou carregar um plano salvo.")
     else:
         num_combos = len(st.session_state.plan.combos)
         st.caption(f"Total: **{num_combos} combos**")
-        
+
         # Verificar se há muitos combos que podem causar lentidão/travamento
         MAX_COMBOS_SAFE = 200
         if num_combos > MAX_COMBOS_SAFE:
             st.warning(f"⚠️ **Plano grande detectado ({num_combos} combos)**")
             st.info("💡 Planos com muitos combos podem causar lentidão na edição. Considere dividir em planos menores ou usar a linha de comando para execução.")
             # Permitir edição mesmo assim, mas com aviso
-        
+
         # Criar DataFrame com checkbox para seleção
         import pandas as pd
-        
+
         # Extrair labels com checkbox para marcar remoção
         display_data = []
         for i, combo in enumerate(st.session_state.plan.combos):
@@ -1236,10 +1236,11 @@ with tab1:
                 "Órgão": orgao_label,
                 "Sub-órgão": sub_label,
             })
-        
+
         df_display = pd.DataFrame(display_data)
-        
+
         # Tabela editável com checkbox
+        editor_key = f"plan_combos_editor_{st.session_state.get('loaded_plan_path', 'new')}_{len(st.session_state.plan.combos)}"
         edited_df = st.data_editor(
             df_display,
             use_container_width=True,
@@ -1256,14 +1257,14 @@ with tab1:
                 "Sub-órgão": st.column_config.TextColumn("Sub-órgão", width="large"),
             },
             hide_index=True,
-            key="plan_combos_editor",
+            key=editor_key,
             disabled=["ID"]
         )
-        
+
         # Botões de ação
         st.markdown("**Ações:**")
         col1, col2, col3 = st.columns(3)
-        
+
         with col1:
             if st.button("💾 Salvar Edições", use_container_width=True, type="primary",
                         help="Aplica as mudanças de texto"):
@@ -1273,9 +1274,29 @@ with tab1:
                         new_sub = edited_df.iloc[i]["Sub-órgão"]
                         combo["label1"] = new_orgao
                         combo["label2"] = new_sub
-                st.success("✅ Edições salvas!")
+                # Salvar de volta no arquivo carregado, se existir
+                loaded_path = st.session_state.get("loaded_plan_path")
+                if loaded_path:
+                    try:
+                        cfg_to_save = {
+                            "data": st.session_state.plan.date,
+                            "secaoDefault": st.session_state.plan.secao,
+                            "defaults": st.session_state.plan.defaults,
+                            "combos": st.session_state.plan.combos,
+                            "output": {"pattern": "{topic}_{secao}_{date}_{idx}.json", "report": "batch_report.json"},
+                        }
+                        _pname = st.session_state.get("plan_name_ui")
+                        if isinstance(_pname, str) and _pname.strip():
+                            cfg_to_save["plan_name"] = _pname.strip()
+                        Path(loaded_path).write_text(json.dumps(cfg_to_save, ensure_ascii=False, indent=2), encoding="utf-8")
+                        st.success("✅ Edições salvas no arquivo!")
+                        st.session_state["plan_list_refresh_token"] = time.time()  # Refresh cache
+                    except Exception as e:
+                        st.error(f"❌ Erro ao salvar no arquivo: {e}")
+                else:
+                    st.success("✅ Edições salvas (em memória)! Use 'Salvar plano' para persistir em arquivo.")
                 st.rerun()
-        
+
         with col2:
             selected_count = int(edited_df["Remover?"].sum())
             btn_label = f"🗑️ Remover Marcados ({selected_count})"
@@ -1288,7 +1309,7 @@ with tab1:
                 st.session_state.plan.combos = new_combos
                 st.success(f"✅ {selected_count} combo(s) removido(s)")
                 st.rerun()
-        
+
         with col3:
             if st.button("🗑️ Limpar Tudo", use_container_width=True,
                         help="Remove TODOS os combos"):
@@ -1791,12 +1812,12 @@ with main_tab_eagendas:
 
     # Sub-seção: Salvar/Carregar Listas de Agentes
     st.markdown("#### 💾 Gerenciar Listas de Agentes")
-    
+
     listas_dir = Path("planos") / "eagendas_listas"
     listas_dir.mkdir(parents=True, exist_ok=True)
-    
+
     col_save, col_load = st.columns(2)
-    
+
     with col_save:
         st.caption("💾 Salvar lista atual")
         lista_name = st.text_input(
@@ -1805,13 +1826,13 @@ with main_tab_eagendas:
             key="eagendas_lista_name",
             help="Nome para identificar esta lista de agentes"
         )
-        
+
         can_save = len(st.session_state.eagendas.saved_queries) > 0 and lista_name.strip()
         if st.button("💾 Salvar Lista", disabled=not can_save, use_container_width=True):
             # Sanitizar nome do arquivo
             safe_name = "".join(c if c.isalnum() or c in "_ -" else "_" for c in lista_name.strip())
             file_path = listas_dir / f"{safe_name}.json"
-            
+
             # Preparar dados para salvar
             lista_data = {
                 "nome": lista_name.strip(),
@@ -1819,7 +1840,7 @@ with main_tab_eagendas:
                 "total_agentes": len(st.session_state.eagendas.saved_queries),
                 "queries": st.session_state.eagendas.saved_queries
             }
-            
+
             try:
                 with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(lista_data, f, indent=2, ensure_ascii=False)
@@ -1827,19 +1848,19 @@ with main_tab_eagendas:
                 st.caption(f"📁 {file_path}")
             except Exception as e:
                 st.error(f"❌ Erro ao salvar lista: {e}")
-    
+
     with col_load:
         st.caption("📂 Carregar lista salva")
-        
+
         # Listar arquivos JSON disponíveis
         lista_files = sorted(listas_dir.glob("*.json"))
-        
+
         if lista_files:
             # Ler metadados das listas
             lista_options = []
             for file_path in lista_files:
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with open(file_path, encoding="utf-8") as f:
                         data = json.load(f)
                     nome = data.get("nome", file_path.stem)
                     total = data.get("total_agentes", len(data.get("queries", [])))
@@ -1852,16 +1873,16 @@ with main_tab_eagendas:
                 except Exception:
                     # Ignorar arquivos corrompidos
                     continue
-            
+
             if lista_options:
                 selected_lista_label = st.selectbox(
                     "Selecione uma lista:",
                     [opt["label"] for opt in lista_options],
                     key="eagendas_lista_select"
                 )
-                
+
                 col_load_btn, col_del_btn = st.columns(2)
-                
+
                 with col_load_btn:
                     if st.button("📂 Carregar", use_container_width=True):
                         # Encontrar a lista selecionada
@@ -1870,7 +1891,7 @@ with main_tab_eagendas:
                             st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
                             st.success(f"✅ Lista carregada: {selected_opt['data']['total_agentes']} agentes")
                             st.rerun()
-                
+
                 with col_del_btn:
                     if st.button("🗑️ Excluir", use_container_width=True, type="secondary"):
                         # Confirmar exclusão
@@ -2081,15 +2102,15 @@ with main_tab_eagendas:
             if st.button(btn_label, key="gen_doc_btn", use_container_width=True):
                 # Import via adapter (padrão usado pelo DOU) - falha silenciosa se lxml corrompido
                 from dou_snaptrack.adapters.eagendas_adapter import generate_eagendas_document_from_json
-                
+
                 if generate_eagendas_document_from_json is None:
                     st.error("❌ **Módulo python-docx não encontrado ou corrompido**")
                     st.warning("🔧 Este é um problema comum no Windows com lxml corrompido")
-                    
+
                     with st.expander("🔍 Detalhes do erro"):
                         st.code("O módulo eagendas_document não pôde ser carregado (lxml corrompido)", language="text")
                         st.code(f"Python: {sys.executable}", language="text")
-                    
+
                     st.divider()
                     st.markdown("**💡 Solução recomendada:**")
                     fix_cmd = f'"{sys.executable}" -m pip uninstall -y lxml python-docx\n"{sys.executable}" -m pip install --no-cache-dir lxml python-docx'
@@ -2149,7 +2170,7 @@ with main_tab_eagendas:
     _doc_bytes = st.session_state.get("last_eagendas_doc_bytes")
     _doc_name = st.session_state.get("last_eagendas_doc_name")
     _doc_path = st.session_state.get("last_eagendas_doc_path")
-    
+
     if _doc_bytes and _doc_name:
         st.divider()
         dl_clicked = st.download_button(
@@ -2171,7 +2192,7 @@ with main_tab_eagendas:
                         st.toast("🗑️ Arquivo DOCX removido do servidor")
             except Exception as _e:
                 st.warning(f"Não foi possível remover o arquivo local: {_doc_path} — {_e}")
-            
+
             # Remover também o JSON de origem se existir
             try:
                 if "last_eagendas_json" in st.session_state:
@@ -2185,7 +2206,7 @@ with main_tab_eagendas:
             except Exception as _e:
                 # Falha silenciosa - JSON não é crítico
                 pass
-            
+
             # Limpar dados da sessão para evitar re-download e liberar memória
             for k in ("last_eagendas_doc_bytes", "last_eagendas_doc_name", "last_eagendas_doc_path"):
                 st.session_state.pop(k, None)

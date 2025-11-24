@@ -49,7 +49,6 @@ def main():
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from mappers.eagendas_selectize import (
             find_selectize_by_label,
-            get_selectize_options,
             open_selectize_dropdown,
             select_selectize_option_via_api,
         )
@@ -122,19 +121,19 @@ def main():
                     print("[DEBUG] Procurando selectize 'Órgão ou entidade'...", file=sys.stderr)
                     selectize_n1 = find_selectize_by_label(page, "Órgão ou entidade")
                     if not selectize_n1:
-                        print(f"[ERROR] Selectize 'Órgão ou entidade' não encontrado", file=sys.stderr)
+                        print("[ERROR] Selectize 'Órgão ou entidade' não encontrado", file=sys.stderr)
                         continue
 
                     # PASSO 2: Abrir dropdown N1 e selecionar órgão
                     print(f"[DEBUG] Selecionando órgão: {query['n1_label']} (ID: {query['n1_value']})", file=sys.stderr)
                     if not open_selectize_dropdown(page, selectize_n1, wait_ms=2000):
-                        print(f"[ERROR] Não foi possível abrir dropdown N1", file=sys.stderr)
+                        print("[ERROR] Não foi possível abrir dropdown N1", file=sys.stderr)
                         continue
 
                     # Selecionar via API (mais confiável)
                     option_n1 = {"value": query["n1_value"], "text": query["n1_label"]}
                     if not select_selectize_option_via_api(page, selectize_n1, option_n1, wait_after_ms=3000):
-                        print(f"[ERROR] Não foi possível selecionar N1", file=sys.stderr)
+                        print("[ERROR] Não foi possível selecionar N1", file=sys.stderr)
                         continue
 
                     # PASSO 3: Encontrar selectize N2 (Cargo)
@@ -142,18 +141,18 @@ def main():
                     page.wait_for_timeout(2000)
                     selectize_n2 = find_selectize_by_label(page, "Cargo")
                     if not selectize_n2:
-                        print(f"[ERROR] Selectize 'Cargo' não encontrado", file=sys.stderr)
+                        print("[ERROR] Selectize 'Cargo' não encontrado", file=sys.stderr)
                         continue
 
                     # PASSO 4: Abrir dropdown N2 e selecionar cargo
                     print(f"[DEBUG] Selecionando cargo: {query['n2_label']} (ID: {query['n2_value']})", file=sys.stderr)
                     if not open_selectize_dropdown(page, selectize_n2, wait_ms=2000):
-                        print(f"[ERROR] Não foi possível abrir dropdown N2", file=sys.stderr)
+                        print("[ERROR] Não foi possível abrir dropdown N2", file=sys.stderr)
                         continue
 
                     option_n2 = {"value": query["n2_value"], "text": query["n2_label"]}
                     if not select_selectize_option_via_api(page, selectize_n2, option_n2, wait_after_ms=3000):
-                        print(f"[ERROR] Não foi possível selecionar N2", file=sys.stderr)
+                        print("[ERROR] Não foi possível selecionar N2", file=sys.stderr)
                         continue
 
                     # PASSO 5: Encontrar selectize N3 (Agente público)
@@ -161,18 +160,18 @@ def main():
                     page.wait_for_timeout(2000)
                     selectize_n3 = find_selectize_by_label(page, "Agente público")
                     if not selectize_n3:
-                        print(f"[ERROR] Selectize 'Agente público' não encontrado", file=sys.stderr)
+                        print("[ERROR] Selectize 'Agente público' não encontrado", file=sys.stderr)
                         continue
 
                     # PASSO 6: Abrir dropdown N3 e selecionar agente
                     print(f"[DEBUG] Selecionando agente: {query['n3_label']} (ID: {query['n3_value']})", file=sys.stderr)
                     if not open_selectize_dropdown(page, selectize_n3, wait_ms=2000):
-                        print(f"[ERROR] Não foi possível abrir dropdown N3", file=sys.stderr)
+                        print("[ERROR] Não foi possível abrir dropdown N3", file=sys.stderr)
                         continue
 
                     option_n3 = {"value": query["n3_value"], "text": query["n3_label"]}
                     if not select_selectize_option_via_api(page, selectize_n3, option_n3, wait_after_ms=2000):
-                        print(f"[ERROR] Não foi possível selecionar N3", file=sys.stderr)
+                        print("[ERROR] Não foi possível selecionar N3", file=sys.stderr)
                         continue
 
                     # Clicar em "Mostrar agenda"
@@ -252,7 +251,7 @@ def main():
 
                     # Verificar se calendário apareceu
                     print("[DEBUG] Aguardando calendário aparecer...", file=sys.stderr)
-                    
+
                     # Tentar múltiplos seletores para calendário
                     calendar_selectors = [
                         "#divcalendar",
@@ -262,7 +261,7 @@ def main():
                         "[class*='calendar']",
                         "[id*='calendar']"
                     ]
-                    
+
                     calendar = None
                     for selector in calendar_selectors:
                         try:
@@ -276,7 +275,7 @@ def main():
                                     break
                         except Exception:
                             continue
-                    
+
                     if not calendar:
                         print(f"[WARNING] Calendário não encontrado para {query['n3_label']}", file=sys.stderr)
                         # Salvar screenshot para debug
@@ -284,7 +283,7 @@ def main():
                         page.screenshot(path=screenshot_path)
                         print(f"[DEBUG] Screenshot salvo: {screenshot_path}", file=sys.stderr)
                         continue
-                    
+
                     print("[DEBUG] Calendário encontrado e visível!", file=sys.stderr)
 
                     # Coletar eventos do período

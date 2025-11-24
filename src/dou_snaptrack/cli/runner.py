@@ -6,8 +6,12 @@ from pathlib import Path
 from typing import Any
 
 from ..adapters.services import get_edition_runner
+
 try:
-    from ..adapters.utils import generate_bulletin as _generate_bulletin, summarize_text as _summarize_text  # type: ignore
+    from ..adapters.utils import (  # type: ignore
+        generate_bulletin as _generate_bulletin,
+        summarize_text as _summarize_text,
+    )
 except Exception as _e:  # pragma: no cover - fallback path
     # Fallback direto para dou_utils caso o adapters.utils não esteja visível em subprocessos
     try:
