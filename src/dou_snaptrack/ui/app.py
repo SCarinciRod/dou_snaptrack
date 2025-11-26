@@ -1263,12 +1263,61 @@ with tab1:
             st.info("💡 Planos com muitos combos podem causar lentidão na edição. Considere dividir em planos menores ou usar a linha de comando para execução.")
             # Permitir edição mesmo assim, mas com aviso
 
-        # Criar DataFrame com checkbox para seleção
+        # PAGINAÇÃO: Implementar paginação com limite de 15 linhas por página
+        PAGE_SIZE = 15
+        total_pages = (num_combos + PAGE_SIZE - 1) // PAGE_SIZE  # Ceiling division
+
+        # Inicializar página atual na sessão se não existir
+        if "plan_page" not in st.session_state:
+            st.session_state.plan_page = 0
+
+        # Garantir que a página atual é válida
+        if st.session_state.plan_page >= total_pages:
+            st.session_state.plan_page = max(0, total_pages - 1)
+
+        # Controles de paginação
+        if total_pages > 1:
+            st.markdown("**📄 Navegação de Páginas:**")
+            col_nav1, col_nav2, col_nav3, col_nav4 = st.columns([1, 2, 2, 1])
+
+            with col_nav1:
+                if st.button("⬅️ Anterior", disabled=st.session_state.plan_page == 0, key="plan_prev_page"):
+                    st.session_state.plan_page = max(0, st.session_state.plan_page - 1)
+                    st.rerun()
+
+            with col_nav2:
+                page_options = [f"Página {i+1} de {total_pages}" for i in range(total_pages)]
+                selected_page = st.selectbox(
+                    "Ir para:",
+                    options=range(total_pages),
+                    format_func=lambda x: f"Página {x+1} de {total_pages}",
+                    index=st.session_state.plan_page,
+                    key="plan_page_selector"
+                )
+                if selected_page != st.session_state.plan_page:
+                    st.session_state.plan_page = selected_page
+                    st.rerun()
+
+            with col_nav3:
+                start_idx = st.session_state.plan_page * PAGE_SIZE + 1
+                end_idx = min((st.session_state.plan_page + 1) * PAGE_SIZE, num_combos)
+                st.caption(f"Mostrando {start_idx}-{end_idx} de {num_combos} combos")
+
+            with col_nav4:
+                if st.button("Próximo ➡️", disabled=st.session_state.plan_page >= total_pages - 1, key="plan_next_page"):
+                    st.session_state.plan_page = min(total_pages - 1, st.session_state.plan_page + 1)
+                    st.rerun()
+
+        # Filtrar dados para a página atual
+        start_idx = st.session_state.plan_page * PAGE_SIZE
+        end_idx = min(start_idx + PAGE_SIZE, num_combos)
+        page_combos = st.session_state.plan.combos[start_idx:end_idx]
+
+        # Criar DataFrame apenas com os combos da página atual
         import pandas as pd
 
-        # Extrair labels com checkbox para marcar remoção
         display_data = []
-        for i, combo in enumerate(st.session_state.plan.combos):
+        for i, combo in enumerate(page_combos, start=start_idx):
             orgao_label = _resolve_combo_label(combo, "label1", "key1")
             sub_label = _resolve_combo_label(combo, "label2", "key2")
             display_data.append({
@@ -1281,7 +1330,7 @@ with tab1:
         df_display = pd.DataFrame(display_data)
 
         # Tabela editável com checkbox
-        editor_key = f"plan_combos_editor_{st.session_state.get('loaded_plan_path', 'new')}_{len(st.session_state.plan.combos)}"
+        editor_key = f"plan_combos_editor_{st.session_state.get('loaded_plan_path', 'new')}_{len(st.session_state.plan.combos)}_{st.session_state.plan_page}"
         edited_df = st.data_editor(
             df_display,
             use_container_width=True,
@@ -1308,13 +1357,15 @@ with tab1:
 
         with col1:
             if st.button("💾 Salvar Edições", use_container_width=True, type="primary",
-                        help="Aplica as mudanças de texto"):
-                for i, combo in enumerate(st.session_state.plan.combos):
-                    if i < len(edited_df):
-                        new_orgao = edited_df.iloc[i]["Órgão"]
-                        new_sub = edited_df.iloc[i]["Sub-órgão"]
-                        combo["label1"] = new_orgao
-                        combo["label2"] = new_sub
+                        help="Aplica as mudanças de texto em TODAS as páginas"):
+                # Aplicar edições considerando paginação
+                for page_idx, row in enumerate(edited_df.itertuples()):
+                    global_idx = start_idx + page_idx
+                    if global_idx < len(st.session_state.plan.combos):
+                        new_orgao = row.Órgão
+                        new_sub = row.Sub_orgão
+                        st.session_state.plan.combos[global_idx]["label1"] = new_orgao
+                        st.session_state.plan.combos[global_idx]["label2"] = new_sub
                 # Salvar de volta no arquivo carregado, se existir
                 loaded_path = st.session_state.get("loaded_plan_path")
                 if loaded_path:
@@ -1342,19 +1393,32 @@ with tab1:
             selected_count = int(edited_df["Remover?"].sum())
             btn_label = f"🗑️ Remover Marcados ({selected_count})"
             if st.button(btn_label, use_container_width=True, disabled=selected_count == 0,
-                        help="Remove combos marcados"):
+                        help="Remove combos marcados em TODAS as páginas"):
+                # Coletar IDs para remover considerando paginação
+                ids_to_remove = []
+                for page_idx, row in enumerate(edited_df.itertuples()):
+                    if row.Remover_:
+                        global_idx = start_idx + page_idx
+                        ids_to_remove.append(global_idx)
+
+                # Remover em ordem reversa para não afetar índices
                 new_combos = []
                 for i, combo in enumerate(st.session_state.plan.combos):
-                    if i < len(edited_df) and not edited_df.iloc[i]["Remover?"]:
+                    if i not in ids_to_remove:
                         new_combos.append(combo)
                 st.session_state.plan.combos = new_combos
-                st.success(f"✅ {selected_count} combo(s) removido(s)")
+                st.success(f"✅ {len(ids_to_remove)} combo(s) removido(s)")
+                # Resetar página se necessário
+                total_pages_after = (len(new_combos) + PAGE_SIZE - 1) // PAGE_SIZE
+                if st.session_state.plan_page >= total_pages_after:
+                    st.session_state.plan_page = max(0, total_pages_after - 1)
                 st.rerun()
 
         with col3:
             if st.button("🗑️ Limpar Tudo", use_container_width=True,
-                        help="Remove TODOS os combos"):
+                        help="Remove TODOS os combos do plano"):
                 st.session_state.plan.combos = []
+                st.session_state.plan_page = 0  # Resetar página
                 st.success("🗑️ Plano limpo")
                 st.rerun()
 
@@ -1363,7 +1427,8 @@ with tab1:
     # OTIMIZAÇÃO: Criação lazy de diretórios apenas quando necessário
     plans_dir, _ = _ensure_dirs()
     suggested = plans_dir / f"plan_{str(st.session_state.plan.date or '').replace('/', '-').replace(' ', '_')}.json"
-    plan_path = st.text_input("Salvar como", str(suggested))
+    plan_name = st.text_input("Nome do arquivo", suggested.stem)
+    plan_path = plans_dir / f"{plan_name}.json"
     if st.button("Salvar plano"):
         cfg = {
             "data": st.session_state.plan.date,
@@ -1613,7 +1678,8 @@ with tab3:
             sel_plan = st.selectbox("Plano (encontrado na data)", plan_names, index=0, key="agg_plan_select")
             files = day_idx.get(sel_plan, [])
             kind2 = st.selectbox("Formato (agregados)", ["docx", "md", "html"], index=1, key="kind_agg")
-            out_name2 = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}.{kind2}")
+            out_name_base = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}")
+            out_name2 = f"{out_name_base}.{kind2}"
             if st.button("Gerar boletim do plano (data selecionada)"):
                 try:
                     from dou_snaptrack.cli.reporting import report_from_aggregated
