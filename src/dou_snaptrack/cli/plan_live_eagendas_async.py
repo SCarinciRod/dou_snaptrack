@@ -363,13 +363,19 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     DD_CARGO_ID = "filtro_cargo"
     DD_AGENTE_ID = "filtro_servidor"
 
+    # NOTA: E-Agendas detecta headless e bloqueia. Sempre usar headless=False + --start-minimized
+    LAUNCH_ARGS = ['--start-minimized', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
+    # Se headful explícito, não minimizar
+    if headful:
+        LAUNCH_ARGS = ['--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
+
     # Launch browser
     browser = None
     try:
-        browser = await p.chromium.launch(channel="chrome", headless=not headful, slow_mo=slowmo)
+        browser = await p.chromium.launch(channel="chrome", headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
     except Exception:
         try:
-            browser = await p.chromium.launch(channel="msedge", headless=not headful, slow_mo=slowmo)
+            browser = await p.chromium.launch(channel="msedge", headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
         except Exception:
             exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
             if not exe:
@@ -383,7 +389,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                         exe = c
                         break
             if exe and Path(exe).exists():
-                browser = await p.chromium.launch(executable_path=exe, headless=not headful, slow_mo=slowmo)
+                browser = await p.chromium.launch(executable_path=exe, headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
 
     if not browser:
         msg = (
@@ -402,8 +408,8 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     from dou_snaptrack.constants import EAGENDAS_URL
 
     url = EAGENDAS_URL
-    await page.goto(url, wait_until="domcontentloaded", timeout=60_000)
-    await page.wait_for_timeout(5000)  # Aguardar Selectize inicializar
+    await page.goto(url, wait_until="commit", timeout=60_000)
+    await page.wait_for_timeout(5000)  # Aguardar AngularJS e Selectize inicializar
 
     frame = page.main_frame
 

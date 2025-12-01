@@ -13,7 +13,7 @@ from ..utils.text import normalize_text
 from ..utils.wait_utils import wait_for_condition, wait_for_options_loaded
 
 try:
-    from dou_utils.selectors import LISTBOX_SELECTORS, OPTION_SELECTORS  # type: ignore
+    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS  # type: ignore
 except Exception:
     LISTBOX_SELECTORS = (
         "[role=listbox]",

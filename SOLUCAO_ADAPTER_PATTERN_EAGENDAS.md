@@ -214,3 +214,156 @@ lxml.etree (pode estar corrompido)
 **Data**: 2025-11-13  
 **Versão**: 1.0  
 **Status**: ✅ Implementado e testado
+# =============================================================================
+# MODULE DOCUMENTATION AND CONTRACTS
+# =============================================================================
+#
+# Streamlit UI for SnapTrack DOU.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# COMPREHENSIVE MODULARIZATION PLAN
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# PHASE 1: UI Layer Split (ui/)
+# ─────────────────────────────
+# ui/
+# ├── __init__.py              # Re-exports main entry point
+# ├── app.py                   # Main Streamlit layout and tabs (slim ~500 lines)
+# ├── state.py                 # PlanState, EAgendasState, SessionManager (~150 lines)
+# ├── subprocess_utils.py      # _execute_script_and_read_result (~100 lines)
+# ├── dou_fetch.py             # _plan_live_fetch_n1_options, _plan_live_fetch_n2 (~400 lines)
+# ├── eagendas_fetch.py        # _eagendas_fetch_hierarchy (~300 lines)
+# ├── plan_editor.py           # Plan editor with pagination (~600 lines)
+# ├── batch_executor.py        # Batch execution UI (from TAB DOU) (~300 lines)
+# ├── report_generator.py      # Bulletin generation (~200 lines)
+# ├── maintenance.py           # Pairs file maintenance sidebar (~150 lines)
+# └── components.py            # Reusable widgets: _render_hierarchy_selector, etc.
+#
+# PHASE 2: Shared Utilities Consolidation (utils/)
+# ─────────────────────────────────────────────────
+# Current state: utils/ has good separation, but some overlap with dou_utils/
+#
+# RECOMMENDED MERGE/CONSOLIDATION:
+# ├── utils/browser.py         # ✓ Keep - URL builders, async page helpers
+# ├── utils/text.py            # ✓ Keep - sanitize_filename, text normalization
+# ├── utils/parallel.py        # ✓ Keep - recommend_parallel, pool management
+# ├── utils/pairs_updater.py   # ✓ Keep - pairs file management
+# ├── utils/selectize.py       # → MERGE with mappers/eagendas_selectize.py
+# ├── utils/dom.py             # → MOVE to dou_utils/page_utils.py (find_best_frame_async)
+# ├── utils/wait_utils.py      # → MERGE with dou_utils/page_utils.py
+# └── utils/eagendas_calendar.py # ✓ Keep - calendar-specific logic
+#
+# PHASE 3: CLI Layer Cleanup (cli/)
+# ──────────────────────────────────
+# Current state: Good structure, but some redundancy
+#
+# OBSERVATIONS:
+# ├── cli/plan_live.py           # Sync version - consider deprecating
+# ├── cli/plan_live_async.py     # Async version - PRIMARY, keep
+# ├── cli/plan_live_eagendas.py  # → MERGE with plan_live_eagendas_async.py
+# ├── cli/batch.py               # ✓ Keep - core batch runner
+# ├── cli/reporting.py           # ✓ Keep - aggregation and reports
+# └── cli/runner.py              # Worker entry - review for consolidation
+#
+# PHASE 4: dou_utils Consolidation
+# ────────────────────────────────
+# dou_utils/ has many small files - consider grouping:
+#
+# RECOMMENDED STRUCTURE:
+# dou_utils/
+# ├── __init__.py
+# ├── core/                    # ✓ Keep as-is
+# │   ├── combos.py
+# │   ├── dropdown_actions.py
+# │   ├── option_filter.py
+# │   ├── polling.py
+# │   └── sentinel_utils.py
+# ├── services/                # ✓ Keep as-is
+# │   ├── cascade_service.py
+# │   ├── edition_runner_service.py
+# │   ├── multi_level_cascade_service.py
+# │   └── planning_service.py
+# ├── page.py                  # ← MERGE: page_utils.py + wait helpers
+# ├── text.py                  # ← MERGE: text_cleaning.py + summary_utils.py
+# ├── selectors.py             # ✓ Keep - centralized selectors
+# ├── models.py                # ✓ Keep - data models
+# └── log_utils.py             # ✓ Keep - logging configuration
+#
+# FILES TO DEPRECATE/MERGE:
+# ├── dropdown_utils.py        # → core/dropdown_actions.py
+# ├── dropdown_strategies.py   # → core/dropdown_actions.py
+# ├── selection_utils.py       # → core/dropdown_actions.py
+# ├── query_utils.py           # → services/planning_service.py
+# ├── detail_utils.py          # → content_fetcher.py
+# ├── enrich_utils.py          # → content_fetcher.py
+# ├── dedup_state.py           # → core/sentinel_utils.py
+#
+# PHASE 5: Constants Centralization
+# ──────────────────────────────────
+# Current: constants.py exists but some constants scattered
+#
+# CONSOLIDATE TO constants.py:
+# - RESULT_JSON_ENV from app.py
+# - ALLOW_TLS_BYPASS_ENV from app.py
+# - DEFAULT_SUBPROCESS_TIMEOUT from app.py
+# - All URL bases (BASE_DOU, EAGENDAS_URL)
+# - All selector IDs (LEVEL_IDS, EAGENDAS_LEVEL_IDS)
+# - Cookie button texts
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# PRIORITY ORDER FOR REFACTORING
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# HIGH PRIORITY (Do First):
+# 1. Extract ui/state.py - PlanState, EAgendasState (reduces app.py by ~200 lines)
+# 2. Extract ui/subprocess_utils.py - subprocess helper (reduces app.py by ~100 lines)
+# 3. Consolidate constants to constants.py
+#
+# MEDIUM PRIORITY:
+# 4. Extract ui/dou_fetch.py - N1/N2 fetch functions
+# 5. Extract ui/eagendas_fetch.py - hierarchy fetch
+# 6. Merge dou_utils dropdown modules
+#
+# LOW PRIORITY (Future):
+# 7. Extract ui/plan_editor.py
+# 8. Extract ui/batch_executor.py
+# 9. Full dou_utils consolidation
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# MODULE CONTRACTS AND ENVIRONMENT FLAGS
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# SUBPROCESS CONTRACT (RESULT_JSON_PATH):
+# ───────────────────────────────────────
+# Child scripts MUST write their final JSON payload to the path provided in
+# the environment variable `RESULT_JSON_PATH` (set by the parent). Format:
+#     {"success": bool, "options": [...], "error": "..."}
+#
+# ENVIRONMENT FLAGS:
+# ──────────────────
+# UI Configuration:
+#   - DOU_UI_ALLOW_TLS_BYPASS  : (1/true/yes) bypass TLS for corporate proxies
+#   - DOU_UI_SUBPROCESS_TIMEOUT: timeout in seconds (default: 120)
+#   - DOU_UI_LOG_LEVEL         : logging level (default: INFO)
+#   - DOU_UI_LOGO_MODE         : "corner" or "sidebar"
+#   - DOU_UI_PORT              : Streamlit port (default: 8501)
+#
+# Batch/Worker Configuration:
+#   - DOU_POOL                 : "thread" or "subprocess" for workers
+#   - DOU_PREFER_EDGE          : (1) prefer Edge over Chrome
+#   - DOU_FAST_MODE            : (1) skip detail scraping
+#
+# Playwright Configuration:
+#   - PLAYWRIGHT_BROWSERS_PATH : browser cache location (.venv/pw-browsers)
+#   - PLAYWRIGHT_CHROME_PATH   : explicit Chrome executable path
+#   - CHROME_PATH              : fallback Chrome path
+#
+# =============================================================================
+
+
+# =============================================================================
+# SECTION: DOU LIVE FETCH (N1/N2 dropdowns)
+# Functions extracted to: dou_snaptrack.ui.dou_fetch
+# Imports: _plan_live_fetch_n1_options, _plan_live_fetch_n2, _prepare_subprocess_env,
+#          _make_error, _find_system_browser_exe
+# =============================================================================

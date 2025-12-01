@@ -10,9 +10,9 @@ except Exception:
     _du_find_best_frame = None
 
 try:
-    from dou_utils.dropdown_utils import (  # type: ignore
-        _is_select as _du_is_select,
-        _read_select_options as _du_read_select_options,
+    from dou_utils.dropdowns import (  # type: ignore
+        is_select as _du_is_select,
+        read_select_options as _du_read_select_options,
     )
 except Exception:
     _du_is_select = None

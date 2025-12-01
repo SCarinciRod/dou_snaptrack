@@ -12,8 +12,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..dropdown_strategies import collect_open_list_options, open_dropdown_robust
-from ..dropdown_utils import _is_select, _read_select_options
+from ..dropdowns import (
+    collect_open_list_options,
+    is_select as _is_select,
+    open_dropdown_robust,
+    read_select_options as _read_select_options,
+)
 from ..log_utils import get_logger
 
 logger = get_logger(__name__)

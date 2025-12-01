@@ -30,6 +30,15 @@ def _ensure_pythonpath() -> None:
     sep = ";" if os.name == "nt" else ":"
     os.environ["PYTHONPATH"] = f"{_SRC_ROOT}{sep}{cur_pp}" if cur_pp else _SRC_ROOT
 
+
+def run_cmd(cmd, timeout: int = 5, cwd: str | None = None, env: dict | None = None, check: bool = False):
+    """Small wrapper around subprocess.run to centralize capture/timeouts.
+
+    Returns the CompletedProcess on success. Propagates subprocess.TimeoutExpired
+    so callers that expect timeouts can handle them.
+    """
+    return subprocess.run(cmd, capture_output=True, text=True, check=check, timeout=timeout, cwd=cwd, env=env)
+
 def _pid_alive_windows(pid: int) -> bool:
     """Return True if a process with this PID exists on Windows.
 
@@ -38,10 +47,7 @@ def _pid_alive_windows(pid: int) -> bool:
     try:
         if pid <= 0:
             return False
-        out = subprocess.run(
-            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
-            capture_output=True, text=True, check=False, timeout=2  # Reduzido de 5s para 2s
-        )
+        out = run_cmd(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"], timeout=2)
         stdout = (out.stdout or "").strip()
         if not stdout or stdout.lower().startswith("info:"):
             return False
@@ -140,6 +146,81 @@ def clear_ui_lock() -> None:
     with contextlib.suppress(Exception):
         UI_LOCK_PATH.unlink(missing_ok=True)
 
+
+def cleanup_batch_processes() -> dict[str, Any]:
+    """Kill any orphaned batch subprocesses and clean up locks/incomplete files.
+    
+    Returns a summary of what was cleaned up.
+    """
+    result = {"killed_pids": [], "removed_locks": [], "errors": []}
+    
+    # 1. Remove lock files
+    for lock_path in [LOCK_PATH, UI_LOCK_PATH]:
+        try:
+            if lock_path.exists():
+                lock_path.unlink(missing_ok=True)
+                result["removed_locks"].append(str(lock_path))
+        except Exception as e:
+            result["errors"].append(f"lock {lock_path}: {e}")
+    
+    # 2. Find and kill subprocesses from _active_pids.json files
+    try:
+        resultados_dir = Path("resultados")
+        if resultados_dir.exists():
+            for pids_file in resultados_dir.rglob("_subproc/_active_pids.json"):
+                try:
+                    data = json.loads(pids_file.read_text(encoding="utf-8"))
+                    pids = data.get("pids", [])
+                    parent_pid = data.get("parent", 0)
+                    
+                    # Kill each subprocess
+                    for pid in pids:
+                        try:
+                            if sys.platform.startswith("win"):
+                                # Windows: use taskkill
+                                subprocess.run(
+                                    ["taskkill", "/F", "/PID", str(pid)],
+                                    capture_output=True, timeout=5
+                                )
+                            else:
+                                # Unix: send SIGTERM then SIGKILL
+                                os.kill(pid, 15)  # SIGTERM
+                            result["killed_pids"].append(pid)
+                        except Exception:
+                            pass
+                    
+                    # Remove the pids file
+                    pids_file.unlink(missing_ok=True)
+                except Exception as e:
+                    result["errors"].append(f"pids file {pids_file}: {e}")
+    except Exception as e:
+        result["errors"].append(f"scan resultados: {e}")
+    
+    # 3. Kill any python processes that look like worker_entry
+    try:
+        if sys.platform.startswith("win"):
+            # Find python processes running worker_entry
+            out = subprocess.run(
+                ["wmic", "process", "where", "name='python.exe'", "get", "processid,commandline"],
+                capture_output=True, text=True, timeout=10
+            )
+            for line in (out.stdout or "").splitlines():
+                if "worker_entry" in line.lower():
+                    # Extract PID (last number in line)
+                    parts = line.strip().split()
+                    if parts:
+                        try:
+                            pid = int(parts[-1])
+                            subprocess.run(["taskkill", "/F", "/PID", str(pid)], capture_output=True, timeout=5)
+                            result["killed_pids"].append(pid)
+                        except Exception:
+                            pass
+    except Exception as e:
+        result["errors"].append(f"wmic scan: {e}")
+    
+    return result
+
+
 def register_this_ui_instance() -> None:
     """Register current process as the active UI instance (overwrites previous lock)."""
     _ensure_results_dir()
@@ -154,10 +235,7 @@ def _win_get_process_info(pid: int) -> dict:
     """
     try:
         # Versão otimizada: tasklist com /V (verbose) para pegar command line
-        out = subprocess.run(
-            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/V", "/NH"],
-            capture_output=True, text=True, check=False, timeout=1  # 1s suficiente para local call
-        )
+        out = run_cmd(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/V", "/NH"], timeout=1)
         stdout = (out.stdout or "").strip()
         if not stdout or stdout.lower().startswith("info:"):
             return {}
@@ -189,7 +267,7 @@ def _win_get_process_info(pid: int) -> dict:
             "-Command",
             f"$p=Get-CimInstance Win32_Process -Filter \"ProcessId={pid}\"; if($p){{ $u=$p.GetOwner(); [Console]::Out.WriteLine(($p.ExecutablePath+'|'+$p.CommandLine+'|'+$($u.Domain+'\\'+$u.User))) }}"
         )
-        out = subprocess.run(ps, capture_output=True, text=True, check=False, timeout=3)  # Reduzido de 5s
+        out = run_cmd(ps, timeout=3)
         line = (out.stdout or "").strip()
         if line:
             parts = line.split("|", 2)
@@ -237,10 +315,10 @@ def terminate_other_execution(pid: int) -> bool:
             if not _is_our_streamlit_process(info):
                 # Refuse to kill unknown processes
                 return False
-            res = subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, text=True)
+            res = run_cmd(["taskkill", "/PID", str(pid), "/T", "/F"], timeout=5)
             return res.returncode == 0
         else:
-            res = subprocess.run(["kill", "-9", str(pid)], capture_output=True, text=True)
+            res = run_cmd(["kill", "-9", str(pid)], timeout=5)
             return res.returncode == 0
     except Exception:
         return False

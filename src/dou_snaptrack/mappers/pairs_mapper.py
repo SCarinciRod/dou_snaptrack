@@ -4,7 +4,7 @@ import contextlib
 import re
 from typing import Any
 
-from dou_utils.dropdown_strategies import collect_open_list_options, open_dropdown_robust
+from dou_utils.dropdowns import collect_open_list_options, open_dropdown_robust
 
 from ..constants import LEVEL_IDS
 from ..utils.dom import read_select_options

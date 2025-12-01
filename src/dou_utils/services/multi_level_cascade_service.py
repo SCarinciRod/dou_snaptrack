@@ -24,7 +24,7 @@ import re
 from typing import Any
 
 from ..log_utils import get_logger
-from ..selection_utils import read_rich_options, select_option_robust, wait_repopulation
+from ..selection import read_rich_options, select_option_robust, wait_repopulation
 
 logger = get_logger(__name__)
 

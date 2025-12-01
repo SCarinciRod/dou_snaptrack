@@ -17,7 +17,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from ..dropdown_utils import _read_select_options
+from ..dropdowns import read_select_options as _read_select_options
 from ..log_utils import get_logger
 
 logger = get_logger(__name__)

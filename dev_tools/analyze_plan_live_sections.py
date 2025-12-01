@@ -25,7 +25,7 @@ from playwright.sync_api import sync_playwright
 
 from dou_snaptrack.utils.browser import build_dou_url, goto
 from dou_snaptrack.utils.dom import find_best_frame
-from dou_utils.dropdown_strategies import collect_open_list_options, open_dropdown_robust
+from dou_utils.dropdowns import collect_open_list_options, open_dropdown_robust
 
 # IDs conhecidos (import leve para evitar dependência circular grande)
 try:

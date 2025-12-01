@@ -9,11 +9,11 @@ src/dou_snaptrack.egg-info/entry_points.txt
 src/dou_snaptrack.egg-info/requires.txt
 src/dou_snaptrack.egg-info/top_level.txt
 src/dou_snaptrack/adapters/__init__.py
+src/dou_snaptrack/adapters/eagendas_adapter.py
 src/dou_snaptrack/adapters/services.py
 src/dou_snaptrack/adapters/utils.py
 src/dou_snaptrack/cli/__init__.py
 src/dou_snaptrack/cli/batch.py
-src/dou_snaptrack/cli/listing.py
 src/dou_snaptrack/cli/plan_from_pairs.py
 src/dou_snaptrack/cli/plan_live.py
 src/dou_snaptrack/cli/plan_live_async.py
@@ -29,6 +29,7 @@ src/dou_snaptrack/mappers/eagendas_selectize.py
 src/dou_snaptrack/mappers/pairs_mapper.py
 src/dou_snaptrack/ui/app.py
 src/dou_snaptrack/ui/batch_runner.py
+src/dou_snaptrack/ui/eagendas_collect_subprocess.py
 src/dou_snaptrack/ui/launch.py
 src/dou_snaptrack/utils/__init__.py
 src/dou_snaptrack/utils/artifact_checker.py
@@ -48,6 +49,7 @@ src/dou_utils/dedup_state.py
 src/dou_utils/detail_utils.py
 src/dou_utils/dropdown_strategies.py
 src/dou_utils/dropdown_utils.py
+src/dou_utils/eagendas_document.py
 src/dou_utils/enrich_utils.py
 src/dou_utils/hash_utils.py
 src/dou_utils/log_utils.py

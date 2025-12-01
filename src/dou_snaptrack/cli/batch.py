@@ -236,9 +236,10 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
 
                 data = job.get("data")
                 secao = job.get("secao", defaults.get("secaoDefault", "DO1"))
-                key1_type = job.get("key1_type")
+                # key1_type/key2_type default to "text" for compatibility with plans that only have key1/key2
+                key1_type = job.get("key1_type") or defaults.get("key1_type") or "text"
                 key1 = job.get("key1")
-                key2_type = job.get("key2_type")
+                key2_type = job.get("key2_type") or defaults.get("key2_type") or "text"
                 key2 = job.get("key2")
                 label1 = job.get("label1")
                 label2 = job.get("label2")
@@ -557,6 +558,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
             futs = []
             tmp_dir = out_dir / "_subproc"
             tmp_dir.mkdir(parents=True, exist_ok=True)
+            
             for w_id, bucket in enumerate(buckets):
                 if not bucket:
                     continue
@@ -589,8 +591,9 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                     env["PYTHONPATH"] = (str(src_dir) + (";" if os.name == "nt" else ":") + existing_pp) if existing_pp else str(src_dir)
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=str(repo_root), env=env)
                 futs.append((p, result_path))
+            
             _log(f"[Parent] {len(futs)} subprocesses spawned")
-            # Collect results
+            # Collect results - wait for each subprocess sequentially
             for p, result_path in futs:
                 try:
                     out = p.communicate(timeout=900)[0].decode("utf-8", errors="ignore") if p.stdout else ""

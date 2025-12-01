@@ -19,13 +19,24 @@ Recebe via stdin JSON com:
   }
 }
 
-Retorna via stdout JSON com estrutura completa de eventos.
+Writes result to RESULT_JSON_PATH (contract with _execute_script_and_read_result).
 """
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
+
+
+def _write_result(data: dict) -> None:
+    """Write result to RESULT_JSON_PATH file (subprocess contract)."""
+    result_path = os.environ.get("RESULT_JSON_PATH")
+    if result_path:
+        Path(result_path).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    else:
+        # Fallback to stdout if no RESULT_JSON_PATH (for direct testing)
+        print(json.dumps(data, ensure_ascii=False))
 
 
 def main():
@@ -37,7 +48,7 @@ def main():
         periodo = input_data.get("periodo", {})
 
         if not queries:
-            print(json.dumps({"success": False, "error": "Nenhuma query fornecida"}))
+            _write_result({"success": False, "error": "Nenhuma query fornecida"})
             return 1
 
         # Importar após ler stdin para evitar delay inicial
@@ -55,7 +66,6 @@ def main():
 
         # Configurar Playwright
         pw_browsers_path = Path(__file__).resolve().parent.parent.parent.parent / ".venv" / "pw-browsers"
-        import os
         os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(pw_browsers_path)
 
         agentes_data = []
@@ -66,17 +76,20 @@ def main():
             start_date = date.fromisoformat(periodo["inicio"])
             end_date = date.fromisoformat(periodo["fim"])
         except Exception as e:
-            print(json.dumps({"success": False, "error": f"Erro ao parsear datas: {e}"}))
+            _write_result({"success": False, "error": f"Erro ao parsear datas: {e}"})
             return 1
 
         with sync_playwright() as p:
+            # NOTA: E-Agendas detecta headless e bloqueia. Usamos headless=False + --start-minimized
+            LAUNCH_ARGS = ['--start-minimized', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
+            
             # Tentar lançar browser
             browser = None
             try:
-                browser = p.chromium.launch(channel="chrome", headless=True)
+                browser = p.chromium.launch(channel="chrome", headless=False, args=LAUNCH_ARGS)
             except Exception:
                 try:
-                    browser = p.chromium.launch(channel="msedge", headless=True)
+                    browser = p.chromium.launch(channel="msedge", headless=False, args=LAUNCH_ARGS)
                 except Exception:
                     # Fallback: buscar executável
                     chrome_paths = [
@@ -90,13 +103,13 @@ def main():
                     for exe_path in chrome_paths + edge_paths:
                         if Path(exe_path).exists():
                             try:
-                                browser = p.chromium.launch(executable_path=exe_path, headless=True)
+                                browser = p.chromium.launch(executable_path=exe_path, headless=False, args=LAUNCH_ARGS)
                                 break
                             except Exception:
                                 continue
 
             if not browser:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=False, args=LAUNCH_ARGS)
 
             context = browser.new_context()
             page = context.new_page()
@@ -112,8 +125,9 @@ def main():
 
                     # Navegar para a página
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
-                    page.goto(base_url, timeout=30000, wait_until="networkidle")
-                    page.wait_for_timeout(3000)
+                    page.goto(base_url, timeout=30000, wait_until="commit")
+                    # Aguardar scripts AngularJS carregarem
+                    page.wait_for_timeout(5000)
 
                     # === ABORDAGEM CORRETA: Usar labels para encontrar selectize ===
 
@@ -377,18 +391,18 @@ def main():
             }
         }
 
-        print(json.dumps(result))
+        _write_result(result)
         return 0
 
     except Exception as e:
         import traceback
         error_msg = f"{type(e).__name__}: {e}"
         traceback_str = traceback.format_exc()
-        print(json.dumps({
+        _write_result({
             "success": False,
             "error": error_msg,
             "traceback": traceback_str
-        }))
+        })
         return 1
 
 
