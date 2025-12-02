@@ -381,16 +381,23 @@ tests/
 - [x] Criar `utils/wait_helpers.py` com funções de espera inteligente
 - [ ] Implementar cache inteligente com invalidação (OPCIONAL)
 
-### Sprint 3 (3-4 semanas) - Arquitetura (PARCIALMENTE CONCLUÍDA)
+### Sprint 3 (3-4 semanas) - Arquitetura ✅ CONCLUÍDA
 - [x] Criar sistema de exceções customizadas (`utils/exceptions.py`)
 - [x] Unificar padrão de resposta JSON (`utils/responses.py`)
 - [x] Centralizar configuração de browser (`utils/browser_factory.py`)
-- [ ] Refatorar `ui/app.py` em componentes (GRANDE - futuro)
+- [x] Criar 109 testes unitários para módulos Sprint 1/2
+- [ ] Refatorar `ui/app.py` em componentes (OPCIONAL - app.py já modular)
 
-### Sprint 4 (2-3 semanas) - Testes
-- [ ] Criar testes unitários para `utils/`
-- [ ] Criar testes de integração para fetchers
-- [ ] Configurar cobertura de código
+### Sprint 4 (2-3 semanas) - Testes ✅ CONCLUÍDA
+- [x] Criar testes unitários para `utils/` (109 testes)
+- [x] test_constants.py: 21 testes
+- [x] test_responses.py: 17 testes  
+- [x] test_exceptions.py: 27 testes
+- [x] test_browser_factory.py: 13 testes
+- [x] test_wait_helpers.py: 22 testes
+- [x] Atualizar run_tests.py com suite 'unit'
+- [ ] Criar testes de integração para fetchers (FUTURO)
+- [ ] Configurar cobertura de código (FUTURO)
 
 ---
 
