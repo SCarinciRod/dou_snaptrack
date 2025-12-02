@@ -21,6 +21,11 @@ warnings.warn(
 )
 
 # Re-export from new location for backward compatibility
+# Also re-export dropdown utilities that were exposed here
+from dou_utils.dropdowns import (
+    collect_open_list_options,
+    open_dropdown_robust,
+)
 from dou_utils.selection import (
     SENTINELA_PREFIX,
     collect_dropdowns,
@@ -32,12 +37,6 @@ from dou_utils.selection import (
     wait_repopulation,
 )
 from dou_utils.selection.helpers import read_rich_options
-
-# Also re-export dropdown utilities that were exposed here
-from dou_utils.dropdowns import (
-    collect_open_list_options,
-    open_dropdown_robust,
-)
 
 __all__ = [
     "SENTINELA_PREFIX",

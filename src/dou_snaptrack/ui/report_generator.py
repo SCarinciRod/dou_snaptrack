@@ -50,10 +50,10 @@ def _index_aggregates_in_day(day_dir: Path) -> dict[str, list[Path]]:
 def render_report_generator() -> None:
     """Render the report generator UI (TAB3 "Gerar boletim")."""
     st.subheader("Boletim por Plano (agregados)")
-    
+
     results_root = Path("resultados")
     results_root.mkdir(parents=True, exist_ok=True)
-    
+
     # Formato e política padronizada de resumo (sem escolhas do usuário)
     st.caption(
         "Os resumos são gerados com parâmetros padronizados (modo center, 7 linhas) e captura profunda automática."
@@ -79,7 +79,7 @@ def _render_manual_aggregation(results_root: Path) -> None:
         except Exception:
             day_dirs = []
         day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
-        
+
         if not day_dirs:
             st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar uma pasta do dia.")
         else:
@@ -87,16 +87,16 @@ def _render_manual_aggregation(results_root: Path) -> None:
             choice = st.selectbox("Pasta do dia para agregar", labels, index=0, key="agg_day_choice")
             choice_str = str(choice) if isinstance(choice, str) and choice else str(labels[0])
             chosen_dir = results_root / choice_str
-            
+
             help_txt = "Use esta opção se a execução terminou sem gerar os arquivos agregados. Informe o nome do plano e agregue os JSONs da pasta escolhida."
             st.write(help_txt)
-            
+
             manual_plan = st.text_input(
                 "Nome do plano (para nome do arquivo agregado)",
                 value=st.session_state.get("plan_name_ui", ""),
                 key="agg_manual_plan",
             )
-            
+
             if st.button("Gerar agregados agora", key="agg_manual_btn"):
                 _mp = manual_plan or ""
                 if not _mp.strip():
@@ -125,7 +125,7 @@ def _render_report_selection(results_root: Path) -> None:
     except Exception:
         day_dirs = []
     day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
-    
+
     if not day_dirs:
         st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano com 'Nome do plano' para gerar agregados.")
     else:
@@ -135,7 +135,7 @@ def _render_report_selection(results_root: Path) -> None:
 
         day_idx = _index_aggregates_in_day(chosen_dir)
         plan_names = sorted(day_idx.keys())
-        
+
         if not plan_names:
             st.info("Nenhum agregado encontrado nessa data. Verifique se o plano foi executado com 'Nome do plano'.")
         else:
@@ -144,7 +144,7 @@ def _render_report_selection(results_root: Path) -> None:
             files = day_idx.get(sel_plan, [])
             kind2 = st.selectbox("Formato (agregados)", ["docx", "md", "html"], index=1, key="kind_agg")
             out_name2 = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}.{kind2}")
-            
+
             if st.button("Gerar boletim do plano (data selecionada)"):
                 _generate_report(results_root, files, kind2, out_name2, str(sel_day))
 
@@ -161,7 +161,7 @@ def _generate_report(
         from dou_snaptrack.cli.reporting import report_from_aggregated
 
         out_path = results_root / out_name
-        
+
         # Detectar seção a partir do primeiro arquivo
         secao_label = ""
         if files:
@@ -171,10 +171,10 @@ def _generate_report(
                     secao_label = parts[-2]
             except Exception:
                 pass
-        
+
         # Garantir deep-mode ligado para relatório (não offline)
         os.environ["DOU_OFFLINE_REPORT"] = "0"
-        
+
         report_from_aggregated(
             [str(p) for p in files],
             kind,
@@ -191,10 +191,10 @@ def _generate_report(
             fetch_browser_fallback=True,
             short_len_threshold=800,
         )
-        
+
         data = out_path.read_bytes()
         st.success(f"Boletim gerado: {out_path}")
-        
+
         # Guardar em memória para download e remoção posterior do arquivo físico
         try:
             st.session_state["last_bulletin_data"] = data
@@ -215,7 +215,7 @@ def _render_download_section() -> None:
     lb_data = st.session_state.get("last_bulletin_data")
     lb_name = st.session_state.get("last_bulletin_name")
     lb_path = st.session_state.get("last_bulletin_path")
-    
+
     if lb_data and lb_name:
         clicked = st.download_button(
             "Baixar último boletim gerado",
@@ -232,7 +232,7 @@ def _render_download_section() -> None:
                         p.unlink()
             except Exception as _e:
                 st.warning(f"Não foi possível remover o arquivo local: {lb_path} — {_e}")
-            
+
             # Limpar dados da sessão para evitar re-download e liberar memória
             for k in ("last_bulletin_data", "last_bulletin_name", "last_bulletin_path"):
                 st.session_state.pop(k, None)

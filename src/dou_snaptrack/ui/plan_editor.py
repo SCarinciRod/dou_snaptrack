@@ -6,7 +6,6 @@ DOU scraping plans in the Streamlit interface.
 """
 from __future__ import annotations
 
-import contextlib
 import json
 import time
 from datetime import date as _date
@@ -18,10 +17,11 @@ import streamlit as st
 from dou_snaptrack.ui.state import PlanState, ensure_dirs, ensure_state
 
 if TYPE_CHECKING:
-    import pandas as pd
+    pass
 
 # Module-level logger
 import logging
+
 logger = logging.getLogger("dou_snaptrack.ui.plan_editor")
 
 # Constants
@@ -82,7 +82,7 @@ def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
     _ = refresh_token  # Used for cache invalidation
     plans_dir, _ = ensure_dirs()
     entries = []
-    
+
     try:
         for p in sorted(plans_dir.glob("*.json"), key=lambda x: x.stat().st_mtime, reverse=True):
             try:
@@ -100,37 +100,37 @@ def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
                 continue
     except Exception:
         pass
-    
+
     return entries
 
 
 class PlanEditorSession:
     """Manages plan editor session state."""
-    
+
     @staticmethod
     def get_plan() -> PlanState:
         """Get current plan from session state."""
         ensure_state()
         return st.session_state.plan
-    
+
     @staticmethod
     def add_combos(combos: list[dict[str, Any]]) -> None:
         """Add combos to current plan."""
         if combos:
             PlanEditorSession.get_plan().combos.extend(combos)
-    
+
     @staticmethod
     def clear_combos() -> None:
         """Clear all combos from current plan."""
         PlanEditorSession.get_plan().combos = []
-    
+
     @staticmethod
     def get_page() -> int:
         """Get current editor page."""
         if "plan_editor_page" not in st.session_state:
             st.session_state.plan_editor_page = 0
         return st.session_state.plan_editor_page
-    
+
     @staticmethod
     def set_page(page: int) -> None:
         """Set current editor page."""
@@ -165,9 +165,9 @@ def render_plan_discovery(
         secao = str(st.session_state.plan.secao or "")
     if date is None:
         date = str(st.session_state.plan.date or "")
-    
+
     st.subheader("Monte sua Pesquisa")
-    
+
     # Callback para auto-carregar N2 quando N1 muda
     def _on_n1_change():
         """Auto-fetch N2 options when N1 selection changes."""
@@ -175,7 +175,7 @@ def render_plan_discovery(
         if selected_n1:
             # Marcar que precisamos carregar N2
             st.session_state["_pending_n2_fetch"] = selected_n1
-    
+
     # Load N1 button
     if st.button("Carregar Órgãos"):
         with st.spinner("Obtendo lista de Órgãos do DOU…"):
@@ -192,16 +192,16 @@ def render_plan_discovery(
     if n1_list:
         # Selectbox com callback para auto-carregar N2
         n1 = st.selectbox(
-            "Órgão", 
-            n1_list, 
+            "Órgão",
+            n1_list,
             key="sel_n1_live",
             on_change=_on_n1_change,
         )
-        
+
         # Auto-fetch N2 se houver mudança pendente
         pending_n1 = st.session_state.get("_pending_n2_fetch")
         n2_cache_key = f"live_n2_for_{n1}"
-        
+
         # Carregar N2 automaticamente se:
         # 1. Há uma mudança pendente E
         # 2. Ainda não temos N2 cached para este N1
@@ -223,7 +223,7 @@ def render_plan_discovery(
     n2_list: list[str] = []
     if n1:
         n2_list = st.session_state.get(f"live_n2_for_{n1}", [])
-    
+
     # Botão manual para recarregar N2 (caso precise forçar refresh)
     col_n2_actions = st.columns([3, 1])
     with col_n2_actions[1]:
@@ -236,14 +236,14 @@ def render_plan_discovery(
                 st.rerun()
 
     sel_n2 = st.multiselect("Organização Subordinada", options=n2_list)
-    
+
     cols_add = st.columns(2)
     with cols_add[0]:
         if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
             add = _build_combos(str(n1), sel_n2)
             PlanEditorSession.add_combos(add)
             st.success(f"Adicionados {len(add)} combos ao plano.")
-    
+
     with cols_add[1]:
         add_n1_only = n1 and not n2_list
         if st.button("Orgão sem Suborganizações", disabled=not add_n1_only):
@@ -262,7 +262,7 @@ def render_plan_loader() -> None:
     with st.expander("📂 Carregar Plano Salvo para Editar"):
         plans_dir, _ = ensure_dirs()
         refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
-        
+
         head_actions = st.columns([3, 1])
         with head_actions[1]:
             if st.button("↻ Atualizar", key="refresh_plan_editor", help="Recarrega a lista de planos salvos"):
@@ -284,7 +284,7 @@ def render_plan_loader() -> None:
             )
 
             col_load, col_info = st.columns([1, 2])
-            
+
             with col_load:
                 if st.button("📥 Carregar para Edição", use_container_width=True):
                     try:
@@ -322,11 +322,11 @@ def render_plan_loader() -> None:
 def render_plan_editor_table() -> None:
     """Render the combo editor table with pagination."""
     import pandas as pd
-    
+
     st.markdown("#### 📋 Plano Atual")
 
     plan = PlanEditorSession.get_plan()
-    
+
     if not plan.combos:
         st.info("📭 Nenhum combo no plano. Use as opções acima para adicionar combos ou carregar um plano salvo.")
         return
@@ -512,13 +512,13 @@ def render_plan_saver() -> None:
     """Render the plan saver section."""
     st.divider()
     st.subheader("💾 Salvar Plano")
-    
+
     plans_dir, _ = ensure_dirs()
     plan = PlanEditorSession.get_plan()
-    
+
     suggested = plans_dir / f"plan_{str(plan.date or '').replace('/', '-').replace(' ', '_')}.json"
     plan_path = st.text_input("Salvar como", str(suggested))
-    
+
     if st.button("Salvar plano"):
         cfg = {
             "data": plan.date,
@@ -530,7 +530,7 @@ def render_plan_saver() -> None:
         _pname = st.session_state.get("plan_name_ui")
         if isinstance(_pname, str) and _pname.strip():
             cfg["plan_name"] = _pname.strip()
-        
+
         ppath = Path(plan_path)
         ppath.parent.mkdir(parents=True, exist_ok=True)
         ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")

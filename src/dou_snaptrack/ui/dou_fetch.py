@@ -23,6 +23,8 @@ from pathlib import Path
 
 import streamlit as st
 
+from dou_snaptrack.constants import CACHE_TTL_MEDIUM
+
 # Module-level constants
 SRC_ROOT = Path(__file__).resolve().parents[2]
 CWD_ROOT = str(SRC_ROOT)
@@ -40,21 +42,21 @@ def _get_venv_python() -> str:
     # Check common venv locations relative to SRC_ROOT (which is src/)
     # Project root is one level up from src/
     project_root = SRC_ROOT.parent
-    
+
     # Try project root .venv first
     venv_python = project_root / ".venv" / "Scripts" / "python.exe"
     if venv_python.exists():
         return str(venv_python)
-    
+
     # Try src/.venv (less common but possible)
     venv_python = SRC_ROOT / ".venv" / "Scripts" / "python.exe"
     if venv_python.exists():
         return str(venv_python)
-    
+
     # Fallback: check if current executable is from a venv
     if "venv" in sys.executable.lower() or ".venv" in sys.executable.lower():
         return sys.executable
-    
+
     # Check parent paths for venv
     try:
         exe_path = Path(sys.executable)
@@ -64,7 +66,7 @@ def _get_venv_python() -> str:
                 return str(venv_candidate)
     except Exception:
         pass
-    
+
     # Last resort: use current executable
     return sys.executable
 
@@ -97,7 +99,7 @@ def find_system_browser_exe() -> str | None:
     return None
 
 
-@st.cache_data(show_spinner=False, ttl=900)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_n1_options(secao: str, date: str, refresh_token: float = 0.0) -> list[str]:
     """Fetch N1 (Órgão) dropdown options from DOU website.
     
@@ -286,7 +288,7 @@ except Exception as e:
         return []
 
 
-@st.cache_data(show_spinner=False, ttl=900)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_n2_options(secao: str, date: str, n1: str, limit2: int | None = None, refresh_token: float = 0.0) -> list[str]:
     """Fetch N2 (Sub-órgão) dropdown options from DOU website.
 

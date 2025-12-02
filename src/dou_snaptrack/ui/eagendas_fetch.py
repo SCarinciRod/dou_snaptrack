@@ -18,6 +18,7 @@ import streamlit as st
 
 from dou_snaptrack.constants import (
     ALLOW_TLS_BYPASS_ENV,
+    CACHE_TTL_MEDIUM,
     SAVE_DEBUG_SCRIPT_ENV,
 )
 from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
@@ -251,18 +252,18 @@ def _build_fetch_script(level: int, n1_value: str | None = None) -> str:
         n1_value: ID do órgão selecionado (obrigatório para level 2)
     """
     src_path = str(SRC_ROOT).replace("\\", "\\\\")
-    
+
     script = _SCRIPT_TEMPLATE
     script = script.replace('$SRC_ROOT$', json.dumps(src_path, ensure_ascii=False))
     script = script.replace('$DD_ORGAO_ID$', DD_ORGAO_ID)
     script = script.replace('$DD_AGENTE_ID$', DD_AGENTE_ID)
     script = script.replace('$LEVEL$', str(level))
     script = script.replace('$N1V$', json.dumps(n1_value or '', ensure_ascii=False))
-    
+
     return script
 
 
-@st.cache_data(show_spinner=False, ttl=900)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_orgaos() -> dict[str, Any]:
     """Fetch lista de órgãos do E-Agendas.
     
@@ -272,7 +273,7 @@ def fetch_orgaos() -> dict[str, Any]:
     return _execute_fetch(level=1)
 
 
-@st.cache_data(show_spinner=False, ttl=900)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_agentes(orgao_id: str) -> dict[str, Any]:
     """Fetch lista de agentes de um órgão (direto, sem cargo intermediário).
     
@@ -290,13 +291,13 @@ def fetch_agentes(orgao_id: str) -> dict[str, Any]:
 def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
     """Execute fetch script and return normalized results."""
     script_content = _build_fetch_script(level=level, n1_value=n1_value)
-    
+
     overrides = {
         'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD': '1',
         'PYTHONUNBUFFERED': '1',
     }
     env = _prepare_subprocess_env(overrides)
-    
+
     try:
         # Optionally save debug script
         save_debug = os.environ.get(SAVE_DEBUG_SCRIPT_ENV, '0').strip().lower() in ('1', 'true', 'yes')
@@ -307,11 +308,11 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
                 logger.debug("Script salvo em: %s", debug_script)
             except Exception:
                 logger.exception("Falha ao salvar debug script")
-        
+
         # Timeout
         timeout = int(os.environ.get("DOU_UI_EAGENDAS_TIMEOUT", "90"))
         logger.debug("Executando eagendas subprocess (level=%s, timeout=%s)", level, timeout)
-        
+
         data, stderr = execute_script_and_read_result(
             script_content=script_content,
             timeout=timeout,
@@ -319,14 +320,14 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
             extra_env=env,
         )
         logger.debug("fetch stderr_len=%s", len(stderr or ""))
-        
+
         if not data:
             logger.debug("E-Agendas subprocess produced no JSON result")
             return _make_error("Sem resultado do subprocess")
-        
+
         if not data.get('success'):
             return _make_error(data.get('error', 'Erro desconhecido'))
-        
+
         # Normalize output
         raw_opts = data.get('options') or []
         norm = []
@@ -336,11 +337,11 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
             if not lbl or not val:
                 continue
             norm.append({'label': lbl, 'value': val})
-        
+
         # Sort by label
         norm = sorted(norm, key=lambda x: x['label'].lower())
         return {"success": True, "options": norm, "error": ""}
-        
+
     except subprocess.TimeoutExpired:
         logger.error("Timeout ao executar eagendas subprocess (level=%s)", level)
         return _make_error("Timeout (eagendas)")
@@ -353,7 +354,7 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
 # BACKWARD COMPATIBILITY
 # ============================================================================
 
-@st.cache_data(show_spinner=False, ttl=900)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_hierarchy(
     level: int = 1,
     n1_value: str | None = None,

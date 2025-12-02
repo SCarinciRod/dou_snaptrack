@@ -99,7 +99,7 @@ def render_diagnostics_section() -> None:
         st.caption("Informações úteis para depuração")
 
         col1, col2 = st.columns(2)
-        
+
         with col1:
             if st.button("🐍 Verificar Python", key="diag_python_btn", use_container_width=True):
                 import sys
@@ -110,7 +110,7 @@ def render_diagnostics_section() -> None:
             if st.button("📦 Verificar Playwright", key="diag_pw_btn", use_container_width=True):
                 try:
                     import playwright
-                    st.success(f"✅ Playwright instalado")
+                    st.success("✅ Playwright instalado")
                     st.caption(f"Versão: {playwright.__version__}")
                 except ImportError as e:
                     st.error(f"❌ Playwright não disponível: {e}")

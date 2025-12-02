@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import contextlib
 import json
-import os
 import time
 from datetime import date as _date
 from functools import lru_cache
@@ -16,9 +15,10 @@ from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
+from dou_snaptrack.ui.plan_editor import _list_saved_plan_files
+
 # Local imports
 from dou_snaptrack.ui.state import ensure_dirs
-from dou_snaptrack.ui.plan_editor import _list_saved_plan_files
 
 if TYPE_CHECKING:
     pass
@@ -79,11 +79,11 @@ def _run_batch_with_cfg(
 def render_batch_executor() -> None:
     """Render the batch executor UI (TAB2 "Executar plano")."""
     st.subheader("Escolha o plano de pesquisa")
-    
+
     # OTIMIZAÇÃO: Criação lazy de diretórios
     plans_dir, _ = ensure_dirs()
     refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
-    
+
     header_cols = st.columns([3, 1])
     with header_cols[1]:
         if st.button("↻ Atualizar", key="refresh_plan_runner", help="Recarrega lista de planos"):
@@ -129,11 +129,11 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
     if not selected_path.exists():
         st.error("Plano não encontrado.")
         return
-    
+
     # Concurrency guard: check if another execution is running
     batch_funcs = _get_batch_runner()
     other = batch_funcs["detect_other_execution"]()
-    
+
     if other:
         st.warning(f"Outra execução detectada (PID={other.get('pid')} iniciada em {other.get('started')}).")
         colx = st.columns(2)
@@ -149,7 +149,7 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
                 st.error("Falha ao encerrar a outra execução. Tente novamente manualmente.")
         elif not proceed_anyway:
             st.stop()
-    
+
     # Descobrir número de jobs do plano
     try:
         cfg = json.loads(selected_path.read_text(encoding="utf-8"))
@@ -161,22 +161,22 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
 
     # Calcular recomendação no momento da execução
     parallel = int(recommend_parallel(est_jobs, prefer_process=True))
-    
+
     with st.spinner("Executando…"):
         # Forçar execução para a data atual selecionada no UI (padrão: hoje)
         try:
             cfg_json = json.loads(selected_path.read_text(encoding="utf-8"))
         except Exception:
             cfg_json = {}
-        
+
         override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
         cfg_json["data"] = override_date
-        
+
         # Injetar plan_name (agregação por plano ao final do batch)
         _pname2 = st.session_state.get("plan_name_ui")
         if isinstance(_pname2, str) and _pname2.strip():
             cfg_json["plan_name"] = _pname2.strip()
-        
+
         if not cfg_json.get("plan_name"):
             # Fallback 1: nome do arquivo do plano salvo
             sanitize_fn = _get_sanitize_filename()
@@ -187,7 +187,7 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
                         cfg_json["plan_name"] = sanitize_fn(base)
             except Exception:
                 pass
-        
+
         if not cfg_json.get("plan_name"):
             # Fallback 2: usar key1/label1 do primeiro combo
             sanitize_fn = _get_sanitize_filename()
@@ -199,19 +199,19 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
                     cfg_json["plan_name"] = sanitize_fn(str(cand))
             except Exception:
                 cfg_json["plan_name"] = "Plano"
-        
+
         # Gerar um config temporário para a execução desta sessão
         out_dir_tmp = Path("resultados") / override_date
         out_dir_tmp.mkdir(parents=True, exist_ok=True)
         pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"
         with contextlib.suppress(Exception):
             pass_cfg_path.write_text(json.dumps(cfg_json, ensure_ascii=False, indent=2), encoding="utf-8")
-        
+
         st.caption(f"Iniciando captura… log em resultados/{override_date}/batch_run.log")
         rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=False, prefer_edge=True)
-    
+
     st.write(rep or {"info": "Sem relatório"})
-    
+
     # Hint on where to find detailed run logs
     out_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
     log_hint = Path("resultados") / out_date / "batch_run.log"

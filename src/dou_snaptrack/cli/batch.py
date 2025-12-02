@@ -11,6 +11,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from pathlib import Path
 from typing import Any
 
+from ..constants import TIMEOUT_PAGE_DEFAULT, TIMEOUT_SUBPROCESS_LONG
 from ..utils.text import sanitize_filename
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
 
@@ -283,8 +284,8 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                     page = page_cache.get(k)
                     if page is None:
                         page = context.new_page()
-                        page.set_default_timeout(20_000)
-                        page.set_default_navigation_timeout(20_000)
+                        page.set_default_timeout(TIMEOUT_PAGE_DEFAULT)
+                        page.set_default_navigation_timeout(TIMEOUT_PAGE_DEFAULT)
                         page_cache[k] = page
                     keep_open = True
 
@@ -345,8 +346,8 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                                         except Exception:
                                             pass
                                         cur_page = context.new_page()
-                                        cur_page.set_default_timeout(20_000)
-                                        cur_page.set_default_navigation_timeout(20_000)
+                                        cur_page.set_default_timeout(TIMEOUT_PAGE_DEFAULT)
+                                        cur_page.set_default_navigation_timeout(TIMEOUT_PAGE_DEFAULT)
                                         page_cache[(str(data), str(secao))] = cur_page
                                         continue
                                 except Exception:
@@ -558,7 +559,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
             futs = []
             tmp_dir = out_dir / "_subproc"
             tmp_dir.mkdir(parents=True, exist_ok=True)
-            
+
             for w_id, bucket in enumerate(buckets):
                 if not bucket:
                     continue
@@ -591,12 +592,12 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                     env["PYTHONPATH"] = (str(src_dir) + (";" if os.name == "nt" else ":") + existing_pp) if existing_pp else str(src_dir)
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=str(repo_root), env=env)
                 futs.append((p, result_path))
-            
+
             _log(f"[Parent] {len(futs)} subprocesses spawned")
             # Collect results - wait for each subprocess sequentially
             for p, result_path in futs:
                 try:
-                    out = p.communicate(timeout=900)[0].decode("utf-8", errors="ignore") if p.stdout else ""
+                    out = p.communicate(timeout=TIMEOUT_SUBPROCESS_LONG)[0].decode("utf-8", errors="ignore") if p.stdout else ""
                 except Exception:
                     out = ""
                 if out:

@@ -10,10 +10,10 @@ import json
 import logging
 import os
 import subprocess
-from datetime import date as _date
-from datetime import datetime as dt
+from collections.abc import Callable
+from datetime import date as _date, datetime as dt
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
@@ -35,36 +35,36 @@ def _get_default_fetch_hierarchy():
 
 class EAgendasSession:
     """Manages E-Agendas session state."""
-    
+
     @staticmethod
     def get_state() -> EAgendasState:
         """Get current E-Agendas state from session."""
         ensure_eagendas_state()
         return st.session_state.eagendas
-    
+
     @staticmethod
     def add_query(query: dict[str, Any]) -> None:
         """Add a query to saved queries."""
         state = EAgendasSession.get_state()
         state.saved_queries.append(query)
-    
+
     @staticmethod
     def remove_query(idx: int) -> None:
         """Remove query at index."""
         state = EAgendasSession.get_state()
         if 0 <= idx < len(state.saved_queries):
             state.saved_queries.pop(idx)
-    
+
     @staticmethod
     def clear_queries() -> None:
         """Clear all saved queries."""
         EAgendasSession.get_state().saved_queries = []
-    
+
     @staticmethod
     def set_date_start(date_str: str) -> None:
         """Set start date."""
         EAgendasSession.get_state().date_start = date_str
-    
+
     @staticmethod
     def set_date_end(date_str: str) -> None:
         """Set end date."""
@@ -79,10 +79,10 @@ def _auto_fetch_n2_on_n1_change(fetch_func: Callable, n1_value: str, n2_options_
     """
     if not n1_value:
         return
-    
+
     # Fetch agentes for this órgão
     result = fetch_func(level=2, n1_value=n1_value)
-    
+
     if result.get("success"):
         options = result.get("options", [])
         st.session_state[n2_options_key] = options
@@ -137,9 +137,9 @@ def render_hierarchy_selector(
     # Use default fetch function if not provided
     if fetch_hierarchy_func is None:
         fetch_hierarchy_func = _get_default_fetch_hierarchy()
-    
+
     st.markdown(f"**{title}**")
-    
+
     # Show auto-fetch notifications from previous run
     if level == 2:
         if "_eagendas_auto_fetch_count" in st.session_state:
@@ -148,14 +148,14 @@ def render_hierarchy_selector(
         if "_eagendas_auto_fetch_error" in st.session_state:
             error = st.session_state.pop("_eagendas_auto_fetch_error")
             st.error(f"❌ Erro ao carregar agentes: {error}")
-    
+
     # Determine if load button should be enabled
     # Modelo simplificado: level 1 sempre pode carregar, level 2 precisa de órgão
     can_load = True
     if level == 2 and not parent_value:
         can_load = False
         st.caption("Selecione um Órgão primeiro")
-    
+
     # Load button
     if st.button(load_button_text, key=load_key, disabled=not can_load):
         with st.spinner(f"Carregando {title.lower()}..."):
@@ -163,7 +163,7 @@ def render_hierarchy_selector(
                 result = fetch_hierarchy_func(level=1)
             else:  # level == 2: Agentes direto do órgão
                 result = fetch_hierarchy_func(level=2, n1_value=parent_value)
-            
+
             if result.get("success"):
                 options = result.get("options", [])
                 st.session_state[options_key] = options
@@ -173,30 +173,30 @@ def render_hierarchy_selector(
                     st.warning("⚠️ Nenhuma opção encontrada")
             else:
                 st.error(f"❌ {result.get('error', 'Erro desconhecido')}")
-    
+
     # Get current options
     options = st.session_state.get(options_key, [])
-    
+
     if options:
         labels = [opt.get("label", opt.get("text", "")) for opt in options]
         values = [opt.get("value", "") for opt in options]
-        
+
         # Get current selection index
         current_parts = current_key.split(".")
         if len(current_parts) == 2:
             current_val = getattr(st.session_state.get(current_parts[0]), current_parts[1], None)
         else:
             current_val = st.session_state.get(current_key)
-        
+
         try:
             current_idx = values.index(current_val) if current_val in values else 0
         except (ValueError, IndexError):
             current_idx = 0
-        
+
         # Track previous value for change detection (for auto-fetch)
         prev_key = f"_prev_{select_key}"
         prev_value = st.session_state.get(prev_key)
-        
+
         # Selectbox with on_change for auto-fetch (level 1 only)
         if level == 1 and auto_fetch_child and child_options_key:
             selected_idx = st.selectbox(
@@ -216,18 +216,18 @@ def render_hierarchy_selector(
                 key=select_key,
                 label_visibility="collapsed"
             )
-        
+
         selected_value = values[selected_idx]
         selected_label = labels[selected_idx]
-        
+
         # Set value in eagendas state
         if len(current_parts) == 2 and current_parts[0] == "eagendas":
             setattr(st.session_state.eagendas, current_parts[1], selected_value)
         else:
             st.session_state[current_key] = selected_value
-        
+
         st.session_state[label_key] = selected_label
-        
+
         # Auto-fetch child options when N1 selection changes (level 1 only)
         if level == 1 and auto_fetch_child and child_options_key:
             if prev_value is not None and prev_value != selected_value:
@@ -236,7 +236,7 @@ def render_hierarchy_selector(
                     _auto_fetch_n2_on_n1_change(fetch_hierarchy_func, selected_value, child_options_key)
             # Update previous value tracker
             st.session_state[prev_key] = selected_value
-        
+
         st.caption(f"Selecionado: {selected_label}")
     else:
         st.caption(f"Clique em '{load_button_text}' para carregar opções")
@@ -309,7 +309,7 @@ def render_query_manager() -> None:
                 "n1_label": n1_label,
                 "n1_value": state.current_n1,
                 "n2_label": "",  # Cargo não existe mais
-                "n2_value": "",  # Cargo não existe mais  
+                "n2_value": "",  # Cargo não existe mais
                 "n3_label": n2_label,  # Agente (era n3, agora n2 no estado mas salvo como n3 por compatibilidade)
                 "n3_value": state.current_n2,  # ID do agente
                 "person_label": f"{n2_label} ({n1_label})",  # Nome do agente (Órgão)
@@ -427,7 +427,7 @@ def render_saved_queries_list() -> None:
     """Render the list of saved queries."""
     state = EAgendasSession.get_state()
     queries = state.saved_queries
-    
+
     if queries:
         st.metric("Total de consultas", len(queries))
         with st.expander(f"📋 Ver todas ({len(queries)} consultas)", expanded=True):
@@ -467,7 +467,7 @@ def render_execution_section(
     # Use default execute function if not provided
     if execute_script_func is None:
         execute_script_func = _get_default_execute_script_func()
-    
+
     st.markdown("### 4️⃣ Executar Pesquisa")
 
     state = EAgendasSession.get_state()
@@ -498,7 +498,7 @@ def render_execution_section(
 
             collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "600"))
             logger.debug("Executando coleta E-Agendas subprocess %s (timeout=%s)", script_path, collect_timeout)
-            
+
             data, stderr = execute_script_func(
                 script_path=str(script_path),
                 input_text=json.dumps(subprocess_input),
@@ -585,7 +585,7 @@ def render_document_generator(date_start: _date, date_end: _date) -> None:
         date_end: End date for document title
     """
     import sys
-    
+
     st.markdown("### 5️⃣ Gerar Documento DOCX")
     st.caption("Gere um documento Word com as agendas coletadas, organizadas por agente")
 
@@ -662,7 +662,7 @@ def render_document_generator(date_start: _date, date_end: _date) -> None:
                                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                 use_container_width=True
                             )
-                        
+
                         try:
                             with open(out_path, "rb") as _df:
                                 st.session_state["last_eagendas_doc_bytes"] = _df.read()

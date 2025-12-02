@@ -49,8 +49,8 @@ def _get_plan_editor():
     """Lazy import plan_editor module."""
     from dou_snaptrack.ui.plan_editor import (
         render_plan_discovery,
-        render_plan_loader,
         render_plan_editor_table,
+        render_plan_loader,
         render_plan_saver,
     )
     return {
@@ -65,14 +65,14 @@ def _get_plan_editor():
 def _get_eagendas_ui():
     """Lazy import eagendas_ui module."""
     from dou_snaptrack.ui.eagendas_ui import (
-        render_hierarchy_selector,
         render_date_period_selector,
-        render_query_manager,
-        render_lista_manager,
-        render_saved_queries_list,
-        render_execution_section,
-        render_document_generator,
         render_document_download,
+        render_document_generator,
+        render_execution_section,
+        render_hierarchy_selector,
+        render_lista_manager,
+        render_query_manager,
+        render_saved_queries_list,
     )
     return {
         "render_hierarchy_selector": render_hierarchy_selector,
@@ -175,8 +175,8 @@ atexit.register(_cleanup_on_exit)
 def get_batch_runner() -> dict:
     """Lazy import of batch_runner module (imports Playwright)."""
     from dou_snaptrack.ui.batch_runner import (
-        clear_ui_lock,
         cleanup_batch_processes,
+        clear_ui_lock,
         detect_other_execution,
         detect_other_ui,
         register_this_ui_instance,
@@ -317,7 +317,7 @@ def _resolve_logo_path() -> Path | None:
         p = Path(env_logo)
         if p.exists():
             return p
-    
+
     # Default locations
     candidates = [
         Path("assets/logo.png"),
@@ -325,11 +325,11 @@ def _resolve_logo_path() -> Path | None:
         Path("src/dou_snaptrack/ui/assets/logo.png"),
         SRC_ROOT / "dou_snaptrack" / "ui" / "assets" / "logo.png",
     ]
-    
+
     for c in candidates:
         if c.exists():
             return c
-    
+
     return None
 
 
@@ -499,10 +499,10 @@ with tab1:
     # TAB1: Explorar e montar plano - usa funções render de plan_editor.py (lazy loaded)
     plan_editor = _get_plan_editor()
     plan_editor["render_plan_discovery"]()
-    
+
     st.divider()
     st.subheader("📝 Gerenciar Plano")
-    
+
     plan_editor["render_plan_loader"]()
     plan_editor["render_plan_editor_table"]()
     plan_editor["render_plan_saver"]()
@@ -522,7 +522,7 @@ with tab3:
 
 with main_tab_eagendas:
     st.subheader("E-Agendas — Consulta de Agendas de Servidores Públicos")
-    
+
     # Lazy load eagendas_ui module
     eagendas_ui = _get_eagendas_ui()
 

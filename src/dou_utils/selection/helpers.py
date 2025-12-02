@@ -15,10 +15,10 @@ from .constants import SENTINELA_PREFIX
 # Import dropdown utilities with fallback
 try:
     from dou_utils.dropdowns import (
-        is_select as _is_native_select,
-        read_select_options as _read_select_options_sync,
-        open_dropdown_robust,
         collect_open_list_options,
+        is_select as _is_native_select,
+        open_dropdown_robust,
+        read_select_options as _read_select_options_sync,
     )
 except ImportError:
     # Minimal fallback implementations
@@ -131,7 +131,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
     if not root_handle or key is None or key_type is None:
         return False
     page = frame.page
-    
+
     if _is_native_select(root_handle):
         # Native select: try proper channel based on type
         if key_type == "value":
@@ -171,7 +171,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
     options = collect_open_list_options(frame)
     target = _match_option(options, str(key), key_type or "text")
     name = (target or {}).get("text") or str(key)
-    
+
     # Try exact by role name
     try:
         opt = page.get_by_role("option", name=re.compile(rf"^{re.escape(name)}$", re.I)).first
@@ -181,7 +181,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
             return True
     except Exception:
         pass
-    
+
     # Fallback: contains
     try:
         opt = page.get_by_role("option", name=re.compile(re.escape(name), re.I)).first
@@ -191,7 +191,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
             return True
     except Exception:
         pass
-    
+
     with contextlib.suppress(Exception):
         page.keyboard.press("Escape")
     return False

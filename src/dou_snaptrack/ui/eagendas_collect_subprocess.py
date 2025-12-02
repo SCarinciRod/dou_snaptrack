@@ -57,6 +57,7 @@ def main():
 
         # Importar após ler stdin para evitar delay inicial
         from datetime import date
+
         from playwright.sync_api import sync_playwright
 
         # Configurar Playwright
@@ -135,7 +136,7 @@ def main():
                     if Path(exe_path).exists():
                         try:
                             browser = p.chromium.launch(executable_path=exe_path, headless=False, args=LAUNCH_ARGS)
-                            print(f"[DEBUG] ✓ executable_path OK", file=sys.stderr)
+                            print("[DEBUG] ✓ executable_path OK", file=sys.stderr)
                             break
                         except Exception:
                             continue

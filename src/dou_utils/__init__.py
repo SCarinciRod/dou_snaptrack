@@ -11,7 +11,6 @@ Subpackages:
 from __future__ import annotations
 
 # Re-export subpackages for convenience
-from dou_utils import dropdowns
-from dou_utils import selection
+from dou_utils import dropdowns, selection
 
 __all__ = ["dropdowns", "selection"]

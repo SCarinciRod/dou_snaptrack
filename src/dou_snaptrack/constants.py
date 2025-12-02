@@ -9,6 +9,49 @@ BASE_DOU = "https://www.in.gov.br/leiturajornal"
 EAGENDAS_URL = "https://eagendas.cgu.gov.br/"
 
 # =============================================================================
+# TIMEOUTS - NAVEGAÇÃO (milissegundos)
+# =============================================================================
+# Timeout padrão para operações de página
+TIMEOUT_PAGE_DEFAULT = 20_000          # 20s - operações gerais de página
+TIMEOUT_PAGE_SLOW = 60_000             # 60s - páginas lentas (E-Agendas)
+TIMEOUT_PAGE_VERY_SLOW = 90_000        # 90s - operações muito lentas
+
+# Timeout para elementos aparecerem
+TIMEOUT_ELEMENT_FAST = 5_000           # 5s - elementos rápidos
+TIMEOUT_ELEMENT_NORMAL = 10_000        # 10s - elementos normais
+TIMEOUT_ELEMENT_SLOW = 15_000          # 15s - elementos lentos
+TIMEOUT_ELEMENT_VERY_SLOW = 30_000     # 30s - elementos muito lentos
+
+# =============================================================================
+# TIMEOUTS - ESPERAS FIXAS (milissegundos)
+# Usar apenas quando wait_for_selector não é possível
+# =============================================================================
+WAIT_MICRO = 50                        # 50ms - micro pausa
+WAIT_TINY = 150                        # 150ms - pausa mínima
+WAIT_SHORT = 200                       # 200ms - pausa curta
+WAIT_MEDIUM = 500                      # 500ms - pausa média
+WAIT_LONG = 1_000                      # 1s - pausa longa
+WAIT_EXTRA_LONG = 2_000                # 2s - pausa extra longa
+WAIT_ANGULAR_INIT = 3_000              # 3s - AngularJS inicializar
+WAIT_ANGULAR_LOAD = 5_000              # 5s - AngularJS carregar dados
+WAIT_SELECTIZE_POPULATE = 4_000        # 4s - Selectize popular dropdown
+
+# =============================================================================
+# TIMEOUTS - SUBPROCESSOS (segundos)
+# =============================================================================
+TIMEOUT_SUBPROCESS_DEFAULT = int(os.environ.get("DOU_UI_SUBPROCESS_TIMEOUT", "120"))
+TIMEOUT_SUBPROCESS_SHORT = 10          # 10s - operações rápidas
+TIMEOUT_SUBPROCESS_LONG = 900          # 15min - operações em lote
+
+# =============================================================================
+# CACHE TTL (segundos)
+# =============================================================================
+CACHE_TTL_SHORT = 300                  # 5min
+CACHE_TTL_MEDIUM = 900                 # 15min
+CACHE_TTL_LONG = 3600                  # 1h
+CACHE_TTL_DAY = 86400                  # 24h
+
+# =============================================================================
 # DOU SELECTORS AND IDS
 # =============================================================================
 # Seletores de raiz para dropdowns (além de get_by_role('combobox') e <select>)
@@ -45,8 +88,8 @@ ALLOW_TLS_BYPASS_ENV = "DOU_UI_ALLOW_TLS_BYPASS"
 SAVE_DEBUG_SCRIPT_ENV = "DOU_UI_SAVE_DEBUG_SCRIPT"
 STDOUT_FALLBACK_ENV = "DOU_UI_ALLOW_STDOUT_FALLBACK"
 
-# Subprocess timeout (seconds). Can be overridden by env var.
-DEFAULT_SUBPROCESS_TIMEOUT = int(os.environ.get("DOU_UI_SUBPROCESS_TIMEOUT", "120"))
+# Legacy alias (deprecated - use TIMEOUT_SUBPROCESS_DEFAULT)
+DEFAULT_SUBPROCESS_TIMEOUT = TIMEOUT_SUBPROCESS_DEFAULT
 
 # =============================================================================
 # COOKIE HANDLING

@@ -22,6 +22,12 @@ Example usage:
 """
 from __future__ import annotations
 
+from .async_helpers import (
+    collect_dropdowns,
+    option_data,
+    select_level,
+    select_option,
+)
 from .constants import (
     DROPDOWN_ROOT_SELECTORS,
     LISTBOX_SELECTORS,
@@ -34,12 +40,6 @@ from .helpers import (
     read_rich_options,
     select_option_robust,
     wait_repopulation,
-)
-from .async_helpers import (
-    collect_dropdowns,
-    option_data,
-    select_level,
-    select_option,
 )
 
 __all__ = [

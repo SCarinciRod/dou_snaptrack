@@ -171,7 +171,7 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
         - dataId: data-id/data-key/data-code attribute
     """
     container = None
-    
+
     # Find the listbox container
     for sel in LISTBOX_SELECTORS:
         try:
@@ -181,7 +181,7 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
                 break
         except Exception:
             continue
-    
+
     if not container:
         page = frame.page
         for sel in LISTBOX_SELECTORS:
@@ -192,7 +192,7 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
                     break
             except Exception:
                 continue
-    
+
     if not container:
         return []
 
@@ -241,7 +241,7 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
                     })
             except Exception:
                 continue
-    
+
     # Deduplicate
     seen = set()
     uniq = []
@@ -256,5 +256,5 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
     with contextlib.suppress(Exception):
         frame.page.keyboard.press("Escape")
         frame.wait_for_timeout(80)
-    
+
     return uniq

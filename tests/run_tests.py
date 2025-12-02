@@ -21,7 +21,10 @@ def suite_imports():
         "dou_snaptrack",
         "dou_snaptrack.constants",
         "dou_snaptrack.utils.browser",
-        "dou_snaptrack.mappers.eagendas_selectize",
+        "dou_snaptrack.utils.responses",
+        "dou_snaptrack.utils.exceptions",
+        "dou_snaptrack.utils.browser_factory",
+        "dou_snaptrack.mappers.pairs_mapper",
         "dou_snaptrack.cli.plan_live_eagendas_async",
         "dou_snaptrack.utils.eagendas_calendar",
     ]

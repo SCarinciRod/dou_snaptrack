@@ -153,7 +153,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
     Returns a summary of what was cleaned up.
     """
     result = {"killed_pids": [], "removed_locks": [], "errors": []}
-    
+
     # 1. Remove lock files
     for lock_path in [LOCK_PATH, UI_LOCK_PATH]:
         try:
@@ -162,7 +162,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
                 result["removed_locks"].append(str(lock_path))
         except Exception as e:
             result["errors"].append(f"lock {lock_path}: {e}")
-    
+
     # 2. Find and kill subprocesses from _active_pids.json files
     try:
         resultados_dir = Path("resultados")
@@ -172,7 +172,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
                     data = json.loads(pids_file.read_text(encoding="utf-8"))
                     pids = data.get("pids", [])
                     parent_pid = data.get("parent", 0)
-                    
+
                     # Kill each subprocess
                     for pid in pids:
                         try:
@@ -188,14 +188,14 @@ def cleanup_batch_processes() -> dict[str, Any]:
                             result["killed_pids"].append(pid)
                         except Exception:
                             pass
-                    
+
                     # Remove the pids file
                     pids_file.unlink(missing_ok=True)
                 except Exception as e:
                     result["errors"].append(f"pids file {pids_file}: {e}")
     except Exception as e:
         result["errors"].append(f"scan resultados: {e}")
-    
+
     # 3. Kill any python processes that look like worker_entry
     try:
         if sys.platform.startswith("win"):
@@ -217,7 +217,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
                             pass
     except Exception as e:
         result["errors"].append(f"wmic scan: {e}")
-    
+
     return result
 
 
