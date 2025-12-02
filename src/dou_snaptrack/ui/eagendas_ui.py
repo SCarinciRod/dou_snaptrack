@@ -424,7 +424,7 @@ def render_execution_section(
             progress_bar.progress(0.1)
             status_text.text("🌐 Navegando no E-Agendas...")
 
-            collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "300"))
+            collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "600"))
             logger.debug("Executando coleta E-Agendas subprocess %s (timeout=%s)", script_path, collect_timeout)
             
             data, stderr = execute_script_func(

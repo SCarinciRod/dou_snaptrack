@@ -1,14 +1,14 @@
 """
 Script de subprocess para coletar eventos do E-Agendas via Playwright.
 
+Modelo simplificado de 2 níveis: Órgão → Agente (direto, sem cargo intermediário).
+
 Recebe via stdin JSON com:
 {
   "queries": [
     {
       "n1_value": "123",
       "n1_label": "Órgão X",
-      "n2_value": "456",
-      "n2_label": "Cargo Y",
       "n3_value": "789",
       "n3_label": "Agente Z"
     }
@@ -28,6 +28,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# IDs dos selectize do E-Agendas
+DD_ORGAO_ID = "filtro_orgao_entidade"
+DD_AGENTE_ID = "filtro_servidor"
+
 
 def _write_result(data: dict) -> None:
     """Write result to RESULT_JSON_PATH file (subprocess contract)."""
@@ -40,7 +44,7 @@ def _write_result(data: dict) -> None:
 
 
 def main():
-    """Executa coleta de eventos para múltiplos agentes."""
+    """Executa coleta de eventos para múltiplos agentes (modelo 2 níveis: Órgão → Agente)."""
     try:
         # Ler input via stdin
         input_data = json.loads(sys.stdin.read())
@@ -53,20 +57,12 @@ def main():
 
         # Importar após ler stdin para evitar delay inicial
         from datetime import date
-
         from playwright.sync_api import sync_playwright
-
-        # Importar funções de selectize
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-        from mappers.eagendas_selectize import (
-            find_selectize_by_label,
-            open_selectize_dropdown,
-            select_selectize_option_via_api,
-        )
 
         # Configurar Playwright
         pw_browsers_path = Path(__file__).resolve().parent.parent.parent.parent / ".venv" / "pw-browsers"
-        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(pw_browsers_path)
+        if pw_browsers_path.exists():
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(pw_browsers_path)
 
         agentes_data = []
         total_eventos = 0
@@ -79,39 +75,83 @@ def main():
             _write_result({"success": False, "error": f"Erro ao parsear datas: {e}"})
             return 1
 
+        # Funções helper para Selectize
+        def get_selectize_options(page, element_id: str):
+            """Extract options from a Selectize dropdown."""
+            return page.evaluate("""(id) => {
+                const el = document.getElementById(id);
+                if (!el || !el.selectize) return [];
+                const s = el.selectize;
+                const out = [];
+                const opts = s.options || {};
+                for (const [val, raw] of Object.entries(opts)) {
+                    const v = String(val ?? '');
+                    const t = (raw && (raw.text || raw.label || raw.nome || raw.name)) || v;
+                    if (!t) continue;
+                    out.push({ value: v, text: String(t) });
+                }
+                return out;
+            }""", element_id)
+
+        def set_selectize_value(page, element_id: str, value: str):
+            """Set a value in a Selectize dropdown."""
+            return page.evaluate("""(args) => {
+                const { id, value } = args;
+                const el = document.getElementById(id);
+                if (!el || !el.selectize) return false;
+                el.selectize.setValue(String(value), false);
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                return true;
+            }""", {'id': element_id, 'value': value})
+
         with sync_playwright() as p:
             # NOTA: E-Agendas detecta headless e bloqueia. Usamos headless=False + --start-minimized
-            LAUNCH_ARGS = ['--start-minimized', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-            
+            LAUNCH_ARGS = [
+                '--start-minimized',
+                '--disable-blink-features=AutomationControlled',
+                '--ignore-certificate-errors'
+            ]
+
             # Tentar lançar browser
             browser = None
-            try:
-                browser = p.chromium.launch(channel="chrome", headless=False, args=LAUNCH_ARGS)
-            except Exception:
+            for channel in ['chrome', 'msedge']:
                 try:
-                    browser = p.chromium.launch(channel="msedge", headless=False, args=LAUNCH_ARGS)
-                except Exception:
-                    # Fallback: buscar executável
-                    chrome_paths = [
-                        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                    ]
-                    edge_paths = [
-                        "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                    ]
-                    for exe_path in chrome_paths + edge_paths:
-                        if Path(exe_path).exists():
-                            try:
-                                browser = p.chromium.launch(executable_path=exe_path, headless=False, args=LAUNCH_ARGS)
-                                break
-                            except Exception:
-                                continue
+                    print(f"[DEBUG] Tentando channel={channel}...", file=sys.stderr)
+                    browser = p.chromium.launch(channel=channel, headless=False, args=LAUNCH_ARGS)
+                    print(f"[DEBUG] ✓ {channel} OK", file=sys.stderr)
+                    break
+                except Exception as e:
+                    print(f"[DEBUG] ✗ {channel} falhou: {e}", file=sys.stderr)
+
+            # Fallback: buscar executável
+            if not browser:
+                exe_paths = [
+                    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+                    r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+                ]
+                for exe_path in exe_paths:
+                    if Path(exe_path).exists():
+                        try:
+                            browser = p.chromium.launch(executable_path=exe_path, headless=False, args=LAUNCH_ARGS)
+                            print(f"[DEBUG] ✓ executable_path OK", file=sys.stderr)
+                            break
+                        except Exception:
+                            continue
 
             if not browser:
-                browser = p.chromium.launch(headless=False, args=LAUNCH_ARGS)
+                _write_result({"success": False, "error": "Nenhum browser disponível (Chrome/Edge)"})
+                return 1
 
-            context = browser.new_context()
+            # Criar contexto NEGANDO permissões de geolocalização
+            context = browser.new_context(
+                ignore_https_errors=True,
+                viewport={'width': 1280, 'height': 900},
+                permissions=[],  # Negar todas as permissões
+                geolocation=None,
+            )
+            context.set_default_timeout(60000)
             page = context.new_page()
 
             # URL base do E-Agendas
@@ -120,213 +160,128 @@ def main():
             # Processar cada consulta
             for query_idx, query in enumerate(queries):
                 try:
-                    print(f"[PROGRESS] Processando agente {query_idx + 1}/{len(queries)}: {query['n3_label']}",
+                    # Modelo novo: n3 contém o agente (compatibilidade com listas antigas)
+                    # n1 = órgão, n3 = agente (n2 era cargo, agora ignorado)
+                    agente_label = query.get('n3_label') or query.get('person_label', 'Agente')
+                    agente_value = query.get('n3_value', '')
+                    orgao_label = query.get('n1_label', 'Órgão')
+                    orgao_value = query.get('n1_value', '')
+
+                    print(f"[PROGRESS] Processando agente {query_idx + 1}/{len(queries)}: {agente_label}",
                           file=sys.stderr)
 
                     # Navegar para a página
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
                     page.goto(base_url, timeout=30000, wait_until="commit")
-                    # Aguardar scripts AngularJS carregarem
-                    page.wait_for_timeout(5000)
+                    page.wait_for_timeout(5000)  # Aguardar AngularJS carregar
 
-                    # === ABORDAGEM CORRETA: Usar labels para encontrar selectize ===
-
-                    # PASSO 1: Encontrar selectize N1 (Órgão ou entidade)
-                    print("[DEBUG] Procurando selectize 'Órgão ou entidade'...", file=sys.stderr)
-                    selectize_n1 = find_selectize_by_label(page, "Órgão ou entidade")
-                    if not selectize_n1:
-                        print("[ERROR] Selectize 'Órgão ou entidade' não encontrado", file=sys.stderr)
-                        continue
-
-                    # PASSO 2: Abrir dropdown N1 e selecionar órgão
-                    print(f"[DEBUG] Selecionando órgão: {query['n1_label']} (ID: {query['n1_value']})", file=sys.stderr)
-                    if not open_selectize_dropdown(page, selectize_n1, wait_ms=2000):
-                        print("[ERROR] Não foi possível abrir dropdown N1", file=sys.stderr)
-                        continue
-
-                    # Selecionar via API (mais confiável)
-                    option_n1 = {"value": query["n1_value"], "text": query["n1_label"]}
-                    if not select_selectize_option_via_api(page, selectize_n1, option_n1, wait_after_ms=3000):
-                        print("[ERROR] Não foi possível selecionar N1", file=sys.stderr)
-                        continue
-
-                    # PASSO 3: Encontrar selectize N2 (Cargo)
-                    print("[DEBUG] Procurando selectize 'Cargo'...", file=sys.stderr)
-                    page.wait_for_timeout(2000)
-                    selectize_n2 = find_selectize_by_label(page, "Cargo")
-                    if not selectize_n2:
-                        print("[ERROR] Selectize 'Cargo' não encontrado", file=sys.stderr)
-                        continue
-
-                    # PASSO 4: Abrir dropdown N2 e selecionar cargo
-                    print(f"[DEBUG] Selecionando cargo: {query['n2_label']} (ID: {query['n2_value']})", file=sys.stderr)
-                    if not open_selectize_dropdown(page, selectize_n2, wait_ms=2000):
-                        print("[ERROR] Não foi possível abrir dropdown N2", file=sys.stderr)
-                        continue
-
-                    option_n2 = {"value": query["n2_value"], "text": query["n2_label"]}
-                    if not select_selectize_option_via_api(page, selectize_n2, option_n2, wait_after_ms=3000):
-                        print("[ERROR] Não foi possível selecionar N2", file=sys.stderr)
-                        continue
-
-                    # PASSO 5: Encontrar selectize N3 (Agente público)
-                    print("[DEBUG] Procurando selectize 'Agente público'...", file=sys.stderr)
-                    page.wait_for_timeout(2000)
-                    selectize_n3 = find_selectize_by_label(page, "Agente público")
-                    if not selectize_n3:
-                        print("[ERROR] Selectize 'Agente público' não encontrado", file=sys.stderr)
-                        continue
-
-                    # PASSO 6: Abrir dropdown N3 e selecionar agente
-                    print(f"[DEBUG] Selecionando agente: {query['n3_label']} (ID: {query['n3_value']})", file=sys.stderr)
-                    if not open_selectize_dropdown(page, selectize_n3, wait_ms=2000):
-                        print("[ERROR] Não foi possível abrir dropdown N3", file=sys.stderr)
-                        continue
-
-                    option_n3 = {"value": query["n3_value"], "text": query["n3_label"]}
-                    if not select_selectize_option_via_api(page, selectize_n3, option_n3, wait_after_ms=2000):
-                        print("[ERROR] Não foi possível selecionar N3", file=sys.stderr)
-                        continue
-
-                    # Clicar em "Mostrar agenda"
-                    print("[DEBUG] Procurando botão 'Mostrar agenda'...", file=sys.stderr)
-                    page.wait_for_timeout(800)
-
-                    # Mitigar cookie bar interceptando cliques
+                    # Aguardar selectize de órgãos inicializar
+                    wait_orgao_js = f"() => {{ const el = document.getElementById('{DD_ORGAO_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 5; }}"
                     try:
-                        cookie_bar = page.locator('.br-cookiebar')
-                        if cookie_bar.count() > 0:
-                            print("[DEBUG] Cookie bar detectada — tentando aceitar/remover...", file=sys.stderr)
-                            # Tentar clicar em algum botão dentro da cookiebar primeiro
-                            btn_cookie = cookie_bar.locator('button')
-                            try:
-                                if btn_cookie.count() > 0:
-                                    btn_cookie.first.click(timeout=1500)
-                                    page.wait_for_timeout(300)
-                                    print("[DEBUG] Botão da cookie bar clicado", file=sys.stderr)
-                                else:
-                                    # Remover via JS se não houver botão
-                                    page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
-                                    print("[DEBUG] Cookie bar removida via JS", file=sys.stderr)
-                            except Exception:
-                                # Forçar remoção se clique falhar
-                                try:
-                                    page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
-                                    print("[DEBUG] Cookie bar removida via JS (fallback)", file=sys.stderr)
-                                except Exception:
-                                    print("[WARNING] Falha ao remover cookie bar", file=sys.stderr)
+                        page.wait_for_function(wait_orgao_js, timeout=20000)
+                        print("[DEBUG] ✓ Selectize inicializado", file=sys.stderr)
+                    except Exception as e:
+                        print(f"[ERROR] Selectize não inicializou: {e}", file=sys.stderr)
+                        continue
+
+                    # PASSO 1: Selecionar órgão
+                    print(f"[DEBUG] Selecionando órgão: {orgao_label} (ID: {orgao_value})", file=sys.stderr)
+                    if not set_selectize_value(page, DD_ORGAO_ID, orgao_value):
+                        print("[ERROR] Não foi possível selecionar órgão", file=sys.stderr)
+                        continue
+                    page.wait_for_timeout(3000)  # Aguardar agentes carregarem
+
+                    # PASSO 2: Selecionar agente diretamente (sem cargo)
+                    # Aguardar selectize de agentes
+                    wait_agente_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
+                    try:
+                        page.wait_for_function(wait_agente_js, timeout=15000)
+                    except Exception:
+                        print(f"[WARNING] Timeout aguardando agentes para {orgao_label}", file=sys.stderr)
+
+                    print(f"[DEBUG] Selecionando agente: {agente_label} (ID: {agente_value})", file=sys.stderr)
+                    if not set_selectize_value(page, DD_AGENTE_ID, agente_value):
+                        print("[ERROR] Não foi possível selecionar agente", file=sys.stderr)
+                        continue
+                    page.wait_for_timeout(2000)
+
+                    # Mitigar cookie bar
+                    try:
+                        page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
                     except Exception:
                         pass
 
-                    # Função helper para clicar com múltiplas tentativas
-                    def _click_mostrar_agenda(max_attempts: int = 3) -> bool:
-                        for attempt in range(1, max_attempts + 1):
+                    # Clicar em "Mostrar agenda"
+                    print("[DEBUG] Procurando botão 'Mostrar agenda'...", file=sys.stderr)
+                    clicked = False
+                    for attempt in range(3):
+                        try:
+                            btn = page.locator('button:has-text("Mostrar agenda"), button:has-text("MOSTRAR AGENDA")').first
+                            if btn.count() > 0:
+                                btn.scroll_into_view_if_needed()
+                                page.wait_for_timeout(200)
+                                btn.click(timeout=5000, force=attempt > 0)
+                                clicked = True
+                                break
+                        except Exception as e:
+                            print(f"[DEBUG] Tentativa {attempt+1} clique falhou: {e}", file=sys.stderr)
                             try:
-                                btn_loc = page.locator('button:has-text("Mostrar agenda"), button:has-text("MOSTRAR AGENDA")').first
-                                count = btn_loc.count()
-                                print(f"[DEBUG] Tentativa {attempt}: localizar botão (count={count})", file=sys.stderr)
-                                if count == 0:
-                                    page.wait_for_timeout(400)
-                                    continue
-                                if not btn_loc.is_visible():
-                                    print("[DEBUG] Botão encontrado mas não visível — scroll", file=sys.stderr)
-                                    btn_loc.scroll_into_view_if_needed()
-                                    page.wait_for_timeout(150)
-                                print(f"[DEBUG] Tentativa {attempt}: clicando...", file=sys.stderr)
-                                if attempt == 1:
-                                    btn_loc.click(timeout=4000)
-                                elif attempt == 2:
-                                    # Forçar clique
-                                    btn_loc.click(timeout=4000, force=True)
-                                else:
-                                    # Fallback JS
-                                    page.evaluate("el => el.click()", btn_loc.element_handle())
-                                page.wait_for_timeout(600)
-                                return True
-                            except Exception as e_inner:
-                                print(f"[DEBUG] Tentativa {attempt} falhou: {e_inner}", file=sys.stderr)
-                                # Em falhas posteriores, remover cookie bar novamente se reapareceu
-                                try:
-                                    cookie_bar2 = page.locator('.br-cookiebar')
-                                    if cookie_bar2.count() > 0:
-                                        page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
-                                        print("[DEBUG] Cookie bar removida após falha de clique", file=sys.stderr)
-                                except Exception:
-                                    pass
-                                page.wait_for_timeout(300)
-                        return False
+                                page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
+                            except Exception:
+                                pass
+                            page.wait_for_timeout(500)
 
-                    clicked = _click_mostrar_agenda()
                     if not clicked:
-                        print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {query['n3_label']}", file=sys.stderr)
+                        print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {agente_label}", file=sys.stderr)
                         continue
-                    print("[DEBUG] Clique em 'Mostrar agenda' bem-sucedido, aguardando carregamento...", file=sys.stderr)
-                    page.wait_for_timeout(2500)
+
+                    print("[DEBUG] Aguardando calendário...", file=sys.stderr)
+                    page.wait_for_timeout(3000)
 
                     # Verificar se calendário apareceu
-                    print("[DEBUG] Aguardando calendário aparecer...", file=sys.stderr)
-
-                    # Tentar múltiplos seletores para calendário
                     calendar_selectors = [
                         "#divcalendar",
                         ".fc-view-container",
                         ".fc-view",
                         ".fc-daygrid",
                         "[class*='calendar']",
-                        "[id*='calendar']"
                     ]
 
-                    calendar = None
+                    calendar_found = False
                     for selector in calendar_selectors:
                         try:
                             cal = page.locator(selector).first
-                            if cal.count() > 0:
-                                print(f"[DEBUG] Encontrado elemento com seletor '{selector}'", file=sys.stderr)
-                                is_visible = cal.is_visible()
-                                print(f"[DEBUG] Elemento visível: {is_visible}", file=sys.stderr)
-                                if is_visible:
-                                    calendar = cal
-                                    break
+                            if cal.count() > 0 and cal.is_visible():
+                                calendar_found = True
+                                print(f"[DEBUG] ✓ Calendário encontrado ({selector})", file=sys.stderr)
+                                break
                         except Exception:
                             continue
 
-                    if not calendar:
-                        print(f"[WARNING] Calendário não encontrado para {query['n3_label']}", file=sys.stderr)
-                        # Salvar screenshot para debug
-                        screenshot_path = f"debug_no_calendar_{query_idx}.png"
-                        page.screenshot(path=screenshot_path)
-                        print(f"[DEBUG] Screenshot salvo: {screenshot_path}", file=sys.stderr)
+                    if not calendar_found:
+                        print(f"[WARNING] Calendário não encontrado para {agente_label}", file=sys.stderr)
                         continue
 
-                    print("[DEBUG] Calendário encontrado e visível!", file=sys.stderr)
-
                     # Coletar eventos do período
-                    # SIMPLIFICADO: Buscar todos os eventos visíveis no calendário
-                    # (implementação completa requer navegação por mês/dia)
                     eventos_por_dia = {}
 
-                    # Buscar eventos no calendário (view mensal)
                     try:
-                        # Detectar dias com eventos
                         day_cells = page.locator(".fc-day[data-date], .fc-daygrid-day[data-date]")
                         count = day_cells.count()
 
-                        for i in range(min(count, 31)):  # Limitar para não demorar muito
+                        for i in range(min(count, 42)):  # ~6 semanas
                             cell = day_cells.nth(i)
                             try:
                                 date_str = cell.get_attribute("data-date")
                                 if not date_str:
                                     continue
 
-                                # Verificar se data está no período
                                 cell_date = date.fromisoformat(date_str)
                                 if not (start_date <= cell_date <= end_date):
                                     continue
 
-                                # Verificar se há eventos neste dia
                                 events_in_cell = cell.locator(".fc-event, .fc-daygrid-event")
                                 if events_in_cell.count() > 0:
-                                    # Extrair informações básicas do evento
                                     eventos_dia = []
                                     for j in range(events_in_cell.count()):
                                         evt = events_in_cell.nth(j)
@@ -349,32 +304,34 @@ def main():
                                 continue
 
                     except Exception as e:
-                        print(f"[WARNING] Erro ao extrair eventos para {query['n3_label']}: {e}", file=sys.stderr)
+                        print(f"[WARNING] Erro ao extrair eventos para {agente_label}: {e}", file=sys.stderr)
 
-                    # Adicionar dados do agente
+                    # Adicionar dados do agente (modelo simplificado)
                     agente_data = {
                         "orgao": {
-                            "id": query["n1_value"],
-                            "nome": query["n1_label"]
+                            "id": orgao_value,
+                            "nome": orgao_label
                         },
                         "cargo": {
-                            "id": query["n2_value"],
-                            "nome": query["n2_label"]
+                            "id": "",
+                            "nome": ""  # Cargo removido do modelo
                         },
                         "agente": {
-                            "id": query["n3_value"],
-                            "nome": query["n3_label"]
+                            "id": agente_value,
+                            "nome": agente_label
                         },
                         "eventos": eventos_por_dia
                     }
                     agentes_data.append(agente_data)
+                    print(f"[DEBUG] ✓ {agente_label}: {len(eventos_por_dia)} dias com eventos", file=sys.stderr)
 
                 except Exception as e:
-                    print(f"[ERROR] Erro ao processar {query['n3_label']}: {e}", file=sys.stderr)
+                    print(f"[ERROR] Erro ao processar {query.get('n3_label', 'agente')}: {e}", file=sys.stderr)
                     import traceback
                     traceback.print_exc(file=sys.stderr)
                     continue
 
+            context.close()
             browser.close()
 
         # Estrutura final
