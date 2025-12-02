@@ -17,14 +17,24 @@ enableXsrfProtection = false
 maxUploadSize = 50
 # Disable WebSocket compression for faster communication
 enableWebsocketCompression = false
+# Disable file watcher for faster startup
+fileWatcherType = "none"
 
 [runner]
 # Don't run on file save during development (saves CPU)
 fastReruns = true
+# Disable magic commands parsing (slightly faster)
+magicEnabled = false
 
 [client]
 # Show error details in the browser
 showErrorDetails = true
+# Disable toolbar for cleaner UI
+toolbarMode = "minimal"
+
+[logger]
+# Reduce logging for faster operation
+level = "error"
 
 [theme]
 base = "light"

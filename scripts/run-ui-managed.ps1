@@ -181,14 +181,13 @@ $uiLock = Join-Path $root 'resultados/ui.lock'
 if (Test-Path $uiLock) { Write-Log "ui.lock presente; deixado intocado para aviso no app." }
 
 # Selecionar porta: tenta $Port e, se ocupada, tenta as próximas sem matar nada
+# OTIMIZAÇÃO: Usar netstat diretamente (Get-NetTCPConnection é muito lento ~2.5s)
 function Get-PortOwnerPid {
   param([int]$port)
   try {
-    $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
-    if ($conn -and $conn.OwningProcess) { return [int]$conn.OwningProcess }
-  } catch {}
-  try {
-    $lines = netstat -ano | Select-String -Pattern (":" + $port + "\s") | Select-Object -First 1
+    # netstat é MUITO mais rápido que Get-NetTCPConnection (~50ms vs ~2500ms)
+    $pattern = ":$port "
+    $lines = netstat -ano 2>$null | Where-Object { $_ -match $pattern -and $_ -match 'LISTENING' } | Select-Object -First 1
     if ($lines) {
       $t = $lines.ToString().Trim() -split "\s+"
       $pidStr = $t[-1]
