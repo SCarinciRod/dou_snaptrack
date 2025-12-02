@@ -13,7 +13,7 @@ See MODULE DOCUMENTATION section below for future modularization plan.
 from __future__ import annotations  # noqa: I001
 
 # =============================================================================
-# SECTION: IMPORTS
+# SECTION: IMPORTS (Minimal - heavy imports are lazy loaded)
 # =============================================================================
 # Standard library
 import asyncio
@@ -32,33 +32,87 @@ from typing import TYPE_CHECKING
 # Third-party
 import streamlit as st
 
-# Local imports (new modular structure)
+# Core state imports only (lightweight)
 from dou_snaptrack.ui.state import (
     SessionManager,
     ensure_dirs,
     ensure_eagendas_state,
     ensure_state,
 )
-from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
-from dou_snaptrack.ui.plan_editor import (
-    render_plan_discovery,
-    render_plan_loader,
-    render_plan_editor_table,
-    render_plan_saver,
-)
-from dou_snaptrack.ui.eagendas_ui import (
-    render_hierarchy_selector,
-    render_date_period_selector,
-    render_query_manager,
-    render_lista_manager,
-    render_saved_queries_list,
-    render_execution_section,
-    render_document_generator,
-    render_document_download,
-)
-from dou_snaptrack.ui.sidebar import render_sidebar
-from dou_snaptrack.ui.batch_executor import render_batch_executor
-from dou_snaptrack.ui.report_generator import render_report_generator
+
+# =============================================================================
+# SECTION: LAZY IMPORTS (Performance optimization)
+# Defer heavy module imports until actually needed
+# =============================================================================
+@lru_cache(maxsize=1)
+def _get_plan_editor():
+    """Lazy import plan_editor module."""
+    from dou_snaptrack.ui.plan_editor import (
+        render_plan_discovery,
+        render_plan_loader,
+        render_plan_editor_table,
+        render_plan_saver,
+    )
+    return {
+        "render_plan_discovery": render_plan_discovery,
+        "render_plan_loader": render_plan_loader,
+        "render_plan_editor_table": render_plan_editor_table,
+        "render_plan_saver": render_plan_saver,
+    }
+
+
+@lru_cache(maxsize=1)
+def _get_eagendas_ui():
+    """Lazy import eagendas_ui module."""
+    from dou_snaptrack.ui.eagendas_ui import (
+        render_hierarchy_selector,
+        render_date_period_selector,
+        render_query_manager,
+        render_lista_manager,
+        render_saved_queries_list,
+        render_execution_section,
+        render_document_generator,
+        render_document_download,
+    )
+    return {
+        "render_hierarchy_selector": render_hierarchy_selector,
+        "render_date_period_selector": render_date_period_selector,
+        "render_query_manager": render_query_manager,
+        "render_lista_manager": render_lista_manager,
+        "render_saved_queries_list": render_saved_queries_list,
+        "render_execution_section": render_execution_section,
+        "render_document_generator": render_document_generator,
+        "render_document_download": render_document_download,
+    }
+
+
+@lru_cache(maxsize=1)
+def _get_batch_executor():
+    """Lazy import batch_executor module."""
+    from dou_snaptrack.ui.batch_executor import render_batch_executor
+    return render_batch_executor
+
+
+@lru_cache(maxsize=1)
+def _get_report_generator():
+    """Lazy import report_generator module."""
+    from dou_snaptrack.ui.report_generator import render_report_generator
+    return render_report_generator
+
+
+@lru_cache(maxsize=1)
+def _get_sidebar():
+    """Lazy import sidebar module."""
+    from dou_snaptrack.ui.sidebar import render_sidebar
+    return render_sidebar
+
+
+@lru_cache(maxsize=1)
+def _get_subprocess_utils():
+    """Lazy import subprocess_utils module."""
+    from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
+    return execute_script_and_read_result
+
 
 # =============================================================================
 # SECTION: PATH SETUP
@@ -172,7 +226,11 @@ def get_eagendas_calendar():
 _ensure_state = ensure_state
 _ensure_eagendas_state = ensure_eagendas_state
 _ensure_dirs = ensure_dirs
-_execute_script_and_read_result = execute_script_and_read_result
+
+
+def _execute_script_and_read_result(*args, **kwargs):
+    """Lazy wrapper for execute_script_and_read_result."""
+    return _get_subprocess_utils()(*args, **kwargs)
 
 # Note: SessionManager moved to state.py; SubprocessManager was unused and removed
 
@@ -438,23 +496,24 @@ with main_tab_dou:
     tab1, tab2, tab3 = st.tabs(["Explorar e montar plano", "Executar plano", "Gerar boletim"])
 
 with tab1:
-    # TAB1: Explorar e montar plano - usa funções render de plan_editor.py
-    render_plan_discovery()
+    # TAB1: Explorar e montar plano - usa funções render de plan_editor.py (lazy loaded)
+    plan_editor = _get_plan_editor()
+    plan_editor["render_plan_discovery"]()
     
     st.divider()
     st.subheader("📝 Gerenciar Plano")
     
-    render_plan_loader()
-    render_plan_editor_table()
-    render_plan_saver()
+    plan_editor["render_plan_loader"]()
+    plan_editor["render_plan_editor_table"]()
+    plan_editor["render_plan_saver"]()
 
 with tab2:
-    # TAB2: Executar plano - usa render_batch_executor de batch_executor.py
-    render_batch_executor()
+    # TAB2: Executar plano - usa render_batch_executor de batch_executor.py (lazy loaded)
+    _get_batch_executor()()
 
 with tab3:
-    # TAB3: Gerar boletim - usa render_report_generator de report_generator.py
-    render_report_generator()
+    # TAB3: Gerar boletim - usa render_report_generator de report_generator.py (lazy loaded)
+    _get_report_generator()()
 
 
 # =============================================================================
@@ -463,6 +522,9 @@ with tab3:
 
 with main_tab_eagendas:
     st.subheader("E-Agendas — Consulta de Agendas de Servidores Públicos")
+    
+    # Lazy load eagendas_ui module
+    eagendas_ui = _get_eagendas_ui()
 
     # Seção 1: Seleção de Órgão/Agente (N1/N2)
     # Modelo simplificado: Órgão → Agente (direto, sem cargo intermediário)
@@ -471,7 +533,7 @@ with main_tab_eagendas:
     col_n1, col_n2 = st.columns(2)
 
     with col_n1:
-        render_hierarchy_selector(
+        eagendas_ui["render_hierarchy_selector"](
             title="Órgão",
             load_button_text="Carregar Órgãos",
             load_key="eagendas_load_n1",
@@ -487,7 +549,7 @@ with main_tab_eagendas:
     with col_n2:
         n1_selected = st.session_state.eagendas.current_n1
         n1_label = st.session_state.get("eagendas_current_n1_label", "Órgão")
-        render_hierarchy_selector(
+        eagendas_ui["render_hierarchy_selector"](
             title="Agente",
             load_button_text="Carregar Agentes",
             load_key="eagendas_load_n2",
@@ -503,35 +565,35 @@ with main_tab_eagendas:
     st.divider()
 
     # Seção 2: Período de Pesquisa (usando função modular)
-    date_start, date_end = render_date_period_selector()
+    date_start, date_end = eagendas_ui["render_date_period_selector"]()
 
     st.divider()
 
     # Seção 3: Gerenciamento de Consultas Salvas
-    render_query_manager()
+    eagendas_ui["render_query_manager"]()
 
     # Sub-seção: Salvar/Carregar Listas de Agentes
-    render_lista_manager()
+    eagendas_ui["render_lista_manager"]()
 
     # Mostrar lista de consultas salvas
-    render_saved_queries_list()
+    eagendas_ui["render_saved_queries_list"]()
 
     st.divider()
 
     # Seção 4: Execução
-    render_execution_section(date_start, date_end)
+    eagendas_ui["render_execution_section"](date_start, date_end)
 
     st.divider()
 
     # Seção 5: Geração de Documento
-    render_document_generator(date_start, date_end)
+    eagendas_ui["render_document_generator"](date_start, date_end)
 
     # Download separado de documento gerado anteriormente
-    render_document_download()
+    eagendas_ui["render_document_download"]()
 
 
 # =============================================================================
-# SECTION: SIDEBAR - Using modular sidebar components
+# SECTION: SIDEBAR - Using modular sidebar components (lazy loaded)
 # =============================================================================
 
-render_sidebar()
+_get_sidebar()()

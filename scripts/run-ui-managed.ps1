@@ -67,8 +67,61 @@ function Test-ModuleInstalled {
   return ($LASTEXITCODE -eq 0)
 }
 
-function Initialize-DependenciesLight {
-  param([string]$PyExe, [string]$FlagPath, [bool]$IsVenv)
+# OTIMIZAÇÃO: Verificar todos os módulos em um único spawn do Python (economiza ~2.5s)
+function Test-AllModulesInstalled {
+  param([string]$PyExe)
+  $checkScript = @"
+import importlib.util, sys, json
+modules = ['streamlit', 'playwright', 'docx']
+missing = [m for m in modules if not importlib.util.find_spec(m)]
+version = '.'.join(map(str, sys.version_info[:2]))
+print(json.dumps({'missing': missing, 'version': version}))
+"@
+  try {
+    $result = & $PyExe -c $checkScript 2>$null
+    if ($LASTEXITCODE -eq 0 -and $result) {
+      $data = $result | ConvertFrom-Json
+      return @{ missing = $data.missing; version = $data.version; success = $true }
+    }
+  } catch {}
+  return @{ missing = @('streamlit', 'playwright', 'docx'); version = $null; success = $false }
+}
+
+# Bootstrap se necessário
+$venvInfo = Initialize-Venv -VenvPath (Join-Path $root $VenvDir)
+$py = $venvInfo.exe
+$isVenv = $venvInfo.isVenv
+if (-not (Test-Path $py)) { Write-Error "Python não encontrado: $py"; exit 1 }
+
+# OTIMIZAÇÃO: Verificar versão e módulos em um único spawn (economiza ~1.7s)
+# Detect Python version and avoid known incompatibilities (e.g., Streamlit on 3.13+)
+$preCheck = Test-AllModulesInstalled -PyExe $py
+$pyVer = $null
+if ($preCheck.success -and $preCheck.version) {
+  try { $pyVer = [version]$preCheck.version } catch {}
+}
+
+if ($null -ne $pyVer -and $pyVer.Major -ge 3 -and $pyVer.Minor -ge 13) {
+  Write-Log ("Python $($pyVer.ToString()) detectado na venv; tentando Python do sistema 3.11/3.12 por compatibilidade do Streamlit.")
+  $sys = Resolve-SystemPython
+  if ($sys -and (Test-Path $sys.exe)) {
+    $py = $sys.exe
+    $isVenv = $false
+    # Re-verificar módulos com o novo Python
+    $preCheck = Test-AllModulesInstalled -PyExe $py
+    Write-Log ("Usando Python do sistema: $py")
+  } else {
+    Write-Log "Python alternativo não encontrado; prosseguindo com a venv atual."
+  }
+}
+
+# Startup rápido: não atualizar pip a cada execução, só instalar módulos ausentes (com cache)
+if (-not $isVenv) { $depsFlag = (Join-Path $logs 'ui_deps_ok_system.flag') }
+
+# Usar resultado do preCheck se disponível, senão verificar novamente
+function Initialize-DependenciesLightOptimized {
+  param([string]$PyExe, [string]$FlagPath, [bool]$IsVenv, $PreCheckResult)
+  
   $fingerprint = $PyExe
   $useCache = $false
   if (Test-Path $FlagPath) {
@@ -77,11 +130,22 @@ function Initialize-DependenciesLight {
       if ($content -match [regex]::Escape($fingerprint)) { $useCache = $true }
     } catch {}
   }
-  # Always verify core modules even when cache suggests OK (stale cache guard)
+  
+  # Usar resultado do preCheck (já verificou módulos)
   $need = @()
-  if (-not (Test-ModuleInstalled $PyExe 'streamlit')) { $need += 'streamlit' }
-  if (-not (Test-ModuleInstalled $PyExe 'playwright')) { $need += 'playwright' }
-  if (-not (Test-ModuleInstalled $PyExe 'docx')) { $need += 'python-docx' }
+  if ($PreCheckResult -and $PreCheckResult.success) {
+    foreach ($m in $PreCheckResult.missing) {
+      if ($m -eq 'docx') { $need += 'python-docx' }
+      else { $need += $m }
+    }
+  } else {
+    # Fallback: verificar individualmente
+    Write-Log "Verificação batch falhou, usando fallback individual..."
+    if (-not (Test-ModuleInstalled $PyExe 'streamlit')) { $need += 'streamlit' }
+    if (-not (Test-ModuleInstalled $PyExe 'playwright')) { $need += 'playwright' }
+    if (-not (Test-ModuleInstalled $PyExe 'docx')) { $need += 'python-docx' }
+  }
+  
   if ($useCache -and $need.Count -eq 0) {
     Write-Log "Pulando instalação: dependências básicas já presentes (cache válida)."
     return
@@ -107,36 +171,7 @@ function Initialize-DependenciesLight {
   try { Set-Content -Path $FlagPath -Value ($fingerprint + "|" + (Get-Date).ToString('s')) -Encoding UTF8 } catch {}
 }
 
-# Bootstrap se necessário
-$venvInfo = Initialize-Venv -VenvPath (Join-Path $root $VenvDir)
-$py = $venvInfo.exe
-$isVenv = $venvInfo.isVenv
-if (-not (Test-Path $py)) { Write-Error "Python não encontrado: $py"; exit 1 }
-
-# Detect Python version and avoid known incompatibilities (e.g., Streamlit on 3.13+)
-function Get-PythonVersion([string]$exe) {
-  try {
-    $v = & $exe -c "import sys; print('.'.join(map(str, sys.version_info[:2])))" 2>$null
-    return [version]$v.Trim()
-  } catch { return $null }
-}
-
-$pyVer = Get-PythonVersion $py
-if ($null -ne $pyVer -and $pyVer.Major -ge 3 -and $pyVer.Minor -ge 13) {
-  Write-Log ("Python $($pyVer.ToString()) detectado na venv; tentando Python do sistema 3.11/3.12 por compatibilidade do Streamlit.")
-  $sys = Resolve-SystemPython
-  if ($sys -and (Test-Path $sys.exe)) {
-    $py = $sys.exe
-    $isVenv = $false
-    Write-Log ("Usando Python do sistema: $py")
-  } else {
-    Write-Log "Python alternativo não encontrado; prosseguindo com a venv atual."
-  }
-}
-
-# Startup rápido: não atualizar pip a cada execução, só instalar módulos ausentes (com cache)
-if (-not $isVenv) { $depsFlag = (Join-Path $logs 'ui_deps_ok_system.flag') }
-Initialize-DependenciesLight -PyExe $py -FlagPath $depsFlag -IsVenv:$isVenv
+Initialize-DependenciesLightOptimized -PyExe $py -FlagPath $depsFlag -IsVenv:$isVenv -PreCheckResult $preCheck
 
 Write-Log "Inicializando UI manager (Port=$Port)"
 Write-Log "Python: $py"

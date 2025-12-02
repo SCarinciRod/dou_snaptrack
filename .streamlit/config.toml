@@ -1,3 +1,31 @@
+# =============================================================================
+# Streamlit Performance Configuration
+# =============================================================================
+
+[browser]
+# Disable usage statistics collection (saves network roundtrip)
+gatherUsageStats = false
+
+[server]
+# Headless mode - no browser auto-open
+headless = true
+# Disable CORS for local development
+enableCORS = false
+# Disable XSRF protection for local development
+enableXsrfProtection = false
+# Larger file upload limit (50MB)
+maxUploadSize = 50
+# Disable WebSocket compression for faster communication
+enableWebsocketCompression = false
+
+[runner]
+# Don't run on file save during development (saves CPU)
+fastReruns = true
+
+[client]
+# Show error details in the browser
+showErrorDetails = true
+
 [theme]
 base = "light"
 primaryColor = "#0b2545"
@@ -5,4 +33,3 @@ backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#a18a08ff"
 textColor = "#000000"
 font = "arial narrow"
-
