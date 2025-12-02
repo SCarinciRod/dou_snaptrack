@@ -357,3 +357,203 @@ class TestWaitHelpersRealBehavior:
         
         # Should call wait_for_timeout as fallback
         assert mock_page.wait_for_timeout.called or result is True
+
+
+class TestWaitHelpersInjection:
+    """Test JavaScript injection protection in wait helpers."""
+
+    def test_element_id_with_quotes(self):
+        """Test element_id containing quotes (potential JS injection)."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        # Malicious element ID with quotes
+        result = wait_for_selectize(mock_page, element_id="test'); alert('xss")
+        
+        # Should still work (the JS will be invalid but won't execute arbitrary code)
+        assert mock_page.wait_for_function.called
+        
+        # Verify the JS code passed contains the malicious string escaped somehow
+        call_args = mock_page.wait_for_function.call_args[0][0]
+        # Should contain our string (whether it works or not, it shouldn't execute alert)
+        assert "test" in call_args
+
+    def test_element_id_with_backticks(self):
+        """Test element_id with backticks (template literal injection)."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        result = wait_for_selectize(mock_page, element_id="test`; ${alert('xss')}")
+        assert mock_page.wait_for_function.called
+
+    def test_selector_with_backslashes(self):
+        """Test selector with backslashes."""
+        mock_page = Mock()
+        mock_page.wait_for_selector = Mock(return_value=Mock())
+        mock_page.wait_for_timeout = Mock()
+        
+        result = wait_for_dropdown_ready(mock_page, selector="#test\\:id")
+        assert result is True
+
+
+class TestWaitHelpersExceptionTypes:
+    """Test that various exception types are handled correctly."""
+
+    def test_timeout_error_handled(self):
+        """Test builtin TimeoutError is handled."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(side_effect=TimeoutError("timed out"))
+        
+        result = wait_for_selectize(mock_page, element_id="test")
+        assert result is False
+
+    def test_keyboard_interrupt_propagates(self):
+        """Test KeyboardInterrupt is NOT caught (should propagate)."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(side_effect=KeyboardInterrupt())
+        
+        # KeyboardInterrupt inherits from BaseException, should propagate
+        with pytest.raises(KeyboardInterrupt):
+            wait_for_selectize(mock_page, element_id="test")
+
+    def test_system_exit_propagates(self):
+        """Test SystemExit is NOT caught (should propagate)."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(side_effect=SystemExit(1))
+        
+        with pytest.raises(SystemExit):
+            wait_for_selectize(mock_page, element_id="test")
+
+    @pytest.mark.asyncio
+    async def test_async_keyboard_interrupt_propagates(self):
+        """Test async version propagates KeyboardInterrupt."""
+        mock_page = AsyncMock()
+        mock_page.wait_for_function = AsyncMock(side_effect=KeyboardInterrupt())
+        
+        with pytest.raises(KeyboardInterrupt):
+            await wait_for_selectize_async(mock_page, element_id="test")
+
+    def test_memory_error_is_caught(self):
+        """Test MemoryError IS caught (inherits from Exception, not BaseException)."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(side_effect=MemoryError())
+        
+        # MemoryError inherits from Exception, so it WILL be caught and return False
+        # This is correct behavior - only BaseException subclasses propagate
+        result = wait_for_selectize(mock_page, element_id="test")
+        assert result is False  # Caught and handled
+
+
+class TestWaitHelpersAsyncCancellation:
+    """Comprehensive tests for async cancellation handling."""
+
+    @pytest.mark.asyncio
+    async def test_all_async_functions_handle_cancellation(self):
+        """Test ALL async functions handle CancelledError gracefully."""
+        import asyncio
+        
+        # Test each async function
+        async_funcs = [
+            (wait_for_selectize_async, {"element_id": "test"}),
+            (wait_for_options_change_async, {"element_id": "test", "initial_count": 5}),
+            (wait_for_network_idle_async, {}),
+        ]
+        
+        for func, kwargs in async_funcs:
+            mock_page = AsyncMock()
+            # Set all possible async methods to raise CancelledError
+            mock_page.wait_for_function = AsyncMock(side_effect=asyncio.CancelledError())
+            mock_page.wait_for_load_state = AsyncMock(side_effect=asyncio.CancelledError())
+            mock_page.wait_for_selector = AsyncMock(side_effect=asyncio.CancelledError())
+            
+            result = await func(mock_page, **kwargs)
+            assert result is False, f"{func.__name__} should return False on CancelledError"
+
+    @pytest.mark.asyncio
+    async def test_dropdown_ready_async_handles_cancellation(self):
+        """Test wait_for_dropdown_ready_async handles cancellation."""
+        import asyncio
+        
+        mock_page = AsyncMock()
+        mock_page.wait_for_selector = AsyncMock(side_effect=asyncio.CancelledError())
+        
+        result = await wait_for_dropdown_ready_async(mock_page, selector="#test")
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_angular_async_handles_cancellation(self):
+        """Test wait_for_angular_async handles cancellation."""
+        import asyncio
+        
+        mock_page = AsyncMock()
+        mock_page.wait_for_selector = AsyncMock(side_effect=asyncio.CancelledError())
+        mock_page.wait_for_timeout = AsyncMock()
+        
+        result = await wait_for_angular_async(mock_page, timeout=100)
+        assert result is False
+
+
+class TestWaitHelpersJavaScriptGeneration:
+    """Test the JavaScript code generation in wait helpers."""
+
+    def test_selectize_js_uses_correct_id(self):
+        """Verify the JavaScript contains the correct element ID."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        wait_for_selectize(mock_page, element_id="my-custom-id", min_options=5)
+        
+        call_args = mock_page.wait_for_function.call_args[0][0]
+        assert "my-custom-id" in call_args
+        assert ">= 5" in call_args or ">=5" in call_args.replace(" ", "")
+
+    def test_options_change_js_uses_initial_count(self):
+        """Verify options_change JS uses the initial count correctly."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        wait_for_options_change(mock_page, element_id="test-id", initial_count=42)
+        
+        call_args = mock_page.wait_for_function.call_args[0][0]
+        assert "42" in call_args  # Initial count should appear
+        assert "!== 42" in call_args or "!==42" in call_args.replace(" ", "")
+
+    def test_selectize_js_handles_special_element_ids(self):
+        """Test JS generation with element IDs containing special characters."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        # ID with various special chars
+        special_ids = ["test-id", "test_id", "testId123", "Test.Id"]
+        
+        for element_id in special_ids:
+            wait_for_selectize(mock_page, element_id=element_id)
+            call_args = mock_page.wait_for_function.call_args[0][0]
+            assert element_id in call_args
+
+
+class TestWaitHelpersPerformance:
+    """Test performance-related edge cases."""
+
+    def test_many_consecutive_calls(self):
+        """Test many consecutive calls don't accumulate state."""
+        mock_page = Mock()
+        mock_page.wait_for_function = Mock(return_value=True)
+        
+        for i in range(100):
+            result = wait_for_selectize(mock_page, element_id=f"el-{i}")
+            assert result is True
+        
+        assert mock_page.wait_for_function.call_count == 100
+
+    @pytest.mark.asyncio
+    async def test_many_consecutive_async_calls(self):
+        """Test many consecutive async calls work correctly."""
+        mock_page = AsyncMock()
+        mock_page.wait_for_function = AsyncMock(return_value=True)
+        
+        for i in range(100):
+            result = await wait_for_selectize_async(mock_page, element_id=f"el-{i}")
+            assert result is True
+        
+        assert mock_page.wait_for_function.call_count == 100

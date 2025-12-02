@@ -158,10 +158,15 @@ class TimeoutError(NetworkError):
     Use: from dou_snaptrack.utils.exceptions import TimeoutError as SnapTrackTimeout
     """
 
-    def __init__(self, operation: str, timeout_ms: int):
+    def __init__(self, operation: str, timeout_ms: int = 0):
         message = f"Timeout após {timeout_ms}ms em: {operation}"
         super().__init__(message, details={"operation": operation, "timeout_ms": timeout_ms})
+        self.operation = operation
         self.timeout_ms = timeout_ms
+
+    def __reduce__(self):
+        """Support for pickle serialization."""
+        return (self.__class__, (self.operation, self.timeout_ms))
 
 
 class ConnectionError(NetworkError):
@@ -232,7 +237,13 @@ class SubprocessError(DouSnapTrackError):
         if stderr:
             message += f"\n{stderr[:500]}"
         super().__init__(message, details={"command": command, "exit_code": exit_code})
+        self.command = command
         self.exit_code = exit_code
+        self.stderr = stderr
+
+    def __reduce__(self):
+        """Support for pickle serialization."""
+        return (self.__class__, (self.command, self.exit_code, self.stderr))
 
 
 # =============================================================================
@@ -259,11 +270,12 @@ def wrap_playwright_error(error: Exception, context: str = "") -> DouSnapTrackEr
     """
     error_str = str(error).lower()
 
+    # Check selector/locator BEFORE timeout ("locator timeout" should be ElementNotFoundError)
+    if "selector" in error_str or "locator" in error_str:
+        return ElementNotFoundError(context or "seletor desconhecido")
     if "timeout" in error_str:
         return TimeoutError(context or "operação Playwright", timeout_ms=0)
     if "net::" in error_str or "connection" in error_str:
         return ConnectionError(context or "URL desconhecida", str(error))
-    if "selector" in error_str or "locator" in error_str:
-        return ElementNotFoundError(context or "seletor desconhecido")
 
     return ScrapingError(f"{context}: {error}" if context else str(error))

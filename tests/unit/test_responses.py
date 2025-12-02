@@ -290,6 +290,151 @@ class TestOperationResultEdgeCases:
         assert "C:\\\\Users" in json_str or "C:\\Users" in parsed["error"]
 
 
+class TestOperationResultMutability:
+    """Test mutability and side effects - these often hide bugs."""
+
+    def test_data_mutation_after_creation(self):
+        """Test that mutating data after creation affects result."""
+        original_data = {"items": [1, 2, 3]}
+        result = OperationResult.ok(original_data)
+        
+        # Mutate the original - this SHOULD affect result (no deep copy)
+        original_data["items"].append(4)
+        
+        # Verify mutation is visible (this is expected behavior, but test documents it)
+        assert result.data["items"] == [1, 2, 3, 4]
+
+    def test_metadata_mutation(self):
+        """Test metadata can be mutated after creation."""
+        result = OperationResult.ok({"data": 1}, elapsed_ms=100)
+        
+        # Mutate metadata
+        result.metadata["new_key"] = "new_value"
+        
+        # Should reflect in to_json
+        json_str = result.to_json()
+        assert "new_key" in json_str
+
+    def test_from_json_returns_new_instance(self):
+        """Verify from_json creates independent instance."""
+        json_str = '{"success": true, "data": {"key": "value"}}'
+        result1 = OperationResult.from_json(json_str)
+        result2 = OperationResult.from_json(json_str)
+        
+        # Mutate one
+        result1.data["key"] = "modified"
+        
+        # Other should be unaffected
+        assert result2.data["key"] == "value"
+
+
+class TestOperationResultInjection:
+    """Test injection attacks and malicious input."""
+
+    def test_json_injection_in_error_message(self):
+        """Test that error messages with JSON-like content are escaped."""
+        malicious = '{"success": true, "data": "hacked"}'
+        result = OperationResult.fail(malicious)
+        json_str = result.to_json()
+        parsed = json.loads(json_str)
+        
+        # Must remain a failure, not be "hacked" to success
+        assert parsed["success"] is False
+        assert parsed["error"] == malicious
+
+    def test_null_bytes_in_data(self):
+        """Test null bytes in data."""
+        data_with_null = "before\x00after"
+        result = OperationResult.ok({"text": data_with_null})
+        json_str = result.to_json()
+        parsed = json.loads(json_str)
+        
+        # Null bytes should be preserved or escaped
+        assert "\x00" in parsed["data"]["text"] or "\\u0000" in json_str
+
+    def test_unicode_edge_cases(self):
+        """Test Unicode edge cases including surrogates."""
+        # Various Unicode edge cases
+        unicode_data = {
+            "emoji": "🔥💯",
+            "rtl": "مرحبا",
+            "cjk": "中文日本語한국어",
+            "math": "∑∫∂",
+            "special": "​",  # zero-width space
+        }
+        result = OperationResult.ok(unicode_data)
+        json_str = result.to_json()
+        parsed = json.loads(json_str)
+        
+        assert parsed["data"]["emoji"] == "🔥💯"
+        assert parsed["data"]["rtl"] == "مرحبا"
+
+    def test_very_long_error_message(self):
+        """Test extremely long error message."""
+        long_error = "E" * 100_000
+        result = OperationResult.fail(long_error)
+        json_str = result.to_json()
+        
+        # Should not truncate
+        assert len(json_str) > 100_000
+
+    def test_newlines_in_error(self):
+        """Test multiline error messages are properly escaped."""
+        multiline = "Line 1\nLine 2\rLine 3\r\nLine 4"
+        result = OperationResult.fail(multiline)
+        json_str = result.to_json()
+        
+        # JSON should have escaped newlines
+        assert "\\n" in json_str or "\\r" in json_str
+        
+        # Round-trip should preserve content
+        parsed = json.loads(json_str)
+        assert parsed["error"] == multiline
+
+
+class TestParseSubprocessStress:
+    """Stress tests for parse_subprocess_output."""
+
+    def test_very_long_output(self):
+        """Test with very long subprocess output."""
+        long_output = "LOG: " * 10000 + '\n{"success": true, "data": "found"}'
+        result = parse_subprocess_output(long_output)
+        
+        assert result.success is True
+        assert result.data == "found"
+
+    def test_many_json_lines(self):
+        """Test with many JSON lines (should return last)."""
+        lines = [f'{{"success": false, "error": "attempt {i}"}}' for i in range(100)]
+        lines.append('{"success": true, "data": "final"}')
+        output = "\n".join(lines)
+        
+        result = parse_subprocess_output(output)
+        assert result.success is True
+        assert result.data == "final"
+
+    def test_json_in_middle_of_line(self):
+        """Test JSON embedded in log line (should NOT match)."""
+        output = 'DEBUG: response was {"success": true} but continued\n{"success": false, "error": "real"}'
+        result = parse_subprocess_output(output)
+        
+        # Should find the standalone JSON, not embedded one
+        assert result.success is False
+
+    def test_empty_output(self):
+        """Test empty output."""
+        result = parse_subprocess_output("")
+        
+        assert result.success is False
+        assert "Nenhum JSON" in result.error
+
+    def test_only_whitespace(self):
+        """Test output with only whitespace."""
+        result = parse_subprocess_output("   \n\t\n   ")
+        
+        assert result.success is False
+
+
 class TestExceptionEdgeCases:
     """Test exception classes with edge cases."""
 
@@ -309,6 +454,47 @@ class TestExceptionEdgeCases:
         str_repr = str(exc)
         assert "msg" in str_repr
 
+    def test_exception_chaining(self):
+        """Test exception chaining preserves cause."""
+        from dou_snaptrack.utils.exceptions import BrowserError, BrowserLaunchError
+        
+        original = ValueError("Original error")
+        try:
+            try:
+                raise original
+            except ValueError as e:
+                raise BrowserLaunchError("Launch failed") from e
+        except BrowserLaunchError as e:
+            assert e.__cause__ is original
+
+    def test_wrap_playwright_error_with_empty_string(self):
+        """Test wrap_playwright_error with empty error message."""
+        from dou_snaptrack.utils.exceptions import wrap_playwright_error, ScrapingError
+        
+        error = Exception("")
+        wrapped = wrap_playwright_error(error, "context")
+        
+        assert isinstance(wrapped, ScrapingError)
+
+    def test_wrap_playwright_error_with_none_context(self):
+        """Test wrap_playwright_error with no context."""
+        from dou_snaptrack.utils.exceptions import wrap_playwright_error
+        
+        error = Exception("Timeout 30000ms exceeded")
+        wrapped = wrap_playwright_error(error)  # no context
+        
+        assert wrapped is not None
+
+    def test_exception_details_special_chars(self):
+        """Test exception details with special characters."""
+        from dou_snaptrack.utils.exceptions import PageLoadError
+        
+        exc = PageLoadError("http://example.com/path?query=<script>", "timeout: 'quoted'")
+        str_repr = str(exc)
+        
+        # Should contain URL without crashing
+        assert "example.com" in str_repr
+
 
 class TestBrowserFactoryEdgeCases:
     """Test browser factory with edge cases."""
@@ -326,6 +512,42 @@ class TestBrowserFactoryEdgeCases:
         
         config = BrowserConfig(timeout=-1)
         assert config.timeout == -1  # Playwright uses -1 for no timeout
+
+    def test_config_with_extreme_viewport(self):
+        """Test BrowserConfig with extreme viewport sizes."""
+        from dou_snaptrack.utils.browser_factory import BrowserConfig
+        
+        # Very small
+        config_small = BrowserConfig(viewport_width=1, viewport_height=1)
+        assert config_small.viewport_width == 1
+        
+        # Very large
+        config_large = BrowserConfig(viewport_width=10000, viewport_height=10000)
+        assert config_large.viewport_width == 10000
+
+    def test_config_blocked_patterns_mutation(self):
+        """Test that blocked_patterns default is not shared between instances."""
+        from dou_snaptrack.utils.browser_factory import BrowserConfig
+        
+        config1 = BrowserConfig()
+        config2 = BrowserConfig()
+        
+        config1.blocked_patterns.append("**/*.test")
+        
+        # config2 should NOT have the new pattern
+        assert "**/*.test" not in config2.blocked_patterns
+
+    def test_find_system_browser_returns_valid_path_or_none(self):
+        """Test find_system_browser returns absolute path or None."""
+        from dou_snaptrack.utils.browser_factory import find_system_browser
+        import os
+        
+        path = find_system_browser()
+        
+        if path is not None:
+            assert os.path.isabs(path), f"Path {path} should be absolute"
+            # Path should exist (since it was returned)
+            assert os.path.exists(path), f"Path {path} should exist"
 
 
 class TestConstantsEdgeCases:
@@ -364,3 +586,30 @@ class TestConstantsEdgeCases:
         from dou_snaptrack import constants
         
         assert constants.TIMEOUT_SUBPROCESS_LONG <= 1800, "Subprocess timeout > 30min is unreasonable"
+
+    def test_wait_constants_hierarchy(self):
+        """Test wait constants have sensible hierarchy."""
+        from dou_snaptrack import constants
+        
+        # Micro < Tiny < Short < Medium < Long
+        assert constants.WAIT_MICRO < constants.WAIT_TINY
+        assert constants.WAIT_TINY < constants.WAIT_SHORT
+        assert constants.WAIT_SHORT < constants.WAIT_MEDIUM
+        assert constants.WAIT_MEDIUM < constants.WAIT_LONG
+
+    def test_urls_are_https(self):
+        """Test that base URLs use HTTPS."""
+        from dou_snaptrack import constants
+        
+        assert constants.BASE_DOU.startswith("https://")
+        assert constants.EAGENDAS_URL.startswith("https://")
+
+    def test_browser_paths_are_absolute(self):
+        """Test browser paths are absolute Windows paths."""
+        from dou_snaptrack import constants
+        import re
+        
+        for path in constants.CHROME_PATHS + constants.EDGE_PATHS:
+            # Should be absolute Windows path
+            assert re.match(r'^[A-Z]:\\', path), f"Path {path} should be absolute Windows path"
+            assert path.endswith('.exe'), f"Path {path} should end with .exe"
