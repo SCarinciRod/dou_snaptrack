@@ -473,15 +473,19 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
 
     frame = await find_best_frame_async(context)
 
-    # Aguardar dropdowns carregarem - site DOU pode carregar via AJAX
-    await page.wait_for_timeout(5000)
-
     # Aguardar especificamente o dropdown #slcOrgs estar populado
+    # Espera condicional é mais eficiente que wait_for_timeout fixo
+    dropdown_ready = False
     with contextlib.suppress(Exception):
         await page.wait_for_function(
             "() => document.querySelector('#slcOrgs')?.options?.length > 2",
-            timeout=10000
+            timeout=15000
         )
+        dropdown_ready = True
+
+    # Fallback: pequena pausa se espera condicional falhou
+    if not dropdown_ready:
+        await page.wait_for_timeout(2000)
 
     # Detectar raízes N1/N2
     try:
@@ -519,9 +523,10 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
 
         await _select_by_text_async(frame, r1, k1)
 
-        # Aguardar AJAX base
+        # Aguardar AJAX base - preferir networkidle quando possível
         await page.wait_for_load_state("domcontentloaded", timeout=30_000)
-        await page.wait_for_timeout(800)
+        with contextlib.suppress(Exception):
+            await page.wait_for_load_state("networkidle", timeout=5_000)
 
         # Re-detectar N2 (USAR ASYNC)
         try:

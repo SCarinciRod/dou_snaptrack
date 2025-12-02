@@ -409,7 +409,28 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
     url = EAGENDAS_URL
     await page.goto(url, wait_until="commit", timeout=60_000)
-    await page.wait_for_timeout(5000)  # Aguardar AngularJS e Selectize inicializar
+
+    # Aguardar AngularJS e Selectize inicializar via espera condicional
+    angular_ready = False
+    with contextlib.suppress(Exception):
+        await page.wait_for_function(
+            "() => document.querySelector('[ng-app]') !== null",
+            timeout=10_000
+        )
+        angular_ready = True
+
+    # Aguardar Selectize do órgão estar populado
+    selectize_ready = False
+    with contextlib.suppress(Exception):
+        await page.wait_for_function(
+            "() => { const el = document.getElementById('filtro_orgao_entidade'); return el?.selectize && Object.keys(el.selectize.options || {}).length > 5; }",
+            timeout=15_000
+        )
+        selectize_ready = True
+
+    # Fallback se esperas condicionais falharem
+    if not angular_ready or not selectize_ready:
+        await page.wait_for_timeout(3000)
 
     frame = page.main_frame
 
@@ -505,8 +526,18 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                 print("[plan-eagendas-async]   ⚠️  Falha ao selecionar órgão")
             continue
 
-        # Aguardar N2 (Cargo) repopular
-        await page.wait_for_timeout(2000)
+        # Aguardar N2 (Cargo) repopular via espera condicional
+        cargo_ready = False
+        with contextlib.suppress(Exception):
+            await page.wait_for_function(
+                f"() => {{ const el = document.getElementById('{DD_CARGO_ID}'); return el?.selectize && Object.keys(el.selectize.options || {{}}).length > 0; }}",
+                timeout=10_000
+            )
+            cargo_ready = True
+
+        # Fallback se espera condicional falhar
+        if not cargo_ready:
+            await page.wait_for_timeout(1500)
 
         # ====================================================================
         # NÍVEL 2: CARGOS
@@ -551,8 +582,18 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                     print(f"[plan-eagendas-async]     ⚠️  Falha ao selecionar cargo: {cargo_text}")
                 continue
 
-            # Aguardar N3 (Agente) repopular
-            await page.wait_for_timeout(1500)
+            # Aguardar N3 (Agente) repopular via espera condicional
+            agente_ready = False
+            with contextlib.suppress(Exception):
+                await page.wait_for_function(
+                    f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options || {{}}).length > 0; }}",
+                    timeout=8_000
+                )
+                agente_ready = True
+
+            # Fallback se espera condicional falhar
+            if not agente_ready:
+                await page.wait_for_timeout(1000)
 
             # ================================================================
             # NÍVEL 3: AGENTES
@@ -609,7 +650,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
             # Reset N2 para próximo cargo (selecionar órgão novamente)
             await set_selectize_value_js(DD_ORGAO_ID, org_value)
-            await page.wait_for_timeout(800)
+            # Pequena pausa para estabilizar antes do próximo cargo
+            with contextlib.suppress(Exception):
+                await page.wait_for_load_state("networkidle", timeout=2_000)
 
     await browser.close()
 
