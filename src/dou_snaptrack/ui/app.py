@@ -494,6 +494,8 @@ with main_tab_eagendas:
             current_key="eagendas.current_n1",
             label_key="eagendas_current_n1_label",
             level=1,
+            auto_fetch_child=True,  # Auto-load agentes when órgão changes
+            child_options_key="eagendas_n2_options",  # Key for agentes options
         )
 
     with col_n2:

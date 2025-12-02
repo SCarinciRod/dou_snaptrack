@@ -71,6 +71,31 @@ class EAgendasSession:
         EAgendasSession.get_state().date_end = date_str
 
 
+def _auto_fetch_n2_on_n1_change(fetch_func: Callable, n1_value: str, n2_options_key: str) -> None:
+    """Auto-fetch N2 (Agentes) when N1 (Órgão) changes.
+    
+    This function is called via on_change callback when user selects a different Órgão.
+    It automatically loads the corresponding Agentes without requiring a button click.
+    """
+    if not n1_value:
+        return
+    
+    # Fetch agentes for this órgão
+    result = fetch_func(level=2, n1_value=n1_value)
+    
+    if result.get("success"):
+        options = result.get("options", [])
+        st.session_state[n2_options_key] = options
+        # Clear current N2 selection since options changed
+        if hasattr(st.session_state, "eagendas"):
+            st.session_state.eagendas.current_n2 = ""
+        # Mark that auto-fetch happened for toast notification
+        st.session_state["_eagendas_auto_fetch_count"] = len(options)
+    else:
+        st.session_state[n2_options_key] = []
+        st.session_state["_eagendas_auto_fetch_error"] = result.get("error", "Erro desconhecido")
+
+
 def render_hierarchy_selector(
     title: str,
     load_button_text: str,
@@ -84,6 +109,8 @@ def render_hierarchy_selector(
     parent_value: str | None = None,
     parent_label: str | None = None,
     n2_value: str | None = None,  # Deprecated, kept for compatibility
+    auto_fetch_child: bool = False,  # When True, auto-fetch next level on selection change
+    child_options_key: str | None = None,  # Key for child options (used with auto_fetch_child)
 ) -> None:
     """Render a hierarchy selector for E-Agendas.
     
@@ -104,12 +131,23 @@ def render_hierarchy_selector(
         parent_value: Value of parent level (required for level 2)
         parent_label: Label of parent level (for display)
         n2_value: DEPRECATED - Ignored (modelo antigo com cargo foi removido)
+        auto_fetch_child: If True, automatically fetch child level when selection changes (level 1 only)
+        child_options_key: Session state key for child options (required if auto_fetch_child=True)
     """
     # Use default fetch function if not provided
     if fetch_hierarchy_func is None:
         fetch_hierarchy_func = _get_default_fetch_hierarchy()
     
     st.markdown(f"**{title}**")
+    
+    # Show auto-fetch notifications from previous run
+    if level == 2:
+        if "_eagendas_auto_fetch_count" in st.session_state:
+            count = st.session_state.pop("_eagendas_auto_fetch_count")
+            st.success(f"✅ {count} agentes carregados automaticamente")
+        if "_eagendas_auto_fetch_error" in st.session_state:
+            error = st.session_state.pop("_eagendas_auto_fetch_error")
+            st.error(f"❌ Erro ao carregar agentes: {error}")
     
     # Determine if load button should be enabled
     # Modelo simplificado: level 1 sempre pode carregar, level 2 precisa de órgão
@@ -155,15 +193,29 @@ def render_hierarchy_selector(
         except (ValueError, IndexError):
             current_idx = 0
         
-        # Selectbox
-        selected_idx = st.selectbox(
-            f"Selecione {title}:",
-            range(len(labels)),
-            format_func=lambda i: labels[i],
-            index=current_idx,
-            key=select_key,
-            label_visibility="collapsed"
-        )
+        # Track previous value for change detection (for auto-fetch)
+        prev_key = f"_prev_{select_key}"
+        prev_value = st.session_state.get(prev_key)
+        
+        # Selectbox with on_change for auto-fetch (level 1 only)
+        if level == 1 and auto_fetch_child and child_options_key:
+            selected_idx = st.selectbox(
+                f"Selecione {title}:",
+                range(len(labels)),
+                format_func=lambda i: labels[i],
+                index=current_idx,
+                key=select_key,
+                label_visibility="collapsed"
+            )
+        else:
+            selected_idx = st.selectbox(
+                f"Selecione {title}:",
+                range(len(labels)),
+                format_func=lambda i: labels[i],
+                index=current_idx,
+                key=select_key,
+                label_visibility="collapsed"
+            )
         
         selected_value = values[selected_idx]
         selected_label = labels[selected_idx]
@@ -175,6 +227,16 @@ def render_hierarchy_selector(
             st.session_state[current_key] = selected_value
         
         st.session_state[label_key] = selected_label
+        
+        # Auto-fetch child options when N1 selection changes (level 1 only)
+        if level == 1 and auto_fetch_child and child_options_key:
+            if prev_value is not None and prev_value != selected_value:
+                # Selection changed, trigger auto-fetch
+                with st.spinner("Carregando agentes..."):
+                    _auto_fetch_n2_on_n1_change(fetch_hierarchy_func, selected_value, child_options_key)
+            # Update previous value tracker
+            st.session_state[prev_key] = selected_value
+        
         st.caption(f"Selecionado: {selected_label}")
     else:
         st.caption(f"Clique em '{load_button_text}' para carregar opções")
@@ -218,8 +280,13 @@ def render_date_period_selector() -> tuple[_date, _date]:
     return date_start, date_end
 
 
+@st.fragment
 def render_query_manager() -> None:
-    """Render saved queries manager section."""
+    """Render saved queries manager section.
+    
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance by not reloading the entire page when adding/managing queries.
+    """
     st.markdown("### 3️⃣ Consultas Salvas")
     st.caption("Salve combinações de servidores para executar múltiplas pesquisas")
 
@@ -258,8 +325,13 @@ def render_query_manager() -> None:
             st.rerun()
 
 
+@st.fragment
 def render_lista_manager() -> None:
-    """Render agent list save/load manager."""
+    """Render agent list save/load manager.
+    
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance when saving or loading agent lists.
+    """
     st.markdown("#### 💾 Gerenciar Listas de Agentes")
 
     listas_dir = Path("planos") / "eagendas_listas"

@@ -137,6 +137,7 @@ class PlanEditorSession:
         st.session_state.plan_editor_page = max(0, page)
 
 
+@st.fragment
 def render_plan_discovery(
     fetch_n1_func=None,
     fetch_n2_func=None,
@@ -144,6 +145,10 @@ def render_plan_discovery(
     date: str = None,
 ) -> None:
     """Render the plan discovery section (N1/N2 selection).
+    
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance by not reloading the entire page when user interacts
+    with this section.
     
     Args:
         fetch_n1_func: Function to fetch N1 options (optional, defaults to dou_fetch.fetch_n1_options)
@@ -163,33 +168,72 @@ def render_plan_discovery(
     
     st.subheader("Monte sua Pesquisa")
     
+    # Callback para auto-carregar N2 quando N1 muda
+    def _on_n1_change():
+        """Auto-fetch N2 options when N1 selection changes."""
+        selected_n1 = st.session_state.get("sel_n1_live")
+        if selected_n1:
+            # Marcar que precisamos carregar N2
+            st.session_state["_pending_n2_fetch"] = selected_n1
+    
     # Load N1 button
-    if st.button("Carregar"):
+    if st.button("Carregar Órgãos"):
         with st.spinner("Obtendo lista de Órgãos do DOU…"):
             fetch_refresh = st.session_state.get("plan_fetch_refresh_token", 0.0)
             n1_candidates = fetch_n1_func(secao, date, refresh_token=fetch_refresh)
         st.session_state["live_n1"] = n1_candidates
+        # Limpar seleção anterior
+        st.session_state.pop("_pending_n2_fetch", None)
+        for key in list(st.session_state.keys()):
+            if key.startswith("live_n2_for_"):
+                del st.session_state[key]
 
     n1_list = st.session_state.get("live_n1", [])
     if n1_list:
-        n1 = st.selectbox("Órgão", n1_list, key="sel_n1_live")
+        # Selectbox com callback para auto-carregar N2
+        n1 = st.selectbox(
+            "Órgão", 
+            n1_list, 
+            key="sel_n1_live",
+            on_change=_on_n1_change,
+        )
+        
+        # Auto-fetch N2 se houver mudança pendente
+        pending_n1 = st.session_state.get("_pending_n2_fetch")
+        n2_cache_key = f"live_n2_for_{n1}"
+        
+        # Carregar N2 automaticamente se:
+        # 1. Há uma mudança pendente E
+        # 2. Ainda não temos N2 cached para este N1
+        if pending_n1 and pending_n1 == n1 and n2_cache_key not in st.session_state:
+            with st.spinner(f"Carregando suborganizações de '{n1}'…"):
+                fetch_refresh = st.session_state.get("plan_fetch_refresh_token", 0.0)
+                n2_list = fetch_n2_func(secao, date, str(n1), limit2=None, refresh_token=fetch_refresh)
+            st.session_state[n2_cache_key] = n2_list
+            st.session_state.pop("_pending_n2_fetch", None)
+            if n2_list:
+                st.caption(f"✅ {len(n2_list)} suborganizações encontradas.")
+            else:
+                st.caption("ℹ️ Nenhuma suborganização encontrada (use 'Órgão sem Suborganizações').")
     else:
         n1 = None
-        st.info("Clique em 'Carregar' para listar os órgãos.")
+        st.info("Clique em 'Carregar Órgãos' para listar os órgãos disponíveis.")
 
-    # Load N2 based on N1
+    # Get cached N2 list
     n2_list: list[str] = []
-    can_load_n2 = bool(n1)
-    
-    if st.button("Carregar Organizações Subordinadas (todas)") and can_load_n2:
-        with st.spinner("Obtendo lista completa do DOU…"):
-            fetch_refresh = st.session_state.get("plan_fetch_refresh_token", 0.0)
-            n2_list = fetch_n2_func(secao, date, str(n1), limit2=None, refresh_token=fetch_refresh)
-        st.session_state["live_n2_for_" + str(n1)] = n2_list
-        st.caption(f"{len(n2_list)} suborganizações encontradas para '{n1}'.")
-    
     if n1:
-        n2_list = st.session_state.get("live_n2_for_" + str(n1), [])
+        n2_list = st.session_state.get(f"live_n2_for_{n1}", [])
+    
+    # Botão manual para recarregar N2 (caso precise forçar refresh)
+    col_n2_actions = st.columns([3, 1])
+    with col_n2_actions[1]:
+        if st.button("↻", key="refresh_n2_btn", help="Recarregar suborganizações", disabled=not n1):
+            if n1:
+                with st.spinner("Recarregando…"):
+                    fetch_refresh = time.time()  # Force refresh
+                    n2_list = fetch_n2_func(secao, date, str(n1), limit2=None, refresh_token=fetch_refresh)
+                st.session_state[f"live_n2_for_{n1}"] = n2_list
+                st.rerun()
 
     sel_n2 = st.multiselect("Organização Subordinada", options=n2_list)
     
@@ -208,8 +252,13 @@ def render_plan_discovery(
             st.success("Adicionado N1 com N2='Todos'.")
 
 
+@st.fragment
 def render_plan_loader() -> None:
-    """Render the saved plan loader section."""
+    """Render the saved plan loader section.
+    
+    This function is decorated with @st.fragment to enable isolated reruns,
+    avoiding full page reloads when loading saved plans.
+    """
     with st.expander("📂 Carregar Plano Salvo para Editar"):
         plans_dir, _ = ensure_dirs()
         refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
