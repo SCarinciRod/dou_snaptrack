@@ -11,6 +11,7 @@ Exemplo:
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
 from dou_snaptrack.constants import (
@@ -77,8 +78,12 @@ async def wait_for_angular_async(page: AsyncPage, timeout: int = WAIT_ANGULAR_IN
             try:
                 await page.wait_for_selector(selector, state="attached", timeout=timeout)
                 return True
+            except asyncio.CancelledError:
+                return False
             except Exception:
                 continue
+    except asyncio.CancelledError:
+        return False
     except Exception:
         pass
 
@@ -114,6 +119,9 @@ async def wait_for_selectize_async(
     try:
         await page.wait_for_function(js_check, timeout=timeout)
         return True
+    except asyncio.CancelledError:
+        # Cancellation should return False, not propagate
+        return False
     except Exception:
         return False
 
@@ -143,12 +151,16 @@ async def wait_for_dropdown_ready_async(
             try:
                 await page.wait_for_selector(ready_selector, state="visible", timeout=timeout // 2)
                 return True
+            except asyncio.CancelledError:
+                return False
             except Exception:
                 continue
 
         # Fallback: aguardar estabilização
         await page.wait_for_timeout(WAIT_SHORT)
         return True
+    except asyncio.CancelledError:
+        return False
     except Exception:
         return False
 
@@ -183,6 +195,8 @@ async def wait_for_options_change_async(
     try:
         await page.wait_for_function(js_check, timeout=timeout)
         return True
+    except asyncio.CancelledError:
+        return False
     except Exception:
         return False
 
@@ -204,6 +218,8 @@ async def wait_for_network_idle_async(
     try:
         await page.wait_for_load_state("networkidle", timeout=timeout)
         return True
+    except asyncio.CancelledError:
+        return False
     except Exception:
         return False
 
