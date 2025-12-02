@@ -1,0 +1,88 @@
+{
+  "nome": "teste",
+  "criado_em": "2025-12-01",
+  "total_agentes": 9,
+  "queries": [
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "ALEXANDRE DE CASSIO RODRIGUES",
+      "n3_value": "44764",
+      "person_label": "ALEXANDRE DE CASSIO RODRIGUES (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "ALEXANDRE POZZA URNAU SILVA",
+      "n3_value": "44750",
+      "person_label": "ALEXANDRE POZZA URNAU SILVA (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "ANDRE ELIAS MARQUES",
+      "n3_value": "44742",
+      "person_label": "ANDRE ELIAS MARQUES (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "ANTONIO SANZIO AVILA CAVALCANTE",
+      "n3_value": "45080",
+      "person_label": "ANTONIO SANZIO AVILA CAVALCANTE (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "CLAUDIO ROBERTO FREIRE",
+      "n3_value": "44762",
+      "person_label": "CLAUDIO ROBERTO FREIRE (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "GIULIANI SILVA BARBOSA DE FREITAS",
+      "n3_value": "45617",
+      "person_label": "GIULIANI SILVA BARBOSA DE FREITAS (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "FABIO FERNANDO BORGES",
+      "n3_value": "44757",
+      "person_label": "FABIO FERNANDO BORGES (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "WENDELL MONTANARO CARDOSO MESQUITA",
+      "n3_value": "45035",
+      "person_label": "WENDELL MONTANARO CARDOSO MESQUITA (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    },
+    {
+      "n1_label": "Agência Nacional de Mineração",
+      "n1_value": "1337",
+      "n2_label": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n2_value": "SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA",
+      "n3_label": "THIAGO DE FREITAS BENEVENUTO",
+      "n3_value": "44744",
+      "person_label": "THIAGO DE FREITAS BENEVENUTO (SUPERINTENDENTE DE PLANEJAMENTO E ESTRATÉGIA)"
+    }
+  ]
+}

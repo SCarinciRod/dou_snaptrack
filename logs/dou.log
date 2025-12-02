@@ -1,0 +1,4 @@
+[2025-12-01 16:43:57] INFO dou_utils.eagendas_document: Gerando documento para 0 agentes com 0 eventos
+[2025-12-01 16:43:58] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-01_2025-12-01_20251201_164000.docx
+[2025-12-01 20:46:21] INFO dou_utils.eagendas_document: Gerando documento para 3 agentes com 5 eventos
+[2025-12-01 20:46:23] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-01_2025-12-05_20251201_204610.docx

@@ -1,0 +1,169 @@
+{
+  "nome": "agenda semanal",
+  "criado_em": "2025-12-01",
+  "total_agentes": 18,
+  "queries": [
+    {
+      "n1_label": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "n1_value": "1399",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "GERALDO JOSE RODRIGUES ALCKMIN FILHO",
+      "n3_value": "16352",
+      "person_label": "GERALDO JOSE RODRIGUES ALCKMIN FILHO (Ministério do Desenvolvimento, Indústria, Comércio e Serviços)"
+    },
+    {
+      "n1_label": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "n1_value": "1399",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "TATIANA LACERDA PRAZERES",
+      "n3_value": "15941",
+      "person_label": "TATIANA LACERDA PRAZERES (Ministério do Desenvolvimento, Indústria, Comércio e Serviços)"
+    },
+    {
+      "n1_label": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços",
+      "n1_value": "1399",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "UALLACE MOREIRA LIMA",
+      "n3_value": "15954",
+      "person_label": "UALLACE MOREIRA LIMA (Ministério do Desenvolvimento, Indústria, Comércio e Serviços)"
+    },
+    {
+      "n1_label": "Ministério da Fazenda",
+      "n1_value": "1384",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "FERNANDO HADDAD",
+      "n3_value": "14641",
+      "person_label": "FERNANDO HADDAD (Ministério da Fazenda)"
+    },
+    {
+      "n1_label": "Ministério da Fazenda",
+      "n1_value": "1384",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "ROBINSON SAKIYAMA BARREIRINHAS",
+      "n3_value": "14604",
+      "person_label": "ROBINSON SAKIYAMA BARREIRINHAS (Ministério da Fazenda)"
+    },
+    {
+      "n1_label": "Ministério da Fazenda",
+      "n1_value": "1384",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "ROGERIO CERON DE OLIVEIRA",
+      "n3_value": "14642",
+      "person_label": "ROGERIO CERON DE OLIVEIRA (Ministério da Fazenda)"
+    },
+    {
+      "n1_label": "Ministério da Fazenda",
+      "n1_value": "1384",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "TATIANA ROSITO",
+      "n3_value": "30805",
+      "person_label": "TATIANA ROSITO (Ministério da Fazenda)"
+    },
+    {
+      "n1_label": "Ministério do Planejamento e Orçamento",
+      "n1_value": "1401",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "SIMONE NASSAR TEBET ROCHA",
+      "n3_value": "17565",
+      "person_label": "SIMONE NASSAR TEBET ROCHA (Ministério do Planejamento e Orçamento)"
+    },
+    {
+      "n1_label": "Ministério do Planejamento e Orçamento",
+      "n1_value": "1401",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "CLAYTON LUIZ MONTES",
+      "n3_value": "39880",
+      "person_label": "CLAYTON LUIZ MONTES (Ministério do Planejamento e Orçamento)"
+    },
+    {
+      "n1_label": "Ministério das Relações Exteriores",
+      "n1_value": "560",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "MAURO LUIZ IECKER VIEIRA",
+      "n3_value": "18342",
+      "person_label": "MAURO LUIZ IECKER VIEIRA (Ministério das Relações Exteriores)"
+    },
+    {
+      "n1_label": "Ministério das Relações Exteriores",
+      "n1_value": "560",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "MARCELO PAZ SARAIVA CÂMARA",
+      "n3_value": "13260",
+      "person_label": "MARCELO PAZ SARAIVA CÂMARA (Ministério das Relações Exteriores)"
+    },
+    {
+      "n1_label": "Ministério da Defesa",
+      "n1_value": "679",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "HERALDO LUIZ RODRIGUES",
+      "n3_value": "36030",
+      "person_label": "HERALDO LUIZ RODRIGUES (Ministério da Defesa)"
+    },
+    {
+      "n1_label": "Ministério de Portos e Aeroportos",
+      "n1_value": "1415",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "SILVIO SERAFIM COSTA FILHO",
+      "n3_value": "25326",
+      "person_label": "SILVIO SERAFIM COSTA FILHO (Ministério de Portos e Aeroportos)"
+    },
+    {
+      "n1_label": "Ministério de Portos e Aeroportos",
+      "n1_value": "1415",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "DANIEL RAMOS LONGO",
+      "n3_value": "44403",
+      "person_label": "DANIEL RAMOS LONGO (Ministério de Portos e Aeroportos)"
+    },
+    {
+      "n1_label": "Ministério da Ciência, Tecnologia e Inovação",
+      "n1_value": "862",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "LUCIANA BARBOSA DE OLIVEIRA SANTOS",
+      "n3_value": "14418",
+      "person_label": "LUCIANA BARBOSA DE OLIVEIRA SANTOS (Ministério da Ciência, Tecnologia e Inovação)"
+    },
+    {
+      "n1_label": "Agência Nacional de Aviação Civil",
+      "n1_value": "1223",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "TIAGO CHAGAS FAIERSTEIN",
+      "n3_value": "44907",
+      "person_label": "TIAGO CHAGAS FAIERSTEIN (Agência Nacional de Aviação Civil)"
+    },
+    {
+      "n1_label": "Ministério do Turismo",
+      "n1_value": "714",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "CELSO SABINO DE OLIVEIRA",
+      "n3_value": "23660",
+      "person_label": "CELSO SABINO DE OLIVEIRA (Ministério do Turismo)"
+    },
+    {
+      "n1_label": "Casa Civil da Presidência da República",
+      "n1_value": "659",
+      "n2_label": "",
+      "n2_value": "",
+      "n3_label": "RUI COSTA",
+      "n3_value": "14260",
+      "person_label": "RUI COSTA (Casa Civil da Presidência da República)"
+    }
+  ]
+}

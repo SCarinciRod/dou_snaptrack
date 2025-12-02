@@ -24,40 +24,27 @@ import logging
 import os
 import sys
 import time
-import traceback
 from datetime import date as _date, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # Third-party
 import streamlit as st
 
 # Local imports (new modular structure)
 from dou_snaptrack.ui.state import (
-    PlanState,
     SessionManager,
     ensure_dirs,
     ensure_eagendas_state,
     ensure_state,
 )
 from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
-from dou_snaptrack.ui.dou_fetch import (
-    fetch_n1_options as _plan_live_fetch_n1_options,
-    fetch_n2_options as _plan_live_fetch_n2,
-)
-from dou_snaptrack.ui.eagendas_fetch import (
-    fetch_hierarchy as _eagendas_fetch_hierarchy,
-)
 from dou_snaptrack.ui.plan_editor import (
-    _build_combos,
-    _list_saved_plan_files,
-    _resolve_combo_label,
     render_plan_discovery,
     render_plan_loader,
     render_plan_editor_table,
     render_plan_saver,
-    PlanEditorSession,
 )
 from dou_snaptrack.ui.eagendas_ui import (
     render_hierarchy_selector,
@@ -68,7 +55,6 @@ from dou_snaptrack.ui.eagendas_ui import (
     render_execution_section,
     render_document_generator,
     render_document_download,
-    EAgendasSession,
 )
 from dou_snaptrack.ui.sidebar import render_sidebar
 from dou_snaptrack.ui.batch_executor import render_batch_executor
