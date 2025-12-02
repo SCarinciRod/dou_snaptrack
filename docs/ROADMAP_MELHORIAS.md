@@ -370,20 +370,22 @@ tests/
 
 ## 📅 Cronograma Sugerido
 
-### Sprint 1 (1-2 semanas) - Quick Wins
-- [ ] Extrair magic numbers para constantes
-- [ ] Criar `utils/responses.py` com padrão de resposta
-- [ ] Adicionar docstrings nas funções principais
+### Sprint 1 (1-2 semanas) - Quick Wins ✅ CONCLUÍDA
+- [x] Extrair magic numbers para constantes (`constants.py`)
+- [x] Criar `utils/responses.py` com padrão de resposta
+- [x] Criar `utils/exceptions.py` com hierarquia de exceções
+- [x] Criar `utils/browser_factory.py` para centralizar browser
 
-### Sprint 2 (2-3 semanas) - Performance
-- [ ] Substituir `wait_for_timeout` por esperas condicionais
-- [ ] Implementar cache inteligente com invalidação
-- [ ] Centralizar configuração de browser
+### Sprint 2 (2-3 semanas) - Performance ✅ CONCLUÍDA
+- [x] Substituir `wait_for_timeout` por esperas condicionais
+- [x] Criar `utils/wait_helpers.py` com funções de espera inteligente
+- [ ] Implementar cache inteligente com invalidação (OPCIONAL)
 
-### Sprint 3 (3-4 semanas) - Arquitetura
-- [ ] Refatorar `ui/app.py` em componentes
-- [ ] Criar sistema de exceções customizadas
-- [ ] Unificar padrão de resposta JSON
+### Sprint 3 (3-4 semanas) - Arquitetura (PARCIALMENTE CONCLUÍDA)
+- [x] Criar sistema de exceções customizadas (`utils/exceptions.py`)
+- [x] Unificar padrão de resposta JSON (`utils/responses.py`)
+- [x] Centralizar configuração de browser (`utils/browser_factory.py`)
+- [ ] Refatorar `ui/app.py` em componentes (GRANDE - futuro)
 
 ### Sprint 4 (2-3 semanas) - Testes
 - [ ] Criar testes unitários para `utils/`
