@@ -262,7 +262,7 @@ def _build_fetch_script(level: int, n1_value: str | None = None) -> str:
     return script
 
 
-@st.cache_data(show_spinner=False, ttl=600)
+@st.cache_data(show_spinner=False, ttl=900)
 def fetch_orgaos() -> dict[str, Any]:
     """Fetch lista de órgãos do E-Agendas.
     
@@ -272,7 +272,7 @@ def fetch_orgaos() -> dict[str, Any]:
     return _execute_fetch(level=1)
 
 
-@st.cache_data(show_spinner=False, ttl=600)
+@st.cache_data(show_spinner=False, ttl=900)
 def fetch_agentes(orgao_id: str) -> dict[str, Any]:
     """Fetch lista de agentes de um órgão (direto, sem cargo intermediário).
     
@@ -353,7 +353,7 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
 # BACKWARD COMPATIBILITY
 # ============================================================================
 
-@st.cache_data(show_spinner=False, ttl=600)
+@st.cache_data(show_spinner=False, ttl=900)
 def fetch_hierarchy(
     level: int = 1,
     n1_value: str | None = None,

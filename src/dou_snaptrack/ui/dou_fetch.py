@@ -97,7 +97,7 @@ def find_system_browser_exe() -> str | None:
     return None
 
 
-@st.cache_data(show_spinner=False, ttl=300)
+@st.cache_data(show_spinner=False, ttl=900)
 def fetch_n1_options(secao: str, date: str, refresh_token: float = 0.0) -> list[str]:
     """Fetch N1 (Órgão) dropdown options from DOU website.
     
@@ -286,7 +286,7 @@ except Exception as e:
         return []
 
 
-@st.cache_data(show_spinner=False, ttl=300)
+@st.cache_data(show_spinner=False, ttl=900)
 def fetch_n2_options(secao: str, date: str, n1: str, limit2: int | None = None, refresh_token: float = 0.0) -> list[str]:
     """Fetch N2 (Sub-órgão) dropdown options from DOU website.
 
