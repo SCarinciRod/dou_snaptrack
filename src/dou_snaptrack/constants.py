@@ -13,14 +13,20 @@ EAGENDAS_URL = "https://eagendas.cgu.gov.br/"
 # =============================================================================
 # Timeout padrão para operações de página
 TIMEOUT_PAGE_DEFAULT = 20_000          # 20s - operações gerais de página
+TIMEOUT_PAGE_LONG = 45_000             # 45s - páginas lentas
 TIMEOUT_PAGE_SLOW = 60_000             # 60s - páginas lentas (E-Agendas)
 TIMEOUT_PAGE_VERY_SLOW = 90_000        # 90s - operações muito lentas
 
 # Timeout para elementos aparecerem
+TIMEOUT_ELEMENT_SHORT = 3_000          # 3s - elementos rápidos (alias)
+TIMEOUT_ELEMENT_DEFAULT = 10_000       # 10s - elementos normais
 TIMEOUT_ELEMENT_FAST = 5_000           # 5s - elementos rápidos
 TIMEOUT_ELEMENT_NORMAL = 10_000        # 10s - elementos normais
 TIMEOUT_ELEMENT_SLOW = 15_000          # 15s - elementos lentos
 TIMEOUT_ELEMENT_VERY_SLOW = 30_000     # 30s - elementos muito lentos
+
+# Timeout de navegação
+TIMEOUT_NAVIGATION = 30_000            # 30s - navegação entre páginas
 
 # =============================================================================
 # TIMEOUTS - ESPERAS FIXAS (milissegundos)
@@ -32,14 +38,18 @@ WAIT_SHORT = 200                       # 200ms - pausa curta
 WAIT_MEDIUM = 500                      # 500ms - pausa média
 WAIT_LONG = 1_000                      # 1s - pausa longa
 WAIT_EXTRA_LONG = 2_000                # 2s - pausa extra longa
+WAIT_ANIMATION = 300                   # 300ms - esperar animação
+WAIT_NETWORK_IDLE = 2_000              # 2s - esperar rede ficar idle
 WAIT_ANGULAR_INIT = 3_000              # 3s - AngularJS inicializar
 WAIT_ANGULAR_LOAD = 5_000              # 5s - AngularJS carregar dados
 WAIT_SELECTIZE_POPULATE = 4_000        # 4s - Selectize popular dropdown
+WAIT_DROPDOWN_REPOPULATE = 3_000       # 3s - dropdown repopular após mudança
 
 # =============================================================================
 # TIMEOUTS - SUBPROCESSOS (segundos)
 # =============================================================================
-TIMEOUT_SUBPROCESS_DEFAULT = int(os.environ.get("DOU_UI_SUBPROCESS_TIMEOUT", "120"))
+TIMEOUT_SUBPROCESS = int(os.environ.get("DOU_UI_SUBPROCESS_TIMEOUT", "120"))
+TIMEOUT_SUBPROCESS_DEFAULT = TIMEOUT_SUBPROCESS  # Alias
 TIMEOUT_SUBPROCESS_SHORT = 10          # 10s - operações rápidas
 TIMEOUT_SUBPROCESS_LONG = 900          # 15min - operações em lote
 
@@ -49,6 +59,7 @@ TIMEOUT_SUBPROCESS_LONG = 900          # 15min - operações em lote
 CACHE_TTL_SHORT = 300                  # 5min
 CACHE_TTL_MEDIUM = 900                 # 15min
 CACHE_TTL_LONG = 3600                  # 1h
+CACHE_TTL_SESSION = 3600               # 1h (alias para sessão)
 CACHE_TTL_DAY = 86400                  # 24h
 
 # =============================================================================
