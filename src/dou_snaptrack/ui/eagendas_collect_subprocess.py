@@ -106,9 +106,11 @@ def main():
             }""", {'id': element_id, 'value': value})
 
         with sync_playwright() as p:
-            # NOTA: E-Agendas detecta headless e bloqueia. Usamos headless=False + --start-minimized
+            # NOTA: E-Agendas detecta headless e bloqueia. Usamos headless=False com janela oculta.
+            # Combinamos --start-minimized com --window-position fora da tela para garantir invisibilidade.
             LAUNCH_ARGS = [
                 '--start-minimized',
+                '--window-position=-2000,-2000',  # Posiciona janela fora da tela visível
                 '--disable-blink-features=AutomationControlled',
                 '--ignore-certificate-errors'
             ]
