@@ -100,8 +100,8 @@ def main():
                 const { id, value } = args;
                 const el = document.getElementById(id);
                 if (!el || !el.selectize) return false;
+                // setValue com false = não silencioso = dispara eventos do Selectize
                 el.selectize.setValue(String(value), false);
-                el.dispatchEvent(new Event('change', { bubbles: true }));
                 return true;
             }""", {'id': element_id, 'value': value})
 
@@ -173,7 +173,7 @@ def main():
 
                     # Navegar para a página
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
-                    page.goto(base_url, timeout=30000, wait_until="commit")
+                    page.goto(base_url, timeout=30000, wait_until="networkidle")
                     
                     # OTIMIZAÇÃO: Espera condicional para AngularJS (era 5000ms fixo)
                     angular_ready_js = "() => document.querySelector('[ng-app]') !== null"
@@ -198,33 +198,20 @@ def main():
                         print("[ERROR] Não foi possível selecionar órgão", file=sys.stderr)
                         continue
                     
-                    # OTIMIZAÇÃO: Espera condicional para agentes (era 3000ms fixo)
-                    agentes_ready_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
-                    try:
-                        page.wait_for_function(agentes_ready_js, timeout=3000)
-                        print("[DEBUG] ✓ Agentes ready", file=sys.stderr)
-                    except Exception:
-                        print("[DEBUG] Agentes timeout (pode não ter agentes)", file=sys.stderr)
+                    # NOTA: Usamos wait_for_timeout em vez de wait_for_function aqui porque
+                    # o polling frequente do wait_for_function interfere com o ciclo de digest
+                    # do AngularJS e impede que os callbacks (onUpdateOrgao) sejam executados.
+                    page.wait_for_timeout(2000)
 
-                    # PASSO 2: Selecionar agente diretamente (sem cargo)
-                    # Aguardar selectize de agentes
-                    wait_agente_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
-                    try:
-                        page.wait_for_function(wait_agente_js, timeout=15000)
-                    except Exception:
-                        print(f"[WARNING] Timeout aguardando agentes para {orgao_label}", file=sys.stderr)
-
+                    # PASSO 2: Selecionar agente diretamente
                     print(f"[DEBUG] Selecionando agente: {agente_label} (ID: {agente_value})", file=sys.stderr)
                     if not set_selectize_value(page, DD_AGENTE_ID, agente_value):
                         print("[ERROR] Não foi possível selecionar agente", file=sys.stderr)
                         continue
                     
-                    # OTIMIZAÇÃO: Espera condicional para seleção (era 2000ms fixo)
-                    selection_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize?.getValue() === '{agente_value}'; }}"
-                    try:
-                        page.wait_for_function(selection_js, timeout=2000)
-                    except Exception:
-                        page.wait_for_timeout(200)  # Fallback mínimo
+                    # NOTA: Mesma razão - wait_for_timeout permite que o Angular execute
+                    # onUpdateServidor() e preencha automaticamente o cargo
+                    page.wait_for_timeout(2000)
 
                     # Mitigar cookie bar
                     try:
@@ -232,106 +219,126 @@ def main():
                     except Exception:
                         pass
 
-                    # Clicar em "Mostrar agenda"
-                    print("[DEBUG] Procurando botão 'Mostrar agenda'...", file=sys.stderr)
+                    # Clicar em "Mostrar agenda" - o clique causa navegação
+                    print("[DEBUG] Clicando em 'Mostrar agenda'...", file=sys.stderr)
                     clicked = False
-                    for attempt in range(3):
+                    try:
+                        btn = page.locator('button:has-text("Mostrar agenda")').first
+                        if btn.count() > 0:
+                            btn.scroll_into_view_if_needed()
+                            page.wait_for_timeout(300)
+                            # expect_navigation porque o clique navega para uma nova página com o calendário
+                            with page.expect_navigation(wait_until='networkidle', timeout=30000):
+                                btn.click()
+                            clicked = True
+                            print("[DEBUG] ✓ Navegação completa", file=sys.stderr)
+                    except Exception as e:
+                        print(f"[DEBUG] Clique/navegação falhou: {e}", file=sys.stderr)
+                        # Fallback: tentar clique simples
                         try:
-                            btn = page.locator('button:has-text("Mostrar agenda"), button:has-text("MOSTRAR AGENDA")').first
-                            if btn.count() > 0:
-                                btn.scroll_into_view_if_needed()
-                                page.wait_for_timeout(200)
-                                btn.click(timeout=5000, force=attempt > 0)
-                                clicked = True
-                                break
-                        except Exception as e:
-                            print(f"[DEBUG] Tentativa {attempt+1} clique falhou: {e}", file=sys.stderr)
-                            try:
-                                page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
-                            except Exception:
-                                pass
-                            page.wait_for_timeout(500)
+                            btn = page.locator('button:has-text("Mostrar agenda")').first
+                            btn.click(no_wait_after=True, timeout=5000)
+                            page.wait_for_timeout(3000)
+                            clicked = True
+                        except Exception:
+                            pass
 
                     if not clicked:
                         print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {agente_label}", file=sys.stderr)
                         continue
 
-                    # OTIMIZAÇÃO: Espera condicional para calendário (era 3000ms fixo)
-                    print("[DEBUG] Aguardando calendário...", file=sys.stderr)
-                    calendar_js = "() => document.querySelector('.fc-view-container, .fc-daygrid, #divcalendar, .fc-view') !== null"
-                    try:
-                        page.wait_for_function(calendar_js, timeout=3000)
-                        print("[DEBUG] ✓ Calendário ready", file=sys.stderr)
-                    except Exception:
-                        print("[DEBUG] Calendário timeout, verificando manualmente...", file=sys.stderr)
+                    # Aguardar calendário carregar
+                    page.wait_for_timeout(2000)
 
                     # Verificar se calendário apareceu
-                    calendar_selectors = [
-                        "#divcalendar",
-                        ".fc-view-container",
-                        ".fc-view",
-                        ".fc-daygrid",
-                        "[class*='calendar']",
-                    ]
-
-                    calendar_found = False
-                    for selector in calendar_selectors:
-                        try:
-                            cal = page.locator(selector).first
-                            if cal.count() > 0 and cal.is_visible():
-                                calendar_found = True
-                                print(f"[DEBUG] ✓ Calendário encontrado ({selector})", file=sys.stderr)
-                                break
-                        except Exception:
-                            continue
-
+                    calendar_found = page.evaluate("() => !!document.querySelector('.fc, #calendar, #divcalendar')")
                     if not calendar_found:
                         print(f"[WARNING] Calendário não encontrado para {agente_label}", file=sys.stderr)
                         continue
+                    print("[DEBUG] ✓ Calendário encontrado", file=sys.stderr)
 
-                    # Coletar eventos do período
+                    # Função para extrair eventos do calendário visível
+                    def extract_events_from_visible_calendar():
+                        """Extrai eventos das células visíveis do calendário."""
+                        return page.evaluate("""(args) => {
+                            const { startDate, endDate } = args;
+                            const start = new Date(startDate);
+                            const end = new Date(endDate);
+                            
+                            const eventos = {};
+                            const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
+                            
+                            for (const cell of dayCells) {
+                                const dateStr = cell.getAttribute('data-date');
+                                if (!dateStr) continue;
+                                
+                                const cellDate = new Date(dateStr);
+                                if (cellDate < start || cellDate > end) continue;
+                                
+                                const eventsInCell = cell.querySelectorAll('.fc-event');
+                                if (eventsInCell.length === 0) continue;
+                                
+                                const eventList = [];
+                                for (const evt of eventsInCell) {
+                                    const titleEl = evt.querySelector('.fc-event-title');
+                                    const timeEl = evt.querySelector('.fc-event-time');
+                                    eventList.push({
+                                        title: (titleEl?.textContent || evt.textContent || 'Evento').trim(),
+                                        time: timeEl?.textContent?.trim() || '',
+                                        type: 'Compromisso',
+                                        details: ''
+                                    });
+                                }
+                                
+                                if (eventList.length > 0) {
+                                    eventos[dateStr] = eventList;
+                                }
+                            }
+                            
+                            return eventos;
+                        }""", {'startDate': str(start_date), 'endDate': str(end_date)})
+
+                    # Coletar eventos de todos os meses necessários
                     eventos_por_dia = {}
+                    meses_visitados = set()
 
-                    try:
-                        day_cells = page.locator(".fc-day[data-date], .fc-daygrid-day[data-date]")
-                        count = day_cells.count()
+                    # Obter mês atual do calendário
+                    def get_calendar_month():
+                        return page.evaluate("() => document.querySelector('.fc-toolbar-title')?.textContent || ''")
 
-                        for i in range(min(count, 42)):  # ~6 semanas
-                            cell = day_cells.nth(i)
-                            try:
-                                date_str = cell.get_attribute("data-date")
-                                if not date_str:
-                                    continue
+                    current_month = get_calendar_month()
+                    meses_visitados.add(current_month)
 
-                                cell_date = date.fromisoformat(date_str)
-                                if not (start_date <= cell_date <= end_date):
-                                    continue
+                    # Coletar eventos do mês atual
+                    eventos = extract_events_from_visible_calendar()
+                    eventos_por_dia.update(eventos)
+                    print(f"[DEBUG] {current_month}: {len(eventos)} dias com eventos", file=sys.stderr)
 
-                                events_in_cell = cell.locator(".fc-event, .fc-daygrid-event")
-                                if events_in_cell.count() > 0:
-                                    eventos_dia = []
-                                    for j in range(events_in_cell.count()):
-                                        evt = events_in_cell.nth(j)
-                                        try:
-                                            title = evt.text_content() or "Evento"
-                                            eventos_dia.append({
-                                                "title": title.strip(),
-                                                "time": "",
-                                                "type": "Compromisso",
-                                                "details": ""
-                                            })
-                                        except Exception:
-                                            pass
+                    # Determinar quantos meses precisamos navegar para trás
+                    # Para cobrir o período, precisamos ir até o mês de start_date
+                    months_to_go_back = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
 
-                                    if eventos_dia:
-                                        eventos_por_dia[date_str] = eventos_dia
-                                        total_eventos += len(eventos_dia)
+                    for _ in range(months_to_go_back):
+                        # Clicar no botão "anterior"
+                        try:
+                            prev_btn = page.locator('.fc-prev-button').first
+                            if prev_btn.count() > 0:
+                                prev_btn.click()
+                                page.wait_for_timeout(1500)
 
-                            except Exception:
-                                continue
+                                current_month = get_calendar_month()
+                                if current_month and current_month not in meses_visitados:
+                                    meses_visitados.add(current_month)
+                                    eventos = extract_events_from_visible_calendar()
+                                    eventos_por_dia.update(eventos)
+                                    print(f"[DEBUG] {current_month}: {len(eventos)} dias com eventos", file=sys.stderr)
+                        except Exception as nav_err:
+                            print(f"[DEBUG] Erro navegando mês: {nav_err}", file=sys.stderr)
+                            break
 
-                    except Exception as e:
-                        print(f"[WARNING] Erro ao extrair eventos para {agente_label}: {e}", file=sys.stderr)
+                    # Contar total de eventos
+                    eventos_count = sum(len(evts) for evts in eventos_por_dia.values())
+                    total_eventos += eventos_count
 
                     # Adicionar dados do agente (modelo simplificado)
                     agente_data = {
