@@ -107,8 +107,8 @@ def render_hierarchy_selector(
     level: int,
     fetch_hierarchy_func: Callable | None = None,
     parent_value: str | None = None,
-    _parent_label: str | None = None,  # Deprecated, unused
-    _n2_value: str | None = None,  # Deprecated, unused
+    parent_label: str | None = None,  # noqa: ARG001 - kept for API compatibility
+    n2_value: str | None = None,  # noqa: ARG001 - deprecated, kept for API compatibility
     auto_fetch_child: bool = False,  # When True, auto-fetch next level on selection change
     child_options_key: str | None = None,  # Key for child options (used with auto_fetch_child)
 ) -> None:
