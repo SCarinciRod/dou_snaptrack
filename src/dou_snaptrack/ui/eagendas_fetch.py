@@ -412,7 +412,7 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
 def fetch_hierarchy(
     level: int = 1,
     n1_value: str | None = None,
-    n2_value: str | None = None,
+    _n2_value: str | None = None,  # Deprecated, ignored
 ) -> dict[str, Any]:
     """Backward compatibility wrapper.
     

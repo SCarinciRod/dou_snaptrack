@@ -172,7 +172,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
                 try:
                     data = json.loads(pids_file.read_text(encoding="utf-8"))
                     pids = data.get("pids", [])
-                    parent_pid = data.get("parent", 0)
+                    _parent_pid = data.get("parent", 0)  # noqa: F841 - kept for debugging
 
                     # Kill each subprocess
                     for pid in pids:
@@ -337,7 +337,7 @@ class _UILock:
             self._locked = False
         return self
 
-    def __exit__(self, _exc_type, _exc, tb):
+    def __exit__(self, _exc_type, _exc, _tb):
         errors = []
         try:
             if self._fp and self._locked and sys.platform.startswith("win"):

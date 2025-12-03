@@ -15,12 +15,9 @@ import asyncio
 from typing import TYPE_CHECKING
 
 from dou_snaptrack.constants import (
-    TIMEOUT_ELEMENT_FAST,
     TIMEOUT_ELEMENT_NORMAL,
     TIMEOUT_ELEMENT_SLOW,
     WAIT_ANGULAR_INIT,
-    WAIT_ANGULAR_LOAD,
-    WAIT_MEDIUM,
     WAIT_SHORT,
 )
 
