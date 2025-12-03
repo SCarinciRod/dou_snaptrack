@@ -60,6 +60,20 @@ def _get_recommend_parallel():
     return recommend_parallel
 
 
+def _load_plan_config(path: Path) -> dict[str, Any]:
+    """Load plan config from file with error handling.
+    
+    OTIMIZAÇÃO: Esta função é o ponto único de leitura de config,
+    evitando múltiplas leituras do mesmo arquivo.
+    """
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def _run_batch_with_cfg(
     cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True
 ) -> dict[str, Any]:
@@ -107,13 +121,11 @@ def render_batch_executor() -> None:
         selected_path = Path(plan_entries[choice_idx]["path"])
 
     # Paralelismo adaptativo (heurística baseada em CPU e nº de jobs)
-    try:
-        cfg_preview = json.loads(selected_path.read_text(encoding="utf-8")) if selected_path.exists() else {}
-        combos_prev = cfg_preview.get("combos") or []
-        topics_prev = cfg_preview.get("topics") or []
-        est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
-    except Exception:
-        est_jobs_prev = 1
+    # OTIMIZAÇÃO: Usar _load_plan_config (leitura única) ao invés de read_text()
+    cfg_preview = _load_plan_config(selected_path) if selected_path.exists() else {}
+    combos_prev = cfg_preview.get("combos") or []
+    topics_prev = cfg_preview.get("topics") or []
+    est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
 
     recommend_parallel = _get_recommend_parallel()
     suggested_workers = recommend_parallel(est_jobs_prev, prefer_process=True)
@@ -151,23 +163,19 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
             st.stop()
 
     # Descobrir número de jobs do plano
-    try:
-        cfg = json.loads(selected_path.read_text(encoding="utf-8"))
-        combos = cfg.get("combos") or []
-        topics = cfg.get("topics") or []
-        est_jobs = len(combos) * max(1, len(topics) or 1)
-    except Exception:
-        est_jobs = 1
+    # OTIMIZAÇÃO: Reutilizar cfg_preview carregado anteriormente
+    # (a função recebe selected_path, então recarregar é seguro)
+    cfg = _load_plan_config(selected_path)
+    combos = cfg.get("combos") or []
+    topics = cfg.get("topics") or []
+    est_jobs = len(combos) * max(1, len(topics) or 1)
 
     # Calcular recomendação no momento da execução
     parallel = int(recommend_parallel(est_jobs, prefer_process=True))
 
     with st.spinner("Executando…"):
-        # Forçar execução para a data atual selecionada no UI (padrão: hoje)
-        try:
-            cfg_json = json.loads(selected_path.read_text(encoding="utf-8"))
-        except Exception:
-            cfg_json = {}
+        # OTIMIZAÇÃO: Reutilizar cfg já carregado (era terceira leitura)
+        cfg_json = dict(cfg)  # Cópia para não modificar original
 
         override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
         cfg_json["data"] = override_date

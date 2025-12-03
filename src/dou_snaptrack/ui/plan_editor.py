@@ -304,10 +304,14 @@ def render_plan_loader() -> None:
                         plan_name = cfg.get("plan_name", selected_plan.stem)
                         st.session_state["plan_name_ui"] = plan_name
                         st.session_state["loaded_plan_path"] = str(selected_plan)
+                        
+                        # Reset pagina do editor
+                        st.session_state["plan_editor_page"] = 0
 
-                        st.success(f"✅ Plano '{selected_plan.stem}' carregado com {len(plan.combos)} combos!")
+                        st.success(f"Plano '{selected_plan.stem}' carregado com {len(plan.combos)} combos!")
+                        st.rerun()
                     except Exception as e:
-                        st.error(f"❌ Erro ao carregar plano: {e}")
+                        st.error(f"Erro ao carregar plano: {e}")
 
             with col_info:
                 meta = plan_entries[selected_idx]
@@ -320,19 +324,49 @@ def render_plan_loader() -> None:
 
 
 def render_plan_editor_table() -> None:
-    """Render the combo editor table with pagination."""
+    """Render the combo editor table with pagination - versao moderna e limpa."""
     import pandas as pd
-
-    st.markdown("#### 📋 Plano Atual")
 
     plan = PlanEditorSession.get_plan()
 
     if not plan.combos:
-        st.info("📭 Nenhum combo no plano. Use as opções acima para adicionar combos ou carregar um plano salvo.")
+        st.info("Nenhum combo no plano. Adicione combos ou carregue um plano salvo.")
         return
 
     num_combos = len(plan.combos)
-    st.caption(f"Total: **{num_combos} combos**")
+    
+    # CSS customizado para visual moderno
+    st.markdown("""
+    <style>
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+    .page-info {
+        font-weight: 600;
+        color: #1f2937;
+        padding: 0 16px;
+    }
+    .combo-count {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f'<span class="combo-count">{num_combos} combos no plano</span>', unsafe_allow_html=True)
 
     # Pagination setup
     use_pagination = num_combos > COMBOS_PER_PAGE
@@ -344,7 +378,6 @@ def render_plan_editor_table() -> None:
         total_pages = (num_combos + COMBOS_PER_PAGE - 1) // COMBOS_PER_PAGE
         current_page = st.session_state.plan_editor_page
 
-        # Ensure valid page
         if current_page >= total_pages:
             current_page = total_pages - 1
             st.session_state.plan_editor_page = current_page
@@ -352,40 +385,32 @@ def render_plan_editor_table() -> None:
             current_page = 0
             st.session_state.plan_editor_page = 0
 
-        # Pagination controls
-        st.markdown(f"**Página {current_page + 1} de {total_pages}** ({COMBOS_PER_PAGE} combos por página)")
-
-        nav_cols = st.columns([1, 1, 2, 1, 1])
-        with nav_cols[0]:
-            if st.button("⏮️ Início", disabled=current_page == 0, key="plan_page_first"):
-                st.session_state.plan_editor_page = 0
-                st.rerun()
-        with nav_cols[1]:
-            if st.button("◀️ Anterior", disabled=current_page == 0, key="plan_page_prev"):
-                st.session_state.plan_editor_page = current_page - 1
-                st.rerun()
-        with nav_cols[2]:
-            page_options = list(range(1, total_pages + 1))
-            selected_page = st.selectbox(
-                "Ir para página:",
-                page_options,
-                index=current_page,
-                key="plan_page_selector",
-                label_visibility="collapsed"
+        # Paginacao moderna
+        col1, col2, col3, col4, col5 = st.columns([1, 1, 3, 1, 1])
+        
+        with col1:
+            st.button("⏮", key="pg_first", disabled=current_page == 0, 
+                     on_click=lambda: st.session_state.update({"plan_editor_page": 0}),
+                     use_container_width=True)
+        with col2:
+            st.button("◀", key="pg_prev", disabled=current_page == 0,
+                     on_click=lambda: st.session_state.update({"plan_editor_page": current_page - 1}),
+                     use_container_width=True)
+        with col3:
+            st.markdown(
+                f'<div style="text-align:center;padding:8px;background:#f0f2f6;border-radius:8px;">'
+                f'<b>{current_page + 1}</b> / {total_pages}</div>',
+                unsafe_allow_html=True
             )
-            if selected_page - 1 != current_page:
-                st.session_state.plan_editor_page = selected_page - 1
-                st.rerun()
-        with nav_cols[3]:
-            if st.button("▶️ Próxima", disabled=current_page >= total_pages - 1, key="plan_page_next"):
-                st.session_state.plan_editor_page = current_page + 1
-                st.rerun()
-        with nav_cols[4]:
-            if st.button("⏭️ Fim", disabled=current_page >= total_pages - 1, key="plan_page_last"):
-                st.session_state.plan_editor_page = total_pages - 1
-                st.rerun()
+        with col4:
+            st.button("▶", key="pg_next", disabled=current_page >= total_pages - 1,
+                     on_click=lambda: st.session_state.update({"plan_editor_page": current_page + 1}),
+                     use_container_width=True)
+        with col5:
+            st.button("⏭", key="pg_last", disabled=current_page >= total_pages - 1,
+                     on_click=lambda: st.session_state.update({"plan_editor_page": total_pages - 1}),
+                     use_container_width=True)
 
-        # Calculate slice indices
         start_idx = current_page * COMBOS_PER_PAGE
         end_idx = min(start_idx + COMBOS_PER_PAGE, num_combos)
         combos_slice = plan.combos[start_idx:end_idx]
@@ -393,119 +418,120 @@ def render_plan_editor_table() -> None:
     else:
         combos_slice = plan.combos
         page_offset = 0
-        current_page = 0
-        total_pages = 1
         start_idx = 0
         end_idx = num_combos
 
-    # Build display data
-    display_data = []
+    # Tabela com checkboxes usando data_editor simplificado
+    rows = []
     for local_idx, combo in enumerate(combos_slice):
         global_idx = page_offset + local_idx
         orgao_label = _resolve_combo_label(combo, "label1", "key1")
         sub_label = _resolve_combo_label(combo, "label2", "key2")
-        display_data.append({
-            "Remover?": False,
+        rows.append({
+            "Sel": False,
             "ID": global_idx,
-            "Órgão": orgao_label,
-            "Sub-órgão": sub_label,
+            "Orgao": orgao_label,
+            "Sub-orgao": sub_label,
         })
 
-    df_display = pd.DataFrame(display_data)
+    df_display = pd.DataFrame(rows)
 
-    # Editable table
-    editor_key = f"plan_combos_editor_{st.session_state.get('loaded_plan_path', 'new')}_{current_page}_{len(combos_slice)}"
+    # Editor com checkboxes
     edited_df = st.data_editor(
         df_display,
         use_container_width=True,
-        num_rows="fixed",
-        column_config={
-            "Remover?": st.column_config.CheckboxColumn(
-                "Remover?",
-                help="Marque para remover este combo",
-                default=False,
-                width="small"
-            ),
-            "ID": st.column_config.NumberColumn("ID", disabled=True, width="small"),
-            "Órgão": st.column_config.TextColumn("Órgão", width="large"),
-            "Sub-órgão": st.column_config.TextColumn("Sub-órgão", width="large"),
-        },
         hide_index=True,
-        key=editor_key,
-        disabled=["ID"]
+        height=min(450, 38 * len(rows) + 40),
+        column_config={
+            "Sel": st.column_config.CheckboxColumn(
+                "",
+                help="Marque para remover",
+                width="small",
+                default=False,
+            ),
+            "ID": st.column_config.NumberColumn(
+                "ID",
+                width="small",
+                disabled=True,
+            ),
+            "Orgao": st.column_config.TextColumn(
+                "Orgao",
+                width="large",
+                disabled=True,
+            ),
+            "Sub-orgao": st.column_config.TextColumn(
+                "Sub-orgao", 
+                width="large",
+                disabled=True,
+            ),
+        },
+        disabled=["ID", "Orgao", "Sub-orgao"],
+        key=f"combo_editor_{page_offset}_{len(combos_slice)}",
     )
 
-    if use_pagination:
-        st.caption(f"📄 Mostrando combos {start_idx + 1} a {end_idx} de {num_combos}")
-
-    # Action buttons
-    st.markdown("**Ações:**")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        if st.button("💾 Salvar Edições", use_container_width=True, type="primary",
-                    help="Aplica as mudanças de texto da página atual"):
-            all_combos = plan.combos.copy()
-            for _, row in edited_df.iterrows():
-                global_idx = int(row["ID"])
-                if 0 <= global_idx < len(all_combos):
-                    all_combos[global_idx]["label1"] = row["Órgão"]
-                    all_combos[global_idx]["label2"] = row["Sub-órgão"]
-            st.session_state.plan.combos = all_combos
-
-            loaded_path = st.session_state.get("loaded_plan_path")
-            if loaded_path:
-                try:
-                    cfg_to_save = {
-                        "data": plan.date,
-                        "secaoDefault": plan.secao,
-                        "defaults": plan.defaults,
-                        "combos": plan.combos,
-                        "output": {"pattern": "{topic}_{secao}_{date}_{idx}.json", "report": "batch_report.json"},
-                    }
-                    _pname = st.session_state.get("plan_name_ui")
-                    if isinstance(_pname, str) and _pname.strip():
-                        cfg_to_save["plan_name"] = _pname.strip()
-                    Path(loaded_path).write_text(json.dumps(cfg_to_save, ensure_ascii=False, indent=2), encoding="utf-8")
-                    st.success("✅ Edições salvas no arquivo!")
-                    st.session_state["plan_list_refresh_token"] = time.time()
-                except Exception as e:
-                    st.error(f"❌ Erro ao salvar no arquivo: {e}")
+    # Contar selecionados
+    selected_count = int(edited_df["Sel"].sum()) if "Sel" in edited_df.columns else 0
+    
+    st.markdown("---")
+    
+    # Botao unico de acao
+    col_btn, col_info = st.columns([2, 3])
+    
+    with col_btn:
+        btn_text = f"Remover {selected_count} selecionado(s)" if selected_count > 0 else "Salvar alteracoes"
+        btn_type = "primary"
+        
+        if st.button(btn_text, use_container_width=True, type=btn_type):
+            if selected_count > 0:
+                # Remover selecionados
+                ids_to_remove = set()
+                for _, row in edited_df.iterrows():
+                    if row["Sel"]:
+                        ids_to_remove.add(int(row["ID"]))
+                
+                new_combos = [
+                    combo for i, combo in enumerate(plan.combos)
+                    if i not in ids_to_remove
+                ]
+                st.session_state.plan.combos = new_combos
+                
+                # Ajustar pagina se necessario
+                new_total = len(new_combos)
+                if new_total > 0 and use_pagination:
+                    new_total_pages = (new_total + COMBOS_PER_PAGE - 1) // COMBOS_PER_PAGE
+                    if st.session_state.plan_editor_page >= new_total_pages:
+                        st.session_state.plan_editor_page = max(0, new_total_pages - 1)
+                
+                st.toast(f"{selected_count} combo(s) removido(s)!", icon="✅")
             else:
-                st.success("✅ Edições salvas (em memória)! Use 'Salvar plano' para persistir em arquivo.")
+                # Salvar no arquivo
+                loaded_path = st.session_state.get("loaded_plan_path")
+                if loaded_path:
+                    try:
+                        cfg_to_save = {
+                            "data": plan.date,
+                            "secaoDefault": plan.secao,
+                            "defaults": plan.defaults,
+                            "combos": plan.combos,
+                            "output": {"pattern": "{topic}_{secao}_{date}_{idx}.json", "report": "batch_report.json"},
+                        }
+                        _pname = st.session_state.get("plan_name_ui")
+                        if isinstance(_pname, str) and _pname.strip():
+                            cfg_to_save["plan_name"] = _pname.strip()
+                        Path(loaded_path).write_text(json.dumps(cfg_to_save, ensure_ascii=False, indent=2), encoding="utf-8")
+                        st.toast("Plano salvo com sucesso!", icon="💾")
+                        st.session_state["plan_list_refresh_token"] = time.time()
+                    except Exception as e:
+                        st.error(f"Erro ao salvar: {e}")
+                else:
+                    st.toast("Salvo em memoria. Use 'Salvar Plano' abaixo para persistir.", icon="💾")
             st.rerun()
-
-    with col2:
-        selected_count = int(edited_df["Remover?"].sum())
-        btn_label = f"🗑️ Remover Marcados ({selected_count})"
-        if st.button(btn_label, use_container_width=True, disabled=selected_count == 0,
-                    help="Remove combos marcados nesta página"):
-            ids_to_remove = set()
-            for _, row in edited_df.iterrows():
-                if row["Remover?"]:
-                    ids_to_remove.add(int(row["ID"]))
-
-            new_combos = [
-                combo for i, combo in enumerate(plan.combos)
-                if i not in ids_to_remove
-            ]
-            st.session_state.plan.combos = new_combos
-
-            new_total = len(new_combos)
-            if use_pagination and new_total > 0:
-                new_total_pages = (new_total + COMBOS_PER_PAGE - 1) // COMBOS_PER_PAGE
-                if st.session_state.plan_editor_page >= new_total_pages:
-                    st.session_state.plan_editor_page = max(0, new_total_pages - 1)
-
-            st.success(f"✅ {selected_count} combo(s) removido(s)")
-            st.rerun()
-
-    with col3:
-        if st.button("🗑️ Limpar Tudo", use_container_width=True, help="Remove TODOS os combos"):
-            PlanEditorSession.clear_combos()
-            st.session_state.plan_editor_page = 0
-            st.success("🗑️ Plano limpo")
-            st.rerun()
+    
+    with col_info:
+        if selected_count > 0:
+            st.warning(f"⚠️ {selected_count} combo(s) marcado(s) para remocao")
+        elif use_pagination:
+            st.caption(f"Exibindo {start_idx + 1}-{end_idx} de {num_combos}")
 
 
 def render_plan_saver() -> None:
@@ -516,8 +542,25 @@ def render_plan_saver() -> None:
     plans_dir, _ = ensure_dirs()
     plan = PlanEditorSession.get_plan()
 
-    suggested = plans_dir / f"plan_{str(plan.date or '').replace('/', '-').replace(' ', '_')}.json"
-    plan_path = st.text_input("Salvar como", str(suggested))
+    # Nome sugerido baseado na data do plano (sem path nem extensão)
+    suggested_name = f"plan_{str(plan.date or '').replace('/', '-').replace(' ', '_')}"
+    plan_name_input = st.text_input(
+        "Nome do arquivo",
+        suggested_name,
+        help="Apenas o nome do arquivo (sem extensão). Será salvo em 'planos/' como .json"
+    )
+
+    # Sanitizar: remover caracteres inválidos e extensões que o usuário possa ter digitado
+    import re
+    clean_name = re.sub(r'[<>:"/\\|?*]', '_', plan_name_input.strip())
+    # Remover extensão se usuário digitou
+    if clean_name.lower().endswith('.json'):
+        clean_name = clean_name[:-5]
+    clean_name = clean_name.strip() or "plano_sem_nome"
+
+    # Mostrar caminho final
+    final_path = plans_dir / f"{clean_name}.json"
+    st.caption(f"📁 Será salvo em: `{final_path}`")
 
     if st.button("Salvar plano"):
         cfg = {
@@ -531,10 +574,9 @@ def render_plan_saver() -> None:
         if isinstance(_pname, str) and _pname.strip():
             cfg["plan_name"] = _pname.strip()
 
-        ppath = Path(plan_path)
-        ppath.parent.mkdir(parents=True, exist_ok=True)
-        ppath.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-        st.success(f"Plano salvo em {plan_path}")
+        final_path.parent.mkdir(parents=True, exist_ok=True)
+        final_path.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+        st.success(f"Plano salvo em {final_path}")
         st.session_state["plan_list_refresh_token"] = time.time()
 
 

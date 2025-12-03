@@ -174,7 +174,14 @@ def main():
                     # Navegar para a página
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
                     page.goto(base_url, timeout=30000, wait_until="commit")
-                    page.wait_for_timeout(5000)  # Aguardar AngularJS carregar
+                    
+                    # OTIMIZAÇÃO: Espera condicional para AngularJS (era 5000ms fixo)
+                    angular_ready_js = "() => document.querySelector('[ng-app]') !== null"
+                    try:
+                        page.wait_for_function(angular_ready_js, timeout=5000)
+                        print("[DEBUG] ✓ AngularJS ready", file=sys.stderr)
+                    except Exception:
+                        print("[DEBUG] AngularJS timeout, continuando...", file=sys.stderr)
 
                     # Aguardar selectize de órgãos inicializar
                     wait_orgao_js = f"() => {{ const el = document.getElementById('{DD_ORGAO_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 5; }}"
@@ -190,7 +197,14 @@ def main():
                     if not set_selectize_value(page, DD_ORGAO_ID, orgao_value):
                         print("[ERROR] Não foi possível selecionar órgão", file=sys.stderr)
                         continue
-                    page.wait_for_timeout(3000)  # Aguardar agentes carregarem
+                    
+                    # OTIMIZAÇÃO: Espera condicional para agentes (era 3000ms fixo)
+                    agentes_ready_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
+                    try:
+                        page.wait_for_function(agentes_ready_js, timeout=3000)
+                        print("[DEBUG] ✓ Agentes ready", file=sys.stderr)
+                    except Exception:
+                        print("[DEBUG] Agentes timeout (pode não ter agentes)", file=sys.stderr)
 
                     # PASSO 2: Selecionar agente diretamente (sem cargo)
                     # Aguardar selectize de agentes
@@ -204,7 +218,13 @@ def main():
                     if not set_selectize_value(page, DD_AGENTE_ID, agente_value):
                         print("[ERROR] Não foi possível selecionar agente", file=sys.stderr)
                         continue
-                    page.wait_for_timeout(2000)
+                    
+                    # OTIMIZAÇÃO: Espera condicional para seleção (era 2000ms fixo)
+                    selection_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize?.getValue() === '{agente_value}'; }}"
+                    try:
+                        page.wait_for_function(selection_js, timeout=2000)
+                    except Exception:
+                        page.wait_for_timeout(200)  # Fallback mínimo
 
                     # Mitigar cookie bar
                     try:
@@ -236,8 +256,14 @@ def main():
                         print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {agente_label}", file=sys.stderr)
                         continue
 
+                    # OTIMIZAÇÃO: Espera condicional para calendário (era 3000ms fixo)
                     print("[DEBUG] Aguardando calendário...", file=sys.stderr)
-                    page.wait_for_timeout(3000)
+                    calendar_js = "() => document.querySelector('.fc-view-container, .fc-daygrid, #divcalendar, .fc-view') !== null"
+                    try:
+                        page.wait_for_function(calendar_js, timeout=3000)
+                        print("[DEBUG] ✓ Calendário ready", file=sys.stderr)
+                    except Exception:
+                        print("[DEBUG] Calendário timeout, verificando manualmente...", file=sys.stderr)
 
                     # Verificar se calendário apareceu
                     calendar_selectors = [

@@ -97,7 +97,16 @@ async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms:
         # ESTRATÉGIA CORRETA: Focus + ArrowDown (funciona melhor que click)
         await inp.focus()
         await page.keyboard.press("ArrowDown")
-        await page.wait_for_timeout(wait_ms)
+        
+        # Espera condicional: aguardar dropdown ficar visível
+        try:
+            await page.wait_for_function(
+                "() => { const dd = document.querySelector('.selectize-dropdown'); return dd && dd.offsetParent !== null; }",
+                timeout=wait_ms
+            )
+            return True
+        except Exception:
+            pass
 
         # Verificar se dropdown apareceu
         dropdown = page.locator(".selectize-dropdown").first
@@ -107,11 +116,14 @@ async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms:
         # Fallback: tentar click simples
         with contextlib.suppress(Exception):
             await inp.click(timeout=3000, force=True)
-            await page.wait_for_timeout(wait_ms)
-
-            dropdown = page.locator(".selectize-dropdown").first
-            if await dropdown.count() > 0 and await dropdown.is_visible():
+            try:
+                await page.wait_for_function(
+                    "() => { const dd = document.querySelector('.selectize-dropdown'); return dd && dd.offsetParent !== null; }",
+                    timeout=wait_ms
+                )
                 return True
+            except Exception:
+                pass
 
         # Fallback 2: JavaScript API
         with contextlib.suppress(Exception):
@@ -122,11 +134,14 @@ async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms:
                     }
                 }
             """)
-            await page.wait_for_timeout(wait_ms)
-
-            dropdown = page.locator(".selectize-dropdown").first
-            if await dropdown.count() > 0 and await dropdown.is_visible():
+            try:
+                await page.wait_for_function(
+                    "() => { const dd = document.querySelector('.selectize-dropdown'); return dd && dd.offsetParent !== null; }",
+                    timeout=wait_ms
+                )
                 return True
+            except Exception:
+                pass
 
         return False
 
@@ -214,7 +229,15 @@ async def _select_selectize_option_async(page, option: dict[str, Any], wait_afte
             return False
 
         await h.click(timeout=3000)
-        await page.wait_for_timeout(wait_after_ms)
+        
+        # Espera condicional: aguardar dropdown fechar (indica seleção completa)
+        try:
+            await page.wait_for_function(
+                "() => { const dd = document.querySelector('.selectize-dropdown'); return !dd || dd.offsetParent === null; }",
+                timeout=wait_after_ms
+            )
+        except Exception:
+            pass  # Timeout ok, prosseguir
 
         # Aguardar AJAX
         with contextlib.suppress(Exception):
@@ -428,9 +451,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         )
         selectize_ready = True
 
-    # Fallback se esperas condicionais falharem
+    # Fallback se esperas condicionais falharem (reduzido: condicionais já tentaram)
     if not angular_ready or not selectize_ready:
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(1000)
 
     frame = page.main_frame
 
@@ -535,9 +558,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             )
             cargo_ready = True
 
-        # Fallback se espera condicional falhar
+        # Fallback se espera condicional falhar (reduzido: condicional já tentou 10s)
         if not cargo_ready:
-            await page.wait_for_timeout(1500)
+            await page.wait_for_timeout(500)
 
         # ====================================================================
         # NÍVEL 2: CARGOS
@@ -591,9 +614,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                 )
                 agente_ready = True
 
-            # Fallback se espera condicional falhar
+            # Fallback se espera condicional falhar (reduzido: condicional já tentou 8s)
             if not agente_ready:
-                await page.wait_for_timeout(1000)
+                await page.wait_for_timeout(300)
 
             # ================================================================
             # NÍVEL 3: AGENTES

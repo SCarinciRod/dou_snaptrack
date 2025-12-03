@@ -180,7 +180,16 @@ try:
             pass
 
         frame = find_best_frame(context)
-        page.wait_for_timeout(3000)
+        
+        # Otimização: wait condicional em vez de timeout fixo
+        # Aguarda até que dropdowns estejam prontos (max 3s)
+        try:
+            page.wait_for_function(
+                "() => document.querySelector('select') !== null || document.querySelector('.selectize-input') !== null",
+                timeout=3000
+            )
+        except:
+            pass  # Continua mesmo se timeout - pode já estar pronto
 
         try:
             r1, _r2 = _select_roots(frame)

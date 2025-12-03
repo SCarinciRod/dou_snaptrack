@@ -356,12 +356,13 @@ class DocxBulletinGenerator(BulletinGenerator):
             from docx.opc.constants import RELATIONSHIP_TYPE as RT
             from docx.oxml import OxmlElement
             from docx.oxml.ns import qn
+            from docx.shared import Pt
         except ImportError:
-            logger.error("Módulo python-docx não encontrado. Instale com: pip install python-docx")
+            logger.error("Modulo python-docx nao encontrado. Instale com: pip install python-docx")
             raise
 
         def add_hyperlink(paragraph, url: str, text: str, color="0000FF", underline=True):
-            """Adiciona hyperlink a um parágrafo no DOCX."""
+            """Adiciona hyperlink a um paragrafo no DOCX."""
             try:
                 r_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
             except Exception:
@@ -390,28 +391,40 @@ class DocxBulletinGenerator(BulletinGenerator):
             hyperlink.append(new_run)
             paragraph._p.append(hyperlink)
 
-        # Criar documento e adicionar título
+        def keep_with_next(paragraph):
+            """Configura paragrafo para ficar junto com o proximo (evita quebra de pagina)."""
+            pPr = paragraph._p.get_or_add_pPr()
+            keepNext = OxmlElement('w:keepNext')
+            pPr.append(keepNext)
+
+        def keep_together(paragraph):
+            """Configura paragrafo para manter todas as linhas juntas."""
+            pPr = paragraph._p.get_or_add_pPr()
+            keepLines = OxmlElement('w:keepLines')
+            pPr.append(keepLines)
+
+        # Criar documento e adicionar titulo
         doc = Document()
-        doc.add_heading(f"Boletim DOU — {self.date} ({self.secao})", 0)
+        doc.add_heading(f"Boletim DOU - {self.date} ({self.secao})", 0)
 
         # Contador de itens sumarizados
         summarized = 0
 
-        # Para cada grupo (órgão + tipo de ato)
+        # Para cada grupo (orgao + tipo de ato)
         for (org, tipo), arr in self.grouped.items():
-            doc.add_heading(f"{org} — {tipo}", level=1)
+            doc.add_heading(f"{org} - {tipo}", level=1)
 
             # Para cada item no grupo
             for it in arr:
                 base_text = it.get("texto") or it.get("ementa") or ""
                 _strip_legalese_preamble(_remove_dou_metadata(base_text)) if base_text else ""
-                # Manter texto do link inalterado (sem derivar título do corpo)
-                titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem título"
+                # Manter texto do link inalterado (sem derivar titulo do corpo)
+                titulo = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or "Sem titulo"
                 durl = it.get("detail_url") or it.get("link") or ""
                 pdf = it.get("pdf_url") or ""
                 suffix = _mk_suffix(it)
 
-                # Adicionar título com links
+                # Adicionar titulo com links
                 p = doc.add_paragraph(style="List Bullet")
                 if durl:
                     add_hyperlink(p, durl, titulo)
@@ -426,14 +439,17 @@ class DocxBulletinGenerator(BulletinGenerator):
                 if suffix:
                     p.add_run(suffix)
 
-                # Adicionar resumo se disponível
+                # Adicionar resumo se disponivel
                 snippet = _summarize_item(it, self.summarizer_fn, self.summarize,
                                          self.keywords, self.max_lines, self.mode)
                 if not snippet and self.summarize:
                     snippet = _minimal_summary_from_item(it)
                 if snippet:
                     summarized += 1
+                    # Manter titulo junto com resumo (evita quebra de pagina entre eles)
+                    keep_with_next(p)
                     pr = doc.add_paragraph()
+                    keep_together(pr)  # Manter linhas do resumo juntas
                     r = pr.add_run("Resumo: ")
                     r.bold = True
                     pr.add_run(snippet)

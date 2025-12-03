@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import csv
+import io
 import json
 import os
 import subprocess
@@ -43,6 +45,7 @@ def _pid_alive_windows(pid: int) -> bool:
     """Return True if a process with this PID exists on Windows.
 
     Uses tasklist filtered by PID and parses output robustly to avoid false positives.
+    OTIMIZAÇÃO: csv e io importados no topo do módulo.
     """
     try:
         if pid <= 0:
@@ -52,8 +55,6 @@ def _pid_alive_windows(pid: int) -> bool:
         if not stdout or stdout.lower().startswith("info:"):
             return False
         # Parse CSV robustamente usando biblioteca nativa
-        import csv
-        import io
         try:
             reader = csv.reader(io.StringIO(stdout))
             row = next(reader, [])
@@ -232,17 +233,16 @@ def _win_get_process_info(pid: int) -> dict:
     """Fetch process info on Windows via tasklist (otimizado, sem PowerShell).
 
     Returns {} on failure. Usa tasklist CSV que é 75% mais rápido que PowerShell.
+    OTIMIZAÇÃO: Removido fallback PowerShell (3s timeout) - não necessário.
     """
     try:
         # Versão otimizada: tasklist com /V (verbose) para pegar command line
-        out = run_cmd(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/V", "/NH"], timeout=1)
+        out = run_cmd(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/V", "/NH"], timeout=2)
         stdout = (out.stdout or "").strip()
         if not stdout or stdout.lower().startswith("info:"):
             return {}
 
-        # Parse CSV com biblioteca nativa
-        import csv
-        import io
+        # Parse CSV com biblioteca nativa (já importado no topo)
         reader = csv.reader(io.StringIO(stdout))
         row = next(reader, [])
 
@@ -259,26 +259,8 @@ def _win_get_process_info(pid: int) -> dict:
     except Exception:
         pass
 
-    # Fallback para PowerShell apenas se tasklist falhar (raro)
-    try:
-        ps = (
-            "powershell",
-            "-NoProfile",
-            "-Command",
-            f"$p=Get-CimInstance Win32_Process -Filter \"ProcessId={pid}\"; if($p){{ $u=$p.GetOwner(); [Console]::Out.WriteLine(($p.ExecutablePath+'|'+$p.CommandLine+'|'+$($u.Domain+'\\'+$u.User))) }}"
-        )
-        out = run_cmd(ps, timeout=3)
-        line = (out.stdout or "").strip()
-        if line:
-            parts = line.split("|", 2)
-            exe = parts[0] if len(parts) > 0 else ""
-            cmd = parts[1] if len(parts) > 1 else ""
-            user = parts[2] if len(parts) > 2 else ""
-            return {"exe": exe, "cmd": cmd, "user": user}
-    except subprocess.TimeoutExpired:
-        pass
-    except Exception:
-        pass
+    # NOTA: PowerShell fallback REMOVIDO - era lento (3s) e raramente necessário
+    # tasklist /V já fornece informações suficientes para nossa heurística
 
     return {}
 

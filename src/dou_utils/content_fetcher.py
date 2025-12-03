@@ -125,14 +125,13 @@ class Fetcher:
         return html
 
     def fetch_html_browser(self, url: str) -> str:
-        """Tenta carregar a página com um navegador (Playwright) para capturar conteúdo dinâmico.
+        """Tenta carregar a pagina com um navegador (Playwright) para capturar conteudo dinamico.
 
-        Retorna HTML ou vazio se indisponível.
+        Retorna HTML ou vazio se indisponivel.
         """
         try:
             from playwright.sync_api import sync_playwright  # type: ignore
         except Exception:
-            logger.info("[ENRICH] browser fallback not available (playwright not installed)")
             return ""
         try:
             with sync_playwright() as p:
@@ -146,19 +145,18 @@ class Fetcher:
                     html = page.content()
                 finally:
                     browser.close()
-        except Exception as e:
-            logger.info(f"[ENRICH] browser fetch failed: {e}")
+        except Exception:
+            # Silenciar erros de asyncio/Playwright em contexto Streamlit
             return ""
         return html or ""
 
     def fetch_text_browser(self, url: str) -> str:
-        """Carrega a página com navegador e tenta extrair texto visível dos principais contêineres,
-        incluindo shadow DOM quando possível. Retorna texto plano.
+        """Carrega a pagina com navegador e tenta extrair texto visivel dos principais conteineres,
+        incluindo shadow DOM quando possivel. Retorna texto plano.
         """
         try:
             from playwright.sync_api import sync_playwright  # type: ignore
         except Exception:
-            logger.info("[ENRICH] browser fallback not available (playwright not installed)")
             return ""
         try:
             with sync_playwright() as p:
@@ -167,7 +165,7 @@ class Fetcher:
                     page = browser.new_page()
                     page.set_default_timeout(self.browser_timeout_sec * 1000)
                     page.goto(url, wait_until="domcontentloaded")
-                    # Pequeno atraso para render estável
+                    # Pequeno atraso para render estavel
                     with contextlib.suppress(Exception):
                         page.wait_for_timeout(500)
 
@@ -222,8 +220,8 @@ class Fetcher:
                         text = text[:200000]
                 finally:
                     browser.close()
-        except Exception as e:
-            logger.info(f"[ENRICH] browser text fetch failed: {e}")
+        except Exception:
+            # Silenciar erros de asyncio/Playwright em contexto Streamlit
             return ""
         return text or ""
 

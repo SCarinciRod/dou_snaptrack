@@ -143,10 +143,34 @@ def _render_report_selection(results_root: Path) -> None:
             sel_plan = st.selectbox("Plano (encontrado na data)", plan_names, index=0, key="agg_plan_select")
             files = day_idx.get(sel_plan, [])
             kind2 = st.selectbox("Formato (agregados)", ["docx", "md", "html"], index=1, key="kind_agg")
-            out_name2 = st.text_input("Nome do arquivo de saída", f"boletim_{sel_plan}_{sel_day}.{kind2}")
 
-            if st.button("Gerar boletim do plano (data selecionada)"):
-                _generate_report(results_root, files, kind2, out_name2, str(sel_day))
+            # Nome sugerido (sem extensão)
+            suggested_name = f"boletim_{sel_plan}_{sel_day}"
+            out_name_input = st.text_input(
+                "Nome do arquivo",
+                suggested_name,
+                help=f"Apenas o nome (sem extensão). Será salvo como .{kind2}"
+            )
+
+            # Sanitizar: remover caracteres inválidos e extensões que o usuário possa ter digitado
+            import re
+            clean_name = re.sub(r'[<>:"/\\|?*]', '_', out_name_input.strip())
+            # Remover extensão se usuário digitou
+            for ext in ['.docx', '.md', '.html']:
+                if clean_name.lower().endswith(ext):
+                    clean_name = clean_name[:-len(ext)]
+            clean_name = clean_name.strip() or "boletim"
+
+            # Nome final com extensão correta
+            out_name2 = f"{clean_name}.{kind2}"
+            st.caption(f"📁 Será salvo em: `resultados/{out_name2}`")
+
+            if st.button("Gerar boletim", type="primary", use_container_width=True):
+                if not files:
+                    st.error("Nenhum arquivo agregado encontrado para gerar boletim.")
+                else:
+                    with st.spinner(f"Gerando boletim {kind2.upper()}..."):
+                        _generate_report(results_root, files, kind2, out_name2, str(sel_day))
 
 
 def _generate_report(
@@ -175,6 +199,8 @@ def _generate_report(
         # Garantir deep-mode ligado para relatório (não offline)
         os.environ["DOU_OFFLINE_REPORT"] = "0"
 
+        # Browser fallback desabilitado no UI Streamlit (Playwright sync_api
+        # não funciona bem dentro do event loop do Streamlit)
         report_from_aggregated(
             [str(p) for p in files],
             kind,
@@ -188,7 +214,7 @@ def _generate_report(
             fetch_parallel=8,
             fetch_timeout_sec=30,
             fetch_force_refresh=True,
-            fetch_browser_fallback=True,
+            fetch_browser_fallback=False,
             short_len_threshold=800,
         )
 
