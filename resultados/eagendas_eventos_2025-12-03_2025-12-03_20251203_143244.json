@@ -1,0 +1,175 @@
+{
+  "periodo": {
+    "inicio": "2025-12-03",
+    "fim": "2025-12-03"
+  },
+  "agentes": [
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "16352",
+        "nome": "GERALDO JOSE RODRIGUES ALCKMIN FILHO"
+      },
+      "eventos": {
+        "2025-12-03": [
+          {
+            "title": "Evento - Cerimônia de Início da Produção de Veículos Elétricos da General Motors no Brasil",
+            "time": "12",
+            "type": "Compromisso",
+            "details": ""
+          }
+        ]
+      }
+    },
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "15941",
+        "nome": "TATIANA LACERDA PRAZERES"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "15954",
+        "nome": "UALLACE MOREIRA LIMA"
+      },
+      "eventos": {
+        "2025-12-03": [
+          {
+            "title": "Evento - Acompanhar VPR e Ministro do MDIC, Geraldo Alckmin na Cerimônia de Início da Produção de Veículos Elétricos da General Motors no Brasil",
+            "time": "12",
+            "type": "Compromisso",
+            "details": ""
+          }
+        ]
+      }
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14641",
+        "nome": "FERNANDO HADDAD"
+      },
+      "eventos": {
+        "2025-12-03": [
+          {
+            "title": "Evento - Coletiva à imprensa - Ministérios da Saúde e da Fazenda apresentam medidas para enfrentar dependência em jogos e apostas",
+            "time": "10:30",
+            "type": "Compromisso",
+            "details": ""
+          },
+          {
+            "title": "Reunião - Edson Fachin, Ministro-Presidente do Supremo Tribunal Federal - STF",
+            "time": "20:30",
+            "type": "Compromisso",
+            "details": ""
+          }
+        ]
+      }
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14642",
+        "nome": "ROGERIO CERON DE OLIVEIRA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1415",
+        "nome": "Ministério de Portos e Aeroportos"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "25326",
+        "nome": "SILVIO SERAFIM COSTA FILHO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1415",
+        "nome": "Ministério de Portos e Aeroportos"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "44403",
+        "nome": "DANIEL RAMOS LONGO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "862",
+        "nome": "Ministério da Ciência, Tecnologia e Inovação"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14418",
+        "nome": "LUCIANA BARBOSA DE OLIVEIRA SANTOS"
+      },
+      "eventos": {
+        "2025-12-03": [
+          {
+            "title": "Evento - II Fórum Nacional de Tecnologia Assistiva.",
+            "time": "10",
+            "type": "Compromisso",
+            "details": ""
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "data_coleta": "2025-12-03T14:32:43.040350",
+    "total_agentes": 8,
+    "total_eventos": 5
+  }
+}

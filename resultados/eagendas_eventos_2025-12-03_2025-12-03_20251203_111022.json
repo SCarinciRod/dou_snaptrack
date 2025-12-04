@@ -1,0 +1,283 @@
+{
+  "periodo": {
+    "inicio": "2025-12-03",
+    "fim": "2025-12-03"
+  },
+  "agentes": [
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "16352",
+        "nome": "GERALDO JOSE RODRIGUES ALCKMIN FILHO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "15941",
+        "nome": "TATIANA LACERDA PRAZERES"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1399",
+        "nome": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "15954",
+        "nome": "UALLACE MOREIRA LIMA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14641",
+        "nome": "FERNANDO HADDAD"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14604",
+        "nome": "ROBINSON SAKIYAMA BARREIRINHAS"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14642",
+        "nome": "ROGERIO CERON DE OLIVEIRA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1384",
+        "nome": "Ministério da Fazenda"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "30805",
+        "nome": "TATIANA ROSITO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1401",
+        "nome": "Ministério do Planejamento e Orçamento"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "17565",
+        "nome": "SIMONE NASSAR TEBET ROCHA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1401",
+        "nome": "Ministério do Planejamento e Orçamento"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "39880",
+        "nome": "CLAYTON LUIZ MONTES"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "560",
+        "nome": "Ministério das Relações Exteriores"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "18342",
+        "nome": "MAURO LUIZ IECKER VIEIRA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "560",
+        "nome": "Ministério das Relações Exteriores"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "13260",
+        "nome": "MARCELO PAZ SARAIVA CÂMARA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "679",
+        "nome": "Ministério da Defesa"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "36030",
+        "nome": "HERALDO LUIZ RODRIGUES"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1415",
+        "nome": "Ministério de Portos e Aeroportos"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "25326",
+        "nome": "SILVIO SERAFIM COSTA FILHO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1415",
+        "nome": "Ministério de Portos e Aeroportos"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "44403",
+        "nome": "DANIEL RAMOS LONGO"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "862",
+        "nome": "Ministério da Ciência, Tecnologia e Inovação"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14418",
+        "nome": "LUCIANA BARBOSA DE OLIVEIRA SANTOS"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "1223",
+        "nome": "Agência Nacional de Aviação Civil"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "44907",
+        "nome": "TIAGO CHAGAS FAIERSTEIN"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "714",
+        "nome": "Ministério do Turismo"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "23660",
+        "nome": "CELSO SABINO DE OLIVEIRA"
+      },
+      "eventos": {}
+    },
+    {
+      "orgao": {
+        "id": "659",
+        "nome": "Casa Civil da Presidência da República"
+      },
+      "cargo": {
+        "id": "",
+        "nome": ""
+      },
+      "agente": {
+        "id": "14260",
+        "nome": "RUI COSTA"
+      },
+      "eventos": {}
+    }
+  ],
+  "metadata": {
+    "data_coleta": "2025-12-03T11:10:20.713946",
+    "total_agentes": 18,
+    "total_eventos": 0
+  }
+}

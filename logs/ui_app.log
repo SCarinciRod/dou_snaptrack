@@ -38,3 +38,56 @@ TypeError: _execute_script_and_read_result() got an unexpected keyword argument 
 2025-12-02 07:52:16,533 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Executando script async_playwright em subprocess...
 2025-12-02 07:52:36,918 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Subprocess retornou. returncode=0
 2025-12-02 07:52:36,918 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Sucesso! 3 opções retornadas
+2025-12-02 09:05:09,266 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-02 10:12:16,006 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Iniciando fetch N1 para secao=DO1 date=02-12-2025
+2025-12-02 10:12:16,007 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Executando script sync_playwright em subprocess...
+2025-12-02 10:12:39,677 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-02 10:12:39,678 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Sucesso! 31 opções retornadas
+2025-12-02 10:12:47,061 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Iniciando fetch N2 para secao=DO1 date=02-12-2025 n1=Ministério dos Direitos Humanos e da Cidadania
+2025-12-02 10:12:47,063 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Executando script async_playwright em subprocess...
+2025-12-02 10:13:10,694 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-02 10:13:10,694 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Sucesso! 2 opções retornadas
+2025-12-02 14:57:55,436 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Iniciando fetch N1 para secao=DO1 date=02-12-2025
+2025-12-02 14:57:55,438 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Executando script sync_playwright em subprocess...
+2025-12-02 14:58:23,405 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-02 14:58:23,406 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Sucesso! 31 opções retornadas
+2025-12-03 08:02:43,760 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:08:39,730 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:08:40,461 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:08:41,244 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:08:42,008 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:10:52,378 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:10:53,187 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 08:10:54,182 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 09:07:56,756 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Iniciando fetch N1 para secao=DO1 date=03-12-2025
+2025-12-03 09:07:56,758 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Executando script sync_playwright em subprocess...
+2025-12-03 09:08:19,846 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-03 09:08:19,847 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Sucesso! 30 opções retornadas
+2025-12-03 09:17:38,545 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Iniciando fetch N1 para secao=DO1 date=03-12-2025
+2025-12-03 09:17:38,545 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Executando script sync_playwright em subprocess...
+2025-12-03 09:17:53,247 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-03 09:17:53,247 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Sucesso! 30 opções retornadas
+2025-12-03 09:33:23,860 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 09:33:24,667 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 09:33:25,525 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:10:01,519 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Iniciando fetch N1 para secao=DO1 date=03-12-2025
+2025-12-03 10:10:01,520 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Executando script sync_playwright em subprocess...
+2025-12-03 10:10:13,575 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-03 10:10:13,575 INFO dou_snaptrack.ui.dou_fetch: [N1-SUBPROCESS] Sucesso! 30 opções retornadas
+2025-12-03 10:10:18,529 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Iniciando fetch N2 para secao=DO1 date=03-12-2025 n1=Ministério da Ciência, Tecnologia e Inovação
+2025-12-03 10:10:18,529 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Executando script async_playwright em subprocess...
+2025-12-03 10:10:32,365 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Subprocess retornou. returncode=0
+2025-12-03 10:10:32,365 INFO dou_snaptrack.ui.dou_fetch: [N2-SUBPROCESS] Sucesso! 1 opções retornadas
+2025-12-03 10:13:45,446 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:31,500 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:32,187 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:33,085 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:34,327 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:35,540 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:36,325 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:31:37,126 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:39:39,913 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:39:40,749 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:39:41,848 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:39:42,692 INFO dou_snaptrack.ui: UI cleanup completed on exit
+2025-12-03 10:39:43,424 INFO dou_snaptrack.ui: UI cleanup completed on exit

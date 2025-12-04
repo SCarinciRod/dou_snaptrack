@@ -2,3 +2,456 @@
 [2025-12-01 16:43:58] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-01_2025-12-01_20251201_164000.docx
 [2025-12-01 20:46:21] INFO dou_utils.eagendas_document: Gerando documento para 3 agentes com 5 eventos
 [2025-12-01 20:46:23] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-01_2025-12-05_20251201_204610.docx
+[2025-12-03 09:47:46] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=PermissionError(13, 'Access is denied', None, 5, None)>
+Traceback (most recent call last):
+  File "<string>", line 45, in <module>
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\sync_api\_context_manager.py", line 84, in start
+    return self.__enter__()
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_connection.py", line 263, in run_as_sync
+    await self.run()
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_connection.py", line 272, in run
+    await self._transport.connect()
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Users\RSCARINC\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py", line 400, in _make_subprocess_transport
+    transp = _WindowsSubprocessTransport(self, protocol, args, shell,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_subprocess.py", line 36, in __init__
+    self._start(args=args, shell=shell, stdin=stdin, stdout=stdout,
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py", line 878, in _start
+    self._proc = windows_utils.Popen(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_utils.py", line 153, in __init__
+    super().__init__(args, stdin=stdin_rfd, stdout=stdout_wfd,
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\subprocess.py", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+[2025-12-03 10:26:57] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=122 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-12-03 10:27:14] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=122 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-12-03 10:28:01] INFO dou_utils.content_fetcher: [ENRICH] updated 122/122 items (overwrite=True, min_len=None)
+[2025-12-03 10:28:05] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 122/122 items com 'texto'
+[2025-12-03 10:28:05] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PAUTA DE JULGAMENTO
+[2025-12-03 10:28:05] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 19808, primeiros 200: PAUTA DE JULGAMENTO Período da Reunião de 09 a 11/12/2025 Pauta ordinária de julgamento dos recursos da 2ª Turma Ordinária da 2ª Câmara da 3ª Seção, em sessões síncronas presenciais ou híbridas a sere
+[2025-12-03 10:28:16] INFO dou_utils.content_fetcher: [ENRICH] updated 122/122 items (overwrite=True, min_len=None)
+[2025-12-03 10:28:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 122/122 items com 'texto'
+[2025-12-03 10:28:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PAUTA DE JULGAMENTO
+[2025-12-03 10:28:17] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 19808, primeiros 200: PAUTA DE JULGAMENTO Período da Reunião de 09 a 11/12/2025 Pauta ordinária de julgamento dos recursos da 2ª Turma Ordinária da 2ª Câmara da 3ª Seção, em sessões síncronas presenciais ou híbridas a sere
+[2025-12-03 10:32:58] INFO dou_snaptrack.cli.reporting: [ENRICH] deep-mode STRICT: items=122 parallel=8 timeout=30s overwrite=True force_refresh=True browser_fallback=True short_len_threshold=800
+[2025-12-03 10:32:59] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:32:59] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:00] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:33:00] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:00] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:00] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:00] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:00] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser text fetch failed: 
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] INFO dou_utils.content_fetcher: [ENRICH] browser fetch failed: 
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:01] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:02] INFO dou_utils.content_fetcher: [ENRICH] updated 122/122 items (overwrite=True, min_len=None)
+[2025-12-03 10:33:02] INFO dou_snaptrack.cli.reporting: [DEBUG] Após enrich+limpeza: 122/122 items com 'texto'
+[2025-12-03 10:33:02] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] titulo: PAUTA DE JULGAMENTO
+[2025-12-03 10:33:02] INFO dou_snaptrack.cli.reporting: [DEBUG] Item[2] texto length: 19808, primeiros 200: PAUTA DE JULGAMENTO Período da Reunião de 09 a 11/12/2025 Pauta ordinária de julgamento dos recursos da 2ª Turma Ordinária da 2ª Câmara da 3ª Seção, em sessões síncronas presenciais ou híbridas a sere
+[2025-12-03 10:33:02] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 138, in fetch_html_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:33:04] ERROR asyncio: Future exception was never retrieved
+future: <Future finished exception=NotImplementedError()>
+Traceback (most recent call last):
+  File "C:\Projetos\src\dou_utils\content_fetcher.py", line 164, in fetch_text_browser
+    with sync_playwright() as p:
+         ^^^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 303, in run_as_sync
+    await self.run()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 312, in run
+    await self._transport.connect()
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Projetos\.venv\Lib\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 1743, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RSCARINC\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 524, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+[2025-12-03 10:39:39] INFO dou_snaptrack.ui: UI cleanup completed on exit
+[2025-12-03 10:39:40] INFO dou_snaptrack.ui: UI cleanup completed on exit
+[2025-12-03 10:39:41] INFO dou_snaptrack.ui: UI cleanup completed on exit
+[2025-12-03 10:39:42] INFO dou_snaptrack.ui: UI cleanup completed on exit
+[2025-12-03 10:39:43] INFO dou_snaptrack.ui: UI cleanup completed on exit
+[2025-12-03 11:15:18] INFO dou_utils.eagendas_document: Gerando documento para 1 agentes com 2 eventos
+[2025-12-03 11:15:19] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-03_2025-12-23_20251203_111501.docx
+[2025-12-03 14:33:02] INFO dou_utils.eagendas_document: Gerando documento para 4 agentes com 5 eventos
+[2025-12-03 14:33:03] INFO dou_utils.eagendas_document: ✅ Documento gerado: resultados\eagendas_eventos_2025-12-03_2025-12-03_20251203_143244.docx

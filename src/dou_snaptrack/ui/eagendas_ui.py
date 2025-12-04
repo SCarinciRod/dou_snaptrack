@@ -473,15 +473,23 @@ def render_execution_section(
     state = EAgendasSession.get_state()
     can_execute = len(state.saved_queries) > 0 and date_start <= date_end
 
-    # Configuração de workers paralelos
-    col_exec1, col_exec2 = st.columns([3, 1])
+    # Configuração de modo de execução
+    col_exec1, col_exec2, col_exec3 = st.columns([3, 1, 1])
+
     with col_exec2:
         max_workers = st.number_input(
-            "Workers paralelos",
+            "Workers",
             min_value=1,
             max_value=8,
             value=4,
-            help="Número de navegadores paralelos. 4 é um bom balanço entre velocidade e uso de memória."
+            help="Número de navegadores paralelos (modo paralelo). 4 é um bom balanço entre velocidade e memória."
+        )
+
+    with col_exec3:
+        use_sequential = st.checkbox(
+            "Sequencial",
+            value=False,
+            help="Usar modo sequencial (mais lento, mas pode ser útil em caso de problemas com o paralelo)"
         )
 
     with col_exec1:
@@ -496,13 +504,18 @@ def render_execution_section(
 
             progress_bar = st.progress(0.0)
             status_text = st.empty()
-            
-            # Mensagem informativa sobre paralelização
-            actual_workers = min(max_workers, num_queries)
-            if actual_workers > 1:
-                status_text.text(f"🚀 Iniciando coleta PARALELA ({actual_workers} workers, {num_queries} agentes)...")
+
+            # Determinar modo de execução e script
+            if use_sequential:
+                script_path = Path(__file__).parent / "eagendas_collect_subprocess.py"
+                status_text.text(f"🔄 Iniciando coleta SEQUENCIAL ({num_queries} agentes)...")
             else:
-                status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
+                script_path = Path(__file__).parent / "eagendas_collect_parallel.py"
+                actual_workers = min(max_workers, num_queries)
+                if actual_workers > 1:
+                    status_text.text(f"🚀 Iniciando coleta PARALELA ({actual_workers} workers, {num_queries} agentes)...")
+                else:
+                    status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
 
             try:
                 subprocess_input = {
@@ -510,9 +523,6 @@ def render_execution_section(
                     "periodo": periodo_iso,
                     "max_workers": max_workers
                 }
-
-                # Usar versão paralela do subprocess
-                script_path = Path(__file__).parent / "eagendas_collect_parallel.py"
 
             progress_bar.progress(0.1)
             status_text.text("🌐 Navegando no E-Agendas...")
