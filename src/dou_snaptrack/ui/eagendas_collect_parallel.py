@@ -75,7 +75,10 @@ async def collect_for_agent(
     try:
         # Sempre navegar para página inicial (cada coleta é independente)
         print(f"{prefix} Navegando para E-Agendas...", file=sys.stderr)
-        await page.goto("https://eagendas.cgu.gov.br/", timeout=30000, wait_until="networkidle")
+        await page.goto("https://eagendas.cgu.gov.br/", timeout=30000, wait_until="domcontentloaded")
+        
+        # Aguardar página estabilizar (Angular carrega)
+        await page.wait_for_timeout(1000)
 
         # Espera condicional para AngularJS
         with contextlib.suppress(Exception):
@@ -108,7 +111,8 @@ async def collect_for_agent(
 
         # CRÍTICO: Aguardar Angular processar callback onUpdateOrgao
         # Não usar wait_for_function - interfere com digest cycle do Angular
-        await page.wait_for_timeout(2500)
+        # RESTAURADO: 2000ms necessário para Angular não perder agentes
+        await page.wait_for_timeout(2000)
 
         # Selecionar agente via JavaScript API
         print(f"{prefix} Selecionando agente: {agente_label[:30]}...", file=sys.stderr)
@@ -126,7 +130,8 @@ async def collect_for_agent(
 
         # CRÍTICO: Aguardar Angular processar callback onUpdateServidor
         # Este callback preenche automaticamente o campo cargo
-        await page.wait_for_timeout(2500)
+        # RESTAURADO: 2000ms necessário para cargo ser preenchido automaticamente
+        await page.wait_for_timeout(2000)
 
         # Remover cookie bar se presente
         await page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
@@ -164,13 +169,13 @@ async def collect_for_agent(
         # Usar locator.click() pode travar em "waiting for scheduled navigations"
         print(f"{prefix} Clicando em 'Mostrar agenda'...", file=sys.stderr)
         try:
-            async with page.expect_navigation(wait_until='networkidle', timeout=120000):
+            async with page.expect_navigation(wait_until='domcontentloaded', timeout=60000):
                 await page.evaluate("""() => document.querySelector('button[ng-click*="submit"]').click()""")
             print(f"{prefix} ✓ Navegação completa", file=sys.stderr)
         except Exception as e:
             print(f"{prefix} Navegação falhou ({e}), tentando fallback...", file=sys.stderr)
             # Fallback: espera simples
-            await page.wait_for_timeout(15000)
+            await page.wait_for_timeout(10000)
 
         # Verificar se calendário apareceu
         calendar_found = await page.evaluate("() => !!document.querySelector('.fc, #calendar, #divcalendar')")

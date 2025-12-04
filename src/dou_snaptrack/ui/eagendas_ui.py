@@ -291,7 +291,7 @@ def render_query_manager() -> None:
     st.caption("Salve combinações de servidores para executar múltiplas pesquisas")
 
     state = EAgendasSession.get_state()
-    col_add, col_clear = st.columns([3, 1])
+    col_add, col_add_all, col_clear = st.columns([2, 2, 1])
 
     with col_add:
         # Modelo simplificado: apenas órgão (n1) e agente (n2)
@@ -299,7 +299,7 @@ def render_query_manager() -> None:
             state.current_n1,
             state.current_n2,
         ])
-        if st.button("+ Adicionar Consulta Atual", disabled=not can_add, use_container_width=True):
+        if st.button("+ Adicionar Agente", disabled=not can_add, use_container_width=True):
             n1_label = st.session_state.get("eagendas_current_n1_label", "")
             n2_label = st.session_state.get("eagendas_current_n2_label", "")
 
@@ -316,6 +316,45 @@ def render_query_manager() -> None:
             }
             EAgendasSession.add_query(query)
             st.success("✅ Consulta adicionada!")
+            st.rerun()
+
+    with col_add_all:
+        # Botão para adicionar TODOS os agentes do órgão atual de uma vez
+        n2_options = st.session_state.get("eagendas_n2_options", [])
+        n1_label = st.session_state.get("eagendas_current_n1_label", "")
+        n1_value = state.current_n1
+        can_add_all = n1_value and len(n2_options) > 0
+
+        if st.button(f"++ Todos ({len(n2_options)})", disabled=not can_add_all, use_container_width=True,
+                     help="Adiciona TODOS os agentes do órgão selecionado de uma vez"):
+            added_count = 0
+            # Obter IDs já salvos para evitar duplicatas
+            existing_ids = {q.get("n3_value") for q in state.saved_queries}
+            
+            for option in n2_options:
+                agente_value = option.get("value", "")
+                agente_label = option.get("label", "")
+                
+                # Pular se já existe
+                if agente_value in existing_ids:
+                    continue
+                
+                query = {
+                    "n1_label": n1_label,
+                    "n1_value": n1_value,
+                    "n2_label": "",
+                    "n2_value": "",
+                    "n3_label": agente_label,
+                    "n3_value": agente_value,
+                    "person_label": f"{agente_label} ({n1_label})",
+                }
+                EAgendasSession.add_query(query)
+                added_count += 1
+            
+            if added_count > 0:
+                st.success(f"✅ {added_count} agentes adicionados!")
+            else:
+                st.info("ℹ️ Todos os agentes já estão na lista")
             st.rerun()
 
     with col_clear:
@@ -524,97 +563,97 @@ def render_execution_section(
                     "max_workers": max_workers
                 }
 
-            progress_bar.progress(0.1)
-            status_text.text("🌐 Navegando no E-Agendas...")
+                progress_bar.progress(0.1)
+                status_text.text("🌐 Navegando no E-Agendas...")
 
-            collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "600"))
-            logger.debug("Executando coleta E-Agendas subprocess %s (timeout=%s)", script_path, collect_timeout)
+                collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "600"))
+                logger.debug("Executando coleta E-Agendas subprocess %s (timeout=%s)", script_path, collect_timeout)
 
-            data, stderr = execute_script_func(
-                script_path=str(script_path),
-                input_text=json.dumps(subprocess_input),
-                timeout=collect_timeout
-            )
+                data, stderr = execute_script_func(
+                    script_path=str(script_path),
+                    input_text=json.dumps(subprocess_input),
+                    timeout=collect_timeout
+                )
 
-            if not data:
-                error_msg = stderr or "Erro ao executar coleta (sem saída JSON)"
-                logger.error("Coleta E-Agendas falhou: %s stderr_len=%s", error_msg, len(stderr or ""))
+                if not data:
+                    error_msg = stderr or "Erro ao executar coleta (sem saída JSON)"
+                    logger.error("Coleta E-Agendas falhou: %s stderr_len=%s", error_msg, len(stderr or ""))
+                    progress_bar.empty()
+                    status_text.empty()
+                    st.error(f"❌ Erro durante coleta: {error_msg}")
+                    if stderr:
+                        with st.expander("🔍 Logs do processo"):
+                            st.code(stderr)
+                else:
+                    response = data
+                    if not isinstance(response, dict):
+                        progress_bar.empty()
+                        status_text.empty()
+                        st.error("❌ Resposta inválida do subprocess")
+                    elif not response.get("success"):
+                        progress_bar.empty()
+                        status_text.empty()
+                        st.error(f"❌ Coleta falhou: {response.get('error', 'Erro desconhecido')}")
+                        if "traceback" in response:
+                            with st.expander("🔍 Traceback"):
+                                st.code(response["traceback"])
+                    else:
+                        events_data = response.get("data", {})
+                        agentes_data = events_data.get("agentes", [])
+                        metadata = events_data.get("metadata", {})
+                        total_eventos = metadata.get("total_eventos", 0)
+                        tempo_execucao = metadata.get("tempo_execucao_segundos", 0)
+                        workers_usados = metadata.get("workers_utilizados", 1)
+                        parallel_mode = metadata.get("parallel_mode", False)
+
+                        progress_bar.progress(1.0)
+                        status_text.text("✅ Coleta concluída!")
+
+                        timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
+                        json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
+                        json_path.parent.mkdir(parents=True, exist_ok=True)
+
+                        with open(json_path, "w", encoding="utf-8") as f:
+                            json.dump(events_data, f, indent=2, ensure_ascii=False)
+
+                        # Mensagem de sucesso com info de performance
+                        if parallel_mode:
+                            st.success(f"✅ Coleta PARALELA concluída! {len(agentes_data)} agentes em {tempo_execucao:.1f}s ({workers_usados} workers)")
+                        else:
+                            st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
+                        
+                        # Métricas expandidas
+                        col_r1, col_r2, col_r3, col_r4 = st.columns(4)
+                        with col_r1:
+                            st.metric("Agentes", len(agentes_data))
+                        with col_r2:
+                            st.metric("Eventos", total_eventos)
+                        with col_r3:
+                            st.metric("Período", f"{(date_end - date_start).days + 1} dias")
+                        with col_r4:
+                            if tempo_execucao > 0:
+                                st.metric("Tempo", f"{tempo_execucao:.1f}s")
+                            else:
+                                st.metric("Workers", workers_usados)
+
+                        st.info(f"📁 Dados salvos em: `{json_path.name}`")
+                        st.session_state["last_eagendas_json"] = str(json_path)
+
+                        if stderr:
+                            with st.expander("📋 Logs da coleta"):
+                                st.code(stderr)
+
+            except subprocess.TimeoutExpired:
                 progress_bar.empty()
                 status_text.empty()
-                st.error(f"❌ Erro durante coleta: {error_msg}")
-                if stderr:
-                    with st.expander("🔍 Logs do processo"):
-                        st.code(stderr)
-            else:
-                response = data
-                if not isinstance(response, dict):
-                    progress_bar.empty()
-                    status_text.empty()
-                    st.error("❌ Resposta inválida do subprocess")
-                elif not response.get("success"):
-                    progress_bar.empty()
-                    status_text.empty()
-                    st.error(f"❌ Coleta falhou: {response.get('error', 'Erro desconhecido')}")
-                    if "traceback" in response:
-                        with st.expander("🔍 Traceback"):
-                            st.code(response["traceback"])
-                else:
-                    events_data = response.get("data", {})
-                    agentes_data = events_data.get("agentes", [])
-                    metadata = events_data.get("metadata", {})
-                    total_eventos = metadata.get("total_eventos", 0)
-                    tempo_execucao = metadata.get("tempo_execucao_segundos", 0)
-                    workers_usados = metadata.get("workers_utilizados", 1)
-                    parallel_mode = metadata.get("parallel_mode", False)
-
-                    progress_bar.progress(1.0)
-                    status_text.text("✅ Coleta concluída!")
-
-                    timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
-                    json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
-                    json_path.parent.mkdir(parents=True, exist_ok=True)
-
-                    with open(json_path, "w", encoding="utf-8") as f:
-                        json.dump(events_data, f, indent=2, ensure_ascii=False)
-
-                    # Mensagem de sucesso com info de performance
-                    if parallel_mode:
-                        st.success(f"✅ Coleta PARALELA concluída! {len(agentes_data)} agentes em {tempo_execucao:.1f}s ({workers_usados} workers)")
-                    else:
-                        st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
-                    
-                    # Métricas expandidas
-                    col_r1, col_r2, col_r3, col_r4 = st.columns(4)
-                    with col_r1:
-                        st.metric("Agentes", len(agentes_data))
-                    with col_r2:
-                        st.metric("Eventos", total_eventos)
-                    with col_r3:
-                        st.metric("Período", f"{(date_end - date_start).days + 1} dias")
-                    with col_r4:
-                        if tempo_execucao > 0:
-                            st.metric("Tempo", f"{tempo_execucao:.1f}s")
-                        else:
-                            st.metric("Workers", workers_usados)
-
-                    st.info(f"📁 Dados salvos em: `{json_path.name}`")
-                    st.session_state["last_eagendas_json"] = str(json_path)
-
-                    if stderr:
-                        with st.expander("📋 Logs da coleta"):
-                            st.code(stderr)
-
-        except subprocess.TimeoutExpired:
-            progress_bar.empty()
-            status_text.empty()
-            st.error("❌ Timeout: A coleta demorou mais de 5 minutos")
-        except Exception as e:
-            progress_bar.empty()
-            status_text.empty()
-            st.error(f"❌ Erro durante execução: {e}")
-            import traceback
-            with st.expander("🔍 Detalhes do erro"):
-                st.code(traceback.format_exc())
+                st.error("❌ Timeout: A coleta demorou mais de 5 minutos")
+            except Exception as e:
+                progress_bar.empty()
+                status_text.empty()
+                st.error(f"❌ Erro durante execução: {e}")
+                import traceback
+                with st.expander("🔍 Detalhes do erro"):
+                    st.code(traceback.format_exc())
 
     if not can_execute:
         if len(state.saved_queries) == 0:

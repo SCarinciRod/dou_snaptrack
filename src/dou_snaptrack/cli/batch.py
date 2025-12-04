@@ -439,6 +439,144 @@ def _init_worker(log_file: str | None = None) -> None:
         pass
 
 
+def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
+    """
+    Executa o collector async via subprocess (para evitar conflitos de event loop).
+    
+    Similar ao padrão usado em eagendas_collect_parallel.
+    """
+    import tempfile
+    
+    try:
+        # Escrever input em arquivo temporário
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
+            json.dump(async_input, f, ensure_ascii=False)
+            input_path = f.name
+        
+        # Escrever resultado em arquivo temporário
+        result_path = input_path.replace('.json', '_result.json')
+        
+        # Encontrar script
+        script_path = Path(__file__).parent.parent / "ui" / "dou_collect_parallel.py"
+        if not script_path.exists():
+            _log(f"[FAST ASYNC SUBPROCESS] Script não encontrado: {script_path}")
+            return {"success": False, "error": f"Script não encontrado: {script_path}"}
+        
+        # Executar subprocess
+        env = os.environ.copy()
+        env["INPUT_JSON_PATH"] = input_path
+        env["RESULT_JSON_PATH"] = result_path
+        env["PYTHONIOENCODING"] = "utf-8"
+        
+        proc = subprocess.run(
+            [sys.executable, str(script_path)],
+            env=env,
+            capture_output=True,
+            timeout=600,  # 10 min timeout
+            text=True
+        )
+        
+        # Ler resultado
+        if Path(result_path).exists():
+            result = json.loads(Path(result_path).read_text(encoding='utf-8'))
+        else:
+            # Tentar parsear stdout
+            try:
+                result = json.loads(proc.stdout)
+            except Exception:
+                result = {"success": False, "error": proc.stderr or "No output"}
+        
+        # Cleanup
+        try:
+            Path(input_path).unlink(missing_ok=True)
+            Path(result_path).unlink(missing_ok=True)
+        except Exception:
+            pass
+        
+        return result
+        
+    except subprocess.TimeoutExpired:
+        return {"success": False, "error": "Subprocess timeout (10 min)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
+    """Agregação de outputs por plano (extraída para evitar duplicação)."""
+    try:
+        plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
+        if not plan_name:
+            return
+        
+        from collections import defaultdict
+        
+        def _aggregate_outputs_by_date(paths: list[str], out_dir_p: Path, plan: str) -> list[str]:
+            agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
+            secao_any = ""
+            for pth in paths or []:
+                try:
+                    data = json.loads(Path(pth).read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                date = str(data.get("data") or "")
+                secao = str(data.get("secao") or "")
+                if not agg[date]["data"]:
+                    agg[date]["data"] = date
+                if not agg[date]["secao"]:
+                    agg[date]["secao"] = secao
+                if not secao_any and secao:
+                    secao_any = secao
+                items = data.get("itens", []) or []
+                # Normalize detail_url (absolute)
+                for it in items:
+                    try:
+                        durl = it.get("detail_url") or ""
+                        if not durl:
+                            link = it.get("link") or ""
+                            if link:
+                                if link.startswith("http"):
+                                    durl = link
+                                elif link.startswith("/"):
+                                    durl = f"https://www.in.gov.br{link}"
+                        if durl:
+                            it["detail_url"] = durl
+                    except Exception:
+                        pass
+                agg[date]["itens"].extend(items)
+            written: list[str] = []
+            secao_label = (secao_any or "DO").strip()
+            for date, payload in agg.items():
+                payload["total"] = len(payload.get("itens", []))
+                safe_plan = sanitize_filename(plan)
+                date_lab = (date or "").replace("/", "-")
+                out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
+                out_path_f = out_dir_p / out_name
+                out_path_f.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                written.append(str(out_path_f))
+            return written
+
+        prev_outputs = list(report.get("outputs", []))
+        agg_files = _aggregate_outputs_by_date(prev_outputs, out_dir, plan_name)
+        if agg_files:
+            deleted = []
+            for pth in prev_outputs:
+                try:
+                    Path(pth).unlink(missing_ok=True)
+                    deleted.append(pth)
+                except Exception:
+                    pass
+            report["deleted_outputs"] = deleted
+            report["outputs"] = []
+            report["aggregated"] = agg_files
+            report["aggregated_only"] = True
+            # Re-write report with aggregation info
+            rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
+            rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            _log(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
+    except Exception as e:
+        _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")
+
+
 def run_batch(playwright, args, summary: SummaryConfig) -> None:
     # Simple helper to mirror logs into provided log file (if any)
     log_file = getattr(args, "log_file", None)
@@ -467,6 +605,71 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     report = {"total_jobs": len(jobs), "ok": 0, "fail": 0, "items_total": 0, "outputs": []}
 
     defaults = cfg.get("defaults") or {}
+
+    # ============================================================================
+    # FAST ASYNC MODE: Single-browser async collector (2x faster than multi-browser)
+    # Enabled by default, disable with DOU_FAST_ASYNC=0 or --no-fast-async
+    # ============================================================================
+    use_fast_async = os.environ.get("DOU_FAST_ASYNC", "1").strip().lower() in ("1", "true", "yes")
+    if hasattr(args, "no_fast_async") and args.no_fast_async:
+        use_fast_async = False
+    
+    if use_fast_async:
+        _log("[FAST ASYNC] Tentando modo browser único (2x mais rápido)...")
+        try:
+            # Preparar input para o collector async
+            async_input = {
+                "jobs": jobs,
+                "defaults": defaults,
+                "out_dir": str(out_dir),
+                "out_pattern": out_pattern,
+                "max_workers": int(os.environ.get("DOU_MAX_WORKERS", "4") or "4"),
+            }
+            
+            # Tentar método direto primeiro
+            async_result = None
+            try:
+                from ..ui.dou_collect_parallel import run_parallel_batch
+                async_result = run_parallel_batch(async_input)
+            except RuntimeError as e:
+                if "event loop" in str(e).lower():
+                    # Há um event loop rodando, usar subprocess
+                    _log("[FAST ASYNC] Event loop detectado, usando subprocess...")
+                    async_result = _run_fast_async_subprocess(async_input, _log)
+                else:
+                    raise
+            
+            if async_result and (async_result.get("ok", 0) > 0 or async_result.get("success")):
+                # Sucesso! Usar resultado do async
+                report["ok"] = async_result.get("ok", 0)
+                report["fail"] = async_result.get("fail", 0)
+                report["items_total"] = async_result.get("items_total", 0)
+                report["outputs"] = async_result.get("outputs", [])
+                report["metrics"] = async_result.get("metrics", {})
+                report["mode"] = "fast_async"
+                
+                elapsed = async_result.get("elapsed", 0)
+                _log(f"[FAST ASYNC] ✓ Concluído em {elapsed:.1f}s — ok={report['ok']} fail={report['fail']} items={report['items_total']}")
+                
+                # Pular para agregação e relatório final
+                # (código duplicado do final de run_batch para evitar refatoração grande)
+                rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
+                rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+                _log(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
+                
+                # Agregação por plano (se configurado)
+                _run_plan_aggregation(cfg, report, out_dir, _log)
+                return
+            else:
+                error_msg = async_result.get('error', 'unknown') if async_result else 'no result'
+                _log(f"[FAST ASYNC] Falhou ({error_msg}), usando fallback...")
+        except Exception as e:
+            _log(f"[FAST ASYNC] Erro ao importar/executar: {e}, usando fallback...")
+    
+    # ============================================================================
+    # FALLBACK: Método original multi-browser (mais lento mas robusto)
+    # ============================================================================
+    _log("[FALLBACK] Usando método multi-browser original...")
 
     def _get(job, key, default_key=None, default_value=None):
         if default_key is None:
@@ -522,13 +725,20 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         groups[(d, s)].append(i)
     min_bucket = int(os.environ.get("DOU_BUCKET_SIZE_MIN", "2") or "2")
     min_bucket = max(1, min_bucket)
+    # DOU server throttles when too many concurrent connections are made.
+    # Empirical testing shows 4 workers is optimal; more workers cause longer nav times.
+    # Allow override via environment variable for experimentation.
+    max_effective_workers = int(os.environ.get("DOU_MAX_WORKERS", "4") or "4")
+    effective_parallel = min(parallel, max_effective_workers)
     # Strategy: prefer keeping (date,secao) groups intact, but if there is only one group with many jobs,
-    # split it into a few buckets to retain some parallelism while reusing pages within each bucket.
+    # split it into buckets to maximize parallelism while keeping reasonable bucket sizes.
     unique_groups = sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True)
     if len(unique_groups) == 1:
         only_group_idxs = unique_groups[0][1]
-        # Choose 2-3 buckets depending on job count and available parallelism
-        bucket_count = min(parallel, max(1, min(3, math.ceil(len(only_group_idxs) / max(2, min_bucket)))))
+        # OPTIMIZED: Allow up to `effective_parallel` buckets for better parallelism
+        # Each bucket should have at least `min_bucket` jobs for page reuse efficiency
+        ideal_buckets = math.ceil(len(only_group_idxs) / max(2, min_bucket))
+        bucket_count = min(effective_parallel, max(1, ideal_buckets))
         desired_size = max(1, math.ceil(len(only_group_idxs) / bucket_count))
         buckets = [
             only_group_idxs[start:start + desired_size]
@@ -536,11 +746,11 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         ]
     else:
         # Multiple groups: keep each group in its own bucket when possible, otherwise chunk large groups
-        if len(unique_groups) <= max(1, parallel):
-            buckets = [idxs for (_, idxs) in unique_groups[:max(1, parallel)]]
+        if len(unique_groups) <= max(1, effective_parallel):
+            buckets = [idxs for (_, idxs) in unique_groups[:max(1, effective_parallel)]]
             desired_size = max(min_bucket, max((len(b) for b in buckets), default=1))
         else:
-            bucket_count = max(1, min(parallel, math.ceil(len(jobs) / max(1, min_bucket))))
+            bucket_count = max(1, min(effective_parallel, math.ceil(len(jobs) / max(1, min_bucket))))
             desired_size = max(min_bucket, math.ceil(len(jobs) / bucket_count))
             pseudo_groups: list[list[int]] = [
                 idxs[start:start + desired_size]
@@ -551,7 +761,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
             for gi, chunk in enumerate(pseudo_groups):
                 buckets[gi % bucket_count].extend(chunk)
 
-    _log(f"[Parent] total_jobs={len(jobs)} parallel={parallel} reuse_page={reuse_page}")
+    _log(f"[Parent] total_jobs={len(jobs)} parallel={parallel} (effective={effective_parallel}) reuse_page={reuse_page}")
     _log(f"[Parent] buckets={len(buckets)} desired_size={desired_size}")
     try:
         if pool_pref == "subprocess" and parallel > 1:
