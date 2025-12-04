@@ -473,25 +473,46 @@ def render_execution_section(
     state = EAgendasSession.get_state()
     can_execute = len(state.saved_queries) > 0 and date_start <= date_end
 
-    if st.button("🚀 Executar Todas as Consultas", disabled=not can_execute, use_container_width=True):
-        periodo_iso = {
-            "inicio": date_start.strftime("%Y-%m-%d"),
-            "fim": date_end.strftime("%Y-%m-%d")
-        }
+    # Configuração de workers paralelos
+    col_exec1, col_exec2 = st.columns([3, 1])
+    with col_exec2:
+        max_workers = st.number_input(
+            "Workers paralelos",
+            min_value=1,
+            max_value=8,
+            value=4,
+            help="Número de navegadores paralelos. 4 é um bom balanço entre velocidade e uso de memória."
+        )
 
-        queries = state.saved_queries
-
-        progress_bar = st.progress(0.0)
-        status_text = st.empty()
-        status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
-
-        try:
-            subprocess_input = {
-                "queries": queries,
-                "periodo": periodo_iso
+    with col_exec1:
+        if st.button("🚀 Executar Todas as Consultas", disabled=not can_execute, use_container_width=True):
+            periodo_iso = {
+                "inicio": date_start.strftime("%Y-%m-%d"),
+                "fim": date_end.strftime("%Y-%m-%d")
             }
 
-            script_path = Path(__file__).parent / "eagendas_collect_subprocess.py"
+            queries = state.saved_queries
+            num_queries = len(queries)
+
+            progress_bar = st.progress(0.0)
+            status_text = st.empty()
+            
+            # Mensagem informativa sobre paralelização
+            actual_workers = min(max_workers, num_queries)
+            if actual_workers > 1:
+                status_text.text(f"🚀 Iniciando coleta PARALELA ({actual_workers} workers, {num_queries} agentes)...")
+            else:
+                status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
+
+            try:
+                subprocess_input = {
+                    "queries": queries,
+                    "periodo": periodo_iso,
+                    "max_workers": max_workers
+                }
+
+                # Usar versão paralela do subprocess
+                script_path = Path(__file__).parent / "eagendas_collect_parallel.py"
 
             progress_bar.progress(0.1)
             status_text.text("🌐 Navegando no E-Agendas...")
@@ -530,7 +551,11 @@ def render_execution_section(
                 else:
                     events_data = response.get("data", {})
                     agentes_data = events_data.get("agentes", [])
-                    total_eventos = events_data.get("metadata", {}).get("total_eventos", 0)
+                    metadata = events_data.get("metadata", {})
+                    total_eventos = metadata.get("total_eventos", 0)
+                    tempo_execucao = metadata.get("tempo_execucao_segundos", 0)
+                    workers_usados = metadata.get("workers_utilizados", 1)
+                    parallel_mode = metadata.get("parallel_mode", False)
 
                     progress_bar.progress(1.0)
                     status_text.text("✅ Coleta concluída!")
@@ -542,14 +567,25 @@ def render_execution_section(
                     with open(json_path, "w", encoding="utf-8") as f:
                         json.dump(events_data, f, indent=2, ensure_ascii=False)
 
-                    st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
-                    col_r1, col_r2, col_r3 = st.columns(3)
+                    # Mensagem de sucesso com info de performance
+                    if parallel_mode:
+                        st.success(f"✅ Coleta PARALELA concluída! {len(agentes_data)} agentes em {tempo_execucao:.1f}s ({workers_usados} workers)")
+                    else:
+                        st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
+                    
+                    # Métricas expandidas
+                    col_r1, col_r2, col_r3, col_r4 = st.columns(4)
                     with col_r1:
                         st.metric("Agentes", len(agentes_data))
                     with col_r2:
                         st.metric("Eventos", total_eventos)
                     with col_r3:
                         st.metric("Período", f"{(date_end - date_start).days + 1} dias")
+                    with col_r4:
+                        if tempo_execucao > 0:
+                            st.metric("Tempo", f"{tempo_execucao:.1f}s")
+                        else:
+                            st.metric("Workers", workers_usados)
 
                     st.info(f"📁 Dados salvos em: `{json_path.name}`")
                     st.session_state["last_eagendas_json"] = str(json_path)

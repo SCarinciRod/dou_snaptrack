@@ -386,19 +386,18 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     DD_CARGO_ID = "filtro_cargo"
     DD_AGENTE_ID = "filtro_servidor"
 
-    # NOTA: E-Agendas detecta headless e bloqueia. Sempre usar headless=False + --start-minimized
-    LAUNCH_ARGS = ['--start-minimized', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-    # Se headful explícito, não minimizar
-    if headful:
-        LAUNCH_ARGS = ['--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
+    # Usar headless=True por padrao (mais rapido e sem janela visivel)
+    # E-Agendas NAO detecta headless, testado com sucesso
+    LAUNCH_ARGS = ['--disable-blink-features=AutomationControlled', '--ignore-certificate-errors', '--disable-dev-shm-usage']
 
-    # Launch browser
+    # Launch browser (headless por padrao, headful apenas se explicitamente solicitado)
     browser = None
+    use_headless = not headful
     try:
-        browser = await p.chromium.launch(channel="chrome", headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
+        browser = await p.chromium.launch(channel="chrome", headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
     except Exception:
         try:
-            browser = await p.chromium.launch(channel="msedge", headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
+            browser = await p.chromium.launch(channel="msedge", headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
         except Exception:
             exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
             if not exe:
@@ -412,7 +411,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
                         exe = c
                         break
             if exe and Path(exe).exists():
-                browser = await p.chromium.launch(executable_path=exe, headless=False, slow_mo=slowmo, args=LAUNCH_ARGS)
+                browser = await p.chromium.launch(executable_path=exe, headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
 
     if not browser:
         msg = (

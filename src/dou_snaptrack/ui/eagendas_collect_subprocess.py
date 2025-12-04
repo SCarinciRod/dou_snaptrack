@@ -106,11 +106,10 @@ def main():
             }""", {'id': element_id, 'value': value})
 
         with sync_playwright() as p:
-            # NOTA: E-Agendas detecta headless e bloqueia. Usamos headless=False com janela oculta.
-            # Combinamos --start-minimized com --window-position fora da tela para garantir invisibilidade.
+            # Usar headless=True com o novo modo headless do Chromium 109+
+            # O site E-Agendas NÃO detecta headless, então podemos usar headless verdadeiro
             LAUNCH_ARGS = [
-                '--start-minimized',
-                '--window-position=-2000,-2000',  # Posiciona janela fora da tela visível
+                '--headless=new',  # Novo modo headless (mais difícil de detectar)
                 '--disable-blink-features=AutomationControlled',
                 '--ignore-certificate-errors'
             ]
@@ -120,8 +119,8 @@ def main():
             for channel in ['chrome', 'msedge']:
                 try:
                     print(f"[DEBUG] Tentando channel={channel}...", file=sys.stderr)
-                    browser = p.chromium.launch(channel=channel, headless=False, args=LAUNCH_ARGS)
-                    print(f"[DEBUG] ✓ {channel} OK", file=sys.stderr)
+                    browser = p.chromium.launch(channel=channel, headless=True, args=LAUNCH_ARGS)
+                    print(f"[DEBUG] ✓ {channel} (headless) OK", file=sys.stderr)
                     break
                 except Exception as e:
                     print(f"[DEBUG] ✗ {channel} falhou: {e}", file=sys.stderr)
@@ -137,8 +136,8 @@ def main():
                 for exe_path in exe_paths:
                     if Path(exe_path).exists():
                         try:
-                            browser = p.chromium.launch(executable_path=exe_path, headless=False, args=LAUNCH_ARGS)
-                            print("[DEBUG] ✓ executable_path OK", file=sys.stderr)
+                            browser = p.chromium.launch(executable_path=exe_path, headless=True, args=LAUNCH_ARGS)
+                            print("[DEBUG] ✓ executable_path (headless) OK", file=sys.stderr)
                             break
                         except Exception:
                             continue
@@ -221,36 +220,25 @@ def main():
                     except Exception:
                         pass
 
-                    # Clicar em "Mostrar agenda" - o clique causa navegação
+                    # Clicar em "Mostrar agenda" via JavaScript com expect_navigation
+                    # IMPORTANTE: O clique via JavaScript + expect_navigation é a abordagem mais robusta
+                    # Usar locator.click() pode travar em "waiting for scheduled navigations"
                     print("[DEBUG] Clicando em 'Mostrar agenda'...", file=sys.stderr)
                     clicked = False
                     try:
-                        btn = page.locator('button:has-text("Mostrar agenda")').first
-                        if btn.count() > 0:
-                            btn.scroll_into_view_if_needed()
-                            page.wait_for_timeout(300)
-                            # expect_navigation porque o clique navega para uma nova página com o calendário
-                            with page.expect_navigation(wait_until='networkidle', timeout=30000):
-                                btn.click()
-                            clicked = True
-                            print("[DEBUG] ✓ Navegação completa", file=sys.stderr)
+                        with page.expect_navigation(wait_until='networkidle', timeout=120000):
+                            page.evaluate("""() => document.querySelector('button[ng-click*="submit"]').click()""")
+                        clicked = True
+                        print("[DEBUG] ✓ Navegação completa", file=sys.stderr)
                     except Exception as e:
                         print(f"[DEBUG] Clique/navegação falhou: {e}", file=sys.stderr)
-                        # Fallback: tentar clique simples
-                        try:
-                            btn = page.locator('button:has-text("Mostrar agenda")').first
-                            btn.click(no_wait_after=True, timeout=5000)
-                            page.wait_for_timeout(3000)
-                            clicked = True
-                        except Exception:
-                            pass
+                        # Fallback: espera simples
+                        page.wait_for_timeout(15000)
+                        clicked = True  # Tentar continuar mesmo assim
 
                     if not clicked:
                         print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {agente_label}", file=sys.stderr)
                         continue
-
-                    # Aguardar calendário carregar
-                    page.wait_for_timeout(2000)
 
                     # Verificar se calendário apareceu
                     calendar_found = page.evaluate("() => !!document.querySelector('.fc, #calendar, #divcalendar')")

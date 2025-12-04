@@ -117,12 +117,12 @@ def main():
     _timings = {}
     _start_total = _t.perf_counter()
     
-    # E-Agendas detecta headless. Usamos headless=False + --start-minimized
-    # Tambem negamos permissao de geolocalizacao para evitar popup bloqueante
+    # Usar headless=True (mais rapido e sem janela visivel)
+    # E-Agendas NAO detecta headless, testado com sucesso
     LAUNCH_ARGS = [
-        '--start-minimized',
         '--disable-blink-features=AutomationControlled',
         '--ignore-certificate-errors',
+        '--disable-dev-shm-usage',
     ]
     
     with sync_playwright() as p:
@@ -132,9 +132,9 @@ def main():
         # Tentar Chrome primeiro, depois Edge
         for channel in ['chrome', 'msedge']:
             try:
-                print(f'[DEBUG] Tentando channel={channel}...', file=sys.stderr, flush=True)
-                browser = p.chromium.launch(channel=channel, headless=False, args=LAUNCH_ARGS)
-                print(f'[DEBUG] OK {channel}', file=sys.stderr, flush=True)
+                print(f'[DEBUG] Tentando channel={channel} (headless)...', file=sys.stderr, flush=True)
+                browser = p.chromium.launch(channel=channel, headless=True, args=LAUNCH_ARGS)
+                print(f'[DEBUG] OK {channel} (headless)', file=sys.stderr, flush=True)
                 break
             except Exception as e:
                 print(f'[DEBUG] {channel} falhou: {e}', file=sys.stderr, flush=True)
@@ -150,8 +150,8 @@ def main():
             for exe in exe_paths:
                 if Path(exe).exists():
                     try:
-                        browser = p.chromium.launch(executable_path=exe, headless=False, args=LAUNCH_ARGS)
-                        print(f'[DEBUG] executable_path OK', file=sys.stderr, flush=True)
+                        browser = p.chromium.launch(executable_path=exe, headless=True, args=LAUNCH_ARGS)
+                        print(f'[DEBUG] executable_path OK (headless)', file=sys.stderr, flush=True)
                         break
                     except Exception:
                         pass
