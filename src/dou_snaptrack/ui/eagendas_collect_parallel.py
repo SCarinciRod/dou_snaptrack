@@ -130,11 +130,48 @@ async def collect_for_agent(
 
         # CRÍTICO: Aguardar Angular processar callback onUpdateServidor
         # Este callback preenche automaticamente o campo cargo
-        # RESTAURADO: 2000ms necessário para cargo ser preenchido automaticamente
-        await page.wait_for_timeout(2000)
+        # Aumentado para 3000ms - cargo leva tempo para popular via API
+        await page.wait_for_timeout(3000)
 
         # Remover cookie bar se presente
         await page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
+
+        # Aguardar cargo ser preenchido automaticamente (polling)
+        # O E-Agendas faz uma chamada assíncrona para buscar os cargos do agente
+        cargo_wait_js = """() => {
+            const cargo = document.getElementById('filtro_cargo');
+            if (!cargo || !cargo.selectize) return false;
+            const val = cargo.selectize.getValue();
+            return val && val.length > 0;
+        }"""
+        
+        try:
+            await page.wait_for_function(cargo_wait_js, timeout=15000)
+            print(f"{prefix} ✓ Cargo preenchido automaticamente", file=sys.stderr)
+        except Exception:
+            # Se cargo não foi preenchido, pode ser que o agente não tenha cargo cadastrado
+            # Tentar verificar se há opções de cargo disponíveis
+            cargo_options = await page.evaluate("""() => {
+                const cargo = document.getElementById('filtro_cargo');
+                if (!cargo || !cargo.selectize) return [];
+                return Object.keys(cargo.selectize.options || {});
+            }""")
+            
+            if cargo_options:
+                # Selecionar o primeiro cargo disponível
+                print(f"{prefix} ⚠ Cargo não auto-selecionado, selecionando primeiro disponível...", file=sys.stderr)
+                await page.evaluate("""(args) => {
+                    const cargo = document.getElementById('filtro_cargo');
+                    if (cargo && cargo.selectize) {
+                        const opts = Object.keys(cargo.selectize.options || {});
+                        if (opts.length > 0) {
+                            cargo.selectize.setValue(opts[0], false);
+                        }
+                    }
+                }""")
+                await page.wait_for_timeout(1000)
+            else:
+                print(f"{prefix} ⚠ Sem cargos disponíveis para este agente", file=sys.stderr)
 
         # DEBUG: Verificar estado dos campos antes de clicar
         form_state = await page.evaluate("""() => {
@@ -155,10 +192,10 @@ async def collect_for_agent(
               f"cargo={form_state.get('cargo_value', '?')}, "
               f"btn_disabled={form_state.get('btn_disabled', '?')}", file=sys.stderr)
 
-        # Aguardar botão ficar habilitado (com timeout menor)
+        # Aguardar botão ficar habilitado (com timeout maior)
         btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\"submit\"]'); return btn && !btn.disabled; }"
         try:
-            await page.wait_for_function(btn_enabled_js, timeout=10000)
+            await page.wait_for_function(btn_enabled_js, timeout=15000)
             print(f"{prefix} ✓ Botão habilitado", file=sys.stderr)
         except Exception:
             print(f"{prefix} ⚠ Botão ainda desabilitado, pulando agente...", file=sys.stderr)
