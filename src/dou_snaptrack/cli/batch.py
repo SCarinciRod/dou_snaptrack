@@ -35,75 +35,41 @@ def render_out_filename(pattern: str, job: dict[str, Any]) -> str:
 
 
 def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
-    jobs: list[dict[str, Any]] = []
+    """Expand batch configuration into list of jobs.
+
+    Supports three patterns:
+    1. Simple jobs list
+    2. Topics + combos (cross-product)
+    3. Combos only
+
+    Args:
+        cfg: Batch configuration dictionary
+
+    Returns:
+        List of expanded job dictionaries
+    """
+    from .batch_config import expand_simple_jobs, expand_topic_combo_jobs, expand_combo_only_jobs
+
     defaults = cfg.get("defaults", {})
     base_data = cfg.get("data")
     base_secao = cfg.get("secaoDefault")
 
-    def merge_defaults(job):
-        out = dict(defaults)
-        out.update(job or {})
-        return out
+    jobs: list[dict[str, Any]] = []
 
+    # Pattern 1: Simple jobs list
     if cfg.get("jobs"):
-        for j in cfg["jobs"]:
-            jj = merge_defaults(j)
-            if base_data and not jj.get("data"):
-                jj["data"] = base_data
-            if base_secao and not jj.get("secao"):
-                jj["secao"] = base_secao
-            rep = max(1, int(jj.get("repeat", cfg.get("repeat", 1))))
-            for r in range(1, rep + 1):
-                jj_r = dict(jj)
-                jj_r["_repeat"] = r
-                jobs.append(jj_r)
+        jobs.extend(expand_simple_jobs(cfg, defaults, base_data, base_secao))
 
+    # Pattern 2: Topics + combos cross-product
     topics = cfg.get("topics") or []
     combos = cfg.get("combos") or []
-    if topics and combos:
-        for t in topics:
-            topic_name = t.get("name") or "topic"
-            topic_query = t.get("query") or ""
-            topic_repeat = int(t.get("repeat", cfg.get("repeat", 1)))
-            t_summary_kws = t.get("summary_keywords")
-            t_summary_lines = t.get("summary_lines", (defaults.get("summary_lines") if isinstance(defaults, dict) else None))
-            t_summary_mode = t.get("summary_mode", (defaults.get("summary_mode") if isinstance(defaults, dict) else None))
-            for idx, c in enumerate(combos, 1):
-                jj = merge_defaults(c)
-                if base_data and not jj.get("data"):
-                    jj["data"] = base_data
-                if base_secao and not jj.get("secao"):
-                    jj["secao"] = base_secao
-                jj["topic"] = topic_name
-                jj["query"] = jj.get("query", topic_query)
-                jj["_combo_index"] = idx
-                if t_summary_kws is not None:
-                    jj["summary_keywords"] = t_summary_kws
-                if t_summary_lines is not None:
-                    jj["summary_lines"] = t_summary_lines
-                if t_summary_mode is not None:
-                    jj["summary_mode"] = t_summary_mode
-                rep = max(1, int(jj.get("repeat", topic_repeat)))
-                for r in range(1, rep + 1):
-                    jj_r = dict(jj)
-                    jj_r["_repeat"] = r
-                    jobs.append(jj_r)
 
+    if topics and combos:
+        jobs.extend(expand_topic_combo_jobs(cfg, defaults, base_data, base_secao))
+
+    # Pattern 3: Combos only (no topics)
     if not topics and combos:
-        for idx, c in enumerate(combos, 1):
-            jj = merge_defaults(c)
-            if base_data and not jj.get("data"):
-                jj["data"] = base_data
-            if base_secao and not jj.get("secao"):
-                jj["secao"] = base_secao
-            jj["topic"] = jj.get("topic") or f"job{idx}"
-            jj["query"] = jj.get("query", defaults.get("query", "") if isinstance(defaults, dict) else "")
-            jj["_combo_index"] = idx
-            rep = max(1, int(jj.get("repeat", cfg.get("repeat", 1))))
-            for r in range(1, rep + 1):
-                jj_r = dict(jj)
-                jj_r["_repeat"] = r
-                jobs.append(jj_r)
+        jobs.extend(expand_combo_only_jobs(cfg, defaults, base_data, base_secao))
 
     return jobs
 

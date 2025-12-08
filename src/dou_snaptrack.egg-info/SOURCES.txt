@@ -15,8 +15,11 @@ src/dou_snaptrack/adapters/utils.py
 src/dou_snaptrack/cli/__init__.py
 src/dou_snaptrack/cli/batch.py
 src/dou_snaptrack/cli/batch_async.py
+src/dou_snaptrack/cli/batch_config.py
 src/dou_snaptrack/cli/batch_executor.py
 src/dou_snaptrack/cli/batch_helpers.py
+src/dou_snaptrack/cli/batch_job.py
+src/dou_snaptrack/cli/batch_worker.py
 src/dou_snaptrack/cli/plan_from_pairs.py
 src/dou_snaptrack/cli/plan_live.py
 src/dou_snaptrack/cli/plan_live_async.py
