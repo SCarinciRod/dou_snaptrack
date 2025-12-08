@@ -76,7 +76,9 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
-    from .batch_worker import setup_asyncio_for_windows, setup_worker_logging
+    from .batch_worker import setup_asyncio_for_windows, setup_worker_logging, launch_browser_with_fallback, setup_browser_context, cleanup_page_cache
+    from .batch_job import process_single_job
+    from .runner import run_once
 
     # Setup async and logging
     setup_asyncio_for_windows()
@@ -84,8 +86,6 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
 
     # Defer heavy imports until after stdout is redirected
     from playwright.sync_api import sync_playwright  # type: ignore
-
-    from .runner import run_once
 
     # Extract payload
     jobs: list[dict[str, Any]] = payload["jobs"]
@@ -103,8 +103,6 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
 
     with sync_playwright() as p:
-        from .batch_worker import launch_browser_with_fallback, setup_browser_context
-
         # Launch browser with fallbacks
         prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1", "true", "yes")
         launch_opts = {
@@ -121,188 +119,45 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         browser = launch_browser_with_fallback(p, prefer_edge, launch_opts)
         context = setup_browser_context(browser, block_resources=True)
         page_cache: dict[tuple[str, str], Any] = {}
-        fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1","true","yes")
+
         try:
             for j_idx in indices:
                 job = jobs[j_idx - 1]
-                start_ts = time.time()
-                print(f"\n[PW{os.getpid()}] [Job {j_idx}/{len(jobs)}] {job.get('topic','')}: {job.get('query','')}")
-                print(f"[DEBUG] Job {j_idx} start_ts={start_ts:.3f}")
-                out_name = render_out_filename(out_pattern, {**job, "_job_index": j_idx})
-                out_path = out_dir / out_name
-
-                data = job.get("data")
-                secao = job.get("secao", defaults.get("secaoDefault", "DO1"))
-                # key1_type/key2_type default to "text" for compatibility with plans that only have key1/key2
-                key1_type = job.get("key1_type") or defaults.get("key1_type") or "text"
-                key1 = job.get("key1")
-                key2_type = job.get("key2_type") or defaults.get("key2_type") or "text"
-                key2 = job.get("key2")
-                label1 = job.get("label1")
-                label2 = job.get("label2")
-
-                max_links = int(_get(job, "max_links", "max_links", 30) or 30)
-                do_scrape_detail = bool(_get(job, "scrape_detail", "scrape_detail", True))
-                detail_timeout = int(_get(job, "detail_timeout", "detail_timeout", 60_000) or 60_000)
-                fallback_date = bool(_get(job, "fallback_date_if_missing", "fallback_date_if_missing", True))
-
-                # Leaner defaults to reduce scrolling effort; fast-mode can cut further
-                max_scrolls = int(_get(job, "max_scrolls", "max_scrolls", 20) or 20)
-                scroll_pause_ms = int(_get(job, "scroll_pause_ms", "scroll_pause_ms", 150) or 150)
-                stable_rounds = int(_get(job, "stable_rounds", "stable_rounds", 1) or 1)
-                if fast_mode:
-                    max_scrolls = min(max_scrolls, 15)
-                    scroll_pause_ms = min(scroll_pause_ms, 150)
-                    stable_rounds = min(stable_rounds, 1)
-                    do_scrape_detail = False
-                detail_parallel = int(_get(job, "detail_parallel", "detail_parallel", 1) or 1)
-
-                bulletin = job.get("bulletin") or defaults.get("bulletin")
-                bulletin_out_pat = job.get("bulletin_out") or defaults.get("bulletin_out") or None
-                if fast_mode:
-                    bulletin = None
-                    bulletin_out_pat = None
-                bulletin_out = str(out_dir / render_out_filename(bulletin_out_pat, {**job, "_job_index": j_idx})) if (bulletin and bulletin_out_pat) else None
-
-                if not key1 or not key1_type or not key2 or not key2_type:
-                    print(f"[FAIL] Job {j_idx}: parâmetros faltando (key1/key2)")
-                    report["fail"] += 1
-                    continue
-
-                # Per-job summary overrides
-                s_cfg = apply_summary_overrides_from_job(summary, job)
-
-                # Optional page reuse per (date, secao)
-                page = None
-                keep_open = False
-                if reuse_page:
-                    k = (str(data), str(secao))
-                    page = page_cache.get(k)
-                    if page is None:
-                        page = context.new_page()
-                        page.set_default_timeout(TIMEOUT_PAGE_DEFAULT)
-                        page.set_default_navigation_timeout(TIMEOUT_PAGE_DEFAULT)
-                        page_cache[k] = page
-                    keep_open = True
-
-                def _run_with_retry(
-                    cur_page,
-                    *,
-                    data=data,
-                    secao=secao,
-                    key1=key1,
-                    key1_type=key1_type,
-                    key2=key2,
-                    key2_type=key2_type,
+                
+                # Process job using extracted helper
+                job_result = process_single_job(
                     job=job,
-                    max_links=max_links,
-                    out_path=out_path,
-                    do_scrape_detail=do_scrape_detail,
-                    detail_timeout=detail_timeout,
-                    fallback_date=fallback_date,
-                    label1=label1,
-                    label2=label2,
-                    max_scrolls=max_scrolls,
-                    scroll_pause_ms=scroll_pause_ms,
-                    stable_rounds=stable_rounds,
-                    bulletin=bulletin,
-                    bulletin_out=bulletin_out,
-                    s_cfg=s_cfg,
-                    detail_parallel=detail_parallel,
-                    keep_open=keep_open,
-                ) -> dict[str, Any] | None:
-                    # Single retry path in case of closed page/context issues during reuse
-                    for attempt in (1, 2):
-                        try:
-                            return run_once(
-                                context,
-                                date=str(data), secao=str(secao),
-                                key1=str(key1), key1_type=str(key1_type),
-                                key2=str(key2), key2_type=str(key2_type),
-                                key3=None, key3_type=None,
-                                query=job.get("query", ""), max_links=max_links, out_path=str(out_path),
-                                scrape_details=do_scrape_detail, detail_timeout=detail_timeout, fallback_date_if_missing=fallback_date,
-                                label1=label1, label2=label2, label3=None,
-                                max_scrolls=max_scrolls, scroll_pause_ms=scroll_pause_ms, stable_rounds=stable_rounds,
-                                state_file=state_file,
-                                bulletin=bulletin, bulletin_out=bulletin_out,
-                                summary=SummaryConfig(lines=s_cfg.lines, mode=s_cfg.mode, keywords=s_cfg.keywords),
-                                detail_parallel=detail_parallel,
-                                page=cur_page, keep_page_open=keep_open,
-                            )
-                        except Exception:
-                            # On first failure, recreate page and retry once
-                            if attempt == 1:
-                                try:
-                                    if reuse_page:
-                                        # drop broken page
-                                        try:
-                                            if cur_page:
-                                                cur_page.close()
-                                        except Exception:
-                                            pass
-                                        cur_page = context.new_page()
-                                        cur_page.set_default_timeout(TIMEOUT_PAGE_DEFAULT)
-                                        cur_page.set_default_navigation_timeout(TIMEOUT_PAGE_DEFAULT)
-                                        page_cache[(str(data), str(secao))] = cur_page
-                                        continue
-                                except Exception:
-                                    pass
-                            # If retry also fails or not reusing page, raise
-                            raise
-
-                try:
-                    result = _run_with_retry(page)
-                    report["ok"] += 1
-                    report["outputs"].append(str(out_path))
-                    report["items_total"] += (result.get("total", 0) if isinstance(result, dict) else 0)
-                    elapsed = time.time() - start_ts
-                    items_count = 0 if not isinstance(result, dict) else result.get('total', 0)
-                    print(f"[PW{os.getpid()}] [Job {j_idx}] concluído em {elapsed:.1f}s — itens={items_count}")
-                    # DEBUG: Compare wall-clock time vs reported timings
-                    try:
-                        if isinstance(result, dict):
-                            reported_total = result.get("_timings", {}).get("total_sec", 0)
-                            if reported_total > 0:
-                                diff = abs(elapsed - reported_total)
-                                if diff > 5:  # More than 5s difference
-                                    print(f"[TIMING WARN] Job {j_idx}: wall-clock={elapsed:.1f}s vs reported={reported_total:.1f}s (diff={diff:.1f}s)")
-                    except Exception:
-                        pass
-                    # Telemetria por job
-                    try:
-                        timings = (result.get("_timings") or {}) if isinstance(result, dict) else {}
-                    except Exception:
-                        timings = {}
-                    job_metrics = {
-                        "job_index": j_idx,
-                        "topic": job.get("topic"),
-                        "date": str(data),
-                        "secao": str(secao),
-                        "key1": key1,
-                        "key2": key2,
-                        "items": (result.get("total", 0) if isinstance(result, dict) else 0),
-                        "elapsed_sec": elapsed,
-                        "timings": timings,
-                    }
-                    with contextlib.suppress(Exception):
-                        report["metrics"]["jobs"].append(job_metrics)
-                except Exception as e:
-                    print(f"[FAIL] Job {j_idx}: {e}")
-                    report["fail"] += 1
-
-                delay_ms = int(job.get("repeat_delay_ms", defaults.get("repeat_delay_ms", 0)))
-                if delay_ms > 0:
-                    time.sleep(delay_ms / 1000.0)
+                    job_index=j_idx,
+                    jobs=jobs,
+                    defaults=defaults,
+                    out_dir=out_dir,
+                    out_pattern=out_pattern,
+                    context=context,
+                    page_cache=page_cache,
+                    reuse_page=reuse_page,
+                    fast_mode=fast_mode,
+                    state_file=state_file,
+                    summary=summary,
+                    run_once_fn=run_once,
+                    render_out_filename_fn=render_out_filename,
+                    apply_summary_overrides_fn=apply_summary_overrides_from_job,
+                )
+                
+                # Aggregate results
+                report["ok"] += job_result["ok"]
+                report["fail"] += job_result["fail"]
+                report["items_total"] += job_result["items_total"]
+                report["outputs"].extend(job_result["outputs"])
+                if job_result["job_metrics"]:
+                    report["metrics"]["jobs"].append(job_result["job_metrics"])
+                    
         finally:
-            # Close cached pages
-            for p in page_cache.values():
-                with contextlib.suppress(Exception):
-                    p.close()
+            cleanup_page_cache(page_cache)
             with contextlib.suppress(Exception):
                 context.close()
             with contextlib.suppress(Exception):
                 browser.close()
+                
     # Ensure file buffer is flushed before returning
     try:
         if _log_fp:
