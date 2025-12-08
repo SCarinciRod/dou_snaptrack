@@ -176,59 +176,30 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
 
     Returns the list of aggregated files written.
     """
+    from .consolidation_helpers import (
+        collect_job_files,
+        aggregate_jobs_by_date,
+        write_aggregated_files,
+    )
+    
     root = Path(in_dir)
     if root.is_file():
         root = root.parent
-    # Detect date and secao from any job file
-    jobs = [p for p in root.glob("*.json") if p.name.lower().endswith(".json") and not p.name.lower().startswith("batch_report") and not p.name.startswith("_")]
+    
+    # Collect job files
+    jobs = collect_job_files(root)
     if not jobs:
         return []
-    from collections import defaultdict
-    agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []})
-    secao_any = ""
-    for jf in jobs:
-        try:
-            data = json.loads(jf.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        date = str(data.get("data") or "")
-        secao = str(data.get("secao") or "")
-        if not agg[date]["data"]:
-            agg[date]["data"] = date
-        if not agg[date]["secao"]:
-            agg[date]["secao"] = secao
-        if not secao_any and secao:
-            secao_any = secao
-        items = data.get("itens", []) or []
-        # Normalize detail_url absolute
-        for it in items:
-            try:
-                durl = it.get("detail_url") or ""
-                if not durl:
-                    link = it.get("link") or ""
-                    if link:
-                        if link.startswith("http"):
-                            durl = link
-                        elif link.startswith("/"):
-                            durl = f"https://www.in.gov.br{link}"
-                if durl:
-                    it["detail_url"] = durl
-            except Exception:
-                pass
-        agg[date]["itens"].extend(items)
-    written: list[str] = []
-    # resultados root = parent of the day folder if named 'resultados'
+    
+    # Aggregate by date
+    agg, secao_any = aggregate_jobs_by_date(jobs, plan_name)
+    
+    # Determine target directory
     target_dir = root.parent if root.parent.name.lower() == "resultados" else root
     secao_label = (secao_any or "DO").strip()
-    for date, payload in agg.items():
-        payload["total"] = len(payload.get("itens", []))
-        safe_plan = sanitize_filename(plan_name)
-        date_lab = (date or "").replace("/", "-")
-        out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-        out_path = target_dir / out_name
-        out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        written.append(str(out_path))
-    return written
+    
+    # Write aggregated files
+    return write_aggregated_files(agg, plan_name, secao_label, target_dir)
 
 
 def split_and_report_by_n1(
