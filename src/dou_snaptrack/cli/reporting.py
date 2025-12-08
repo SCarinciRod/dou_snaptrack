@@ -136,101 +136,56 @@ def report_from_aggregated(
 
     Permite juntar agregados de dias diferentes em um único boletim.
     """
+    from .reporting_helpers import (
+        load_aggregated_files,
+        sort_items_by_date_desc,
+        should_enrich_items,
+        enrich_items_with_fetcher,
+        clean_enriched_items,
+        log_enrichment_debug_info,
+        log_enrichment_skip_reason,
+        fallback_add_title_as_text,
+    )
+
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-    agg: list[dict[str, Any]] = []
-    date = date_label
-    secao = secao_label
-    for fp in files:
-        try:
-            data = __import__('json').loads(Path(fp).read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        items = data.get("itens", [])
-        # Normalizar links para absolutos quando possível (para enriquecer texto)
-        for it in items:
-            durl = it.get("detail_url") or ""
-            if not durl:
-                link = it.get("link") or ""
-                if link:
-                    if link.startswith("http"):
-                        durl = link
-                    elif link.startswith("/"):
-                        durl = f"https://www.in.gov.br{link}"
-            if durl:
-                it["detail_url"] = durl
-        agg.extend(items)
-        if not date:
-            date = data.get("data") or date
-        if not secao:
-            secao = data.get("secao") or secao
-    # Ordena por data_publicacao (desc), quando disponível
+
+    # Load and merge files
+    agg, date, secao = load_aggregated_files(files)
+    date = date or date_label
+    secao = secao or secao_label
+
+    # Sort by publication date if requested
     if order_desc_by_date:
-        def _key(it: dict[str, Any]):
-            d = it.get("data_publicacao") or ""
-            # esperado DD-MM-AAAA; forçar formato comparável AAAA-MM-DD
-            try:
-                dd, mm, yyyy = d.split("-")
-                return f"{yyyy}-{mm}-{dd}"
-            except Exception:
-                return ""
-        agg.sort(key=_key, reverse=True)
+        sort_items_by_date_desc(agg)
 
-    # Deep mode por padrão também em agregados
-    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
-    if summary_lines > 0 and not offline and agg:
-        logger.info(
-            f"[ENRICH] deep-mode STRICT: items={len(agg)} parallel={fetch_parallel} timeout={fetch_timeout_sec}s "
-            f"overwrite=True force_refresh={bool(fetch_force_refresh)} browser_fallback={bool(fetch_browser_fallback)} short_len_threshold={int(short_len_threshold)}"
+    # Enrich items with deep mode if appropriate
+    if should_enrich_items(summary_lines, enrich_missing, agg):
+        enrich_items_with_fetcher(
+            agg,
+            fetch_parallel,
+            fetch_timeout_sec,
+            fetch_force_refresh,
+            fetch_browser_fallback,
+            short_len_threshold,
         )
-        Fetcher(
-            timeout_sec=fetch_timeout_sec,
-            force_refresh=bool(fetch_force_refresh),
-            use_browser_if_short=bool(fetch_browser_fallback),
-            short_len_threshold=int(short_len_threshold),
-            browser_timeout_sec=max(20, fetch_timeout_sec),
-        ).enrich_items(agg, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
-
-        # CRÍTICO: Limpar cabeçalhos DOU de todos os items após enrich
-        # O fetcher salva HTML completo com "Brasão do Brasil... Diário Oficial..."
-        # Precisamos limpar ANTES da sumarização para evitar cabeçalhos nos resumos
-        from dou_utils.summary_utils import clean_text_for_summary
-        for it in agg:
-            texto_bruto = it.get("texto") or ""
-            if texto_bruto:
-                it["texto"] = clean_text_for_summary(texto_bruto)
-
-        # DEBUG: Verificar se items têm texto após enrich + limpeza
-        with_texto = sum(1 for i in agg if i.get("texto"))
-        logger.info(f"[DEBUG] Após enrich+limpeza: {with_texto}/{len(agg)} items com 'texto'")
-        if agg:
-            sample_idx = min(2, len(agg)-1)  # Item 522 é índice 2
-            sample_text = agg[sample_idx].get("texto", "")
-            logger.info(f"[DEBUG] Item[{sample_idx}] titulo: {agg[sample_idx].get('titulo', '')[:50]}")
-            logger.info(f"[DEBUG] Item[{sample_idx}] texto length: {len(sample_text)}, primeiros 200: {sample_text[:200]}")
+        clean_enriched_items(agg)
+        log_enrichment_debug_info(agg)
     else:
-        if summary_lines <= 0:
-            logger.info("[ENRICH] skipped: summarize disabled (summary_lines=0)")
-        elif not enrich_missing:
-            logger.info("[ENRICH] skipped: enrich_missing=False")
-        elif offline:
-            logger.info("[ENRICH] skipped: DOU_OFFLINE_REPORT=1")
-        elif not agg:
-            logger.info("[ENRICH] skipped: no items")
+        offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1", "true", "yes")
+        log_enrichment_skip_reason(summary_lines, enrich_missing, offline, bool(agg))
 
-    # Fallback: se ainda não houver texto, usar título como base mínima para resumo
-    if summary_lines > 0 and agg:
-        for it in agg:
-            if not (it.get("texto") or it.get("ementa")):
-                t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-                if t:
-                    it["texto"] = str(t)
+    # Fallback: use title as base for summary if text is missing
+    fallback_add_title_as_text(agg, summary_lines)
 
+    # Generate bulletin
     result: dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(agg), "itens": agg}
     summarize = summary_lines > 0
+
     def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
         return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
+
     _generate_bulletin(
         result,
         out_path,
