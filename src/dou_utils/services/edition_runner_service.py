@@ -4,14 +4,8 @@ import contextlib
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import parse_qs, urlparse
 
-from ..detail_utils import abs_url as _abs_url
-from ..enrich_utils import enrich_items_friendly_titles as _enrich_titles
-from ..page_utils import find_best_frame, goto as _goto, try_visualizar_em_lista
-from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
-from ..services.cascade_service import CascadeParams, CascadeService
-from ..services.multi_level_cascade_service import MultiLevelCascadeSelector
+from ..page_utils import find_best_frame
 
 
 @dataclass
@@ -75,175 +69,85 @@ class EditionRunnerService:
             pass
 
     def run(self, params: EditionRunParams, summarizer_fn: Callable | None = None) -> dict[str, Any]:
+        from .edition_execution_helpers import (
+            build_edition_url,
+            should_reuse_inpage,
+            navigate_to_edition,
+            run_multilevel_selection,
+            retry_selection_with_reload,
+            build_error_result,
+            collect_edition_links,
+            build_base_result,
+            enrich_items_with_detail,
+            normalize_items_without_detail,
+            build_timings,
+            log_execution_summary,
+        )
         import time
-        t0 = time.time()
+        
+        # Setup page
         page = self._precreated_page or self.context.new_page()
         page.set_default_timeout(60_000)
         page.set_default_navigation_timeout(60_000)
 
-        url = f"https://www.in.gov.br/leiturajornal?data={params.date}&secao={params.secao}"
-        # Decide whether to navigate or reuse current edition page
-        do_nav = True
-        inpage = False
-        try:
-            if self._precreated_page is not None and self._allow_inpage_reuse and not page.is_closed():
-                cur = page.url or ""
-                if cur:
-                    pu = urlparse(cur)
-                    qu = parse_qs(pu.query or "")
-                    # compare edition by query params (string equality on first values)
-                    same_date = (qu.get("data", [None])[0] == str(params.date))
-                    same_secao = (qu.get("secao", [None])[0] == str(params.secao))
-                    if same_date and same_secao:
-                        do_nav = False
-                        inpage = True
-        except Exception:
-            pass
+        # Determine navigation strategy
+        url = build_edition_url(params.date, params.secao)
+        inpage = should_reuse_inpage(
+            page if self._precreated_page else None,
+            self._allow_inpage_reuse,
+            params.date,
+            params.secao
+        )
+        do_nav = not inpage
 
-        # CRITICAL FIX: Reset t0 after determining reuse to avoid accumulating idle time from previous jobs
-        if inpage:
-            t0 = time.time()
-
-        if do_nav:
-            _goto(page, url)
-        t_after_nav = time.time()
-        # Garantir visão em lista mesmo em reuso in-page (idempotente)
-        try_visualizar_em_lista(page)
+        # Navigate and prepare view
+        nav_times = navigate_to_edition(page, url, do_nav, inpage)
         frame = find_best_frame(self.context)
         t_after_view = time.time()
 
-        def _run_selection(_frame):
-            selector = MultiLevelCascadeSelector(_frame)
-            return selector.run(
-                key1=str(params.key1), key1_type=str(params.key1_type),
-                key2=str(params.key2), key2_type=str(params.key2_type),
-                key3=str(params.key3) if params.key3 else None, key3_type=str(params.key3_type) if params.key3_type else None,
-                label1=params.label1, label2=params.label2, label3=params.label3
-            )
-
-        selres = _run_selection(frame)
-        # If selection failed while trying in-page reuse, do a single hard refresh and retry
+        # Run selection with retry on failure
+        selres = run_multilevel_selection(frame, params)
         if not selres.get("ok") and inpage:
-            try:
-                page.reload(wait_until="domcontentloaded", timeout=60_000)
-                try_visualizar_em_lista(page)
-                frame = find_best_frame(self.context)
-                selres = _run_selection(frame)
-            except Exception:
-                pass
+            selres = retry_selection_with_reload(page, self.context, params, inpage)
+        
         if not selres.get("ok"):
             with contextlib.suppress(Exception):
                 page.close()
-            return {
-                "data": params.date,
-                "secao": params.secao,
-                "selecoes": [
-                    {"level": 1, "type": params.key1_type, "key": params.key1},
-                    {"level": 2, "type": params.key2_type, "key": params.key2},
-                    {"level": 3, "type": params.key3_type, "key": params.key3},
-                ],
-                "query": params.query,
-                "total": 0,
-                "itens": [],
-                "enriquecido": False,
-                "_error": f"selection_failed_level_{selres.get('level_fail')}"
-            }
+            return build_error_result(params, selres)
 
-        _apply_query(frame, params.query or "")
+        # Collect links
         t_after_select = time.time()
-        items = _collect_links(
-            frame,
-            max_links=params.max_links,
-            max_scrolls=params.max_scrolls,
-            scroll_pause_ms=params.scroll_pause_ms,
-            stable_rounds=params.stable_rounds,
-        )
+        items = collect_edition_links(frame, params)
         t_after_collect = time.time()
 
-        result: dict[str, Any] = {
-            "data": params.date,
-            "secao": params.secao,
-            "selecoes": [
-                {"level": 1, "type": params.key1_type, "key": params.key1},
-                {"level": 2, "type": params.key2_type, "key": params.key2},
-                {"level": 3, "type": params.key3_type, "key": params.key3},
-            ],
-            "query": params.query,
-            "total": 0,
-            "itens": [],
-            "enriquecido": False,
-        }
-
+        # Build result
+        result = build_base_result(params)
+        
         if params.scrape_detail:
-            svc = CascadeService(self.context, page, frame, summarize_fn=summarizer_fn)
-            out = svc.run(
-                items,
-                CascadeParams(
-                    url=url,
-                    date=params.date,
-                    secao=params.secao,
-                    query=params.query,
-                    max_links=params.max_links,
-                    scrape_detail=True,
-                    detail_timeout=params.detail_timeout,
-                    parallel=max(1, int(getattr(params, "detail_parallel", 1) or 1)),
-                    summary=params.summary,
-                    summary_lines=params.summary_lines,
-                    summary_mode=params.summary_mode,
-                    summary_keywords=params.summary_keywords,
-                    advanced_detail=False,
-                    fallback_date_if_missing=params.fallback_date_if_missing,
-                    dedup_state_file=params.dedup_state_file,
-                )
+            enriched_items, enriched = enrich_items_with_detail(
+                self.context, page, frame, url, items, params, summarizer_fn
             )
-            result["itens"] = out.get("itens", [])
-            # Ensure each enriched item carries the originating N1 (orgão) metadata
-            for it in result.get("itens", []):
-                with contextlib.suppress(Exception):
-                    if not it.get("orgao"):
-                        # prefer label when available
-                        it["orgao"] = params.label1 or params.key1
-            result["total"] = len(result["itens"])
-            result["enriquecido"] = True
+            result["itens"] = enriched_items
+            result["total"] = len(enriched_items)
+            result["enriquecido"] = enriched
         else:
-            # Sem enriquecimento: normalize links relativos e gere títulos amigáveis heurísticos
-            norm_items = []
-            for it in items:
-                try:
-                    link = it.get("link") or ""
-                    durl = _abs_url(page.url, link) if link else ""
-                    if durl:
-                        it = {**it, "detail_url": durl}
-                    # Attach originating N1 (orgão) so downstream bulletin can group by it
-                    with contextlib.suppress(Exception):
-                        it["orgao"] = params.label1 or params.key1
-                except Exception:
-                    pass
-                norm_items.append(it)
-            try:
-                result["itens"] = _enrich_titles(norm_items, date=params.date, secao=params.secao)
-            except Exception:
-                result["itens"] = norm_items
+            normalized_items, enriched = normalize_items_without_detail(page, items, params)
+            result["itens"] = normalized_items
             result["total"] = len(items)
-            result["enriquecido"] = False
+            result["enriquecido"] = enriched
 
+        # Cleanup
         if not self._keep_page_open:
             with contextlib.suppress(Exception):
                 page.close()
-        total_elapsed = time.time() - t0
-        timings = {
-            "nav_sec": round(t_after_nav - t0, 3),
-            "view_sec": round(t_after_view - t_after_nav, 3),
-            "select_sec": round(t_after_select - t_after_view, 3),
-            "collect_sec": round(t_after_collect - t_after_select, 3),
-            "total_sec": round(total_elapsed, 3),
-            "inpage_reuse": bool(inpage),
-        }
+        
+        # Add timings and log
+        timings = build_timings(
+            nav_times['t0'], nav_times['t_after_nav'], t_after_view,
+            t_after_select, t_after_collect, inpage
+        )
         with contextlib.suppress(Exception):
             result["_timings"] = timings
-        print(
-            f"[EditionRunner] data={params.date} secao={params.secao} k1={params.key1} k2={params.key2} inpage={int(inpage)} "
-            f"timings: nav={timings['nav_sec']:.1f}s view={timings['view_sec']:.1f}s "
-            f"select={timings['select_sec']:.1f}s collect={timings['collect_sec']:.1f}s total={timings['total_sec']:.1f}s"
-        )
+        
+        log_execution_summary(params, timings)
         return result
