@@ -5,6 +5,7 @@ This module contains extracted functions from consolidate_and_report to reduce c
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -27,7 +28,7 @@ def load_json_files(in_dir: str) -> list[dict[str, Any]]:
     agg = []
     for f in sorted(Path(in_dir).glob("*.json")):
         try:
-            data = __import__('json').loads(f.read_text(encoding="utf-8"))
+            data = json.loads(f.read_text(encoding="utf-8"))
             items = data.get("itens", [])
             normalize_item_urls(items)
             agg.extend(items)

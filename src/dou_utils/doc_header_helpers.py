@@ -6,7 +6,6 @@ This module contains extracted functions from split_doc_header to reduce complex
 from __future__ import annotations
 
 import re
-from typing import Any
 
 # Patterns (imported from text_cleaning.py context)
 _HTML_TAG_PATTERN = re.compile(r"<[^>]+>")

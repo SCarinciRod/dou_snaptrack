@@ -25,7 +25,7 @@ def setup_windows_event_loop() -> None:
             pass
 
 
-def load_and_prepare_config(cfg_path: Path) -> tuple[dict[str, Any], str]:
+def load_and_prepare_config(cfg_path: str | Path) -> tuple[dict[str, Any], str]:
     """Load configuration file and determine plan date.
     
     Args:
