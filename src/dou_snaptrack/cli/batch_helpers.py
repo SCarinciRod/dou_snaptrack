@@ -260,6 +260,85 @@ def aggregate_report_metrics(report: dict[str, Any]) -> None:
         pass
 
 
+def _normalize_item_detail_url(item: dict[str, Any]) -> None:
+    """Normalize detail_url to absolute URL.
+
+    Args:
+        item: Item dictionary (modified in place)
+    """
+    try:
+        durl = item.get("detail_url") or ""
+        if not durl:
+            link = item.get("link") or ""
+            if link:
+                if link.startswith("http"):
+                    durl = link
+                elif link.startswith("/"):
+                    durl = f"https://www.in.gov.br{link}"
+        if durl:
+            item["detail_url"] = durl
+    except Exception:
+        pass
+
+
+def _load_and_aggregate_output_file(
+    path: str, agg: dict[str, dict[str, Any]], secao_tracker: list[str]
+) -> None:
+    """Load output file and aggregate into agg dictionary.
+
+    Args:
+        path: Path to output file
+        agg: Aggregation dictionary (modified in place)
+        secao_tracker: List to track first non-empty secao value
+    """
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return
+
+    date = str(data.get("data") or "")
+    secao = str(data.get("secao") or "")
+
+    # Initialize date entry if needed
+    if not agg[date]["data"]:
+        agg[date]["data"] = date
+    if not agg[date]["secao"]:
+        agg[date]["secao"] = secao
+    if not secao_tracker[0] and secao:
+        secao_tracker[0] = secao
+
+    # Process items
+    items = data.get("itens", []) or []
+    for it in items:
+        _normalize_item_detail_url(it)
+
+    agg[date]["itens"].extend(items)
+
+
+def _write_aggregated_file(
+    date: str, payload: dict[str, Any], out_dir: Path, plan_name: str, secao_label: str
+) -> str:
+    """Write aggregated output file for a date.
+
+    Args:
+        date: Date string
+        payload: Aggregated data for this date
+        out_dir: Output directory
+        plan_name: Plan name
+        secao_label: Section label for filename
+
+    Returns:
+        Path to written file
+    """
+    payload["total"] = len(payload.get("itens", []))
+    safe_plan = sanitize_filename(plan_name)
+    date_lab = (date or "").replace("/", "-")
+    out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
+    out_path = out_dir / out_name
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return str(out_path)
+
+
 def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -> list[str]:
     """Aggregate job outputs by date into per-date files.
 
@@ -274,55 +353,19 @@ def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -
     agg: dict[str, dict[str, Any]] = defaultdict(
         lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []}
     )
-    secao_any = ""
+    secao_tracker = [""]  # Use list to allow modification in nested function
 
+    # Load and aggregate all output files
     for pth in paths or []:
-        try:
-            data = json.loads(Path(pth).read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        _load_and_aggregate_output_file(pth, agg, secao_tracker)
 
-        date = str(data.get("data") or "")
-        secao = str(data.get("secao") or "")
-
-        if not agg[date]["data"]:
-            agg[date]["data"] = date
-        if not agg[date]["secao"]:
-            agg[date]["secao"] = secao
-        if not secao_any and secao:
-            secao_any = secao
-
-        items = data.get("itens", []) or []
-
-        # Normalize detail_url (absolute)
-        for it in items:
-            try:
-                durl = it.get("detail_url") or ""
-                if not durl:
-                    link = it.get("link") or ""
-                    if link:
-                        if link.startswith("http"):
-                            durl = link
-                        elif link.startswith("/"):
-                            durl = f"https://www.in.gov.br{link}"
-                if durl:
-                    it["detail_url"] = durl
-            except Exception:
-                pass
-
-        agg[date]["itens"].extend(items)
-
+    # Write aggregated files
     written: list[str] = []
-    secao_label = (secao_any or "DO").strip()
+    secao_label = (secao_tracker[0] or "DO").strip()
 
     for date, payload in agg.items():
-        payload["total"] = len(payload.get("itens", []))
-        safe_plan = sanitize_filename(plan_name)
-        date_lab = (date or "").replace("/", "-")
-        out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-        out_path = out_dir / out_name
-        out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        written.append(str(out_path))
+        out_path = _write_aggregated_file(date, payload, out_dir, plan_name, secao_label)
+        written.append(out_path)
 
     return written
 
