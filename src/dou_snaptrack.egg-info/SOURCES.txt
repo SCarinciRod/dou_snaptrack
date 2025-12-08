@@ -80,6 +80,7 @@ src/dou_utils/query_utils.py
 src/dou_utils/selection_utils.py
 src/dou_utils/selectors.py
 src/dou_utils/summarization_helpers.py
+src/dou_utils/summarization_scoring.py
 src/dou_utils/summarize.py
 src/dou_utils/summary_utils.py
 src/dou_utils/text_cleaning.py
