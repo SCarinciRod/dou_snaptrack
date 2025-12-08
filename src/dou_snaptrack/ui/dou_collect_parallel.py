@@ -30,7 +30,6 @@ import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 # Constantes otimizadas baseadas em testes
 DEFAULT_WORKERS = 4  # Ótimo baseado em benchmarks (16 jobs em ~40s)
@@ -300,7 +299,7 @@ async def main_async(input_data: dict) -> dict:
         contexts = []
         pages = []
         
-        for i in range(actual_workers):
+        for _ in range(actual_workers):
             ctx = await browser.new_context(
                 ignore_https_errors=True,
                 viewport={'width': 1280, 'height': 900}

@@ -471,7 +471,7 @@ async def main_async():
         contexts = []
         pages = []
 
-        for i in range(actual_workers):
+        for _ in range(actual_workers):
             ctx = await browser.new_context(
                 ignore_https_errors=True,
                 viewport={'width': 1280, 'height': 900},
