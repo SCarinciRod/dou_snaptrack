@@ -79,6 +79,7 @@ src/dou_utils/hash_utils.py
 src/dou_utils/log_utils.py
 src/dou_utils/models.py
 src/dou_utils/page_utils.py
+src/dou_utils/query_helpers.py
 src/dou_utils/query_utils.py
 src/dou_utils/selection_utils.py
 src/dou_utils/selectors.py
