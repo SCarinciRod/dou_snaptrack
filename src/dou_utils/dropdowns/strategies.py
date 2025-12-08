@@ -170,91 +170,27 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
         - id: element id
         - dataId: data-id/data-key/data-code attribute
     """
-    container = None
-
+    from .collection_helpers import (
+        find_listbox_container,
+        scroll_to_load_all_options,
+        collect_options_from_container,
+        deduplicate_options,
+        close_dropdown,
+    )
+    
     # Find the listbox container
-    for sel in LISTBOX_SELECTORS:
-        try:
-            loc = frame.locator(sel)
-            if loc.count() > 0:
-                container = loc.first
-                break
-        except Exception:
-            continue
-
-    if not container:
-        page = frame.page
-        for sel in LISTBOX_SELECTORS:
-            try:
-                loc = page.locator(sel)
-                if loc.count() > 0:
-                    container = loc.first
-                    break
-            except Exception:
-                continue
-
+    container = find_listbox_container(frame, LISTBOX_SELECTORS)
     if not container:
         return []
 
     # Handle virtualization by scrolling
-    try:
-        for _ in range(40):
-            changed = container.evaluate(
-                "el => { const b=el.scrollTop; el.scrollTop=el.scrollHeight; return el.scrollTop !== b; }"
-            )
-            frame.wait_for_timeout(60)
-            if not changed:
-                break
-    except Exception:
-        for _ in range(10):
-            with contextlib.suppress(Exception):
-                frame.page.keyboard.press("End")
-            frame.wait_for_timeout(60)
+    scroll_to_load_all_options(container, frame)
 
-    # Collect options
-    options = []
-    for sel in OPTION_SELECTORS:
-        try:
-            opts = container.locator(sel)
-            k = opts.count()
-        except Exception:
-            k = 0
-        for i in range(k):
-            o = opts.nth(i)
-            try:
-                if not o.is_visible():
-                    continue
-                text = (o.text_content() or "").strip()
-                val = o.get_attribute("value")
-                dv = o.get_attribute("data-value")
-                di = o.get_attribute("data-index") or o.get_attribute("data-option-index") or str(i)
-                oid = o.get_attribute("id")
-                did = o.get_attribute("data-id") or o.get_attribute("data-key") or o.get_attribute("data-code")
-                if text or val or dv or di or oid or did:
-                    options.append({
-                        "text": text,
-                        "value": val,
-                        "dataValue": dv,
-                        "dataIndex": di,
-                        "id": oid,
-                        "dataId": did
-                    })
-            except Exception:
-                continue
-
-    # Deduplicate
-    seen = set()
-    uniq = []
-    for o in options:
-        key = (o.get("id"), o.get("dataId"), o.get("text"), o.get("value"), o.get("dataValue"), o.get("dataIndex"))
-        if key in seen:
-            continue
-        seen.add(key)
-        uniq.append(o)
+    # Collect and deduplicate options
+    options = collect_options_from_container(container, OPTION_SELECTORS)
+    uniq = deduplicate_options(options)
 
     # Close dropdown
-    with contextlib.suppress(Exception):
-        frame.page.keyboard.press("Escape")
-        frame.wait_for_timeout(80)
+    close_dropdown(frame)
 
     return uniq
