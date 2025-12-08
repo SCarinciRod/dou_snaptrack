@@ -213,8 +213,6 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
         await frame.page.keyboard.press("Escape")
     return False
 
-    return False
-
 
 async def _count_options_async(frame, root: dict[str, Any]) -> int:
     """Conta opções visíveis/avaliáveis para um root de dropdown (<select> ou custom)."""
