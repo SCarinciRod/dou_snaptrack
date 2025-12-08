@@ -44,10 +44,12 @@ src/dou_snaptrack/ui/batch_helpers.py
 src/dou_snaptrack/ui/batch_runner.py
 src/dou_snaptrack/ui/dou_collect_parallel.py
 src/dou_snaptrack/ui/dou_fetch.py
+src/dou_snaptrack/ui/dou_parallel_helpers.py
 src/dou_snaptrack/ui/eagendas_collect_parallel.py
 src/dou_snaptrack/ui/eagendas_collect_subprocess.py
 src/dou_snaptrack/ui/eagendas_fetch.py
 src/dou_snaptrack/ui/eagendas_ui.py
+src/dou_snaptrack/ui/eagendas_ui_helpers.py
 src/dou_snaptrack/ui/launch.py
 src/dou_snaptrack/ui/perf_widgets.py
 src/dou_snaptrack/ui/plan_editor.py

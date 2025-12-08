@@ -247,6 +247,15 @@ def distribute_jobs(jobs_with_indices: list[tuple[int, dict]], num_workers: int)
 async def main_async(input_data: dict) -> dict:
     """Função principal assíncrona."""
     from playwright.async_api import async_playwright
+    from .dou_parallel_helpers import (
+        launch_browser_with_channels,
+        create_worker_contexts,
+        cleanup_browser_resources,
+        calculate_statistics,
+        log_final_results,
+        save_job_outputs,
+        build_final_result,
+    )
     
     start_time = time.perf_counter()
     
@@ -271,59 +280,22 @@ async def main_async(input_data: dict) -> dict:
     lock = asyncio.Lock()
     
     async with async_playwright() as p:
-        # Lançar UM ÚNICO browser
-        browser = None
+        # Launch browser
         prefer_edge = os.environ.get("DOU_PREFER_EDGE", "").lower() in ("1", "true", "yes")
-        channels = ("msedge", "chrome") if prefer_edge else ("chrome", "msedge")
-        
-        for channel in channels:
-            try:
-                browser = await p.chromium.launch(
-                    channel=channel,
-                    headless=True,
-                    args=[
-                        '--disable-blink-features=AutomationControlled',
-                        '--disable-background-timer-throttling',
-                        '--disable-renderer-backgrounding',
-                    ]
-                )
-                _log(f"✓ Browser {channel} iniciado")
-                break
-            except Exception:
-                continue
+        browser = await launch_browser_with_channels(p, prefer_edge, _log)
         
         if not browser:
             return {"success": False, "error": "Nenhum browser disponível", "ok": 0, "fail": 0}
         
-        # Criar contexts e pages para cada worker
-        contexts = []
-        pages = []
-        
-        for _ in range(actual_workers):
-            ctx = await browser.new_context(
-                ignore_https_errors=True,
-                viewport={'width': 1280, 'height': 900}
-            )
-            ctx.set_default_timeout(GOTO_TIMEOUT)
-            
-            # Bloquear recursos pesados
-            await ctx.route("**/*.{png,jpg,jpeg,gif,webp,mp4,woff,woff2,ttf,otf}", lambda route: route.abort())
-            await ctx.route("**/*analytics*", lambda route: route.abort())
-            await ctx.route("**/*googletagmanager*", lambda route: route.abort())
-            
-            page = await ctx.new_page()
-            contexts.append(ctx)
-            pages.append(page)
-        
+        # Create contexts and pages for workers
+        contexts, pages = await create_worker_contexts(browser, actual_workers, GOTO_TIMEOUT)
         _log(f"✓ {actual_workers} contexts criados")
         
-        # Criar lista de (index, job) para rastrear índices originais
+        # Create job list with indices
         jobs_with_indices = [(i + 1, job) for i, job in enumerate(jobs)]
-        
-        # Distribuir jobs entre workers (round-robin)
         worker_queues = distribute_jobs(jobs_with_indices, actual_workers)
         
-        # Criar e executar tasks em paralelo
+        # Create and execute tasks in parallel
         tasks = []
         for i, worker_jobs in enumerate(worker_queues):
             if worker_jobs:
@@ -342,99 +314,21 @@ async def main_async(input_data: dict) -> dict:
         await asyncio.gather(*tasks)
         
         # Cleanup
-        for ctx in contexts:
-            await ctx.close()
-        await browser.close()
+        await cleanup_browser_resources(contexts, browser)
     
     elapsed = time.perf_counter() - start_time
     
-    # Estatísticas
-    successful = [r for r in results if r.success]
-    failed = [r for r in results if not r.success]
-    total_items = sum(len(r.items) for r in successful)
+    # Calculate statistics and log results
+    stats = calculate_statistics(results)
+    log_final_results(stats, len(jobs), elapsed, _log)
     
-    _log(f"{'='*60}")
-    _log("RESULTADO FINAL")
-    _log(f"{'='*60}")
-    _log(f"Jobs OK: {len(successful)}/{len(jobs)}")
-    _log(f"Total items: {total_items}")
-    _log(f"Tempo total: {elapsed:.1f}s")
-    _log(f"{'='*60}")
-    
-    # Salvar outputs individuais se out_dir fornecido
+    # Save outputs if directory provided
     outputs = []
     if out_dir:
-        out_path = Path(out_dir)
-        out_path.mkdir(parents=True, exist_ok=True)
-        
-        # Import sanitize_filename (com fallback para standalone)
-        try:
-            from dou_snaptrack.utils.text import sanitize_filename
-        except ImportError:
-            # Fallback simples para execução standalone
-            import re
-            def sanitize_filename(s: str) -> str:
-                return re.sub(r'[<>:"/\\|?*]', '_', str(s or ''))
-        
-        for r in successful:
-            # Construir nome do arquivo
-            tokens = {
-                "topic": r.topic or "job",
-                "secao": r.secao or "DO",
-                "date": (r.date or "").replace("/", "-"),
-                "idx": str(r.job_index),
-                "key1": r.key1 or "",
-                "key2": r.key2 or "",
-            }
-            name = out_pattern
-            for k, v in tokens.items():
-                name = name.replace("{" + k + "}", sanitize_filename(str(v)))
-            
-            file_path = out_path / name
-            output_data = {
-                "data": r.date,
-                "secao": r.secao,
-                "key1": r.key1,
-                "key2": r.key2,
-                "topic": r.topic,
-                "total": len(r.items),
-                "itens": r.items,
-                "_timings": r.timings
-            }
-            file_path.write_text(json.dumps(output_data, ensure_ascii=False, indent=2), encoding="utf-8")
-            outputs.append(str(file_path))
+        outputs = save_job_outputs(stats["successful"], out_dir, out_pattern)
     
-    # Resultado no formato esperado pelo batch.py
-    return {
-        "success": len(failed) == 0,
-        "ok": len(successful),
-        "fail": len(failed),
-        "items_total": total_items,
-        "outputs": outputs,
-        "elapsed": round(elapsed, 1),
-        "metrics": {
-            "jobs": [
-                {
-                    "job_index": r.job_index,
-                    "topic": r.topic,
-                    "date": r.date,
-                    "secao": r.secao,
-                    "key1": r.key1,
-                    "key2": r.key2,
-                    "items": len(r.items),
-                    "elapsed_sec": r.elapsed,
-                    "timings": r.timings,
-                    "error": r.error
-                }
-                for r in results
-            ],
-            "summary": {
-                "jobs": len(jobs),
-                "elapsed_sec_total": round(elapsed, 1),
-                "items_total": total_items,
-            }
-        }
-    }
+    # Build and return final result
+    return build_final_result(stats, outputs, elapsed)
 
 
 def run_parallel_batch(input_data: dict) -> dict:
