@@ -110,38 +110,21 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
-    # Ajuste de loop asyncio no Windows antes de importar Playwright (subprocess)
-    try:
-        import asyncio as _asyncio
-        import sys as _sys
-        if _sys.platform.startswith("win"):
-            _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-            _asyncio.set_event_loop(_asyncio.new_event_loop())
-    except Exception:
-        pass
-    # Optional log redirection: write worker prints to a shared log file
-    _log_fp = None
-    try:
-        log_file = payload.get("log_file")
-        # Evitar redirecionar stdout quando rodando inline (thread) no processo principal
-        import multiprocessing as _mp
-        is_main_proc = (_mp.current_process().name == "MainProcess")
-        if log_file:
-            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-            _log_fp = open(log_file, "a", encoding="utf-8", buffering=1)  # noqa: SIM115 - keep handle open for worker lifetime
-            if not is_main_proc:
-                sys.stdout = _log_fp  # type: ignore
-                sys.stderr = _log_fp  # type: ignore
-            print(f"[Worker {os.getpid()}] logging to {log_file}")
-    except Exception:
-        _log_fp = None
+    from .batch_worker import setup_asyncio_for_windows, setup_worker_logging
+
+    # Setup async and logging
+    setup_asyncio_for_windows()
+    _log_fp = setup_worker_logging(payload)
+
     # Defer heavy imports until after stdout is redirected
     from playwright.sync_api import sync_playwright  # type: ignore
 
     from .runner import run_once
+
+    # Extract payload
     jobs: list[dict[str, Any]] = payload["jobs"]
     defaults: dict[str, Any] = payload["defaults"]
-    out_dir = Path(payload["out_dir"])  # already exists
+    out_dir = Path(payload["out_dir"])
     out_pattern: str = payload["out_pattern"]
     headful: bool = bool(payload.get("headful", False))
     slowmo: int = int(payload.get("slowmo", 0))
@@ -149,19 +132,15 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     reuse_page: bool = bool(payload.get("reuse_page", False))
     summary: SummaryConfig = SummaryConfig(**(payload.get("summary") or {}))
     indices: list[int] = payload["indices"]
-
-    def _get(job, key, default_key=None, default_value=None):
-        if default_key is None:
-            default_key = key
-        return job.get(key, defaults.get(default_key, default_value))
+    fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1", "true", "yes")
 
     report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
 
     with sync_playwright() as p:
-        # Prefer system Chrome/Edge (order can respect DOU_PREFER_EDGE) to avoid downloads (faster startup)
-        prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
-        channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
-        browser = None
+        from .batch_worker import launch_browser_with_fallback, setup_browser_context
+
+        # Launch browser with fallbacks
+        prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1", "true", "yes")
         launch_opts = {
             "headless": not headful,
             "slow_mo": slowmo,
@@ -172,58 +151,9 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                 "--disable-features=Translate,BackForwardCache",
             ],
         }
-        for ch in channels:
-            try:
-                browser = p.chromium.launch(channel=ch, **launch_opts)
-                break
-            except Exception:
-                browser = None
-        if browser is None:
-            exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
-            if not exe:
-                for c in (
-                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                ) if prefer_edge else (
-                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                ):
-                    if Path(c).exists():
-                        exe = c
-                        break
-            if exe:
-                try:
-                    browser = p.chromium.launch(executable_path=exe, **launch_opts)
-                except Exception:
-                    browser = p.chromium.launch(**launch_opts)
-            else:
-                browser = p.chromium.launch(**launch_opts)
-        context = browser.new_context(ignore_https_errors=True, viewport={"width": 1024, "height": 768})
-        # Block heavy resources to accelerate navigation and scrolling (keep stylesheets to avoid breaking selectors)
-        try:
-            def _route_block_heavy(route):
-                try:
-                    req = route.request
-                    rtype = getattr(req, "resource_type", lambda: "")()
-                    if rtype in ("image", "media", "font"):
-                        return route.abort()
-                    url = req.url
-                    ul = url.lower()
-                    # Block common static heavy types and trackers/analytics
-                    if any(ul.endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".mp3", ".avi", ".mov", ".woff", ".woff2", ".ttf", ".otf")):
-                        return route.abort()
-                    if any(host in ul for host in ("googletagmanager.com", "google-analytics.com", "doubleclick.net", "hotjar.com", "facebook.com/tr", "stats.g.doubleclick.net")):
-                        return route.abort()
-                except Exception:
-                    pass
-                return route.continue_()
-            context.route("**/*", _route_block_heavy)
-        except Exception:
-            pass
+
+        browser = launch_browser_with_fallback(p, prefer_edge, launch_opts)
+        context = setup_browser_context(browser, block_resources=True)
         page_cache: dict[tuple[str, str], Any] = {}
         fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1","true","yes")
         try:
