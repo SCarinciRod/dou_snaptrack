@@ -374,6 +374,19 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             "stats": {...}
         }
     """
+    from .eagendas_helpers import (
+        DD_ORGAO_ID, DD_CARGO_ID, DD_AGENTE_ID,
+        launch_browser_with_fallbacks,
+        initialize_page_and_wait,
+        get_selectize_options_js,
+        set_selectize_value_js,
+        wait_for_selectize_repopulate,
+        filter_placeholder_options,
+        create_combo,
+        build_config_dict,
+        save_plan,
+    )
+
     v = bool(getattr(args, "plan_verbose", False))
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)
@@ -381,78 +394,16 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
     combos: list[dict[str, Any]] = []
     stats = {"total_orgaos": 0, "total_cargos": 0, "total_agentes": 0}
 
-    # IDs FIXOS dos dropdowns e-agendas
-    DD_ORGAO_ID = "filtro_orgao_entidade"
-    DD_CARGO_ID = "filtro_cargo"
-    DD_AGENTE_ID = "filtro_servidor"
-
-    # Usar headless=True por padrao (mais rapido e sem janela visivel)
-    # E-Agendas NAO detecta headless, testado com sucesso
-    LAUNCH_ARGS = ['--disable-blink-features=AutomationControlled', '--ignore-certificate-errors', '--disable-dev-shm-usage']
-
-    # Launch browser (headless por padrao, headful apenas se explicitamente solicitado)
-    browser = None
-    use_headless = not headful
-    try:
-        browser = await p.chromium.launch(channel="chrome", headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
-    except Exception:
-        try:
-            browser = await p.chromium.launch(channel="msedge", headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
-        except Exception:
-            exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
-            if not exe:
-                for c in (
-                    r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-                    r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-                    r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-                ):
-                    if Path(c).exists():
-                        exe = c
-                        break
-            if exe and Path(exe).exists():
-                browser = await p.chromium.launch(executable_path=exe, headless=use_headless, slow_mo=slowmo, args=LAUNCH_ARGS)
-
-    if not browser:
-        msg = (
-            "Nenhum browser disponível. Tentativas:\n"
-            "  1. channel='chrome' falhou\n"
-            "  2. channel='msedge' falhou\n"
-            "  3. Não encontrou Chrome/Edge em caminhos padrão\n"
-            "Certifique-se de ter Chrome ou Edge instalado."
-        )
-        raise RuntimeError(msg)
-
+    # Launch browser with fallbacks
+    browser = await launch_browser_with_fallbacks(p, headful, slowmo)
     context = await browser.new_context(ignore_https_errors=True)
     context.set_default_timeout(90_000)
     page = await context.new_page()
 
+    # Navigate and wait for initialization
     from dou_snaptrack.constants import EAGENDAS_URL
-
     url = EAGENDAS_URL
-    await page.goto(url, wait_until="commit", timeout=60_000)
-
-    # Aguardar AngularJS e Selectize inicializar via espera condicional
-    angular_ready = False
-    with contextlib.suppress(Exception):
-        await page.wait_for_function(
-            "() => document.querySelector('[ng-app]') !== null",
-            timeout=10_000
-        )
-        angular_ready = True
-
-    # Aguardar Selectize do órgão estar populado
-    selectize_ready = False
-    with contextlib.suppress(Exception):
-        await page.wait_for_function(
-            "() => { const el = document.getElementById('filtro_orgao_entidade'); return el?.selectize && Object.keys(el.selectize.options || {}).length > 5; }",
-            timeout=15_000
-        )
-        selectize_ready = True
-
-    # Fallback se esperas condicionais falharem (reduzido: condicionais já tentaram)
-    if not angular_ready or not selectize_ready:
-        await page.wait_for_timeout(1000)
+    await initialize_page_and_wait(page, url)
 
     frame = page.main_frame
 
@@ -460,70 +411,9 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         print(f"[plan-eagendas-async] URL: {url}")
         print("[plan-eagendas-async] Detectando dropdowns...")
 
-    # Helper async para obter opções via JavaScript API
-    async def get_selectize_options_js(element_id: str) -> list[dict[str, Any]]:
-        """Obter opções do Selectize via JavaScript API."""
-        try:
-            opts = await frame.evaluate(
-                """
-                (id) => {
-                    const el = document.getElementById(id);
-                    if (!el || !el.selectize) return [];
-
-                    const s = el.selectize;
-                    const out = [];
-
-                    if (s.options) {
-                        for (const [val, raw] of Object.entries(s.options)) {
-                            const v = String(val ?? '');
-                            const t = raw?.text || raw?.label || raw?.nome || raw?.name || v;
-                            out.push({ value: v, text: String(t) });
-                        }
-                    }
-
-                    return out;
-                }
-                """,
-                element_id,
-            )
-            return opts or []
-        except Exception:
-            return []
-
-    # Helper async para setar valor via JavaScript API
-    async def set_selectize_value_js(element_id: str, value: str) -> bool:
-        """Setar valor no Selectize via JavaScript API."""
-        try:
-            success = await frame.evaluate(
-                """
-                (args) => {
-                    const { id, value } = args;
-                    const el = document.getElementById(id);
-                    if (!el || !el.selectize) return false;
-
-                    el.selectize.setValue(String(value), false);
-
-                    // Disparar eventos
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-
-                    return true;
-                }
-                """,
-                {"id": element_id, "value": value},
-            )
-            return bool(success)
-        except Exception:
-            return False
-
-    # ========================================================================
-    # NÍVEL 1: ÓRGÃOS
-    # ========================================================================
-    opts_orgao = await get_selectize_options_js(DD_ORGAO_ID)
-
-    # Filtrar placeholders
-    opts_orgao = [o for o in opts_orgao if o.get("text") and "selecione" not in o["text"].lower()]
-
+    # Level 1: Organizations
+    opts_orgao = await get_selectize_options_js(frame, DD_ORGAO_ID)
+    opts_orgao = filter_placeholder_options(opts_orgao)
     opts_orgao = _filter_opts(
         opts_orgao, getattr(args, "select1", None), getattr(args, "pick1", None), getattr(args, "limit1", None)
     )
@@ -533,7 +423,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
 
     stats["total_orgaos"] = len(opts_orgao)
 
-    # Iterar N1 (Órgãos)
+    # Iterate Level 1 (Organizations)
     for org in opts_orgao:
         org_text = org["text"]
         org_value = org.get("value", org_text)
@@ -541,34 +431,18 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         if v:
             print(f"\n[plan-eagendas-async] Processando: {org_text}")
 
-        # Selecionar N1 via JavaScript API
-        success = await set_selectize_value_js(DD_ORGAO_ID, org_value)
-        if not success:
+        # Select organization
+        if not await set_selectize_value_js(frame, DD_ORGAO_ID, org_value):
             if v:
                 print("[plan-eagendas-async]   ⚠️  Falha ao selecionar órgão")
             continue
 
-        # Aguardar N2 (Cargo) repopular via espera condicional
-        cargo_ready = False
-        with contextlib.suppress(Exception):
-            await page.wait_for_function(
-                f"() => {{ const el = document.getElementById('{DD_CARGO_ID}'); return el?.selectize && Object.keys(el.selectize.options || {{}}).length > 0; }}",
-                timeout=10_000
-            )
-            cargo_ready = True
+        # Wait for Level 2 to repopulate
+        await wait_for_selectize_repopulate(page, DD_CARGO_ID, timeout_ms=10_000, fallback_ms=500)
 
-        # Fallback se espera condicional falhar (reduzido: condicional já tentou 10s)
-        if not cargo_ready:
-            await page.wait_for_timeout(500)
-
-        # ====================================================================
-        # NÍVEL 2: CARGOS
-        # ====================================================================
-        opts_cargo = await get_selectize_options_js(DD_CARGO_ID)
-
-        # Filtrar placeholders
-        opts_cargo = [o for o in opts_cargo if o.get("text") and "selecione" not in o["text"].lower()]
-
+        # Level 2: Positions
+        opts_cargo = await get_selectize_options_js(frame, DD_CARGO_ID)
+        opts_cargo = filter_placeholder_options(opts_cargo)
         opts_cargo = _filter_opts(
             opts_cargo, getattr(args, "select2", None), getattr(args, "pick2", None), getattr(args, "limit2", None)
         )
@@ -579,58 +453,27 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         stats["total_cargos"] += len(opts_cargo)
 
         if not opts_cargo:
-            # Sem cargos: criar combo só com órgão
-            combos.append(
-                {
-                    "orgao_label": org_text,
-                    "orgao_value": org_value,
-                    "cargo_label": "Todos",
-                    "cargo_value": "Todos",
-                    "agente_label": "Todos",
-                    "agente_value": "Todos",
-                }
-            )
+            # No positions: create combo with org only
+            combos.append(create_combo(org_text, org_value))
             continue
 
-        # Iterar N2 (Cargos)
+        # Iterate Level 2 (Positions)
         for cargo in opts_cargo:
             cargo_text = cargo["text"]
             cargo_value = cargo.get("value", cargo_text)
 
-            # Selecionar N2 via JavaScript API
-            success = await set_selectize_value_js(DD_CARGO_ID, cargo_value)
-            if not success:
+            # Select position
+            if not await set_selectize_value_js(frame, DD_CARGO_ID, cargo_value):
                 if v:
                     print(f"[plan-eagendas-async]     ⚠️  Falha ao selecionar cargo: {cargo_text}")
                 continue
 
-            # Aguardar N3 (Agente) repopular via espera condicional
-            agente_ready = False
-            with contextlib.suppress(Exception):
-                await page.wait_for_function(
-                    f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options || {{}}).length > 0; }}",
-                    timeout=8_000
-                )
-                agente_ready = True
+            # Wait for Level 3 to repopulate
+            await wait_for_selectize_repopulate(page, DD_AGENTE_ID, timeout_ms=8_000, fallback_ms=300)
 
-            # Fallback se espera condicional falhar (reduzido: condicional já tentou 8s)
-            if not agente_ready:
-                await page.wait_for_timeout(300)
-
-            # ================================================================
-            # NÍVEL 3: AGENTES
-            # ================================================================
-            opts_agente = await get_selectize_options_js(DD_AGENTE_ID)
-
-            # Filtrar placeholders E "Todos os ocupantes"
-            opts_agente = [
-                o
-                for o in opts_agente
-                if o.get("text")
-                and "selecione" not in o["text"].lower()
-                and "todos os ocupantes" not in o["text"].lower()
-            ]
-
+            # Level 3: Agents
+            opts_agente = await get_selectize_options_js(frame, DD_AGENTE_ID)
+            opts_agente = filter_placeholder_options(opts_agente, ["todos os ocupantes"])
             opts_agente = _filter_opts(
                 opts_agente, getattr(args, "select3", None), getattr(args, "pick3", None), getattr(args, "limit3", None)
             )
@@ -641,78 +484,26 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             stats["total_agentes"] += len(opts_agente)
 
             if not opts_agente:
-                # Sem agentes: criar combo só com órgão+cargo
-                combos.append(
-                    {
-                        "orgao_label": org_text,
-                        "orgao_value": org_value,
-                        "cargo_label": cargo_text,
-                        "cargo_value": cargo_value,
-                        "agente_label": "Todos",
-                        "agente_value": "Todos",
-                    }
-                )
+                # No agents: create combo with org+position
+                combos.append(create_combo(org_text, org_value, cargo_text, cargo_value))
                 continue
 
-            # Criar combo para cada agente
+            # Create combo for each agent
             for agente in opts_agente:
                 agente_text = agente["text"]
                 agente_value = agente.get("value", agente_text)
+                combos.append(create_combo(org_text, org_value, cargo_text, cargo_value, agente_text, agente_value))
 
-                combos.append(
-                    {
-                        "orgao_label": org_text,
-                        "orgao_value": org_value,
-                        "cargo_label": cargo_text,
-                        "cargo_value": cargo_value,
-                        "agente_label": agente_text,
-                        "agente_value": agente_value,
-                    }
-                )
-
-            # Reset N2 para próximo cargo (selecionar órgão novamente)
-            await set_selectize_value_js(DD_ORGAO_ID, org_value)
-            # Pequena pausa para estabilizar antes do próximo cargo
+            # Reset Level 2 for next position
+            await set_selectize_value_js(frame, DD_ORGAO_ID, org_value)
             with contextlib.suppress(Exception):
                 await page.wait_for_load_state("networkidle", timeout=2_000)
 
     await browser.close()
 
-    # ========================================================================
-    # MONTAR CONFIG
-    # ========================================================================
-    cfg = {
-        "source": "e-agendas",
-        "url": url,
-        "filters": {
-            "select1": getattr(args, "select1", None),
-            "pick1": getattr(args, "pick1", None),
-            "limit1": getattr(args, "limit1", None),
-            "select2": getattr(args, "select2", None),
-            "pick2": getattr(args, "pick2", None),
-            "limit2": getattr(args, "limit2", None),
-            "select3": getattr(args, "select3", None),
-            "pick3": getattr(args, "pick3", None),
-            "limit3": getattr(args, "limit3", None),
-        },
-        "combos": combos,
-        "stats": {
-            "total_orgaos": stats["total_orgaos"],
-            "total_cargos": stats["total_cargos"],
-            "total_agentes": stats["total_agentes"],
-            "total_combos": len(combos),
-        },
-    }
-
-    # Salvar plan se especificado
-    plan_out = getattr(args, "plan_out", None)
-    if plan_out:
-        import json
-
-        Path(plan_out).parent.mkdir(parents=True, exist_ok=True)
-        Path(plan_out).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-        if v:
-            print(f"\n[plan-eagendas-async] ✅ Plan salvo: {plan_out}")
+    # Build and save configuration
+    cfg = build_config_dict(url, args, combos, stats)
+    save_plan(cfg, getattr(args, "plan_out", None), verbose=v)
 
     if v:
         print(f"\n[plan-eagendas-async] ✅ Gerados {len(combos)} combos")
