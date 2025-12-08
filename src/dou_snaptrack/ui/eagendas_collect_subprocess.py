@@ -45,38 +45,37 @@ def _write_result(data: dict) -> None:
 
 def main():
     """Executa coleta de eventos para múltiplos agentes (modelo 2 níveis: Órgão → Agente)."""
+    from .eagendas_subprocess_helpers import (
+        parse_input_and_periodo,
+        setup_playwright_env,
+        launch_browser_with_channels,
+        launch_browser_with_exe_paths,
+        create_browser_context,
+        wait_for_angular_and_selectize,
+        select_orgao_and_agente,
+        click_mostrar_agenda,
+        extract_query_info,
+    )
+    
     try:
-        # Ler input via stdin
+        # Read and parse input
         input_data = json.loads(sys.stdin.read())
-        queries = input_data.get("queries", [])
-        periodo = input_data.get("periodo", {})
-
+        queries, start_date, end_date = parse_input_and_periodo(input_data)
+        
         if not queries:
             _write_result({"success": False, "error": "Nenhuma query fornecida"})
             return 1
 
-        # Importar após ler stdin para evitar delay inicial
-        from datetime import date
-
+        # Import after reading stdin
         from playwright.sync_api import sync_playwright
 
-        # Configurar Playwright
-        pw_browsers_path = Path(__file__).resolve().parent.parent.parent.parent / ".venv" / "pw-browsers"
-        if pw_browsers_path.exists():
-            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(pw_browsers_path)
+        # Setup Playwright
+        setup_playwright_env()
 
         agentes_data = []
         total_eventos = 0
 
-        # Converter datas
-        try:
-            start_date = date.fromisoformat(periodo["inicio"])
-            end_date = date.fromisoformat(periodo["fim"])
-        except Exception as e:
-            _write_result({"success": False, "error": f"Erro ao parsear datas: {e}"})
-            return 1
-
-        # Funções helper para Selectize
+        # Selectize helper functions
         def get_selectize_options(page, element_id: str):
             """Extract options from a Selectize dropdown."""
             return page.evaluate("""(id) => {
@@ -100,143 +99,55 @@ def main():
                 const { id, value } = args;
                 const el = document.getElementById(id);
                 if (!el || !el.selectize) return false;
-                // setValue com false = não silencioso = dispara eventos do Selectize
                 el.selectize.setValue(String(value), false);
                 return true;
             }""", {'id': element_id, 'value': value})
 
         with sync_playwright() as p:
-            # Usar headless=True com o novo modo headless do Chromium 109+
-            # O site E-Agendas NÃO detecta headless, então podemos usar headless verdadeiro
+            # Launch browser
             LAUNCH_ARGS = [
-                '--headless=new',  # Novo modo headless (mais difícil de detectar)
+                '--headless=new',
                 '--disable-blink-features=AutomationControlled',
                 '--ignore-certificate-errors'
             ]
 
-            # Tentar lançar browser
-            browser = None
-            for channel in ['chrome', 'msedge']:
-                try:
-                    print(f"[DEBUG] Tentando channel={channel}...", file=sys.stderr)
-                    browser = p.chromium.launch(channel=channel, headless=True, args=LAUNCH_ARGS)
-                    print(f"[DEBUG] ✓ {channel} (headless) OK", file=sys.stderr)
-                    break
-                except Exception as e:
-                    print(f"[DEBUG] ✗ {channel} falhou: {e}", file=sys.stderr)
-
-            # Fallback: buscar executável
+            browser = launch_browser_with_channels(p, LAUNCH_ARGS)
             if not browser:
-                exe_paths = [
-                    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-                    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-                    r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-                ]
-                for exe_path in exe_paths:
-                    if Path(exe_path).exists():
-                        try:
-                            browser = p.chromium.launch(executable_path=exe_path, headless=True, args=LAUNCH_ARGS)
-                            print("[DEBUG] ✓ executable_path (headless) OK", file=sys.stderr)
-                            break
-                        except Exception:
-                            continue
+                browser = launch_browser_with_exe_paths(p, LAUNCH_ARGS)
 
             if not browser:
                 _write_result({"success": False, "error": "Nenhum browser disponível (Chrome/Edge)"})
                 return 1
 
-            # Criar contexto NEGANDO permissões de geolocalização
-            context = browser.new_context(
-                ignore_https_errors=True,
-                viewport={'width': 1280, 'height': 900},
-                permissions=[],  # Negar todas as permissões
-                geolocation=None,
-            )
-            context.set_default_timeout(60000)
-            page = context.new_page()
+            # Create context and page
+            context, page = create_browser_context(browser)
 
-            # URL base do E-Agendas
+            # URL base
             base_url = "https://eagendas.cgu.gov.br/"
 
-            # Processar cada consulta
+            # Process each query
             for query_idx, query in enumerate(queries):
                 try:
-                    # Modelo novo: n3 contém o agente (compatibilidade com listas antigas)
-                    # n1 = órgão, n3 = agente (n2 era cargo, agora ignorado)
-                    agente_label = query.get('n3_label') or query.get('person_label', 'Agente')
-                    agente_value = query.get('n3_value', '')
-                    orgao_label = query.get('n1_label', 'Órgão')
-                    orgao_value = query.get('n1_value', '')
+                    agente_label, agente_value, orgao_label, orgao_value = extract_query_info(query)
 
                     print(f"[PROGRESS] Processando agente {query_idx + 1}/{len(queries)}: {agente_label}",
                           file=sys.stderr)
 
-                    # Navegar para a página
+                    # Navigate and wait
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
                     page.goto(base_url, timeout=30000, wait_until="networkidle")
-                    
-                    # OTIMIZAÇÃO: Espera condicional para AngularJS (era 5000ms fixo)
-                    angular_ready_js = "() => document.querySelector('[ng-app]') !== null"
-                    try:
-                        page.wait_for_function(angular_ready_js, timeout=5000)
-                        print("[DEBUG] ✓ AngularJS ready", file=sys.stderr)
-                    except Exception:
-                        print("[DEBUG] AngularJS timeout, continuando...", file=sys.stderr)
 
-                    # Aguardar selectize de órgãos inicializar
-                    wait_orgao_js = f"() => {{ const el = document.getElementById('{DD_ORGAO_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 5; }}"
-                    try:
-                        page.wait_for_function(wait_orgao_js, timeout=20000)
-                        print("[DEBUG] ✓ Selectize inicializado", file=sys.stderr)
-                    except Exception as e:
-                        print(f"[ERROR] Selectize não inicializou: {e}", file=sys.stderr)
+                    # Wait for initialization
+                    if not wait_for_angular_and_selectize(page, DD_ORGAO_ID):
                         continue
 
-                    # PASSO 1: Selecionar órgão
-                    print(f"[DEBUG] Selecionando órgão: {orgao_label} (ID: {orgao_value})", file=sys.stderr)
-                    if not set_selectize_value(page, DD_ORGAO_ID, orgao_value):
-                        print("[ERROR] Não foi possível selecionar órgão", file=sys.stderr)
+                    # Select orgao and agente
+                    if not select_orgao_and_agente(page, orgao_value, orgao_label, agente_value, agente_label, 
+                                                   DD_ORGAO_ID, DD_AGENTE_ID, set_selectize_value):
                         continue
-                    
-                    # NOTA: Usamos wait_for_timeout em vez de wait_for_function aqui porque
-                    # o polling frequente do wait_for_function interfere com o ciclo de digest
-                    # do AngularJS e impede que os callbacks (onUpdateOrgao) sejam executados.
-                    page.wait_for_timeout(2000)
 
-                    # PASSO 2: Selecionar agente diretamente
-                    print(f"[DEBUG] Selecionando agente: {agente_label} (ID: {agente_value})", file=sys.stderr)
-                    if not set_selectize_value(page, DD_AGENTE_ID, agente_value):
-                        print("[ERROR] Não foi possível selecionar agente", file=sys.stderr)
-                        continue
-                    
-                    # NOTA: Mesma razão - wait_for_timeout permite que o Angular execute
-                    # onUpdateServidor() e preencha automaticamente o cargo
-                    page.wait_for_timeout(2000)
-
-                    # Mitigar cookie bar
-                    try:
-                        page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
-                    except Exception:
-                        pass
-
-                    # Clicar em "Mostrar agenda" via JavaScript com expect_navigation
-                    # IMPORTANTE: O clique via JavaScript + expect_navigation é a abordagem mais robusta
-                    # Usar locator.click() pode travar em "waiting for scheduled navigations"
-                    print("[DEBUG] Clicando em 'Mostrar agenda'...", file=sys.stderr)
-                    clicked = False
-                    try:
-                        with page.expect_navigation(wait_until='networkidle', timeout=120000):
-                            page.evaluate("""() => document.querySelector('button[ng-click*="submit"]').click()""")
-                        clicked = True
-                        print("[DEBUG] ✓ Navegação completa", file=sys.stderr)
-                    except Exception as e:
-                        print(f"[DEBUG] Clique/navegação falhou: {e}", file=sys.stderr)
-                        # Fallback: espera simples
-                        page.wait_for_timeout(15000)
-                        clicked = True  # Tentar continuar mesmo assim
-
-                    if not clicked:
+                    # Click Mostrar agenda
+                    if not click_mostrar_agenda(page):
                         print(f"[WARNING] Não foi possível clicar em 'Mostrar agenda' para {agente_label}", file=sys.stderr)
                         continue
 

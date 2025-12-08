@@ -50,6 +50,7 @@ src/dou_snaptrack/ui/dou_parallel_helpers.py
 src/dou_snaptrack/ui/eagendas_collect_parallel.py
 src/dou_snaptrack/ui/eagendas_collect_subprocess.py
 src/dou_snaptrack/ui/eagendas_fetch.py
+src/dou_snaptrack/ui/eagendas_subprocess_helpers.py
 src/dou_snaptrack/ui/eagendas_ui.py
 src/dou_snaptrack/ui/eagendas_ui_helpers.py
 src/dou_snaptrack/ui/launch.py
