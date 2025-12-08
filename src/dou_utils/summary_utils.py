@@ -148,13 +148,23 @@ def _find_priority_sentence(sents: list[str]) -> tuple[int, str] | None:
 
 def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = None, mode: str = "center") -> str:
     """Sumariza texto removendo cabeçalhos DOU e selecionando sentenças relevantes."""
+    from .summarization_scoring import (
+        compute_lexical_diversity,
+        compute_position_scores,
+        compute_keyword_scores,
+        compute_sentence_scores,
+        select_top_sentences,
+        deduplicate_sentences,
+    )
+
     if not text:
         return ""
 
+    # Clean and split text
     base = clean_text_for_summary(text)
     sents = split_sentences(base)
 
-    # Robust fallback: se não houver sentenças, sintetizar a partir das primeiras palavras
+    # Robust fallback: if no sentences, synthesize from first words
     if not sents:
         words = re.findall(r"\w+[\w-]*", base)
         if not words:
@@ -162,114 +172,50 @@ def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = N
         chunk = " ".join(words[: max(12, max_lines * 14)]).strip()
         return chunk + ("" if chunk.endswith(".") else ".")
 
+    # If already short enough, return as-is
     if len(sents) <= max_lines:
         return "\n".join(sents[:max_lines])
 
+    # Prepare keywords
     kws = [k.strip().lower() for k in (keywords or []) if k.strip()]
     kw_set = set(kws)
 
-    def tokens(s: str):
-        raw = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
-        return [w for w in re.findall(r"[a-z0-9]+", raw.lower()) if len(w) >= 3]
+    # Compute component scores
+    lex_scores = compute_lexical_diversity(sents)
 
-    lex = []
-    for s in sents:
-        toks = tokens(s)
-        unique = len(set(toks))
-        lex.append(unique / (1 + len(toks)))
-
-    # Ajuste de modo: preferir 'center' por padrão; forçar 'lead' apenas para 'despacho'
+    # Adjust mode based on document genre
     mode_local = (mode or "center").lower()
     genre = _detect_genre_header(text)
     if genre == "despacho":
         mode_local = "lead"
 
-    n = len(sents)
-    pos = []
-    for i in range(n):
-        if mode_local == "lead":
-            pos.append(1.0 - (i / n) * 0.85)
-        else:
-            x = (i - (n - 1) / 2) / (n / 2)
-            pos.append(1.0 - (x * x))
+    pos_scores = compute_position_scores(len(sents), mode_local)
+    keyword_scores = compute_keyword_scores(sents, kw_set)
 
-    kscore = []
-    for s in sents:
-        st = s.lower()
-        hits = sum(1 for k in kw_set if k and k in st)
-        kscore.append(hits)
-
-    scores = []
-    # Dar um bônus para frases com verbos decisórios (sempre que aparecerem)
+    # Find priority sentence
     pri_idx = _find_priority_sentence(sents)
 
-    for i, s in enumerate(sents):
-        if mode_local == "keywords-first":
-            w_k, w_l, w_p = 1.6, 1.0, 0.6
-        elif mode_local == "lead":
-            w_k, w_l, w_p = 1.0, 0.8, 1.6
-        else:
-            w_k, w_l, w_p = 1.4, 1.0, 1.2
-        score = (w_k * kscore[i]) + (w_l * lex[i]) + (w_p * pos[i])
-        if len(s) > 450:
-            score -= 0.4
-        if len(s) < 40 and kscore[i] == 0:
-            score -= 0.5
-        # Bônus por frases decisórias
-        if pri_idx and i == pri_idx[0]:
-            score += 0.9
-        # Bônus por valores/datas
-        if _MONEY_PATTERN.search(s):
-            score += 0.4
-        if _DATE_PATTERN.search(s):
-            score += 0.2
-        # PENALIDADE FORTE para sentenças que parecem cabeçalhos do DOU
-        if _DOU_HEADER_SENTENCE.search(s):
-            score -= 2.0
-        # Penalidade adicional por menções a "Edição", "Seção", "Página" isoladas
-        s_low = s.lower()
-        metadata_count = sum([
-            "edição" in s_low or "edicao" in s_low,
-            "seção" in s_low or "secao" in s_low,
-            "página" in s_low or "pagina" in s_low,
-            "publicado em" in s_low,
-            "brasão" in s_low or "brasao" in s_low
-        ])
-        if metadata_count >= 2:
-            score -= 1.5
-        # Penalidade por enumeração/itens de lista normativos
-        if _ENUMERATION_PATTERN.search(s):
-            score -= 0.7
-        scores.append((score, i, s))
+    # Compute final scores
+    scores = compute_sentence_scores(
+        sents,
+        lex_scores,
+        pos_scores,
+        keyword_scores,
+        mode_local,
+        pri_idx,
+    )
 
-    scores.sort(key=lambda t: (-t[0], t[1]))
-    picked_idx = sorted(i for _, i, _ in scores[:max_lines])
+    # Select top sentences
+    picked_idx = select_top_sentences(scores, len(sents), max_lines, pri_idx)
 
-    # Garantir inclusão da sentença prioritária, se houver espaço e ainda não selecionada
-    if pri_idx and pri_idx[0] not in picked_idx:
-        picked_idx = sorted(([*picked_idx, pri_idx[0]])[: max_lines])
-
-    if len(picked_idx) < max_lines:
-        need = max_lines - len(picked_idx)
-        pool = [i for i in range(n) if i not in picked_idx]
-        anchor = scores[0][1]
-        pool.sort(key=lambda i: abs(i - anchor))
-        picked_idx.extend(pool[:need])
-        picked_idx = sorted(set(picked_idx))[:max_lines]
-
+    # Build output with deduplication
     out_lines = [sents[i].strip() for i in picked_idx]
-    final, seen = [], set()
-    for ln in out_lines:
-        key = ln.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        final.append(ln)
-        if len(final) >= max_lines:
-            break
-    # Fallback derradeiro: se ainda ficou vazio por algum motivo, usar as primeiras sentenças (lead)
+    final = deduplicate_sentences(out_lines, max_lines)
+
+    # Final fallback: use lead sentences if empty
     if not final:
         lead = sents[:max_lines]
         if lead:
             return "\n".join(lead).strip()
+
     return "\n".join(final[:max_lines]).strip()
