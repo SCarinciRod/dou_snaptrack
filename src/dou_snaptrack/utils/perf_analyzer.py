@@ -14,13 +14,13 @@ Uso:
 """
 from __future__ import annotations
 
-import contextlib
 import functools
 import logging
 import sys
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
+from collections.abc import Callable
 
 logger = logging.getLogger("dou_snaptrack.utils.perf_analyzer")
 
@@ -56,7 +56,7 @@ class TimingContext:
         self._success: bool = True
         self._error: str | None = None
     
-    def __enter__(self) -> "TimingContext":
+    def __enter__(self) -> TimingContext:
         self._start = time.perf_counter()
         return self
     

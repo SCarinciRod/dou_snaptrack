@@ -356,7 +356,6 @@ class DocxBulletinGenerator(BulletinGenerator):
             from docx.opc.constants import RELATIONSHIP_TYPE as RT
             from docx.oxml import OxmlElement
             from docx.oxml.ns import qn
-            from docx.shared import Pt
         except ImportError:
             logger.error("Modulo python-docx nao encontrado. Instale com: pip install python-docx")
             raise
