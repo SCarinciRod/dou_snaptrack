@@ -120,165 +120,66 @@ def _summarize_item(
     Returns:
         String resumida ou None se não foi possível resumir
     """
+    from dou_utils.summarization_helpers import (
+        extract_base_text,
+        get_fallback_from_title,
+        prepare_text_for_summarization,
+        derive_mode_from_doc_type,
+        apply_summarizer_with_fallbacks,
+        apply_default_summarizer,
+        post_process_snippet,
+    )
+
     if not summarize or not summarizer_fn:
         return None
 
-    base = it.get("texto") or it.get("ementa") or ""
+    # Extract base text
+    base = extract_base_text(it)
     if not base:
-        # Último recurso: tentar construir resumo a partir de header ou título
-        head = _extract_doc_header_line(it)
-        if head:
-            return _final_clean_snippet(head)
-        t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-        return _final_clean_snippet(str(t)) if t else None
-    # Separar cabeçalho do corpo para o resumo não repetir o cabeçalho do ato
+        return get_fallback_from_title(it)
+
+    # Prepare text: split header/body
     use_base = base
     try:
         _header, body = _split_doc_header(base)
-        # Só usar o body se ele tiver conteúdo razoável (evita ficar vazio quando só há título)
         if body and len(body.strip()) >= 30:
             use_base = body
     except Exception as e:
         logger.debug(f"Failed to split doc header: {e}")
-    # Remover metadados do DOU, limpar juridiquês e tentar extrair somente o Art. 1º
-    try:
-        clean = _remove_dou_metadata(use_base)
-        clean = _strip_legalese_preamble(clean)
-        a1 = _extract_article1_section(clean)
-        base_eff = a1 or clean
-        if not base_eff:
-            # fallback: tentar com o texto original limpo (sem remover cabeçalho)
-            clean2 = _strip_legalese_preamble(_remove_dou_metadata(base))
-            base_eff = clean2 or base
-        base = base_eff
-    except Exception as e:
-        logger.debug(f"Failed to clean/extract article: {e}")
 
-    # Modo derivado por tipo de ato: usar 'lead' para atos normativos e despachos
-    derived_mode = (mode or "center").lower()
-    try:
-        tipo = (it.get("tipo_ato") or "").strip().lower()
-        if tipo.startswith("decreto") or tipo.startswith("portaria") or tipo.startswith("resolu") or tipo.startswith("despacho"):
-            derived_mode = "lead"
-    except Exception as e:
-        logger.debug(f"Failed to derive mode from tipo_ato: {e}")
+    # Clean and prepare text
+    prepared_text = prepare_text_for_summarization(use_base)
 
-    snippet = None
-    method_tag = ""
-    try:
-        # Chamada preferida: (text, max_lines, mode, keywords)
-        snippet = summarizer_fn(base, max_lines, derived_mode, keywords)
-        method_tag = "summarizer"
-    except TypeError:
-        # Tentar alternativa (text, max_lines, keywords, mode)
-        try:
-            snippet = summarizer_fn(base, max_lines, keywords, derived_mode)  # type: ignore
-            method_tag = "summarizer_alt"
-        except TypeError:
-            # Tentar legado (text, max_lines, mode)
-            try:
-                snippet = summarizer_fn(base, max_lines, derived_mode)  # type: ignore
-                method_tag = "summarizer_legacy"
-            except Exception as e:
-                logger.warning(f"Erro ao sumarizar: {e}")
-                snippet = None
-    except Exception as e:
-        logger.warning(f"Erro ao sumarizar: {e}")
-        snippet = None
-    # Se o summarizer retornar vazio, tentar fallback com a base original
-    try:
-        if not snippet:
-            alt = _strip_legalese_preamble(_remove_dou_metadata(base)) if base else base
-            if alt and alt != base:
-                try:
-                    snippet = summarizer_fn(alt, max_lines, derived_mode, keywords)
-                    method_tag = method_tag or "summarizer_altbase"
-                except TypeError:
-                    try:
-                        snippet = summarizer_fn(alt, max_lines, keywords, derived_mode)  # type: ignore
-                        method_tag = method_tag or "summarizer_altbase_alt"
-                    except TypeError:
-                        snippet = summarizer_fn(alt, max_lines, derived_mode)  # type: ignore
-                        method_tag = method_tag or "summarizer_altbase_legacy"
-    except Exception:
-        pass
+    # Derive mode from document type
+    derived_mode = derive_mode_from_doc_type(it, mode)
 
-    # Se ainda não houver snippet, aplicar fallback com sumarizador simples padrão
+    # Try main summarizer with fallbacks
+    snippet, method_tag = apply_summarizer_with_fallbacks(
+        summarizer_fn, prepared_text, max_lines, derived_mode, keywords
+    )
+
+    # If still no snippet, try default summarizer
     if not snippet:
-        try:
-            snippet = _default_simple_summarizer(base, max_lines, derived_mode, keywords)
-            method_tag = method_tag or "default_simple"
-        except Exception:
-            snippet = None
+        snippet = apply_default_summarizer(prepared_text, max_lines, derived_mode, keywords)
+        method_tag = method_tag or "default_simple"
 
-    # Se ainda não houver snippet, construir a partir de header ou título
+    # Final fallback: use header or title
     if not snippet:
-        head = None
-        try:
-            head = _extract_doc_header_line(it)
-        except Exception:
-            head = None
-        if head:
-            snippet = head
-            method_tag = method_tag or "header_line"
-        else:
-            t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-            if t:
-                snippet = str(t)
-                method_tag = method_tag or "title_fallback"
+        snippet = get_fallback_from_title(it)
+        if snippet:
+            method_tag = method_tag or "title_fallback"
 
-    # Pós-processamento: limitar a N frases e limpar resíduos/metadata
+    # Post-process snippet
     if snippet:
-        # Remover ruídos comuns no início do resumo (ANEXO, NR, códigos)
-        with contextlib.suppress(Exception):
-            snippet = re.sub(r"^(ANEXO(\s+[IVXLCDM]+)?|NR)\b[:\-\s]*", "", snippet, flags=re.I).strip()
-        snippet = _cap_sentences(snippet, max_lines)
-        snippet = _final_clean_snippet(snippet)
-        # Salvaguarda: se após o pós-processamento o resumo ficar vazio, reconstruir com header/título
-        if not snippet.strip():
-            head2 = None
-            try:
-                head2 = _extract_doc_header_line(it)
-            except Exception:
-                head2 = None
-            if head2:
-                snippet = _final_clean_snippet(head2)
-                method_tag = method_tag or "header_line_cleanup"
-            else:
-                t2 = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-                if t2:
-                    snippet = _final_clean_snippet(str(t2))
-                    method_tag = method_tag or "title_cleanup"
-                else:
-                    # Último recurso: usar sumarizador simples no texto-base
-                    try:
-                        snippet = _default_simple_summarizer(base or "", max_lines, derived_mode, keywords)
-                        snippet = _final_clean_snippet(snippet)
-                        method_tag = method_tag or "default_simple_cleanup"
-                    except Exception:
-                        snippet = ""
-    # Garantir resumo mínimo e registrar metadados
-    if not snippet or not snippet.strip():
-        min_snip = _minimal_summary_from_item(it)
-        if min_snip:
-            snippet = _final_clean_snippet(min_snip)
-            method_tag = method_tag or "minimal_header_title"
-        elif base:
-            # reduzir base à 1 frase curta como último recurso
-            snippet = _cap_sentences(base, max(1, min(2, max_lines)))
-            method_tag = method_tag or "cap_from_base"
-        else:
-            snippet = ""
+        snippet = post_process_snippet(snippet, max_lines)
 
-    try:
-        it.setdefault("_summary_meta", {})
-        it["_summary_meta"].update({
-            "mode_used": derived_mode,
-            "method": method_tag or "unknown",
-            "len": len(snippet or ""),
-        })
-    except Exception:
-        pass
+        # Safety check: if empty after post-processing, rebuild from title
+        if not snippet.strip():
+            snippet = get_fallback_from_title(it)
+            if snippet:
+                snippet = _final_clean_snippet(snippet)
+                method_tag = method_tag or "header_line_cleanup"
+
     return snippet
 
 
