@@ -93,7 +93,7 @@ class EditionRunnerService:
         # Determine navigation strategy
         url = build_edition_url(params.date, params.secao)
         inpage = should_reuse_inpage(
-            page if self._precreated_page else None,
+            self._precreated_page,
             self._allow_inpage_reuse,
             params.date,
             params.secao

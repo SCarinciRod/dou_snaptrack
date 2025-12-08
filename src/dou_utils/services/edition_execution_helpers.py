@@ -27,7 +27,7 @@ def should_reuse_inpage(page, allow_inpage_reuse: bool, date: str, secao: str) -
     """Check if current page can be reused for this edition.
     
     Args:
-        page: Playwright page
+        page: Playwright page (can be None)
         allow_inpage_reuse: Whether in-page reuse is allowed
         date: Target date
         secao: Target secao
@@ -35,7 +35,7 @@ def should_reuse_inpage(page, allow_inpage_reuse: bool, date: str, secao: str) -
     Returns:
         True if page can be reused
     """
-    if not allow_inpage_reuse:
+    if not allow_inpage_reuse or page is None:
         return False
     
     try:
