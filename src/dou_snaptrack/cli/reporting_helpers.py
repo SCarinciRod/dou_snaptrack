@@ -67,6 +67,48 @@ def load_aggregated_files(files: list[str]) -> tuple[list[dict[str, Any]], str, 
     return agg, date, secao
 
 
+def load_and_group_by_n1(in_dir: str) -> tuple[dict[str, list[dict[str, Any]]], str, str]:
+    """Load JSON files and group items by N1 (first selection level).
+
+    Args:
+        in_dir: Directory containing JSON files
+
+    Returns:
+        Tuple of (groups_dict, date, secao)
+    """
+    groups: dict[str, list[dict[str, Any]]] = {}
+    date = ""
+    secao = ""
+
+    for f in sorted(Path(in_dir).glob("*.json")):
+        try:
+            data = __import__('json').loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        # Extract N1 from selections
+        sel = data.get("selecoes") or []
+        n1 = None
+        if isinstance(sel, list) and len(sel) >= 1 and isinstance(sel[0], dict):
+            n1 = sel[0].get("key") or sel[0].get("label") or sel[0].get("type")
+        n1 = str(n1 or "N1")
+
+        # Process items
+        items = data.get("itens", [])
+        for it in items:
+            normalize_item_detail_url(it)
+
+        groups.setdefault(n1, []).extend(items)
+
+        # Update metadata if missing
+        if not date:
+            date = data.get("data") or date
+        if not secao:
+            secao = data.get("secao") or secao
+
+    return groups, date, secao
+
+
 def sort_items_by_date_desc(items: list[dict[str, Any]]) -> None:
     """Sort items by publication date in descending order.
 
@@ -137,6 +179,44 @@ def enrich_items_with_fetcher(
     ).enrich_items(items, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
 
 
+def enrich_groups_with_fetcher(
+    groups: dict[str, list[dict[str, Any]]],
+    fetch_parallel: int,
+    fetch_timeout_sec: int,
+    fetch_force_refresh: bool,
+    fetch_browser_fallback: bool,
+    short_len_threshold: int,
+) -> None:
+    """Enrich grouped items with full text using Fetcher.
+
+    Args:
+        groups: Dictionary of grouped items (modified in place)
+        fetch_parallel: Number of parallel workers
+        fetch_timeout_sec: Timeout in seconds
+        fetch_force_refresh: Force refresh flag
+        fetch_browser_fallback: Use browser fallback flag
+        short_len_threshold: Short length threshold
+    """
+    from dou_snaptrack.utils.fetcher import Fetcher
+
+    total_items = sum(len(v) for v in groups.values())
+    logger.info(
+        f"[ENRICH] deep-mode STRICT by N1: items={total_items} groups={len(groups)} parallel={fetch_parallel} timeout={fetch_timeout_sec}s "
+        f"overwrite=True force_refresh={bool(fetch_force_refresh)} browser_fallback={bool(fetch_browser_fallback)} short_len_threshold={int(short_len_threshold)}"
+    )
+
+    fetcher = Fetcher(
+        timeout_sec=fetch_timeout_sec,
+        force_refresh=bool(fetch_force_refresh),
+        use_browser_if_short=bool(fetch_browser_fallback),
+        short_len_threshold=int(short_len_threshold),
+        browser_timeout_sec=max(20, fetch_timeout_sec),
+    )
+
+    for items in groups.values():
+        fetcher.enrich_items(items, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
+
+
 def clean_enriched_items(items: list[dict[str, Any]]) -> None:
     """Clean DOU headers from enriched items.
 
@@ -173,7 +253,7 @@ def log_enrichment_debug_info(items: list[dict[str, Any]]) -> None:
 
 
 def log_enrichment_skip_reason(
-    summary_lines: int, enrich_missing: bool, offline: bool, has_items: bool
+    summary_lines: int, enrich_missing: bool, offline: bool, has_items: bool, context: str = ""
 ) -> None:
     """Log why enrichment was skipped.
 
@@ -182,15 +262,17 @@ def log_enrichment_skip_reason(
         enrich_missing: Whether enrichment is enabled
         offline: Whether offline mode is enabled
         has_items: Whether there are items
+        context: Additional context for log message (e.g., "by N1")
     """
+    ctx = f" {context}" if context else ""
     if summary_lines <= 0:
-        logger.info("[ENRICH] skipped: summarize disabled (summary_lines=0)")
+        logger.info(f"[ENRICH] skipped{ctx}: summarize disabled (summary_lines=0)")
     elif not enrich_missing:
-        logger.info("[ENRICH] skipped: enrich_missing=False")
+        logger.info(f"[ENRICH] skipped{ctx}: enrich_missing=False")
     elif offline:
-        logger.info("[ENRICH] skipped: DOU_OFFLINE_REPORT=1")
+        logger.info(f"[ENRICH] skipped{ctx}: DOU_OFFLINE_REPORT=1")
     elif not has_items:
-        logger.info("[ENRICH] skipped: no items")
+        logger.info(f"[ENRICH] skipped{ctx}: no items")
 
 
 def fallback_add_title_as_text(items: list[dict[str, Any]], summary_lines: int) -> None:

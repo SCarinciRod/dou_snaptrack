@@ -293,94 +293,62 @@ def split_and_report_by_n1(
         date_label: rótulo de data (opcional)
         secao_label: rótulo de seção (opcional)
     """
+    from .reporting_helpers import (
+        load_and_group_by_n1,
+        enrich_groups_with_fetcher,
+        log_enrichment_skip_reason,
+        fallback_add_title_as_text,
+    )
+
+    # Prepare output directory
     out_dir = Path(out_root)
-    # If a file path is passed (like logs/unused.docx), use its parent as output directory
-    if out_dir.suffix:
+    if out_dir.suffix:  # If a file path is passed, use its parent
         out_dir = out_dir.parent
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Agrupar por N1 (selecoes[0])
-    groups: dict[str, list[dict[str, Any]]] = {}
-    date = date_label
-    secao = secao_label
-    for f in sorted(Path(in_dir).glob("*.json")):
-        try:
-            data = __import__('json').loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        sel = (data.get("selecoes") or [])
-        n1 = None
-        if isinstance(sel, list) and len(sel) >= 1 and isinstance(sel[0], dict):
-            n1 = sel[0].get("key") or sel[0].get("label") or sel[0].get("type")
-        n1 = str(n1 or "N1")
-        items = data.get("itens", [])
-        # Normalizar links para absolutos quando possível
-        for it in items:
-            durl = it.get("detail_url") or ""
-            if not durl:
-                link = it.get("link") or ""
-                if link:
-                    if link.startswith("http"):
-                        durl = link
-                    elif link.startswith("/"):
-                        durl = f"https://www.in.gov.br{link}"
-            if durl:
-                it["detail_url"] = durl
-        groups.setdefault(n1, []).extend(items)
-        # Atualiza metadados se faltantes
-        if not date:
-            date = data.get("data") or date
-        if not secao:
-            secao = data.get("secao") or secao
+    # Load and group items by N1
+    groups, date, secao = load_and_group_by_n1(in_dir)
+    date = date or date_label
+    secao = secao or secao_label
 
-    total_files = 0
-    # Deep mode por padrão também quando split por N1
-    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
-    if summary_lines > 0 and not offline and groups:
-        total_items = sum(len(v) for v in groups.values())
-        logger.info(
-            f"[ENRICH] deep-mode STRICT by N1: items={total_items} groups={len(groups)} parallel={fetch_parallel} timeout={fetch_timeout_sec}s "
-            f"overwrite=True force_refresh={bool(fetch_force_refresh)} browser_fallback={bool(fetch_browser_fallback)} short_len_threshold={int(short_len_threshold)}"
+    # Enrich items with deep mode if appropriate
+    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1", "true", "yes")
+    if summary_lines > 0 and not offline and enrich_missing and groups:
+        enrich_groups_with_fetcher(
+            groups,
+            fetch_parallel,
+            fetch_timeout_sec,
+            fetch_force_refresh,
+            fetch_browser_fallback,
+            short_len_threshold,
         )
-        fetcher = Fetcher(
-            timeout_sec=fetch_timeout_sec,
-            force_refresh=bool(fetch_force_refresh),
-            use_browser_if_short=bool(fetch_browser_fallback),
-            short_len_threshold=int(short_len_threshold),
-            browser_timeout_sec=max(20, fetch_timeout_sec),
-        )
-        for items in groups.values():
-            fetcher.enrich_items(items, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
     else:
-        if summary_lines <= 0:
-            logger.info("[ENRICH] skipped by N1: summarize disabled (summary_lines=0)")
-        elif not enrich_missing:
-            logger.info("[ENRICH] skipped by N1: enrich_missing=False")
-        elif offline:
-            logger.info("[ENRICH] skipped by N1: DOU_OFFLINE_REPORT=1")
-        elif not groups:
-            logger.info("[ENRICH] skipped by N1: no groups")
+        log_enrichment_skip_reason(summary_lines, enrich_missing, offline, bool(groups), context="by N1")
 
-    # Adapt summarizer
+    # Create summarizer
     summarize = summary_lines > 0
+
     def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
         return _summarize_text(text, max_lines=max_lines, keywords=keywords, mode=mode)  # type: ignore
 
+    # Generate bulletin for each group
+    total_files = 0
     for n1, items in groups.items():
-        # Fallback: se itens do grupo ainda não tiverem texto, usar título como base mínima para resumo
-        if summarize and items:
-            for it in items:
-                if not (it.get("texto") or it.get("ementa")):
-                    t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-                    if t:
-                        it["texto"] = str(t)
+        # Fallback: use title as text if missing
+        fallback_add_title_as_text(items, summary_lines)
 
-        name = pattern.replace("{n1}", sanitize_filename(n1, max_len=120)).replace("{date}", sanitize_filename(date or "", max_len=120)).replace("{secao}", sanitize_filename(secao or "", max_len=120))
+        # Generate output filename
+        name = (
+            pattern.replace("{n1}", sanitize_filename(n1, max_len=120))
+            .replace("{date}", sanitize_filename(date or "", max_len=120))
+            .replace("{secao}", sanitize_filename(secao or "", max_len=120))
+        )
         out_path = out_dir / name
-        # Garantir que a pasta do arquivo exista, mesmo se o padrão incluir subpastas
         out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Generate bulletin
         result: dict[str, Any] = {"data": date or "", "secao": secao or "", "total": len(items), "itens": items}
         _generate_bulletin(
             result,
@@ -394,6 +362,7 @@ def split_and_report_by_n1(
         )
         print(f"[OK] Boletim N1 gerado: {out_path} (itens={len(items)})")
         total_files += 1
+
     print(f"[REPORT] Gerados {total_files} arquivos por N1 em: {out_dir}")
 
 
