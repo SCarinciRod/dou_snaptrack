@@ -138,92 +138,44 @@ def render_batch_executor() -> None:
 
 def _execute_plan(selected_path: Path, recommend_parallel) -> None:
     """Execute the selected plan with concurrency management."""
+    from .batch_executor_helpers import (
+        check_concurrent_execution,
+        handle_concurrent_execution_ui,
+        estimate_job_count,
+        prepare_execution_config,
+        write_temp_config,
+        show_execution_result,
+    )
+    
     if not selected_path.exists():
         st.error("Plano não encontrado.")
         return
 
     # Concurrency guard: check if another execution is running
     batch_funcs = _get_batch_runner()
-    other = batch_funcs["detect_other_execution"]()
+    other = check_concurrent_execution(batch_funcs)
 
     if other:
-        st.warning(f"Outra execução detectada (PID={other.get('pid')} iniciada em {other.get('started')}).")
-        colx = st.columns(2)
-        with colx[0]:
-            kill_it = st.button("Encerrar outra execução (forçar)")
-        with colx[1]:
-            proceed_anyway = st.button("Prosseguir sem encerrar")
-        if kill_it:
-            ok = batch_funcs["terminate_other_execution"](int(other.get("pid") or 0))
-            if ok:
-                st.success("Outra execução encerrada. Prosseguindo…")
-            else:
-                st.error("Falha ao encerrar a outra execução. Tente novamente manualmente.")
-        elif not proceed_anyway:
+        if not handle_concurrent_execution_ui(other, batch_funcs, st):
             st.stop()
 
-    # Descobrir número de jobs do plano
-    # OTIMIZAÇÃO: Reutilizar cfg_preview carregado anteriormente
-    # (a função recebe selected_path, então recarregar é seguro)
+    # Load config and estimate jobs
     cfg = _load_plan_config(selected_path)
-    combos = cfg.get("combos") or []
-    topics = cfg.get("topics") or []
-    est_jobs = len(combos) * max(1, len(topics) or 1)
-
-    # Calcular recomendação no momento da execução
+    est_jobs = estimate_job_count(cfg)
     parallel = int(recommend_parallel(est_jobs, prefer_process=True))
 
+    # Prepare execution config
+    sanitize_fn = _get_sanitize_filename()
+    cfg_json = prepare_execution_config(cfg, selected_path, st.session_state, sanitize_fn)
+    
+    # Write temp config
+    override_date = cfg_json["data"]
+    pass_cfg_path = write_temp_config(cfg_json, override_date)
+
+    # Execute
     with st.spinner("Executando…"):
-        # OTIMIZAÇÃO: Reutilizar cfg já carregado (era terceira leitura)
-        cfg_json = dict(cfg)  # Cópia para não modificar original
-
-        override_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
-        cfg_json["data"] = override_date
-
-        # Injetar plan_name (agregação por plano ao final do batch)
-        _pname2 = st.session_state.get("plan_name_ui")
-        if isinstance(_pname2, str) and _pname2.strip():
-            cfg_json["plan_name"] = _pname2.strip()
-
-        if not cfg_json.get("plan_name"):
-            # Fallback 1: nome do arquivo do plano salvo
-            sanitize_fn = _get_sanitize_filename()
-            try:
-                if selected_path and selected_path.exists():
-                    base = selected_path.stem
-                    if base:
-                        cfg_json["plan_name"] = sanitize_fn(base)
-            except Exception:
-                pass
-
-        if not cfg_json.get("plan_name"):
-            # Fallback 2: usar key1/label1 do primeiro combo
-            sanitize_fn = _get_sanitize_filename()
-            try:
-                combos_fallback = cfg_json.get("combos") or []
-                if combos_fallback:
-                    c0 = combos_fallback[0] or {}
-                    cand = c0.get("label1") or c0.get("key1") or "Plano"
-                    cfg_json["plan_name"] = sanitize_fn(str(cand))
-            except Exception:
-                cfg_json["plan_name"] = "Plano"
-
-        # Gerar um config temporário para a execução desta sessão
-        out_dir_tmp = Path("resultados") / override_date
-        out_dir_tmp.mkdir(parents=True, exist_ok=True)
-        pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"
-        with contextlib.suppress(Exception):
-            pass_cfg_path.write_text(json.dumps(cfg_json, ensure_ascii=False, indent=2), encoding="utf-8")
-
         st.caption(f"Iniciando captura… log em resultados/{override_date}/batch_run.log")
         rep = _run_batch_with_cfg(pass_cfg_path, parallel, fast_mode=False, prefer_edge=True)
 
-    st.write(rep or {"info": "Sem relatório"})
-
-    # Hint on where to find detailed run logs
-    out_date = str(st.session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
-    log_hint = Path("resultados") / out_date / "batch_run.log"
-    if log_hint.exists():
-        st.caption(f"Execução concluída com {parallel} workers automáticos. Log detalhado em: {log_hint}")
-    else:
-        st.caption(f"Execução concluída com {parallel} workers automáticos.")
+    # Show result
+    show_execution_result(rep, parallel, st.session_state, st)

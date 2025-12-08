@@ -20,6 +20,7 @@ src/dou_snaptrack/cli/batch_executor.py
 src/dou_snaptrack/cli/batch_helpers.py
 src/dou_snaptrack/cli/batch_job.py
 src/dou_snaptrack/cli/batch_worker.py
+src/dou_snaptrack/cli/consolidation_helpers.py
 src/dou_snaptrack/cli/eagendas_helpers.py
 src/dou_snaptrack/cli/plan_from_pairs.py
 src/dou_snaptrack/cli/plan_from_pairs_helpers.py
@@ -38,6 +39,8 @@ src/dou_snaptrack/tools/__init__.py
 src/dou_snaptrack/tools/fetch_diagnostics.py
 src/dou_snaptrack/ui/app.py
 src/dou_snaptrack/ui/batch_executor.py
+src/dou_snaptrack/ui/batch_executor_helpers.py
+src/dou_snaptrack/ui/batch_helpers.py
 src/dou_snaptrack/ui/batch_runner.py
 src/dou_snaptrack/ui/dou_collect_parallel.py
 src/dou_snaptrack/ui/dou_fetch.py
@@ -71,6 +74,7 @@ src/dou_utils/bulletin_utils.py
 src/dou_utils/content_fetcher.py
 src/dou_utils/dedup_state.py
 src/dou_utils/detail_utils.py
+src/dou_utils/doc_header_helpers.py
 src/dou_utils/dropdown_strategies.py
 src/dou_utils/dropdown_utils.py
 src/dou_utils/eagendas_document.py
@@ -95,6 +99,7 @@ src/dou_utils/core/option_filter.py
 src/dou_utils/core/polling.py
 src/dou_utils/core/sentinel_utils.py
 src/dou_utils/dropdowns/__init__.py
+src/dou_utils/dropdowns/collection_helpers.py
 src/dou_utils/dropdowns/native.py
 src/dou_utils/dropdowns/strategies.py
 src/dou_utils/selection/__init__.py
