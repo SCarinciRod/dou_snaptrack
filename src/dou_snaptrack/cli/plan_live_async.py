@@ -127,6 +127,13 @@ async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, A
 async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     """Versão async simplificada de _read_dropdown_options."""
     from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+    from .async_dropdown_helpers import (
+        read_native_select_options_async,
+        click_and_wait_dropdown,
+        find_listbox_container_async,
+        scroll_container_to_bottom_async,
+        collect_options_from_container_async,
+    )
 
     if not root:
         return []
@@ -146,197 +153,65 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
         ]
         return any(nt == p or nt.startswith(p + " ") for p in placeholders)
 
-    # Para <select> nativo
-    try:
-        tag = await h.evaluate("el => el.tagName")
-        if tag and tag.lower() == "select":
-            # Ler <option> elements
-            options = await h.evaluate("""
-                (select) => {
-                    const opts = [];
-                    for (let opt of select.options) {
-                        opts.push({
-                            text: opt.text.trim(),
-                            value: opt.value,
-                            index: opt.index
-                        });
-                    }
-                    return opts;
-                }
-            """)
-            out = []
-            for o in options or []:
-                t = (o.get("text") or "").strip()
-                if not _is_placeholder_text(t):
-                    out.append(o)
-            return out
-    except Exception:
-        pass
+    # Try native select first
+    native_opts = await read_native_select_options_async(h, _is_placeholder_text)
+    if native_opts:
+        return native_opts
 
-    # Para custom dropdown: clicar e ler opções
-    try:
-        await h.click(timeout=2000)
-        await frame.page.wait_for_timeout(400)  # Aguardar opções carregarem
-    except Exception:
-        pass
+    # Custom dropdown: click and read options
+    await click_and_wait_dropdown(h, frame)
 
-    # Buscar container de listbox
-    container = None
-    for sel in LISTBOX_SELECTORS:
-        try:
-            loc = frame.locator(sel)
-            count = await loc.count()
-            if count > 0:
-                container = loc.first
-                break
-        except Exception:
-            pass
-
-    if not container:
-        # Tentar na page inteira
-        page = frame.page
-        for sel in LISTBOX_SELECTORS:
-            try:
-                loc = page.locator(sel)
-                count = await loc.count()
-                if count > 0:
-                    container = loc.first
-                    break
-            except Exception:
-                pass
-
+    # Find listbox container
+    container = await find_listbox_container_async(frame, LISTBOX_SELECTORS)
     if not container:
         return []
 
-    # Scroll até o fim (para listas virtualizadas)
-    try:
-        for _ in range(60):
-            try:
-                await container.evaluate('(el)=>{el.scrollTop=el.scrollHeight}')
-            except Exception:
-                with contextlib.suppress(Exception):
-                    await frame.page.keyboard.press('End')
-            await frame.page.wait_for_timeout(80)
-    except Exception:
-        pass
+    # Scroll to bottom for virtualized lists
+    await scroll_container_to_bottom_async(container, frame)
 
-    # Ler opções do container (pós-scroll)
-    opts: list[dict[str, Any]] = []
-    for sel in OPTION_SELECTORS:
-        try:
-            cands = container.locator(sel)
-            cnt = await cands.count()
-        except Exception:
-            cnt = 0
-        for i in range(cnt):
-            o = cands.nth(i)
-            try:
-                visible = await o.is_visible()
-                if not visible:
-                    continue
-                text = (await o.text_content() or "").strip()
-                if _is_placeholder_text(text):
-                    continue
-                opts.append({"text": text, "index": i})
-            except Exception:
-                pass
-
-    return opts
+    # Collect options from container
+    return await collect_options_from_container_async(container, OPTION_SELECTORS, _is_placeholder_text)
 
 
 async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
     """Versão async de _select_by_text."""
     from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+    from .async_dropdown_helpers import (
+        select_native_dropdown_async,
+        click_and_wait_dropdown,
+        find_listbox_container_async,
+        try_click_exact_match_async,
+        try_click_normalized_match_async,
+    )
 
     h = root.get("handle")
     if h is None:
         return False
 
-    # Para <select> nativo
-    try:
-        tag = await h.evaluate("el => el.tagName")
-        if tag and tag.lower() == "select":
-            try:
-                await h.select_option(label=text)
-                with contextlib.suppress(Exception):
-                    await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-                await frame.page.wait_for_timeout(200)
-                return True
-            except Exception:
-                pass
-    except Exception:
-        pass
+    # Try native select
+    if await select_native_dropdown_async(h, text, frame):
+        return True
 
-    # Custom dropdown: clicar e selecionar opção
-    try:
-        await h.click(timeout=2000)
-        await frame.page.wait_for_timeout(2000)  # Aguardar opções carregarem
-    except Exception:
-        pass
+    # Custom dropdown: click and select option
+    await click_and_wait_dropdown(h, frame)
 
-    # Buscar container de listbox
-    container = None
-    for sel in LISTBOX_SELECTORS:
-        try:
-            loc = frame.locator(sel)
-            if await loc.count() > 0:
-                container = loc.first
-                break
-        except Exception:
-            pass
-
-    if not container:
-        page = frame.page
-        for sel in LISTBOX_SELECTORS:
-            try:
-                loc = page.locator(sel)
-                if await loc.count() > 0:
-                    container = loc.first
-                    break
-            except Exception:
-                pass
-
+    # Find listbox container
+    container = await find_listbox_container_async(frame, LISTBOX_SELECTORS)
     if not container:
         return False
 
-    # Tentar match exato por role
-    try:
-        opt = container.get_by_role("option", name=re.compile(rf"^{re.escape(text)}$", re.I)).first
-        if opt and await opt.count() > 0 and await opt.is_visible():
-            await opt.click(timeout=3000)
-            with contextlib.suppress(Exception):
-                await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-            await frame.page.wait_for_timeout(200)
-            return True
-    except Exception:
-        pass
+    # Try exact match first
+    if await try_click_exact_match_async(container, text, frame):
+        return True
 
-    # Fallback: buscar por texto normalizado
-    nt = normalize_text(text)
-    for sel in OPTION_SELECTORS:
-        try:
-            cands = container.locator(sel)
-            cnt = await cands.count()
-        except Exception:
-            cnt = 0
-        for i in range(cnt):
-            o = cands.nth(i)
-            try:
-                if not await o.is_visible():
-                    continue
-                t = normalize_text((await o.text_content() or "").strip())
-                if nt and (t == nt or nt in t):
-                    await o.click(timeout=3000)
-                    with contextlib.suppress(Exception):
-                        await frame.page.wait_for_load_state("domcontentloaded", timeout=30_000)
-                    await frame.page.wait_for_timeout(200)
-                    return True
-            except Exception:
-                pass
+    # Fallback: normalized text match
+    if await try_click_normalized_match_async(container, text, frame, OPTION_SELECTORS, normalize_text):
+        return True
 
-    # Fechar dropdown se não encontrou
+    # Close dropdown if not found
     with contextlib.suppress(Exception):
         await frame.page.keyboard.press("Escape")
+    return False
 
     return False
 

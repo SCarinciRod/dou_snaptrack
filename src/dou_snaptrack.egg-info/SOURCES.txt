@@ -13,6 +13,7 @@ src/dou_snaptrack/adapters/eagendas_adapter.py
 src/dou_snaptrack/adapters/services.py
 src/dou_snaptrack/adapters/utils.py
 src/dou_snaptrack/cli/__init__.py
+src/dou_snaptrack/cli/async_dropdown_helpers.py
 src/dou_snaptrack/cli/batch.py
 src/dou_snaptrack/cli/batch_async.py
 src/dou_snaptrack/cli/batch_config.py
