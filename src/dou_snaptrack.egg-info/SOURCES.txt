@@ -23,6 +23,7 @@ src/dou_snaptrack/cli/batch_job.py
 src/dou_snaptrack/cli/batch_worker.py
 src/dou_snaptrack/cli/consolidation_helpers.py
 src/dou_snaptrack/cli/eagendas_helpers.py
+src/dou_snaptrack/cli/plan_build_helpers.py
 src/dou_snaptrack/cli/plan_from_pairs.py
 src/dou_snaptrack/cli/plan_from_pairs_helpers.py
 src/dou_snaptrack/cli/plan_live.py
