@@ -20,14 +20,14 @@ generate_bulletin: Callable[..., Any] | None
 summarize_text: Callable[..., Any] | None
 
 try:  # bulletin generation (docx / md / html)
-    from dou_utils.bulletin_utils import generate_bulletin as _gen  # type: ignore
+    from dou_utils.bulletin.generator import generate_bulletin as _gen  # type: ignore
 
     generate_bulletin = _gen
 except Exception:
     generate_bulletin = None
 
 try:  # robust summarization wrapper
-    from dou_utils.summarize import summarize_text as _sum  # type: ignore
+    from dou_utils.text.summarize import summarize_text as _sum  # type: ignore
 
     summarize_text = _sum
 except Exception:

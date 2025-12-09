@@ -62,8 +62,8 @@ def _summarize_item_fixed(
 def apply_patch():
     """Aplica o patch à função _summarize_item."""
     try:
-        from dou_utils import bulletin_utils
-        bulletin_utils._summarize_item = _summarize_item_fixed
+        from dou_utils.bulletin import generator
+        generator._summarize_item = _summarize_item_fixed
         print("[PATCH] _summarize_item substituída por versão corrigida")
     except Exception as e:
         print(f"[PATCH ERROR] Falha ao aplicar patch: {e}")

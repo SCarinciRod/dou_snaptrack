@@ -103,7 +103,7 @@ def _render_manual_aggregation(results_root: Path) -> None:
                     st.warning("Informe o nome do plano.")
                 else:
                     try:
-                        from dou_snaptrack.cli.reporting import aggregate_outputs_by_plan
+                        from dou_snaptrack.cli.reporting.consolidation import aggregate_outputs_by_plan
 
                         written = aggregate_outputs_by_plan(str(chosen_dir), _mp.strip())
                         if written:
@@ -182,7 +182,7 @@ def _generate_report(
 ) -> None:
     """Generate a report from aggregated files."""
     try:
-        from dou_snaptrack.cli.reporting import report_from_aggregated
+        from dou_snaptrack.cli.reporting.reporter import report_from_aggregated
 
         out_path = results_root / out_name
 

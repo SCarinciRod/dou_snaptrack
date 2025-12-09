@@ -36,8 +36,21 @@ def suite_imports():
         "dou_snaptrack.utils.browser_factory",
         "dou_snaptrack.utils.wait_helpers",
         "dou_snaptrack.mappers.pairs_mapper",
-        "dou_snaptrack.cli.plan_live_eagendas_async",
+        "dou_snaptrack.cli.plan.live_eagendas_async",
         "dou_snaptrack.utils.eagendas_calendar",
+        # New organized modules
+        "dou_snaptrack.cli.batch.runner",
+        "dou_snaptrack.cli.plan.live",
+        "dou_snaptrack.cli.plan.live_async",
+        "dou_snaptrack.cli.reporting.reporter",
+        "dou_snaptrack.ui.batch.runner",
+        "dou_snaptrack.ui.batch.executor",
+        "dou_snaptrack.ui.pages.dou_fetch",
+        "dou_snaptrack.ui.pages.eagendas_ui",
+        "dou_snaptrack.ui.collectors.subprocess_utils",
+        "dou_utils.text.summarize",
+        "dou_utils.text.cleaning",
+        "dou_utils.bulletin.generator",
     ]
     ok = True
     for m in mods:

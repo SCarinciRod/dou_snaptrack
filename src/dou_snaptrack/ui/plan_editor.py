@@ -34,13 +34,13 @@ COMBOS_PER_PAGE = 15
 
 def _get_default_fetch_n1_func():
     """Lazy loader for default fetch_n1_options function."""
-    from dou_snaptrack.ui.dou_fetch import fetch_n1_options
+    from dou_snaptrack.ui.pages.dou_fetch import fetch_n1_options
     return fetch_n1_options
 
 
 def _get_default_fetch_n2_func():
     """Lazy loader for default fetch_n2_options function."""
-    from dou_snaptrack.ui.dou_fetch import fetch_n2_options
+    from dou_snaptrack.ui.pages.dou_fetch import fetch_n2_options
     return fetch_n2_options
 
 

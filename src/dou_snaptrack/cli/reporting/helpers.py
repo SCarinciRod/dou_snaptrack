@@ -226,7 +226,7 @@ def clean_enriched_items(items: list[dict[str, Any]]) -> None:
     Args:
         items: List of items (modified in place)
     """
-    from dou_utils.summary_utils import clean_text_for_summary
+    from dou_utils.text.summary_utils import clean_text_for_summary
 
     for it in items:
         texto_bruto = it.get("texto") or ""

@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 @lru_cache(maxsize=1)
 def _get_batch_runner() -> dict:
     """Lazy import of batch_runner module (imports Playwright)."""
-    from dou_snaptrack.ui.batch_runner import (
+    from dou_snaptrack.ui.batch.runner import (
         clear_ui_lock,
         detect_other_execution,
         detect_other_ui,
@@ -79,7 +79,7 @@ def _run_batch_with_cfg(
 ) -> dict[str, Any]:
     """Wrapper que delega para o runner livre de Streamlit para permitir uso headless e via UI."""
     try:
-        from dou_snaptrack.ui.batch_runner import run_batch_with_cfg as _runner
+        from dou_snaptrack.ui.batch.runner import run_batch_with_cfg as _runner
 
         return _runner(cfg_path, parallel=int(parallel), fast_mode=bool(fast_mode), prefer_edge=bool(prefer_edge))
     except Exception as e:

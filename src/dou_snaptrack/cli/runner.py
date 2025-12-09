@@ -15,11 +15,11 @@ try:
 except Exception as _e:  # pragma: no cover - fallback path
     # Fallback direto para dou_utils caso o adapters.utils não esteja visível em subprocessos
     try:
-        from dou_utils.bulletin_utils import generate_bulletin as _generate_bulletin  # type: ignore
+        from dou_utils.bulletin.generator import generate_bulletin as _generate_bulletin  # type: ignore
     except Exception:
         _generate_bulletin = None  # type: ignore
     try:
-        from dou_utils.summarize import summarize_text as _summarize_text  # type: ignore
+        from dou_utils.text.summarize import summarize_text as _summarize_text  # type: ignore
     except Exception:
         _summarize_text = None  # type: ignore
     print(f"[WARN] fallback imports in runner.py: adapters.utils indisponível: {_e} | sys.path[:5]={list(_sys.path[:5])}")

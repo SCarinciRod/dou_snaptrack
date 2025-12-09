@@ -21,7 +21,7 @@ from dou_snaptrack.constants import (
     CACHE_TTL_MEDIUM,
     SAVE_DEBUG_SCRIPT_ENV,
 )
-from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
+from dou_snaptrack.ui.collectors.subprocess_utils import execute_script_and_read_result
 
 # Module-level constants
 SRC_ROOT = Path(__file__).resolve().parents[2]

@@ -89,7 +89,7 @@ async def update_pairs_file_async(
 
     from playwright.async_api import async_playwright
 
-    from dou_snaptrack.cli.plan_live_async import build_plan_live_async
+    from dou_snaptrack.cli.plan.live_async import build_plan_live_async
 
     try:
         # Data padrão = hoje

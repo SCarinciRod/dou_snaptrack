@@ -134,7 +134,7 @@ src_root = "{src_path}"
 if src_root not in sys.path:
     sys.path.insert(0, src_root)
 
-from dou_snaptrack.cli.plan_live import _collect_dropdown_roots, _read_dropdown_options, _select_roots
+from dou_snaptrack.cli.plan.live import _collect_dropdown_roots, _read_dropdown_options, _select_roots
 from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
 from dou_snaptrack.utils.dom import find_best_frame
 from playwright.sync_api import sync_playwright, TimeoutError
@@ -331,7 +331,7 @@ import json
 import sys
 from playwright.async_api import async_playwright
 from types import SimpleNamespace
-from dou_snaptrack.cli.plan_live_async import build_plan_live_async
+from dou_snaptrack.cli.plan.live_async import build_plan_live_async
 
 try:
     async def fetch_n2_options():

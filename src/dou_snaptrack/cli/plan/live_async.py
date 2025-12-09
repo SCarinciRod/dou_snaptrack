@@ -20,7 +20,7 @@ from playwright.async_api import async_playwright
 
 async def _collect_dropdown_roots_async(frame) -> list[dict[str, Any]]:
     """Versão async de _collect_dropdown_roots."""
-    from dou_snaptrack.cli.plan_live import DROPDOWN_ROOT_SELECTORS
+    from dou_snaptrack.constants import DROPDOWN_ROOT_SELECTORS
 
     roots: list[dict[str, Any]] = []
     seen = set()
@@ -103,7 +103,7 @@ async def _locate_root_by_id_async(frame, elem_id: str) -> dict[str, Any] | None
 
 async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     """Versão async de _select_roots."""
-    from dou_snaptrack.cli.plan_live import LEVEL_IDS
+    from dou_snaptrack.constants import LEVEL_IDS
 
     r1 = None
     r2 = None
@@ -126,7 +126,8 @@ async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, A
 
 async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     """Versão async simplificada de _read_dropdown_options."""
-    from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
+    from dou_snaptrack.utils.text import normalize_text
     from .async_dropdown_helpers import (
         read_native_select_options_async,
         click_and_wait_dropdown,
@@ -175,7 +176,8 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
 
 async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
     """Versão async de _select_by_text."""
-    from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS, normalize_text
+    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
+    from dou_snaptrack.utils.text import normalize_text
     from .async_dropdown_helpers import (
         select_native_dropdown_async,
         click_and_wait_dropdown,
@@ -238,7 +240,7 @@ async def _count_options_async(frame, root: dict[str, Any]) -> int:
         pass
     count = 0
     try:
-        from dou_snaptrack.cli.plan_live import LISTBOX_SELECTORS, OPTION_SELECTORS
+        from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
         container = None
         for sel in LISTBOX_SELECTORS:
             try:
@@ -315,7 +317,7 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
     context, page = await setup_browser_context(browser)
 
     # Import functions
-    from dou_snaptrack.cli.plan_live import _build_keys, _filter_opts
+    from dou_snaptrack.cli.plan.live import _build_keys, _filter_opts
     from dou_snaptrack.utils.browser import build_dou_url, goto_async, try_visualizar_em_lista_async
     from dou_snaptrack.utils.dom import find_best_frame_async
 

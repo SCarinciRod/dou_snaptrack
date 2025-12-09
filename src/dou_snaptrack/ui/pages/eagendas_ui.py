@@ -29,7 +29,7 @@ logger = logging.getLogger("dou_snaptrack.ui.eagendas_ui")
 # Lazy import for fetch_hierarchy to avoid circular imports
 def _get_default_fetch_hierarchy():
     """Get the default fetch_hierarchy function via lazy import."""
-    from dou_snaptrack.ui.eagendas_fetch import fetch_hierarchy
+    from dou_snaptrack.ui.pages.eagendas_fetch import fetch_hierarchy
     return fetch_hierarchy
 
 
@@ -459,7 +459,7 @@ def render_saved_queries_list() -> None:
 # Lazy import for execute_script_and_read_result
 def _get_default_execute_script_func():
     """Get the default execute_script_and_read_result function via lazy import."""
-    from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
+    from dou_snaptrack.ui.collectors.subprocess_utils import execute_script_and_read_result
     return execute_script_and_read_result
 
 

@@ -64,7 +64,7 @@ def _get_plan_editor():
 @lru_cache(maxsize=1)
 def _get_eagendas_ui():
     """Lazy import eagendas_ui module."""
-    from dou_snaptrack.ui.eagendas_ui import (
+    from dou_snaptrack.ui.pages.eagendas_ui import (
         render_date_period_selector,
         render_document_download,
         render_document_generator,
@@ -89,7 +89,7 @@ def _get_eagendas_ui():
 @lru_cache(maxsize=1)
 def _get_batch_executor():
     """Lazy import batch_executor module."""
-    from dou_snaptrack.ui.batch_executor import render_batch_executor
+    from dou_snaptrack.ui.batch.executor import render_batch_executor
     return render_batch_executor
 
 
@@ -110,7 +110,7 @@ def _get_sidebar():
 @lru_cache(maxsize=1)
 def _get_subprocess_utils():
     """Lazy import subprocess_utils module."""
-    from dou_snaptrack.ui.subprocess_utils import execute_script_and_read_result
+    from dou_snaptrack.ui.collectors.subprocess_utils import execute_script_and_read_result
     return execute_script_and_read_result
 
 
@@ -156,7 +156,7 @@ def _cleanup_on_exit():
     Kills orphaned batch subprocesses and removes lock files.
     """
     try:
-        from dou_snaptrack.ui.batch_runner import cleanup_batch_processes, clear_ui_lock
+        from dou_snaptrack.ui.batch.runner import cleanup_batch_processes, clear_ui_lock
         cleanup_batch_processes()
         clear_ui_lock()
         logger.info("UI cleanup completed on exit")
@@ -174,7 +174,7 @@ atexit.register(_cleanup_on_exit)
 @lru_cache(maxsize=1)
 def get_batch_runner() -> dict:
     """Lazy import of batch_runner module (imports Playwright)."""
-    from dou_snaptrack.ui.batch_runner import (
+    from dou_snaptrack.ui.batch.runner import (
         cleanup_batch_processes,
         clear_ui_lock,
         detect_other_execution,

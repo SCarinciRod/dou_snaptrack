@@ -100,7 +100,7 @@ timer = TimingLogger()
 # Fase 1: Import
 timer.start("import")
 try:
-    from dou_snaptrack.ui.dou_fetch import find_system_browser_exe
+    from dou_snaptrack.ui.pages.dou_fetch import find_system_browser_exe
     from dou_snaptrack.utils.browser import build_dou_url
     timer.stop()
 except Exception as e:
@@ -273,7 +273,7 @@ timer = TimingLogger()
 # Fase 1: Import
 timer.start("import")
 try:
-    from dou_snaptrack.ui.dou_fetch import find_system_browser_exe
+    from dou_snaptrack.ui.pages.dou_fetch import find_system_browser_exe
     timer.stop()
 except Exception as e:
     timer.stop()

@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Any
 
 # CRÍTICO: Aplicar patch para corrigir bug de texto cortado em resumos
-import dou_utils.bulletin_patch  # noqa: F401
+import dou_utils.bulletin.patch  # noqa: F401
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
-from dou_utils.summarize import summarize_text as _summarize_text
+from dou_utils.text.summarize import summarize_text as _summarize_text
 
 from ...adapters.utils import generate_bulletin as _generate_bulletin
 from ...utils.text import sanitize_filename

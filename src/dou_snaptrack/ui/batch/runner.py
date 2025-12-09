@@ -395,8 +395,8 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
 
         # Lazy imports to keep this module light and Streamlit-free
         from playwright.sync_api import sync_playwright  # type: ignore
-        from dou_snaptrack.cli.batch import run_batch
-        from dou_snaptrack.cli.summary_config import SummaryConfig
+        from dou_snaptrack.cli.batch.runner import run_batch
+        from dou_snaptrack.cli.batch.summary_config import SummaryConfig
 
         # Load and prepare configuration
         raw_cfg, plan_date = load_and_prepare_config(cfg_path)
