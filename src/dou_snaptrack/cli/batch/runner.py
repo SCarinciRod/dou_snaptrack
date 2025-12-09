@@ -48,7 +48,7 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     Returns:
         List of expanded job dictionaries
     """
-    from .batch_config import expand_simple_jobs, expand_topic_combo_jobs, expand_combo_only_jobs
+    from .config import expand_simple_jobs, expand_topic_combo_jobs, expand_combo_only_jobs
 
     defaults = cfg.get("defaults", {})
     base_data = cfg.get("data")
@@ -78,7 +78,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
     from .worker import setup_asyncio_for_windows, setup_worker_logging, launch_browser_with_fallback, setup_browser_context, cleanup_page_cache
     from .job import process_single_job
-    from .runner import run_once
+    from ..runner import run_once
 
     # Setup async and logging
     setup_asyncio_for_windows()
