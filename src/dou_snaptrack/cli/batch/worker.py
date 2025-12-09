@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from ..constants import TIMEOUT_PAGE_DEFAULT
+from ...constants import TIMEOUT_PAGE_DEFAULT
 
 
 def setup_asyncio_for_windows() -> None:

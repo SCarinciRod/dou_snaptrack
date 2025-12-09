@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..utils.text import normalize_text
+from ...utils.text import normalize_text
 
 
 def determine_key_type_and_value(opt: dict[str, Any], key_type_default: str | None):

@@ -14,7 +14,7 @@ from typing import Any
 from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
 
-from ..utils.text import sanitize_filename
+from ...utils.text import sanitize_filename
 
 logger = get_logger(__name__)
 

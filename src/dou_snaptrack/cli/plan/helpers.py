@@ -7,9 +7,9 @@ import os
 from pathlib import Path
 from typing import Any
 
-from ..utils.browser import fmt_date, goto
-from ..utils.dom import find_best_frame, label_for_control
-from ..utils.wait_utils import wait_for_condition
+from ...utils.browser import fmt_date, goto
+from ...utils.dom import find_best_frame, label_for_control
+from ...utils.wait_utils import wait_for_condition
 
 
 def launch_browser_with_fallbacks(pctx, headful: bool, slowmo: int):

@@ -15,7 +15,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from pathlib import Path
 from typing import Any, Callable
 
-from ..constants import TIMEOUT_SUBPROCESS_LONG
+from ...constants import TIMEOUT_SUBPROCESS_LONG
 
 
 def execute_with_subprocess(

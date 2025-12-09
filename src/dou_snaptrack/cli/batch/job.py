@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from ..constants import TIMEOUT_PAGE_DEFAULT
+from ...constants import TIMEOUT_PAGE_DEFAULT
 from .summary_config import SummaryConfig
 
 

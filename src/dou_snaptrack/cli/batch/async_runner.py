@@ -103,7 +103,7 @@ def _try_direct_async(async_input: dict[str, Any], log_fn: Callable[[str], None]
         Async result or None if failed
     """
     try:
-        from ..ui.dou_collect_parallel import run_parallel_batch
+        from ...ui.collectors.dou_parallel import run_parallel_batch
 
         return run_parallel_batch(async_input)
     except RuntimeError as e:
