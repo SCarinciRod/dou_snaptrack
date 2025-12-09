@@ -134,36 +134,31 @@ def render_hierarchy_selector(
         auto_fetch_child: If True, automatically fetch child level when selection changes (level 1 only)
         child_options_key: Session state key for child options (required if auto_fetch_child=True)
     """
-    # Use default fetch function if not provided
+    from .eagendas_ui_helpers import (
+        show_auto_fetch_notifications,
+        can_load_level,
+        load_hierarchy_options,
+        get_current_selection_index,
+        set_selected_value,
+        should_auto_fetch,
+    )
+    
     if fetch_hierarchy_func is None:
         fetch_hierarchy_func = _get_default_fetch_hierarchy()
 
     st.markdown(f"**{title}**")
+    show_auto_fetch_notifications(level, st)
 
-    # Show auto-fetch notifications from previous run
-    if level == 2:
-        if "_eagendas_auto_fetch_count" in st.session_state:
-            count = st.session_state.pop("_eagendas_auto_fetch_count")
-            st.success(f"✅ {count} agentes carregados automaticamente")
-        if "_eagendas_auto_fetch_error" in st.session_state:
-            error = st.session_state.pop("_eagendas_auto_fetch_error")
-            st.error(f"❌ Erro ao carregar agentes: {error}")
-
-    # Determine if load button should be enabled
-    # Modelo simplificado: level 1 sempre pode carregar, level 2 precisa de órgão
-    can_load = True
-    if level == 2 and not parent_value:
-        can_load = False
+    # Check if can load
+    can_load = can_load_level(level, parent_value)
+    if not can_load:
         st.caption("Selecione um Órgão primeiro")
 
     # Load button
     if st.button(load_button_text, key=load_key, disabled=not can_load):
         with st.spinner(f"Carregando {title.lower()}..."):
-            if level == 1:
-                result = fetch_hierarchy_func(level=1)
-            else:  # level == 2: Agentes direto do órgão
-                result = fetch_hierarchy_func(level=2, n1_value=parent_value)
-
+            result = load_hierarchy_options(level, fetch_hierarchy_func, parent_value, st)
+            
             if result.get("success"):
                 options = result.get("options", [])
                 st.session_state[options_key] = options
@@ -182,59 +177,36 @@ def render_hierarchy_selector(
         values = [opt.get("value", "") for opt in options]
 
         # Get current selection index
-        current_parts = current_key.split(".")
-        if len(current_parts) == 2:
-            current_val = getattr(st.session_state.get(current_parts[0]), current_parts[1], None)
-        else:
-            current_val = st.session_state.get(current_key)
+        current_idx = get_current_selection_index(current_key, values, st)
 
-        try:
-            current_idx = values.index(current_val) if current_val in values else 0
-        except (ValueError, IndexError):
-            current_idx = 0
-
-        # Track previous value for change detection (for auto-fetch)
+        # Track previous value for change detection
         prev_key = f"_prev_{select_key}"
         prev_value = st.session_state.get(prev_key)
 
-        # Selectbox with on_change for auto-fetch (level 1 only)
-        if level == 1 and auto_fetch_child and child_options_key:
-            selected_idx = st.selectbox(
-                f"Selecione {title}:",
-                range(len(labels)),
-                format_func=lambda i: labels[i],
-                index=current_idx,
-                key=select_key,
-                label_visibility="collapsed"
-            )
-        else:
-            selected_idx = st.selectbox(
-                f"Selecione {title}:",
-                range(len(labels)),
-                format_func=lambda i: labels[i],
-                index=current_idx,
-                key=select_key,
-                label_visibility="collapsed"
-            )
+        # Selectbox (same rendering for both auto-fetch and normal cases)
+        selected_idx = st.selectbox(
+            f"Selecione {title}:",
+            range(len(labels)),
+            format_func=lambda i: labels[i],
+            index=current_idx,
+            key=select_key,
+            label_visibility="collapsed"
+        )
 
         selected_value = values[selected_idx]
         selected_label = labels[selected_idx]
 
         # Set value in eagendas state
-        if len(current_parts) == 2 and current_parts[0] == "eagendas":
-            setattr(st.session_state.eagendas, current_parts[1], selected_value)
-        else:
-            st.session_state[current_key] = selected_value
-
+        set_selected_value(current_key, selected_value, st)
         st.session_state[label_key] = selected_label
 
-        # Auto-fetch child options when N1 selection changes (level 1 only)
+        # Auto-fetch child options when selection changes (level 1 only)
+        if should_auto_fetch(level, auto_fetch_child and bool(child_options_key), prev_value, selected_value):
+            with st.spinner("Carregando agentes..."):
+                _auto_fetch_n2_on_n1_change(fetch_hierarchy_func, selected_value, child_options_key)
+        
+        # Update previous value tracker
         if level == 1 and auto_fetch_child and child_options_key:
-            if prev_value is not None and prev_value != selected_value:
-                # Selection changed, trigger auto-fetch
-                with st.spinner("Carregando agentes..."):
-                    _auto_fetch_n2_on_n1_change(fetch_hierarchy_func, selected_value, child_options_key)
-            # Update previous value tracker
             st.session_state[prev_key] = selected_value
 
         st.caption(f"Selecionado: {selected_label}")

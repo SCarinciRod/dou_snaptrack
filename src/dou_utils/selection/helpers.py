@@ -128,72 +128,42 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
     Returns:
         True when selection happened and the page stabilized
     """
+    from .robust_helpers import (
+        select_native_by_type,
+        select_native_by_scan,
+        try_click_option_exact,
+        try_click_option_contains,
+        close_dropdown,
+    )
+    
     if not root_handle or key is None or key_type is None:
         return False
     page = frame.page
 
     if _is_native_select(root_handle):
-        # Native select: try proper channel based on type
-        if key_type == "value":
-            try:
-                root_handle.select_option(value=str(key))
-                page.wait_for_load_state("networkidle", timeout=60_000)
-                return True
-            except Exception:
-                pass
-        if key_type == "dataIndex":
-            try:
-                root_handle.select_option(index=int(key))
-                page.wait_for_load_state("networkidle", timeout=60_000)
-                return True
-            except Exception:
-                pass
-        # Fallback via options scan (text or dataValue)
+        # Try direct selection by type
+        if select_native_by_type(root_handle, str(key), key_type, page):
+            return True
+        
+        # Fallback via options scan
         opts = _read_select_options_sync(root_handle)
-        target = _match_option(opts, str(key), key_type)
-        if target is not None:
-            try:
-                if key_type == "text":
-                    root_handle.select_option(label=target.get("text") or "")
-                elif target.get("value") not in (None, ""):
-                    root_handle.select_option(value=str(target.get("value")))
-                else:
-                    root_handle.select_option(index=int(target.get("dataIndex") or 0))
-                page.wait_for_load_state("networkidle", timeout=60_000)
-                return True
-            except Exception:
-                pass
-        return False
+        return select_native_by_scan(root_handle, str(key), key_type, opts, page, _match_option)
 
     # Custom dropdown
     if not open_dropdown_robust(frame, root_handle):
         return False
+    
     options = collect_open_list_options(frame)
     target = _match_option(options, str(key), key_type or "text")
     name = (target or {}).get("text") or str(key)
 
-    # Try exact by role name
-    try:
-        opt = page.get_by_role("option", name=re.compile(rf"^{re.escape(name)}$", re.I)).first
-        if opt and opt.count() > 0 and opt.is_visible():
-            opt.click(timeout=4_000)
-            page.wait_for_load_state("networkidle", timeout=60_000)
-            return True
-    except Exception:
-        pass
+    # Try exact match first, then contains
+    if try_click_option_exact(page, name):
+        return True
+    if try_click_option_contains(page, name):
+        return True
 
-    # Fallback: contains
-    try:
-        opt = page.get_by_role("option", name=re.compile(re.escape(name), re.I)).first
-        if opt and opt.count() > 0 and opt.is_visible():
-            opt.click(timeout=4_000)
-            page.wait_for_load_state("networkidle", timeout=60_000)
-            return True
-    except Exception:
-        pass
-
-    with contextlib.suppress(Exception):
-        page.keyboard.press("Escape")
+    close_dropdown(page)
     return False
 
 

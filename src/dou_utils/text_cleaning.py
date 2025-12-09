@@ -59,97 +59,41 @@ def remove_dou_metadata(text: str) -> str:
 
 def split_doc_header(text: str) -> tuple[str | None, str]:
     """Localiza o cabeçalho do ato em qualquer ponto das primeiras linhas e retorna (header, body)."""
+    from .doc_header_helpers import (
+        prepare_text_window,
+        get_document_types,
+        find_document_type_index,
+        find_uppercase_line_header,
+        extract_header_lines,
+        extract_body_from_raw,
+    )
+    
     if not text:
         return None, ""
 
-    # Remover tags HTML simples e normalizar quebras
+    # Prepare text window
     raw = _HTML_TAG_PATTERN.sub(" ", text)
-    # Limitar a janela de busca para desempenho, mas suficientemente ampla
-    raw_window = raw[:4000]
-    lines = _NEWLINE_PATTERN.split(raw_window)
-    head_candidates = []
-    for ln in lines[:50]:
-        s = ln.strip()
-        if not s:
-            continue
-        # Não descarte linhas com metadados — o cabeçalho pode estar nelas
-        head_candidates.append(s)
-    blob = "\n".join(head_candidates)
+    blob, head_candidates = prepare_text_window(raw)
 
-    # Alternativas com e sem acentuação
-    doc_alt = [
-        "PORTARIA CONJUNTA", "INSTRUÇÃO NORMATIVA", "INSTRUCAO NORMATIVA", "DECRETO-LEI",
-        "MEDIDA PROVISÓRIA", "MEDIDA PROVISORIA", "ORDEM DE SERVIÇO", "ORDEM DE SERVICO",
-        "RESOLUÇÃO", "RESOLUCAO", "DELIBERAÇÃO", "DELIBERACAO", "RETIFICAÇÃO", "RETIFICACAO",
-        "COMUNICADO", "MENSAGEM", "EXTRATO", "PARECER", "DESPACHO", "EDITAL", "DECRETO",
-        "PORTARIA", "LEI", "ATO", "AVISO"
-    ]
-    doc_alt_sorted = sorted(doc_alt, key=len, reverse=True)
-
-    # Encontrar primeira ocorrência de qualquer tipo dentro do blob
-    start_idx = None
-    upper_blob = blob.upper()
-    for dt in doc_alt_sorted:
-        i = upper_blob.find(dt)
-        if i != -1 and (start_idx is None or i < start_idx):
-            start_idx = i
+    # Find document type
+    doc_types = get_document_types()
+    start_idx = find_document_type_index(blob, doc_types)
+    
+    # Fallback to uppercase heuristic
     if start_idx is None:
-        # fallback: primeira linha com alta proporção de maiúsculas
-        for s in head_candidates:
-            letters = [ch for ch in s if ch.isalpha()]
-            if not letters:
-                continue
-            upp = sum(1 for ch in letters if ch.isupper())
-            if upp / max(1, len(letters)) >= 0.6 and len(s) >= 10:
-                header = s
-                # body é o restante após esta linha aproximada
-                idx = raw.find(s)
-                if idx != -1:
-                    tail = raw[idx + len(s):]
-                    tail = re.sub(r'^[\s\-:—]+', '', tail)
-                    body = tail
-                    return header, body
-                return header, raw
+        header, body = find_uppercase_line_header(head_candidates, raw)
+        if header:
+            return header, body
         return None, text
 
-    # Determinar fim do cabeçalho: até primeiro ponto final ou quebra de linha subsequente
+    # Extract header lines
     after = blob[start_idx:]
-    # Tentar englobar múltiplas linhas até primeiro ponto final
-    header_lines = []
-    remain = after
-    while True:
-        ln = remain.split("\n", 1)[0]
-        header_lines.append(ln.strip())
-        # parar se achou ponto final
-        if "." in ln:
-            break
-        # adicionar próxima linha somente se parecer parte do cabeçalho
-        tail = remain[len(ln) + (1 if "\n" in remain else 0):]
-        if not tail:
-            break
-        nxt = tail.split("\n", 1)[0].strip()
-        if _HEADER_DATE_PATTERN.search(nxt):
-            remain = tail
-            continue
-        # se a próxima linha ainda for majoritariamente maiúscula, considerar também
-        letters = [ch for ch in nxt if ch.isalpha()]
-        upp = sum(1 for ch in letters if ch.isupper()) if letters else 0
-        if letters and upp / len(letters) >= 0.6:
-            remain = tail
-            continue
-        break
+    header_lines = extract_header_lines(after)
     header = _WHITESPACE_PATTERN.sub(" ", " ".join(header_lines)).strip()
 
-    # Construir body removendo o header da primeira ocorrência no raw original
-    # Usar uma busca case-insensitive para achar a mesma fatia
-    pattern = re.escape(header[:80])  # usar prefixo para casar de forma robusta
-    m_body = re.search(pattern, raw, flags=re.I)
-    if m_body:
-        tail2 = raw[m_body.end():]
-        body = re.sub(r'^[\s\-:—]+', '', tail2)
-    else:
-        body = raw
-
+    # Extract body
+    body = extract_body_from_raw(header, raw)
+    
     return header, body
 
 

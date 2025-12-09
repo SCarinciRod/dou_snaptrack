@@ -34,69 +34,34 @@ def consolidate_and_report(
     fetch_browser_fallback: bool = True,
     short_len_threshold: int = 800,
 ) -> None:
+    from .consolidation_helpers import (
+        load_json_files,
+        should_enrich,
+        enrich_items,
+        log_enrich_skip_reason,
+        add_title_fallback,
+        create_result_dict,
+    )
+    
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-    agg = []
-    for f in sorted(Path(in_dir).glob("*.json")):
-        try:
-            data = __import__('json').loads(f.read_text(encoding="utf-8"))
-            items = data.get("itens", [])
-            # Normalizar links para absolutos quando possível
-            for it in items:
-                durl = it.get("detail_url") or ""
-                if not durl:
-                    link = it.get("link") or ""
-                    if link:
-                        if link.startswith("http"):
-                            durl = link
-                        elif link.startswith("/"):
-                            durl = f"https://www.in.gov.br{link}"
-                if durl:
-                    it["detail_url"] = durl
-            agg.extend(items)
-        except Exception:
-            pass
+    
+    # Load and normalize items
+    agg = load_json_files(in_dir)
 
-    # Deep mode por padrão: enriquecer texto com cache para melhorar qualidade
-    offline = (os.environ.get("DOU_OFFLINE_REPORT", "").strip() or "0").lower() in ("1","true","yes")
-    if summary_lines > 0 and not offline and agg:
-        logger.info(
-            f"[ENRICH] deep-mode STRICT: items={len(agg)} parallel={fetch_parallel} timeout={fetch_timeout_sec}s "
-            f"overwrite=True force_refresh={bool(fetch_force_refresh)} browser_fallback={bool(fetch_browser_fallback)} short_len_threshold={int(short_len_threshold)}"
-        )
-        # Estratégia STRICT: sobrescrever texto de todos os itens (quando extraído) para máxima cobertura
-        Fetcher(
-            timeout_sec=fetch_timeout_sec,
-            force_refresh=bool(fetch_force_refresh),
-            use_browser_if_short=bool(fetch_browser_fallback),
-            short_len_threshold=int(short_len_threshold),
-            browser_timeout_sec=max(20, fetch_timeout_sec),
-        ).enrich_items(agg, max_workers=fetch_parallel, overwrite=True, min_len=None)  # type: ignore
+    # Enrich items if appropriate
+    if should_enrich(summary_lines, agg):
+        enrich_items(agg, fetch_parallel, fetch_timeout_sec, fetch_force_refresh, 
+                    fetch_browser_fallback, short_len_threshold)
     else:
-        if summary_lines <= 0:
-            logger.info("[ENRICH] skipped: summarize disabled (summary_lines=0)")
-        elif not enrich_missing:
-            logger.info("[ENRICH] skipped: enrich_missing=False")
-        elif offline:
-            logger.info("[ENRICH] skipped: DOU_OFFLINE_REPORT=1")
-        elif not agg:
-            logger.info("[ENRICH] skipped: no items")
+        log_enrich_skip_reason(summary_lines, enrich_missing, agg)
 
-    # Fallback: se ainda não houver texto, usar título como base mínima para resumo
-    if summary_lines > 0 and agg:
-        for it in agg:
-            if not (it.get("texto") or it.get("ementa")):
-                t = it.get("title_friendly") or it.get("titulo") or it.get("titulo_listagem") or ""
-                if t:
-                    it["texto"] = str(t)
+    # Add fallback text from title
+    add_title_fallback(agg, summary_lines)
 
-    result: dict[str, Any] = {
-        "data": date_label or "",
-        "secao": secao_label or "",
-        "total": len(agg),
-        "itens": agg,
-    }
+    # Create result and generate bulletin
+    result = create_result_dict(agg, date_label, secao_label)
     summarize = summary_lines > 0
-    # Adapt summarizer to expected signature
+    
     def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
@@ -211,59 +176,30 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
 
     Returns the list of aggregated files written.
     """
+    from .consolidation_helpers import (
+        collect_job_files,
+        aggregate_jobs_by_date,
+        write_aggregated_files,
+    )
+    
     root = Path(in_dir)
     if root.is_file():
         root = root.parent
-    # Detect date and secao from any job file
-    jobs = [p for p in root.glob("*.json") if p.name.lower().endswith(".json") and not p.name.lower().startswith("batch_report") and not p.name.startswith("_")]
+    
+    # Collect job files
+    jobs = collect_job_files(root)
     if not jobs:
         return []
-    from collections import defaultdict
-    agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []})
-    secao_any = ""
-    for jf in jobs:
-        try:
-            data = json.loads(jf.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        date = str(data.get("data") or "")
-        secao = str(data.get("secao") or "")
-        if not agg[date]["data"]:
-            agg[date]["data"] = date
-        if not agg[date]["secao"]:
-            agg[date]["secao"] = secao
-        if not secao_any and secao:
-            secao_any = secao
-        items = data.get("itens", []) or []
-        # Normalize detail_url absolute
-        for it in items:
-            try:
-                durl = it.get("detail_url") or ""
-                if not durl:
-                    link = it.get("link") or ""
-                    if link:
-                        if link.startswith("http"):
-                            durl = link
-                        elif link.startswith("/"):
-                            durl = f"https://www.in.gov.br{link}"
-                if durl:
-                    it["detail_url"] = durl
-            except Exception:
-                pass
-        agg[date]["itens"].extend(items)
-    written: list[str] = []
-    # resultados root = parent of the day folder if named 'resultados'
+    
+    # Aggregate by date
+    agg, secao_any = aggregate_jobs_by_date(jobs, plan_name)
+    
+    # Determine target directory
     target_dir = root.parent if root.parent.name.lower() == "resultados" else root
     secao_label = (secao_any or "DO").strip()
-    for date, payload in agg.items():
-        payload["total"] = len(payload.get("itens", []))
-        safe_plan = sanitize_filename(plan_name)
-        date_lab = (date or "").replace("/", "-")
-        out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-        out_path = target_dir / out_name
-        out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        written.append(str(out_path))
-    return written
+    
+    # Write aggregated files
+    return write_aggregated_files(agg, plan_name, secao_label, target_dir)
 
 
 def split_and_report_by_n1(

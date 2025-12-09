@@ -378,99 +378,54 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
     Returns the loaded report dict or {} if something failed.
     """
     try:
-        # Ensure Windows has the proper event loop policy for Playwright subprocesses
-        if sys.platform.startswith("win"):
-            try:
-                asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-                asyncio.set_event_loop(asyncio.new_event_loop())
-            except Exception:
-                pass
+        from .batch_helpers import (
+            setup_windows_event_loop,
+            load_and_prepare_config,
+            setup_output_directory,
+            sanitize_config_for_ui,
+            configure_environment_variables,
+            write_batch_start_log,
+            write_playwright_opened_log,
+            delete_individual_outputs,
+            load_report,
+        )
+        
+        # Setup
+        setup_windows_event_loop()
 
         # Lazy imports to keep this module light and Streamlit-free
         from playwright.sync_api import sync_playwright  # type: ignore
-
         from dou_snaptrack.cli.batch import run_batch
         from dou_snaptrack.cli.summary_config import SummaryConfig
 
-        # Determine output dir based on plan date
-        try:
-            raw_cfg = json.loads(Path(cfg_path).read_text(encoding="utf-8"))
-            # UI policy: se a data não estiver explícita, usar hoje
-            plan_date = (raw_cfg.get("data") or "").strip() or _date.today().strftime("%d-%m-%Y")
-        except Exception:
-            raw_cfg = {}
-            plan_date = _date.today().strftime("%d-%m-%Y")
-
-        out_dir_path = Path("resultados") / plan_date
-        out_dir_path.mkdir(parents=True, exist_ok=True)
+        # Load and prepare configuration
+        raw_cfg, plan_date = load_and_prepare_config(cfg_path)
+        out_dir_path, run_log_path = setup_output_directory(plan_date)
         out_dir_str = str(out_dir_path)
-        run_log_path = out_dir_path / "batch_run.log"
 
-        # UI policy: link capture only (no details, no bulletin) to keep fast and safe
-        cfg_obj = json.loads(json.dumps(raw_cfg)) if raw_cfg else {}
-        # Se a data não foi definida, forçar hoje (para rodadas recorrentes do UI)
-        if not (cfg_obj.get("data") or "").strip():
-            cfg_obj["data"] = plan_date
-        dfl = dict(cfg_obj.get("defaults") or {})
-        dfl.pop("bulletin", None)
-        dfl.pop("bulletin_out", None)
-        dfl["scrape_detail"] = False
-        dfl["detail_parallel"] = 1
-        cfg_obj["defaults"] = dfl
-        for key in ("jobs", "combos"):
-            seq = cfg_obj.get(key)
-            if isinstance(seq, list):
-                for j in seq:
-                    if isinstance(j, dict):
-                        j.pop("bulletin", None)
-                        j.pop("bulletin_out", None)
-                        j["scrape_detail"] = False
-                        j["detail_parallel"] = 1
-
+        # Sanitize config for UI execution
+        cfg_obj = sanitize_config_for_ui(raw_cfg, plan_date)
         tmp_cfg_path = out_dir_path / "_run_cfg.json"
         tmp_cfg_path.write_text(json.dumps(cfg_obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        # Environment for workers
-        # Prefer subprocess pool when there is real parallelism; keep thread for single-worker inline stability
-        try:
-            if int(parallel) > 1:
-                os.environ["DOU_POOL"] = "subprocess"
-            else:
-                os.environ["DOU_POOL"] = "thread"
-        except Exception:
-            os.environ.setdefault("DOU_POOL", "thread")
-        if prefer_edge:
-            os.environ["DOU_PREFER_EDGE"] = "1"
-        if fast_mode:
-            os.environ["DOU_FAST_MODE"] = "1"
-
-        # Ensure PYTHONPATH includes src (otimizado com cache)
+        # Configure environment
+        configure_environment_variables(parallel, prefer_edge, fast_mode)
         _ensure_pythonpath()
 
-        # Pre-create header and note Playwright opening
-        try:
-            with open(run_log_path, "a", encoding="utf-8") as _fp:
-                _fp.write(f"[UI] batch start: cfg={cfg_path} tmp={tmp_cfg_path} out_dir={out_dir_path} parallel={int(parallel)} fast_mode={bool(fast_mode)} prefer_edge={bool(prefer_edge)}\n")
-                _fp.write("[UI] opening Playwright context...\n")
-        except Exception:
-            pass
+        # Log batch start
+        write_batch_start_log(run_log_path, cfg_path, tmp_cfg_path, out_dir_path, parallel, fast_mode, prefer_edge)
 
         # Optionally enforce a single UI-run at a time (via file lock)
         lock_ctx = _UILock(LOCK_PATH) if enforce_singleton else None
         if lock_ctx:
             lock_ctx.__enter__()
             if not lock_ctx._locked:
-                # Someone else holds the lock; surface a clear error so the UI can prompt
                 other = detect_other_execution()
                 raise RuntimeError(f"Outra execução em andamento: {other}")
+        
         try:
             with sync_playwright() as p:
-                # Logged: context opened
-                try:
-                    with open(run_log_path, "a", encoding="utf-8") as _fp:
-                        _fp.write("[UI] Playwright context opened. Scheduling batch...\n")
-                except Exception:
-                    pass
+                write_playwright_opened_log(run_log_path)
 
                 from types import SimpleNamespace
                 args = SimpleNamespace(
@@ -479,7 +434,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
                     headful=False,
                     slowmo=0,
                     state_file=None,
-                    reuse_page=True,  # reuse a tab per (date,secao)
+                    reuse_page=True,
                     parallel=int(parallel),
                     log_file=str(run_log_path),
                 )
@@ -489,44 +444,11 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
             if lock_ctx:
                 lock_ctx.__exit__(None, None, None)
 
-        rep_path = out_dir_path / "batch_report.json"
-        rep = json.loads(rep_path.read_text(encoding="utf-8")) if rep_path.exists() else {}
-
-        # Pós-processo: se houver arquivos agregados, remover JSONs individuais (otimizado com threading)
-        try:
-            agg = rep.get("aggregated") if isinstance(rep, dict) else None
-            outs = rep.get("outputs") if isinstance(rep, dict) else None
-            if agg and isinstance(agg, list) and outs and isinstance(outs, list) and len(outs) > 0:
-                # Deletar em paralelo para performance (3-5x mais rápido)
-                from concurrent.futures import ThreadPoolExecutor
-
-                def _safe_delete(path: str) -> tuple[str, bool]:
-                    """Delete file and return (path, success)."""
-                    try:
-                        Path(path).unlink(missing_ok=True)
-                        return (path, True)
-                    except Exception:
-                        return (path, False)
-
-                # Max 4 workers para I/O (sweet spot)
-                with ThreadPoolExecutor(max_workers=4) as executor:
-                    results = list(executor.map(_safe_delete, outs))
-
-                deleted = [p for p, success in results if success]
-
-                # Update report on disk
-                if rep_path.exists() and deleted:
-                    try:
-                        rep["deleted_outputs"] = deleted
-                        rep["outputs"] = []
-                        rep["aggregated_only"] = True
-                        rep_path.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+        # Load and post-process report
+        rep = load_report(out_dir_path)
+        rep = delete_individual_outputs(rep, out_dir_path)
+        
         return rep
     except Exception as e:
-        # Print instead of Streamlit UI feedback to keep this headless-safe
         print(f"[run_batch_with_cfg] Falha: {type(e).__name__}: {e}")
         return {}
