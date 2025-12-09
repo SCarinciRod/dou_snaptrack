@@ -15,7 +15,6 @@ from ...constants import TIMEOUT_PAGE_DEFAULT, TIMEOUT_SUBPROCESS_LONG
 from ...utils.text import sanitize_filename
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
 
-
 def render_out_filename(pattern: str, job: dict[str, Any]) -> str:
     date_str = job.get("data") or ""
     tokens = {
@@ -32,7 +31,6 @@ def render_out_filename(pattern: str, job: dict[str, Any]) -> str:
     for k, v in tokens.items():
         name = name.replace("{" + k + "}", sanitize_filename(str(v)))
     return name
-
 
 def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     """Expand batch configuration into list of jobs.
@@ -72,7 +70,6 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
         jobs.extend(expand_combo_only_jobs(cfg, defaults, base_data, base_secao))
 
     return jobs
-
 
 def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
@@ -166,7 +163,6 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         pass
     return report
 
-
 def _init_worker(log_file: str | None = None) -> None:
     """Initializer for worker processes to confirm spawn and set basic policy early."""
     try:
@@ -189,7 +185,6 @@ def _init_worker(log_file: str | None = None) -> None:
     except Exception:
         pass
 
-
 def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
     """
     Executa o collector async via subprocess (para evitar conflitos de event loop).
@@ -208,7 +203,7 @@ def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
         result_path = input_path.replace('.json', '_result.json')
         
         # Encontrar script
-        script_path = Path(__file__).parent.parent / "ui" / "dou_collect_parallel.py"
+        script_path = Path(__file__).parent.parent.parent / "ui" / "collectors" / "dou_parallel.py"
         if not script_path.exists():
             _log(f"[FAST ASYNC SUBPROCESS] Script não encontrado: {script_path}")
             return {"success": False, "error": f"Script não encontrado: {script_path}"}
@@ -250,7 +245,6 @@ def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
         return {"success": False, "error": "Subprocess timeout (10 min)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
-
 
 def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
     """Agregação de outputs por plano (extraída para evitar duplicação)."""
@@ -326,168 +320,6 @@ def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
             _log(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
     except Exception as e:
         _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")
-
-
-def _init_worker(log_file: str | None = None) -> None:
-    """Initializer for worker processes to confirm spawn and set basic policy early."""
-    try:
-        import asyncio as _asyncio
-        import os as _os
-        import sys as _sys
-        if _sys.platform.startswith("win"):
-            try:
-                _asyncio.set_event_loop_policy(_asyncio.WindowsProactorEventLoopPolicy())
-                _asyncio.set_event_loop(_asyncio.new_event_loop())
-            except Exception:
-                pass
-        if log_file:
-            try:
-                Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-                with open(log_file, "a", encoding="utf-8") as _fp:
-                    _fp.write(f"[Init {_os.getpid()}] worker process spawned\n")
-            except Exception:
-                pass
-    except Exception:
-        pass
-
-
-def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
-    """
-    Executa o collector async via subprocess (para evitar conflitos de event loop).
-    
-    Similar ao padrão usado em eagendas_collect_parallel.
-    """
-    import tempfile
-    
-    try:
-        # Escrever input em arquivo temporário
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
-            json.dump(async_input, f, ensure_ascii=False)
-            input_path = f.name
-        
-        # Escrever resultado em arquivo temporário
-        result_path = input_path.replace('.json', '_result.json')
-        
-        # Encontrar script
-        script_path = Path(__file__).parent.parent / "ui" / "dou_collect_parallel.py"
-        if not script_path.exists():
-            _log(f"[FAST ASYNC SUBPROCESS] Script não encontrado: {script_path}")
-            return {"success": False, "error": f"Script não encontrado: {script_path}"}
-        
-        # Executar subprocess
-        env = os.environ.copy()
-        env["INPUT_JSON_PATH"] = input_path
-        env["RESULT_JSON_PATH"] = result_path
-        env["PYTHONIOENCODING"] = "utf-8"
-        
-        proc = subprocess.run(
-            [sys.executable, str(script_path)],
-            env=env,
-            capture_output=True,
-            timeout=600,  # 10 min timeout
-            text=True
-        )
-        
-        # Ler resultado
-        if Path(result_path).exists():
-            result = json.loads(Path(result_path).read_text(encoding='utf-8'))
-        else:
-            # Tentar parsear stdout
-            try:
-                result = json.loads(proc.stdout)
-            except Exception:
-                result = {"success": False, "error": proc.stderr or "No output"}
-        
-        # Cleanup
-        try:
-            Path(input_path).unlink(missing_ok=True)
-            Path(result_path).unlink(missing_ok=True)
-        except Exception:
-            pass
-        
-        return result
-        
-    except subprocess.TimeoutExpired:
-        return {"success": False, "error": "Subprocess timeout (10 min)"}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
-    """Agregação de outputs por plano (extraída para evitar duplicação)."""
-    try:
-        plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
-        if not plan_name:
-            return
-        
-        from collections import defaultdict
-        
-        def _aggregate_outputs_by_date(paths: list[str], out_dir_p: Path, plan: str) -> list[str]:
-            agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
-            secao_any = ""
-            for pth in paths or []:
-                try:
-                    data = json.loads(Path(pth).read_text(encoding="utf-8"))
-                except Exception:
-                    continue
-                date = str(data.get("data") or "")
-                secao = str(data.get("secao") or "")
-                if not agg[date]["data"]:
-                    agg[date]["data"] = date
-                if not agg[date]["secao"]:
-                    agg[date]["secao"] = secao
-                if not secao_any and secao:
-                    secao_any = secao
-                items = data.get("itens", []) or []
-                # Normalize detail_url (absolute)
-                for it in items:
-                    try:
-                        durl = it.get("detail_url") or ""
-                        if not durl:
-                            link = it.get("link") or ""
-                            if link:
-                                if link.startswith("http"):
-                                    durl = link
-                                elif link.startswith("/"):
-                                    durl = f"https://www.in.gov.br{link}"
-                        if durl:
-                            it["detail_url"] = durl
-                    except Exception:
-                        pass
-                agg[date]["itens"].extend(items)
-            written: list[str] = []
-            secao_label = (secao_any or "DO").strip()
-            for date, payload in agg.items():
-                payload["total"] = len(payload.get("itens", []))
-                safe_plan = sanitize_filename(plan)
-                date_lab = (date or "").replace("/", "-")
-                out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-                out_path_f = out_dir_p / out_name
-                out_path_f.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-                written.append(str(out_path_f))
-            return written
-
-        prev_outputs = list(report.get("outputs", []))
-        agg_files = _aggregate_outputs_by_date(prev_outputs, out_dir, plan_name)
-        if agg_files:
-            deleted = []
-            for pth in prev_outputs:
-                try:
-                    Path(pth).unlink(missing_ok=True)
-                    deleted.append(pth)
-                except Exception:
-                    pass
-            report["deleted_outputs"] = deleted
-            report["outputs"] = []
-            report["aggregated"] = agg_files
-            report["aggregated_only"] = True
-            # Re-write report with aggregation info
-            rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
-            rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-            _log(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
-    except Exception as e:
-        _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")
-
 
 def run_batch(playwright, args, summary: SummaryConfig) -> None:
     """Execute batch processing with optional fast async mode.

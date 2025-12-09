@@ -140,7 +140,7 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
             output_path = f.name
 
         py = sys.executable or "python"
-        cmd = [py, "-m", "dou_snaptrack.ui.dou_collect_parallel", "--input", input_path, "--output", output_path]
+        cmd = [py, "-m", "dou_snaptrack.ui.collectors.dou_parallel", "--input", input_path, "--output", output_path]
 
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
 

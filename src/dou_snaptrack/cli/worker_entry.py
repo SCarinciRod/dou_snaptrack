@@ -30,7 +30,7 @@ def main() -> int:
         return 2
 
     try:
-        from dou_snaptrack.cli.batch.worker import _worker_process  # type: ignore
+        from dou_snaptrack.cli.batch.runner import _worker_process  # type: ignore
         result = _worker_process(payload)
     except Exception as e:
         print(f"[worker_entry] Execução do worker falhou: {e}")
