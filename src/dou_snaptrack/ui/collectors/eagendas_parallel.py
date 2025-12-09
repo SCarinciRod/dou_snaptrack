@@ -8,7 +8,7 @@ OTIMIZAÇÕES:
 
 Modelo simplificado de 2 níveis: Órgão → Agente (direto, sem cargo intermediário).
 
-Recebe via stdin JSON com:
+Recebe via variável de ambiente INPUT_JSON_PATH ou stdin com JSON:
 {
   "queries": [
     {
@@ -100,10 +100,16 @@ async def collect_for_agent(
             print(f"{prefix} Falha ao selecionar órgão", file=sys.stderr)
             return None
 
+        # IMPORTANTE: Pequeno delay para Angular processar o ng-change e disparar requisição
+        # Sem isso, o wait_for_function abaixo pode começar antes do Angular processar
+        await page.wait_for_timeout(300)
+
         # WAIT CONDICIONAL: Aguardar lista de agentes popular (substitui wait fixo de 2000ms)
+        # NOTA: polling=500 é necessário para dar tempo ao Angular processar. Polling muito rápido
+        # (100ms) pode impedir que o Angular execute seus ciclos $digest.
         wait_agentes_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
         try:
-            await page.wait_for_function(wait_agentes_js, timeout=10000, polling=100)
+            await page.wait_for_function(wait_agentes_js, timeout=10000, polling=500)
         except Exception:
             print(f"{prefix} Lista de agentes não populou", file=sys.stderr)
             return None
@@ -122,6 +128,15 @@ async def collect_for_agent(
             print(f"{prefix} Falha ao selecionar agente", file=sys.stderr)
             return None
 
+        # IMPORTANTE: Delay para Angular processar ng-change e auto-popular cargo
+        # O site E-Agendas usa AngularJS que precisa de tempo para:
+        # 1. Processar o evento change do selectize
+        # 2. Executar ng-change="onUpdateServidor()"
+        # 3. Fazer requisição HTTP para buscar cargo do agente
+        # 4. Popular o selectize de cargo com o resultado
+        # 2000ms é necessário para cobrir a latência de rede
+        await page.wait_for_timeout(2000)
+
         # Remover cookie bar se presente (fazer logo para não atrapalhar)
         await page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
 
@@ -137,8 +152,10 @@ async def collect_for_agent(
         }"""
 
         try:
-            # Esperar até 12s para cargo+botão ficarem prontos (polling rápido)
-            await page.wait_for_function(ready_js, timeout=12000, polling=200)
+            # Esperar até 12s para cargo+botão ficarem prontos
+            # NOTA: polling=500 é necessário para dar tempo ao Angular processar o ng-change
+            # e auto-popular o campo cargo. Polling muito rápido bloqueia o Angular.
+            await page.wait_for_function(ready_js, timeout=12000, polling=500)
             print(f"{prefix} ✓ Cargo + Botão prontos", file=sys.stderr)
         except Exception:
             # Fallback: tentar selecionar cargo manualmente se não auto-populou
@@ -166,7 +183,7 @@ async def collect_for_agent(
         # Verificar botão - já deve estar pronto após o wait acima, mas verificar novamente
         btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\"submit\"]'); return btn && !btn.disabled; }"
         try:
-            await page.wait_for_function(btn_enabled_js, timeout=5000, polling=100)
+            await page.wait_for_function(btn_enabled_js, timeout=5000, polling=500)
         except Exception:
             print(f"{prefix} ⚠ Botão ainda desabilitado, pulando agente...", file=sys.stderr)
             return None
@@ -379,8 +396,13 @@ async def main_async():
 
     start_time = time.perf_counter()
 
-    # Ler input via stdin
-    input_data = json.loads(sys.stdin.read())
+    # Ler input via INPUT_JSON_PATH (preferido) ou stdin (fallback)
+    input_file = os.environ.get("INPUT_JSON_PATH")
+    if input_file and Path(input_file).exists():
+        input_data = json.loads(Path(input_file).read_text(encoding="utf-8-sig"))
+    else:
+        input_data = json.loads(sys.stdin.read())
+    
     queries = input_data.get("queries", [])
     periodo = input_data.get("periodo", {})
     max_workers = input_data.get("max_workers", 4)

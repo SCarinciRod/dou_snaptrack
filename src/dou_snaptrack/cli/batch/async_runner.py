@@ -77,9 +77,13 @@ def try_fast_async_mode(
             }
 
             elapsed = async_result.get("elapsed", 0)
-            log_fn(
-                f"[FAST ASYNC] ✓ Concluído em {elapsed:.1f}s — ok={report['ok']} fail={report['fail']} items={report['items_total']}"
-            )
+            log_fn(f"[FAST ASYNC] ✓ SUCESSO!")
+            log_fn(f"[FAST ASYNC]   Tempo: {elapsed:.1f}s")
+            log_fn(f"[FAST ASYNC]   Jobs OK: {report['ok']}/{report['total_jobs']}")
+            log_fn(f"[FAST ASYNC]   Jobs FAIL: {report['fail']}/{report['total_jobs']}")
+            log_fn(f"[FAST ASYNC]   Items coletados: {report['items_total']}")
+            if report['outputs']:
+                log_fn(f"[FAST ASYNC]   Arquivos salvos: {len(report['outputs'])}")
 
             return report
         else:
@@ -149,22 +153,65 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
 
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=env)
 
-        if result.returncode == 0 and Path(output_path).exists():
-            with open(output_path, encoding="utf-8") as f:
-                return json.load(f)
+        output_data = None
+        if Path(output_path).exists():
+            try:
+                with open(output_path, encoding="utf-8") as f:
+                    output_data = json.load(f)
+            except Exception as read_err:
+                log_fn(f"[FAST ASYNC] Falha ao ler resultado: {read_err}")
+
+        # Sempre logar resultado do subprocess para diagnóstico
+        log_fn(f"[FAST ASYNC] Subprocess retornou code={result.returncode}")
+        
+        if output_data:
+            log_fn(
+                f"[FAST ASYNC] Resultado: ok={output_data.get('ok')} fail={output_data.get('fail')} "
+                f"items={output_data.get('items_total')} elapsed={output_data.get('elapsed', 0):.1f}s"
+            )
+            if output_data.get("error"):
+                log_fn(f"[FAST ASYNC] Erro do coletor: {output_data.get('error')}")
+            if output_data.get("traceback"):
+                log_fn(f"[FAST ASYNC] Traceback: {output_data.get('traceback')[:500]}")
         else:
-            log_fn(f"[FAST ASYNC] Subprocess failed with code {result.returncode}")
+            log_fn("[FAST ASYNC] Nenhum output_data encontrado no arquivo de resultado")
+        
+        # Mostrar stderr/stdout se houver erro ou se debug estiver ativo
+        debug_logs = os.environ.get("DOU_FAST_ASYNC_DEBUG", "0").lower() in ("1", "true", "yes")
+        if result.returncode != 0 or debug_logs:
             if result.stderr:
-                log_fn(f"[FAST ASYNC] Error: {result.stderr[:500]}")
-            return None
+                # Mostrar últimas linhas do stderr (mais útil que as primeiras)
+                stderr_lines = result.stderr.strip().split('\n')
+                if len(stderr_lines) > 20:
+                    log_fn(f"[FAST ASYNC] stderr ({len(stderr_lines)} linhas, últimas 20):")
+                    for line in stderr_lines[-20:]:
+                        log_fn(f"  {line}")
+                else:
+                    log_fn(f"[FAST ASYNC] stderr:")
+                    for line in stderr_lines:
+                        log_fn(f"  {line}")
+            if result.stdout:
+                log_fn(f"[FAST ASYNC] stdout: {result.stdout[:800]}")
+
+        # Return whatever the collector produced so the caller can decide if it is usable
+        if output_data:
+            return output_data
+
+        log_fn("[FAST ASYNC] ERRO: Arquivo de resultado não existe ou está vazio")
+        log_fn(f"[FAST ASYNC] Esperado em: {output_path}")
+        return None
 
     except Exception as e:
         log_fn(f"[FAST ASYNC] Subprocess error: {e}")
         return None
     finally:
-        # Cleanup temp files
-        try:
-            Path(input_path).unlink(missing_ok=True)
-            Path(output_path).unlink(missing_ok=True)
-        except Exception:
-            pass
+        keep_tmp = os.environ.get("DOU_KEEP_FAST_ASYNC_TMP", "0").lower() in ("1", "true", "yes")
+        if keep_tmp:
+            log_fn(f"[FAST ASYNC] Mantendo arquivos temporários: {input_path}, {output_path}")
+        else:
+            # Cleanup temp files
+            try:
+                Path(input_path).unlink(missing_ok=True)
+                Path(output_path).unlink(missing_ok=True)
+            except Exception:
+                pass

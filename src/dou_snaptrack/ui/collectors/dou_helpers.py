@@ -119,11 +119,25 @@ def log_final_results(stats: dict[str, Any], jobs_count: int, elapsed: float, lo
         log_fn: Logging function
     """
     log_fn(f"{'='*60}")
-    log_fn("RESULTADO FINAL")
+    log_fn("RESULTADO FINAL (Single Browser Async)")
     log_fn(f"{'='*60}")
     log_fn(f"Jobs OK: {len(stats['successful'])}/{jobs_count}")
-    log_fn(f"Total items: {stats['total_items']}")
+    log_fn(f"Jobs FAIL: {len(stats['failed'])}/{jobs_count}")
+    log_fn(f"Total items coletados: {stats['total_items']}")
     log_fn(f"Tempo total: {elapsed:.1f}s")
+    
+    # Listar jobs que falharam
+    if stats['failed']:
+        log_fn("Jobs com falha:")
+        for r in stats['failed']:
+            log_fn(f"  - {r.job_id}: {r.error}")
+    
+    # Resumo dos jobs bem sucedidos
+    if stats['successful']:
+        log_fn("Jobs bem sucedidos:")
+        for r in stats['successful']:
+            log_fn(f"  - {r.job_id}: {len(r.items)} items em {r.elapsed:.1f}s")
+    
     log_fn(f"{'='*60}")
 
 
@@ -192,8 +206,14 @@ def build_final_result(stats: dict[str, Any], outputs: list[str], elapsed: float
     Returns:
         Final result dictionary
     """
+    # Considerar sucesso se pelo menos um job foi bem sucedido
+    # (partial success é aceitável para batch processing)
+    has_successes = len(stats["successful"]) > 0
+    all_success = len(stats["failed"]) == 0
+    
     return {
-        "success": len(stats["failed"]) == 0,
+        "success": has_successes,  # True se há pelo menos um sucesso
+        "all_success": all_success,  # True somente se todos foram ok
         "ok": len(stats["successful"]),
         "fail": len(stats["failed"]),
         "items_total": stats["total_items"],

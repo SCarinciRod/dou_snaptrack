@@ -63,14 +63,14 @@ def _write_result(data: dict) -> None:
     result_path = os.environ.get("RESULT_JSON_PATH")
     if result_path:
         Path(result_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(result_path).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        Path(result_path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     else:
         print(json.dumps(data, ensure_ascii=False))
 
 
 def _log(msg: str, level: str = "INFO") -> None:
     """Log message to stderr (não interfere com resultado JSON)."""
-    print(f"[{level}] {msg}", file=sys.stderr)
+    print(f"[{level}] {msg}", file=sys.stderr, flush=True)
 
 
 async def collect_dou_job(
@@ -149,8 +149,12 @@ async def collect_dou_job(
                     break
             
             if not target:
-                result.error = f"Opção não encontrada: {key1}"
-                result.elapsed = time.perf_counter() - start
+                # Opção não encontrada - retornar sucesso com 0 itens (não é erro fatal)
+                _log(f"{prefix} [{job_id}] Opção não encontrada no dropdown: '{key1}' - retornando 0 itens", "WARN")
+                result.success = True
+                result.items = []
+                result.elapsed = round(time.perf_counter() - start, 2)
+                result.timings = timings
                 return result
             
             await page.select_option("select:first-of-type", value=target["value"], timeout=10000)
@@ -401,11 +405,14 @@ def main():
             input_data = json.loads(sys.stdin.read())
         
         result = asyncio.run(main_async(input_data))
+        # Consider execução parcialmente bem-sucedida como exit 0 se houver itens
+        exit_code = 0 if (result.get("success") or result.get("ok", 0) > 0) else 1
         _write_result(result)
-        return 0 if result.get("success") else 1
+        return exit_code
         
     except Exception as e:
         import traceback
+        traceback.print_exc()
         _write_result({
             "success": False,
             "error": str(e),
