@@ -13,7 +13,7 @@ from urllib.parse import parse_qs, urlparse
 from ..detail_utils import abs_url as _abs_url
 from ..enrich_utils import enrich_items_friendly_titles as _enrich_titles
 from ..page_utils import find_best_frame, goto as _goto, try_visualizar_em_lista
-from ..query_utils import apply_query as _apply_query, collect_links as _collect_links
+from ..query.utils import apply_query as _apply_query, collect_links as _collect_links
 from ..services.cascade_service import CascadeParams, CascadeService
 from ..services.multi_level_cascade_service import MultiLevelCascadeSelector
 
