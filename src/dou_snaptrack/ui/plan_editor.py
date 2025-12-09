@@ -214,7 +214,7 @@ def render_plan_discovery(
             if n2_list:
                 st.caption(f"✅ {len(n2_list)} suborganizações encontradas.")
             else:
-                st.caption("ℹ️ Nenhuma suborganização encontrada (use 'Órgão sem Suborganizações').")
+                st.caption("ℹ️ Nenhuma suborganização encontrada. Use 'Órgão Completo' para adicionar.")
     else:
         n1 = None
         st.info("Clique em 'Carregar Órgãos' para listar os órgãos disponíveis.")
@@ -245,11 +245,12 @@ def render_plan_discovery(
             st.success(f"Adicionados {len(add)} combos ao plano.")
 
     with cols_add[1]:
-        add_n1_only = n1 and not n2_list
-        if st.button("Orgão sem Suborganizações", disabled=not add_n1_only):
+        # Permitir adicionar órgão completo (sem suborganização) sempre que houver N1 selecionado
+        # Útil quando usuário quer coletar todo o órgão de uma vez
+        if st.button("Órgão Completo", disabled=not n1, help="Adiciona o órgão inteiro sem filtrar por suborganização"):
             add = _build_combos(str(n1), ["Todos"])
             PlanEditorSession.add_combos(add)
-            st.success("Adicionado N1 com N2='Todos'.")
+            st.success(f"Adicionado órgão '{n1}' completo (todas suborganizações).")
 
 
 @st.fragment
