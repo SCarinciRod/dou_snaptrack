@@ -47,3 +47,26 @@ class DedupState:
                 f.write(json.dumps({"hash": h}, ensure_ascii=False) + "\n")
         except Exception:
             pass
+
+    def add_batch(self, hashes: list[str]) -> int:
+        """Add multiple hashes in a single file operation.
+        
+        Args:
+            hashes: List of hash strings to add
+            
+        Returns:
+            Number of new hashes added
+        """
+        self.load()
+        new_hashes = [h for h in hashes if h not in self._seen]
+        if not new_hashes:
+            return 0
+        self._seen.update(new_hashes)
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as f:
+                for h in new_hashes:
+                    f.write(json.dumps({"hash": h}, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+        return len(new_hashes)

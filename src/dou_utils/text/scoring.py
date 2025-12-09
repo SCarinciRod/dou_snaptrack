@@ -80,12 +80,18 @@ def compute_keyword_scores(sentences: list[str], keywords: set[str]) -> list[int
     Returns:
         List of keyword match counts
     """
-    kscore = []
-    for s in sentences:
-        st = s.lower()
-        hits = sum(1 for k in keywords if k and k in st)
-        kscore.append(hits)
-    return kscore
+    if not keywords:
+        return [0] * len(sentences)
+    
+    # OTIMIZAÇÃO: compilar regex uma vez em vez de O(s * k) substring checks
+    valid_keywords = [k for k in keywords if k]
+    if not valid_keywords:
+        return [0] * len(sentences)
+    
+    pattern = "|".join(re.escape(k) for k in valid_keywords)
+    keyword_rx = re.compile(pattern, re.I)
+    
+    return [len(keyword_rx.findall(s)) for s in sentences]
 
 
 def get_scoring_weights(mode: str) -> tuple[float, float, float]:

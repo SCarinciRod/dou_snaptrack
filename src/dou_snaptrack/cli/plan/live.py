@@ -334,13 +334,12 @@ def _filter_opts(options: list[dict[str, Any]], select_regex: str | None, pick_l
         # Robust fallback: se regex compila mas não encontrou nada, tenta match por tokens normalizados
         if not out:
             tokens = [t.strip() for t in select_regex.splitlines() if t.strip()]
-            tokens_norm = [normalize_text(t) for t in tokens]
-            tmp = []
-            for o in opts:
-                nt = normalize_text(o.get("text") or "")
-                if any(tok and tok in nt for tok in tokens_norm):
-                    tmp.append(o)
-            out = tmp
+            tokens_norm = [normalize_text(t) for t in tokens if normalize_text(t)]
+            if tokens_norm:
+                # OTIMIZAÇÃO: usar regex compilada em vez de any() com substring O(n*k) -> O(n)
+                token_pattern = "|".join(re.escape(t) for t in tokens_norm)
+                token_rx = re.compile(token_pattern, re.I)
+                out = [o for o in opts if token_rx.search(normalize_text(o.get("text") or ""))]
     if pick_list:
         picks = {s.strip() for s in pick_list.split(",") if s.strip()}
         out = [o for o in out if (o.get("text") or "") in picks]

@@ -31,14 +31,13 @@ def filter_opts(options: list[dict[str, Any]], select_regex: str | None, pick_li
             pat = re.compile(select_regex, re.I)
             out = [o for o in out if pat.search(o.get("text") or "")]
         except re.error:
+            # Fallback: match por tokens normalizados com regex compilada O(n) em vez de O(n*k)
             toks = [t.strip() for t in select_regex.splitlines() if t.strip()]
-            toksn = [normalize_text(t) for t in toks]
-            tmp=[]
-            for o in out:
-                nt = normalize_text(o.get("text") or "")
-                if any(tok and tok in nt for tok in toksn):
-                    tmp.append(o)
-            out=tmp
+            toksn = [normalize_text(t) for t in toks if normalize_text(t)]
+            if toksn:
+                token_pattern = "|".join(re.escape(t) for t in toksn)
+                token_rx = re.compile(token_pattern, re.I)
+                out = [o for o in out if token_rx.search(normalize_text(o.get("text") or ""))]
     if pick_list:
         picks = {s.strip() for s in pick_list.split(",") if s.strip()}
         out = [o for o in out if (o.get("text") or "") in picks]

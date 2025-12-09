@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -247,9 +248,13 @@ def filter_placeholder_options(options: list[dict[str, Any]], additional_filters
     if additional_filters:
         filters.extend([f.lower() for f in additional_filters])
     
+    # OTIMIZAÇÃO: compilar regex uma vez em vez de O(options * filters) substring checks
+    filter_pattern = "|".join(re.escape(f) for f in filters)
+    filter_rx = re.compile(filter_pattern, re.I)
+    
     return [
         o for o in options
-        if o.get("text") and not any(f in o["text"].lower() for f in filters)
+        if o.get("text") and not filter_rx.search(o["text"])
     ]
 
 
