@@ -384,7 +384,7 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
     operations happen in the same thread. The provided `p` argument is ignored
     here to avoid cross-thread usage.
     """
-    from .plan_live_helpers import (
+    from .helpers import (
         launch_browser_with_fallbacks,
         setup_browser_and_page,
         wait_after_selection,

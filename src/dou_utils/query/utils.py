@@ -3,7 +3,7 @@
 
 import contextlib
 
-from .query_helpers import find_search_box
+from .helpers import find_search_box
 
 
 def apply_query(frame, query: str):
@@ -12,7 +12,7 @@ def apply_query(frame, query: str):
 
 def collect_links(frame, max_links: int = 100, max_scrolls: int = 30, scroll_pause_ms: int = 250, stable_rounds: int = 2):
     """Collect DOU links from frame with scrolling and load-more handling."""
-    from .query_helpers import (
+    from .helpers import (
         find_best_frame_and_locator,
         try_load_more_button,
         scroll_to_load_links,

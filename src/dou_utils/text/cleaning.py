@@ -59,7 +59,7 @@ def remove_dou_metadata(text: str) -> str:
 
 def split_doc_header(text: str) -> tuple[str | None, str]:
     """Localiza o cabeçalho do ato em qualquer ponto das primeiras linhas e retorna (header, body)."""
-    from .doc_header_helpers import (
+    from .helpers import (
         prepare_text_window,
         get_document_types,
         find_document_type_index,

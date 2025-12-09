@@ -138,7 +138,7 @@ def render_batch_executor() -> None:
 
 def _execute_plan(selected_path: Path, recommend_parallel) -> None:
     """Execute the selected plan with concurrency management."""
-    from .batch_executor_helpers import (
+    from .executor_helpers import (
         check_concurrent_execution,
         handle_concurrent_execution_ui,
         estimate_job_count,

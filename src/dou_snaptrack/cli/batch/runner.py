@@ -76,8 +76,8 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
-    from .batch_worker import setup_asyncio_for_windows, setup_worker_logging, launch_browser_with_fallback, setup_browser_context, cleanup_page_cache
-    from .batch_job import process_single_job
+    from .worker import setup_asyncio_for_windows, setup_worker_logging, launch_browser_with_fallback, setup_browser_context, cleanup_page_cache
+    from .job import process_single_job
     from .runner import run_once
 
     # Setup async and logging
@@ -371,13 +371,13 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     # ============================================================================
     # FAST ASYNC MODE: Try single-browser async collector first (2x faster)
     # ============================================================================
-    from .batch_async import try_fast_async_mode
+    from .async_runner import try_fast_async_mode
     
     async_report = try_fast_async_mode(jobs, defaults, out_dir, out_pattern, args, cfg, _log)
     if async_report:
         # Fast async succeeded! Write report and finish
         report = async_report
-        from .batch_helpers import write_report, finalize_with_aggregation
+        from .helpers import write_report, finalize_with_aggregation
         
         rep_path = write_report(report, out_dir, cfg)
         _log(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
@@ -589,13 +589,13 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     # ============================================================================
     # FAST ASYNC MODE: Try single-browser async collector first (2x faster)
     # ============================================================================
-    from .batch_async import try_fast_async_mode
+    from .async_runner import try_fast_async_mode
     
     async_report = try_fast_async_mode(jobs, defaults, out_dir, out_pattern, args, cfg, _log)
     if async_report:
         # Fast async succeeded! Write report and finish
         report = async_report
-        from .batch_helpers import write_report, finalize_with_aggregation
+        from .helpers import write_report, finalize_with_aggregation
         
         rep_path = write_report(report, out_dir, cfg)
         _log(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
@@ -609,7 +609,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     _log("[FALLBACK] Usando método multi-browser original...")
 
     # Import helper functions
-    from .batch_helpers import (
+    from .helpers import (
         load_state_file,
         determine_parallelism,
         distribute_jobs_into_buckets,
@@ -617,7 +617,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
         write_report,
         finalize_with_aggregation,
     )
-    from .batch_executor import (
+    from .executor import (
         execute_with_subprocess,
         execute_with_threads,
         execute_inline_with_threads,

@@ -247,7 +247,7 @@ def distribute_jobs(jobs_with_indices: list[tuple[int, dict]], num_workers: int)
 async def main_async(input_data: dict) -> dict:
     """Função principal assíncrona."""
     from playwright.async_api import async_playwright
-    from .dou_parallel_helpers import (
+    from .dou_helpers import (
         launch_browser_with_channels,
         create_worker_contexts,
         cleanup_browser_resources,

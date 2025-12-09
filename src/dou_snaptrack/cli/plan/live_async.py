@@ -295,7 +295,7 @@ async def wait_n2_repopulated_async(frame, n2_root: dict[str, Any], prev_count: 
 
 async def build_plan_live_async(p, args) -> dict[str, Any]:
     """Versão async de build_plan_live."""
-    from .plan_build_helpers import (
+    from .build_helpers import (
         launch_browser_with_fallbacks,
         setup_browser_context,
         wait_for_dropdown_ready,

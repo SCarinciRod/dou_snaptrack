@@ -45,7 +45,7 @@ def _write_result(data: dict) -> None:
 
 def main():
     """Executa coleta de eventos para múltiplos agentes (modelo 2 níveis: Órgão → Agente)."""
-    from .eagendas_subprocess_helpers import (
+    from .eagendas_helpers import (
         parse_input_and_periodo,
         setup_playwright_env,
         launch_browser_with_channels,

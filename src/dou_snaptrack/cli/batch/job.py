@@ -54,7 +54,7 @@ def process_single_job(
     Returns:
         Dictionary with ok, fail, items_total, outputs, elapsed, job_metrics
     """
-    from .batch_worker import (
+    from .worker import (
         extract_job_parameters,
         apply_fast_mode_optimizations,
         get_or_create_page,

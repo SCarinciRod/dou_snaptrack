@@ -58,7 +58,7 @@ def build_plan_from_pairs(pairs_file: str, args) -> dict[str, Any]:
     Reads N1-N2 pairs from a JSON file, filters them according to args,
     and generates a plan configuration with combos.
     """
-    from .plan_from_pairs_helpers import create_combo_from_pair, build_config_from_pairs
+    from .from_pairs_helpers import create_combo_from_pair, build_config_from_pairs
     
     # Load pairs data
     pf = Path(pairs_file)

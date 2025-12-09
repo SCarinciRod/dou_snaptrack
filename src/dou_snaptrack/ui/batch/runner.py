@@ -378,7 +378,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
     Returns the loaded report dict or {} if something failed.
     """
     try:
-        from .batch_helpers import (
+        from .helpers import (
             setup_windows_event_loop,
             load_and_prepare_config,
             setup_output_directory,

@@ -34,7 +34,7 @@ def consolidate_and_report(
     fetch_browser_fallback: bool = True,
     short_len_threshold: int = 800,
 ) -> None:
-    from .consolidation_helpers import (
+    from .consolidation import (
         load_json_files,
         should_enrich,
         enrich_items,
@@ -101,7 +101,7 @@ def report_from_aggregated(
 
     Permite juntar agregados de dias diferentes em um único boletim.
     """
-    from .reporting_helpers import (
+    from .helpers import (
         load_aggregated_files,
         sort_items_by_date_desc,
         should_enrich_items,
@@ -176,7 +176,7 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
 
     Returns the list of aggregated files written.
     """
-    from .consolidation_helpers import (
+    from .consolidation import (
         collect_job_files,
         aggregate_jobs_by_date,
         write_aggregated_files,
@@ -229,7 +229,7 @@ def split_and_report_by_n1(
         date_label: rótulo de data (opcional)
         secao_label: rótulo de seção (opcional)
     """
-    from .reporting_helpers import (
+    from .helpers import (
         load_and_group_by_n1,
         enrich_groups_with_fetcher,
         log_enrichment_skip_reason,
