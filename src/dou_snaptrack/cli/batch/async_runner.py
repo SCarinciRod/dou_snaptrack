@@ -136,13 +136,18 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
             json.dump(async_input, f, ensure_ascii=False)
             input_path = f.name
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
-            output_path = f.name
+        output_path = input_path.replace(".json", "_result.json")
 
         py = sys.executable or "python"
-        cmd = [py, "-m", "dou_snaptrack.ui.collectors.dou_parallel", "--input", input_path, "--output", output_path]
+        cmd = [py, "-m", "dou_snaptrack.ui.collectors.dou_parallel"]
+        
+        # O módulo usa variáveis de ambiente para input/output
+        env = os.environ.copy()
+        env["INPUT_JSON_PATH"] = input_path
+        env["RESULT_JSON_PATH"] = output_path
+        env["PYTHONIOENCODING"] = "utf-8"
 
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=env)
 
         if result.returncode == 0 and Path(output_path).exists():
             with open(output_path, encoding="utf-8") as f:
