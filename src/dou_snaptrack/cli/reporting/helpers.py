@@ -163,7 +163,7 @@ def enrich_items_with_fetcher(
         fetch_browser_fallback: Use browser fallback flag
         short_len_threshold: Short length threshold
     """
-    from dou_snaptrack.utils.fetcher import Fetcher
+    from dou_utils.content_fetcher import Fetcher
 
     logger.info(
         f"[ENRICH] deep-mode STRICT: items={len(items)} parallel={fetch_parallel} timeout={fetch_timeout_sec}s "
@@ -197,7 +197,7 @@ def enrich_groups_with_fetcher(
         fetch_browser_fallback: Use browser fallback flag
         short_len_threshold: Short length threshold
     """
-    from dou_snaptrack.utils.fetcher import Fetcher
+    from dou_utils.content_fetcher import Fetcher
 
     total_items = sum(len(v) for v in groups.values())
     logger.info(

@@ -328,63 +328,6 @@ def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
         _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")
 
 
-def run_batch(playwright, args, summary: SummaryConfig) -> None:
-    """Execute batch processing with optional fast async mode.
-    
-    This function coordinates batch execution with multiple strategies:
-    1. Fast async mode (single browser, multiple contexts) - fastest
-    2. Multi-browser fallback modes (subprocess, thread, or process pool)
-    
-    Args:
-        playwright: Playwright instance (may be unused if fast async succeeds)
-        args: Command-line arguments
-        summary: Summary configuration
-    """
-    # Setup logging
-    log_file = getattr(args, "log_file", None)
-    def _log(msg: str) -> None:
-        try:
-            print(msg)
-            if log_file:
-                Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-                with open(log_file, "a", encoding="utf-8") as _fp:
-                    _fp.write(str(msg) + "\n")
-        except Exception:
-            pass
-    
-    # Load and parse configuration
-    cfg_path = Path(args.config)
-    txt = cfg_path.read_text(encoding="utf-8-sig")
-    cfg = json.loads(txt)
-    out_dir = Path(args.out_dir or ".")
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    jobs = expand_batch_config(cfg)
-    if not jobs:
-        _log("[Erro] Nenhum job gerado a partir do config.")
-        return
-
-    out_pattern = (cfg.get("output") or {}).get("pattern") or "{topic}_{secao}_{date}_{idx}.json"
-    report = {"total_jobs": len(jobs), "ok": 0, "fail": 0, "items_total": 0, "outputs": []}
-    defaults = cfg.get("defaults") or {}
-
-    # ============================================================================
-    # FAST ASYNC MODE: Try single-browser async collector first (2x faster)
-    # ============================================================================
-    from .async_runner import try_fast_async_mode
-    
-    async_report = try_fast_async_mode(jobs, defaults, out_dir, out_pattern, args, cfg, _log)
-    if async_report:
-        # Fast async succeeded! Write report and finish
-        report = async_report
-        from .helpers import write_report, finalize_with_aggregation
-        
-        rep_path = write_report(report, out_dir, cfg)
-        _log(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
-        
-        finalize_with_aggregation(report, out_dir, cfg, rep_path, _log)
-
-
 def _init_worker(log_file: str | None = None) -> None:
     """Initializer for worker processes to confirm spawn and set basic policy early."""
     try:
