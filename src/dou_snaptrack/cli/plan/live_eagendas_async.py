@@ -374,7 +374,7 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
             "stats": {...}
         }
     """
-    from .eagendas_helpers import (
+    from ..eagendas_helpers import (
         DD_ORGAO_ID, DD_CARGO_ID, DD_AGENTE_ID,
         launch_browser_with_fallbacks,
         initialize_page_and_wait,

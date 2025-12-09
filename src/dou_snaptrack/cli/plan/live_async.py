@@ -128,7 +128,7 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
     """Versão async simplificada de _read_dropdown_options."""
     from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
     from dou_snaptrack.utils.text import normalize_text
-    from .async_dropdown_helpers import (
+    from ..async_dropdown_helpers import (
         read_native_select_options_async,
         click_and_wait_dropdown,
         find_listbox_container_async,
@@ -178,7 +178,7 @@ async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
     """Versão async de _select_by_text."""
     from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
     from dou_snaptrack.utils.text import normalize_text
-    from .async_dropdown_helpers import (
+    from ..async_dropdown_helpers import (
         select_native_dropdown_async,
         click_and_wait_dropdown,
         find_listbox_container_async,
