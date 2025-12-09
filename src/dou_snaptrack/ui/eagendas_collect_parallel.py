@@ -65,8 +65,9 @@ async def collect_for_agent(
     Returns:
         Dict com dados do agente ou None se falhou
     """
-    agente_label = query.get('n3_label') or query.get('person_label', 'Agente')
-    agente_value = query.get('n3_value', '')
+    # Support both n2 (direct) and n3 (via mapping) field names
+    agente_label = query.get('n3_label') or query.get('n2_label') or query.get('person_label', 'Agente')
+    agente_value = query.get('n3_value') or query.get('n2_value', '')
     orgao_label = query.get('n1_label', 'Órgão')
     orgao_value = query.get('n1_value', '')
 
@@ -76,21 +77,11 @@ async def collect_for_agent(
         # Sempre navegar para página inicial (cada coleta é independente)
         print(f"{prefix} Navegando para E-Agendas...", file=sys.stderr)
         await page.goto("https://eagendas.cgu.gov.br/", timeout=30000, wait_until="domcontentloaded")
-        
-        # Aguardar página estabilizar (Angular carrega)
-        await page.wait_for_timeout(1000)
 
-        # Espera condicional para AngularJS
-        with contextlib.suppress(Exception):
-            await page.wait_for_function(
-                "() => document.querySelector('[ng-app]') !== null",
-                timeout=5000
-            )
-
-        # Aguardar selectize de órgãos inicializar
+        # WAIT CONDICIONAL: Aguardar selectize de órgãos inicializar (substitui wait fixo)
         wait_orgao_js = f"() => {{ const el = document.getElementById('{DD_ORGAO_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 5; }}"
         try:
-            await page.wait_for_function(wait_orgao_js, timeout=15000)
+            await page.wait_for_function(wait_orgao_js, timeout=15000, polling=100)
         except Exception as e:
             print(f"{prefix} Selectize não inicializou: {e}", file=sys.stderr)
             return None
@@ -109,10 +100,13 @@ async def collect_for_agent(
             print(f"{prefix} Falha ao selecionar órgão", file=sys.stderr)
             return None
 
-        # CRÍTICO: Aguardar Angular processar callback onUpdateOrgao
-        # Não usar wait_for_function - interfere com digest cycle do Angular
-        # RESTAURADO: 2000ms necessário para Angular não perder agentes
-        await page.wait_for_timeout(2000)
+        # WAIT CONDICIONAL: Aguardar lista de agentes popular (substitui wait fixo de 2000ms)
+        wait_agentes_js = f"() => {{ const el = document.getElementById('{DD_AGENTE_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 0; }}"
+        try:
+            await page.wait_for_function(wait_agentes_js, timeout=10000, polling=100)
+        except Exception:
+            print(f"{prefix} Lista de agentes não populou", file=sys.stderr)
+            return None
 
         # Selecionar agente via JavaScript API
         print(f"{prefix} Selecionando agente: {agente_label[:30]}...", file=sys.stderr)
@@ -128,39 +122,35 @@ async def collect_for_agent(
             print(f"{prefix} Falha ao selecionar agente", file=sys.stderr)
             return None
 
-        # CRÍTICO: Aguardar Angular processar callback onUpdateServidor
-        # Este callback preenche automaticamente o campo cargo
-        # Aumentado para 3000ms - cargo leva tempo para popular via API
-        await page.wait_for_timeout(3000)
-
-        # Remover cookie bar se presente
+        # Remover cookie bar se presente (fazer logo para não atrapalhar)
         await page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
 
-        # Aguardar cargo ser preenchido automaticamente (polling)
-        # O E-Agendas faz uma chamada assíncrona para buscar os cargos do agente
-        cargo_wait_js = """() => {
+        # OTIMIZAÇÃO: Aguardar cargo E botão ficarem prontos em um único wait
+        # Isso combina a espera do cargo + espera do botão em uma operação
+        ready_js = """() => {
             const cargo = document.getElementById('filtro_cargo');
-            if (!cargo || !cargo.selectize) return false;
-            const val = cargo.selectize.getValue();
-            return val && val.length > 0;
+            const btn = document.querySelector('button[ng-click*="submit"]');
+            // Retorna true quando cargo tem valor E botão está habilitado
+            const cargoReady = cargo?.selectize?.getValue()?.length > 0;
+            const btnReady = btn && !btn.disabled;
+            return cargoReady && btnReady;
         }"""
-        
+
         try:
-            await page.wait_for_function(cargo_wait_js, timeout=15000)
-            print(f"{prefix} ✓ Cargo preenchido automaticamente", file=sys.stderr)
+            # Esperar até 12s para cargo+botão ficarem prontos (polling rápido)
+            await page.wait_for_function(ready_js, timeout=12000, polling=200)
+            print(f"{prefix} ✓ Cargo + Botão prontos", file=sys.stderr)
         except Exception:
-            # Se cargo não foi preenchido, pode ser que o agente não tenha cargo cadastrado
-            # Tentar verificar se há opções de cargo disponíveis
+            # Fallback: tentar selecionar cargo manualmente se não auto-populou
             cargo_options = await page.evaluate("""() => {
                 const cargo = document.getElementById('filtro_cargo');
                 if (!cargo || !cargo.selectize) return [];
                 return Object.keys(cargo.selectize.options || {});
             }""")
-            
+
             if cargo_options:
-                # Selecionar o primeiro cargo disponível
-                print(f"{prefix} ⚠ Cargo não auto-selecionado, selecionando primeiro disponível...", file=sys.stderr)
-                await page.evaluate("""(args) => {
+                print(f"{prefix} ⚠ Selecionando cargo manualmente...", file=sys.stderr)
+                await page.evaluate("""() => {
                     const cargo = document.getElementById('filtro_cargo');
                     if (cargo && cargo.selectize) {
                         const opts = Object.keys(cargo.selectize.options || {});
@@ -169,34 +159,14 @@ async def collect_for_agent(
                         }
                     }
                 }""")
-                await page.wait_for_timeout(1000)
+                # Wait handled by button check below
             else:
-                print(f"{prefix} ⚠ Sem cargos disponíveis para este agente", file=sys.stderr)
+                print(f"{prefix} ⚠ Sem cargos disponíveis", file=sys.stderr)
 
-        # DEBUG: Verificar estado dos campos antes de clicar
-        form_state = await page.evaluate("""() => {
-            const orgao = document.getElementById('filtro_orgao_entidade');
-            const agente = document.getElementById('filtro_servidor');
-            const cargo = document.getElementById('filtro_cargo');
-            const btn = document.querySelector('button[ng-click*="submit"]');
-            return {
-                orgao_value: orgao?.selectize?.getValue() || '',
-                agente_value: agente?.selectize?.getValue() || '',
-                cargo_value: cargo?.selectize?.getValue() || '',
-                btn_disabled: btn?.disabled ?? true,
-                btn_text: btn?.textContent || ''
-            };
-        }""")
-        print(f"{prefix} Estado: órgão={form_state.get('orgao_value', '?')}, "
-              f"agente={form_state.get('agente_value', '?')}, "
-              f"cargo={form_state.get('cargo_value', '?')}, "
-              f"btn_disabled={form_state.get('btn_disabled', '?')}", file=sys.stderr)
-
-        # Aguardar botão ficar habilitado (com timeout maior)
+        # Verificar botão - já deve estar pronto após o wait acima, mas verificar novamente
         btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\"submit\"]'); return btn && !btn.disabled; }"
         try:
-            await page.wait_for_function(btn_enabled_js, timeout=15000)
-            print(f"{prefix} ✓ Botão habilitado", file=sys.stderr)
+            await page.wait_for_function(btn_enabled_js, timeout=5000, polling=100)
         except Exception:
             print(f"{prefix} ⚠ Botão ainda desabilitado, pulando agente...", file=sys.stderr)
             return None
@@ -210,9 +180,16 @@ async def collect_for_agent(
                 await page.evaluate("""() => document.querySelector('button[ng-click*="submit"]').click()""")
             print(f"{prefix} ✓ Navegação completa", file=sys.stderr)
         except Exception as e:
-            print(f"{prefix} Navegação falhou ({e}), tentando fallback...", file=sys.stderr)
-            # Fallback: espera simples
-            await page.wait_for_timeout(10000)
+            print(f"{prefix} Navegação falhou ({e}), aguardando calendário...", file=sys.stderr)
+            # Fallback: wait for calendar to appear instead of fixed timeout
+            try:
+                await page.wait_for_function(
+                    "() => !!document.querySelector('.fc, #calendar, #divcalendar')",
+                    timeout=10000,
+                    polling=100
+                )
+            except Exception:
+                pass  # Continue to check below
 
         # Verificar se calendário apareceu
         calendar_found = await page.evaluate("() => !!document.querySelector('.fc, #calendar, #divcalendar')")
@@ -281,8 +258,21 @@ async def collect_for_agent(
         for _ in range(months_to_go_back):
             prev_btn = page.locator('.fc-prev-button').first
             if await prev_btn.count() > 0:
+                old_month = current_month
                 await prev_btn.click()
-                await page.wait_for_timeout(1000)
+                # Wait for calendar month title to change (conditional wait)
+                try:
+                    await page.wait_for_function(
+                        f"""(oldMonth) => {{
+                            const title = document.querySelector('.fc-toolbar-title')?.textContent || '';
+                            return title && title !== oldMonth;
+                        }}""",
+                        old_month,
+                        timeout=5000,
+                        polling=50
+                    )
+                except Exception:
+                    pass  # Continue even if timeout - month may already have changed
 
                 current_month = await get_calendar_month()
                 if current_month and current_month not in meses_visitados:
