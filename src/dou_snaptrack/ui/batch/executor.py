@@ -88,19 +88,27 @@ def _run_batch_with_cfg(
 # =============================================================================
 # RENDER FUNCTIONS
 # =============================================================================
+@st.fragment
 def render_batch_executor() -> None:
-    """Render the batch executor UI (TAB2 "Executar plano")."""
+    """Render the batch executor UI (TAB2 "Executar plano").
+
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance by not reloading the entire page when executing plans.
+    """
     st.subheader("Escolha o plano de pesquisa")
 
     # OTIMIZAÇÃO: Criação lazy de diretórios
     _plans_dir, _ = ensure_dirs()
     refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
 
+    # Callback para refresh (evita st.rerun() explícito)
+    def _refresh_plan_list():
+        st.session_state["plan_list_refresh_token"] = time.time()
+
     header_cols = st.columns([3, 1])
     with header_cols[1]:
-        if st.button("↻ Atualizar", key="refresh_plan_runner", help="Recarrega lista de planos"):
-            st.session_state["plan_list_refresh_token"] = time.time()
-            st.rerun()
+        st.button("↻ Atualizar", key="refresh_plan_runner", help="Recarrega lista de planos",
+                  on_click=_refresh_plan_list)
 
     plan_entries = _list_saved_plan_files(refresh_token)
 

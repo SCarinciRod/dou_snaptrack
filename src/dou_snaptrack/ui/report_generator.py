@@ -47,8 +47,13 @@ def _index_aggregates_in_day(day_dir: Path) -> dict[str, list[Path]]:
 # =============================================================================
 # RENDER FUNCTIONS
 # =============================================================================
+@st.fragment
 def render_report_generator() -> None:
-    """Render the report generator UI (TAB3 "Gerar boletim")."""
+    """Render the report generator UI (TAB3 "Gerar boletim").
+
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance by not reloading the entire page when generating reports.
+    """
     st.subheader("Boletim por Plano (agregados)")
 
     results_root = Path("resultados")

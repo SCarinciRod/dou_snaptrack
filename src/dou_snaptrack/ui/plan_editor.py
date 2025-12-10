@@ -70,8 +70,9 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
     ]
 
 
+@st.cache_data(ttl=30, show_spinner=False)
 def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
-    """List saved plan files with metadata.
+    """List saved plan files with metadata (cached for 30 seconds).
 
     Args:
         refresh_token: Cache invalidation token
@@ -264,11 +265,14 @@ def render_plan_loader() -> None:
         _plans_dir, _ = ensure_dirs()
         refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
 
+        # Callback para refresh (evita st.rerun() explícito)
+        def _refresh_plan_list():
+            st.session_state["plan_list_refresh_token"] = time.time()
+
         head_actions = st.columns([3, 1])
         with head_actions[1]:
-            if st.button("↻ Atualizar", key="refresh_plan_editor", help="Recarrega a lista de planos salvos"):
-                st.session_state["plan_list_refresh_token"] = time.time()
-                st.rerun()
+            st.button("↻ Atualizar", key="refresh_plan_editor", help="Recarrega a lista de planos salvos",
+                      on_click=_refresh_plan_list)
 
         plan_entries = _list_saved_plan_files(refresh_token)
 
@@ -324,8 +328,13 @@ def render_plan_loader() -> None:
                     st.caption(f"💾 Tamanho: {size_kb} KB")
 
 
+@st.fragment
 def render_plan_editor_table() -> None:
-    """Render the combo editor table with pagination - versao moderna e limpa."""
+    """Render the combo editor table with pagination - versao moderna e limpa.
+
+    This function is decorated with @st.fragment to enable isolated reruns,
+    improving performance by not reloading the entire page when editing combos.
+    """
     import pandas as pd
 
     plan = PlanEditorSession.get_plan()
