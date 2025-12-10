@@ -72,10 +72,10 @@ def _build_combos(n1: str, n2_list: list[str], key_type: str = "text") -> list[d
 
 def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
     """List saved plan files with metadata.
-    
+
     Args:
         refresh_token: Cache invalidation token
-        
+
     Returns:
         List of dicts with plan metadata (path, stem, combos, data, secao, etc.)
     """
@@ -141,15 +141,15 @@ class PlanEditorSession:
 def render_plan_discovery(
     fetch_n1_func=None,
     fetch_n2_func=None,
-    secao: str = None,
-    date: str = None,
+    secao: str | None = None,
+    date: str | None = None,
 ) -> None:
     """Render the plan discovery section (N1/N2 selection).
-    
+
     This function is decorated with @st.fragment to enable isolated reruns,
     improving performance by not reloading the entire page when user interacts
     with this section.
-    
+
     Args:
         fetch_n1_func: Function to fetch N1 options (optional, defaults to dou_fetch.fetch_n1_options)
         fetch_n2_func: Function to fetch N2 options (optional, defaults to dou_fetch.fetch_n2_options)
@@ -256,12 +256,12 @@ def render_plan_discovery(
 @st.fragment
 def render_plan_loader() -> None:
     """Render the saved plan loader section.
-    
+
     This function is decorated with @st.fragment to enable isolated reruns,
     avoiding full page reloads when loading saved plans.
     """
     with st.expander("📂 Carregar Plano Salvo para Editar"):
-        plans_dir, _ = ensure_dirs()
+        _plans_dir, _ = ensure_dirs()
         refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
 
         head_actions = st.columns([3, 1])
@@ -305,7 +305,7 @@ def render_plan_loader() -> None:
                         plan_name = cfg.get("plan_name", selected_plan.stem)
                         st.session_state["plan_name_ui"] = plan_name
                         st.session_state["loaded_plan_path"] = str(selected_plan)
-                        
+
                         # Reset pagina do editor
                         st.session_state["plan_editor_page"] = 0
 
@@ -335,7 +335,7 @@ def render_plan_editor_table() -> None:
         return
 
     num_combos = len(plan.combos)
-    
+
     # CSS customizado para visual moderno
     st.markdown("""
     <style>
@@ -366,7 +366,7 @@ def render_plan_editor_table() -> None:
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
     st.markdown(f'<span class="combo-count">{num_combos} combos no plano</span>', unsafe_allow_html=True)
 
     # Pagination setup
@@ -388,9 +388,9 @@ def render_plan_editor_table() -> None:
 
         # Paginacao moderna
         col1, col2, col3, col4, col5 = st.columns([1, 1, 3, 1, 1])
-        
+
         with col1:
-            st.button("⏮", key="pg_first", disabled=current_page == 0, 
+            st.button("⏮", key="pg_first", disabled=current_page == 0,
                      on_click=lambda: st.session_state.update({"plan_editor_page": 0}),
                      use_container_width=True)
         with col2:
@@ -461,7 +461,7 @@ def render_plan_editor_table() -> None:
                 disabled=True,
             ),
             "Sub-orgao": st.column_config.TextColumn(
-                "Sub-orgao", 
+                "Sub-orgao",
                 width="large",
                 disabled=True,
             ),
@@ -472,16 +472,16 @@ def render_plan_editor_table() -> None:
 
     # Contar selecionados
     selected_count = int(edited_df["Sel"].sum()) if "Sel" in edited_df.columns else 0
-    
+
     st.markdown("---")
-    
+
     # Botao unico de acao
     col_btn, col_info = st.columns([2, 3])
-    
+
     with col_btn:
         btn_text = f"Remover {selected_count} selecionado(s)" if selected_count > 0 else "Salvar alteracoes"
         btn_type = "primary"
-        
+
         if st.button(btn_text, use_container_width=True, type=btn_type):
             if selected_count > 0:
                 # Remover selecionados
@@ -489,20 +489,20 @@ def render_plan_editor_table() -> None:
                 for _, row in edited_df.iterrows():
                     if row["Sel"]:
                         ids_to_remove.add(int(row["ID"]))
-                
+
                 new_combos = [
                     combo for i, combo in enumerate(plan.combos)
                     if i not in ids_to_remove
                 ]
                 st.session_state.plan.combos = new_combos
-                
+
                 # Ajustar pagina se necessario
                 new_total = len(new_combos)
                 if new_total > 0 and use_pagination:
                     new_total_pages = (new_total + COMBOS_PER_PAGE - 1) // COMBOS_PER_PAGE
                     if st.session_state.plan_editor_page >= new_total_pages:
                         st.session_state.plan_editor_page = max(0, new_total_pages - 1)
-                
+
                 st.toast(f"{selected_count} combo(s) removido(s)!", icon="✅")
             else:
                 # Salvar no arquivo
@@ -527,7 +527,7 @@ def render_plan_editor_table() -> None:
                 else:
                     st.toast("Salvo em memoria. Use 'Salvar Plano' abaixo para persistir.", icon="💾")
             st.rerun()
-    
+
     with col_info:
         if selected_count > 0:
             st.warning(f"⚠️ {selected_count} combo(s) marcado(s) para remocao")

@@ -12,11 +12,11 @@ from .constants import SENTINELA_PREFIX
 
 def is_sentinel(value: str | None, label: str | None) -> bool:
     """Check if value/label represents a placeholder sentinel.
-    
+
     Args:
         value: Option value
         label: Option label/text
-        
+
     Returns:
         True if this is a sentinel (placeholder) option
     """
@@ -29,11 +29,11 @@ def is_sentinel(value: str | None, label: str | None) -> bool:
 
 async def collect_dropdowns(frame: Frame, selector: str = "select") -> list:
     """Collect all dropdown elements matching the selector.
-    
+
     Args:
         frame: Playwright async Frame
         selector: CSS selector for dropdowns
-        
+
     Returns:
         List of element handles
     """
@@ -42,10 +42,10 @@ async def collect_dropdowns(frame: Frame, selector: str = "select") -> list:
 
 async def option_data(opt) -> tuple[str, str]:
     """Extract value and text from an option element.
-    
+
     Args:
         opt: Element handle for an <option> element
-        
+
     Returns:
         Tuple of (value, text)
     """
@@ -56,14 +56,14 @@ async def option_data(opt) -> tuple[str, str]:
 
 async def select_option(dropdown_el, value: str | None, label: str | None) -> bool:
     """Select an option in a native <select> element.
-    
+
     Tries to match by value first, then by label.
-    
+
     Args:
         dropdown_el: Element handle for <select>
         value: Value to select by
         label: Label to select by if value not found
-        
+
     Returns:
         True if selection succeeded
     """
@@ -101,7 +101,7 @@ async def select_level(
     selector: str = "select"
 ) -> bool:
     """Select an option at a specific dropdown level.
-    
+
     Args:
         frame: Playwright async Frame
         level: 1-based level index
@@ -110,7 +110,7 @@ async def select_level(
         wait_ms: Time to wait after selection
         logger: Optional logger for debug output
         selector: CSS selector for dropdowns
-        
+
     Returns:
         True if selection succeeded or was skipped (sentinel)
     """

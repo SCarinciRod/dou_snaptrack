@@ -69,22 +69,23 @@ class EditionRunnerService:
             pass
 
     def run(self, params: EditionRunParams, summarizer_fn: Callable | None = None) -> dict[str, Any]:
-        from .edition_execution_helpers import (
-            build_edition_url,
-            should_reuse_inpage,
-            navigate_to_edition,
-            run_multilevel_selection,
-            retry_selection_with_reload,
-            build_error_result,
-            collect_edition_links,
-            build_base_result,
-            enrich_items_with_detail,
-            normalize_items_without_detail,
-            build_timings,
-            log_execution_summary,
-        )
         import time
-        
+
+        from .edition_execution_helpers import (
+            build_base_result,
+            build_edition_url,
+            build_error_result,
+            build_timings,
+            collect_edition_links,
+            enrich_items_with_detail,
+            log_execution_summary,
+            navigate_to_edition,
+            normalize_items_without_detail,
+            retry_selection_with_reload,
+            run_multilevel_selection,
+            should_reuse_inpage,
+        )
+
         # Setup page
         page = self._precreated_page or self.context.new_page()
         page.set_default_timeout(60_000)
@@ -109,7 +110,7 @@ class EditionRunnerService:
         selres = run_multilevel_selection(frame, params)
         if not selres.get("ok") and inpage:
             selres = retry_selection_with_reload(page, self.context, params, inpage)
-        
+
         if not selres.get("ok"):
             with contextlib.suppress(Exception):
                 page.close()
@@ -122,7 +123,7 @@ class EditionRunnerService:
 
         # Build result
         result = build_base_result(params)
-        
+
         if params.scrape_detail:
             enriched_items, enriched = enrich_items_with_detail(
                 self.context, page, frame, url, items, params, summarizer_fn
@@ -140,7 +141,7 @@ class EditionRunnerService:
         if not self._keep_page_open:
             with contextlib.suppress(Exception):
                 page.close()
-        
+
         # Add timings and log
         timings = build_timings(
             nav_times['t0'], nav_times['t_after_nav'], t_after_view,
@@ -148,6 +149,6 @@ class EditionRunnerService:
         )
         with contextlib.suppress(Exception):
             result["_timings"] = timings
-        
+
         log_execution_summary(params, timings)
         return result

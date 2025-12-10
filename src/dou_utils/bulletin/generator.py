@@ -10,7 +10,6 @@ Função principal:
 
 from __future__ import annotations
 
-import contextlib
 import html as html_lib
 import re
 from abc import ABC, abstractmethod
@@ -21,7 +20,6 @@ from typing import Any
 
 from dou_utils.log_utils import get_logger
 from dou_utils.text.cleaning import (
-    cap_sentences as _cap_sentences,
     extract_article1_section as _extract_article1_section,
     extract_doc_header_line as _extract_doc_header_line,
     final_clean_snippet as _final_clean_snippet,
@@ -121,13 +119,13 @@ def _summarize_item(
         String resumida ou None se não foi possível resumir
     """
     from dou_utils.text.helpers import (
+        apply_default_summarizer,
+        apply_summarizer_with_fallbacks,
+        derive_mode_from_doc_type,
         extract_base_text,
         get_fallback_from_title,
-        prepare_text_for_summarization,
-        derive_mode_from_doc_type,
-        apply_summarizer_with_fallbacks,
-        apply_default_summarizer,
         post_process_snippet,
+        prepare_text_for_summarization,
     )
 
     if not summarize or not summarizer_fn:

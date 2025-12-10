@@ -9,7 +9,8 @@ from __future__ import annotations
 import contextlib
 import logging
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +62,9 @@ def prepare_text_for_summarization(base: str) -> str:
         Cleaned text
     """
     from dou_utils.bulletin.generator import (
+        _extract_article1_section,
         _remove_dou_metadata,
         _strip_legalese_preamble,
-        _extract_article1_section,
     )
 
     try:

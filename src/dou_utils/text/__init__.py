@@ -2,8 +2,8 @@
 """Text cleaning, summarization and scoring utilities."""
 
 __all__ = [
-    "summarize_text",
     "clean_text_for_summary",
+    "summarize_text",
 ]
 
 

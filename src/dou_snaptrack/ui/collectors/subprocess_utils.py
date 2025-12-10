@@ -31,7 +31,7 @@ def execute_script_and_read_result(
     Uses RESULT_JSON_PATH contract: child script writes JSON to temp file.
     This is the primary mechanism for running Playwright scripts from Streamlit
     without blocking the UI or hitting Windows event loop issues.
-    
+
     Args:
         script_content: Python script content to execute (creates temp file)
         script_path: Path to existing script file (alternative to script_content)
@@ -39,10 +39,10 @@ def execute_script_and_read_result(
         cwd: Working directory for subprocess
         extra_env: Additional environment variables to merge
         input_text: Text to pass to subprocess stdin
-        
+
     Returns:
         Tuple of (parsed_json_dict or None, stderr_string)
-        
+
     Raises:
         ValueError: If neither script_content nor script_path is provided
         subprocess.TimeoutExpired: If the subprocess times out
@@ -107,10 +107,10 @@ def execute_script_and_read_result(
 
 def write_result(data: dict) -> None:
     """Write result to RESULT_JSON_PATH file (subprocess contract).
-    
+
     This function should be called by child scripts to write their
     final JSON payload. Falls back to stdout if no path is set.
-    
+
     Args:
         data: Dictionary to serialize as JSON result
     """

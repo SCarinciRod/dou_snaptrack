@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import contextlib
 import csv
 import io
@@ -8,7 +7,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import date as _date, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -150,7 +149,7 @@ def clear_ui_lock() -> None:
 
 def cleanup_batch_processes() -> dict[str, Any]:
     """Kill any orphaned batch subprocesses and clean up locks/incomplete files.
-    
+
     Returns a summary of what was cleaned up.
     """
     result = {"killed_pids": [], "removed_locks": [], "errors": []}
@@ -172,7 +171,7 @@ def cleanup_batch_processes() -> dict[str, Any]:
                 try:
                     data = json.loads(pids_file.read_text(encoding="utf-8"))
                     pids = data.get("pids", [])
-                    _parent_pid = data.get("parent", 0)  # noqa: F841 - kept for debugging
+                    _parent_pid = data.get("parent", 0)
 
                     # Kill each subprocess
                     for pid in pids:
@@ -379,22 +378,23 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
     """
     try:
         from .helpers import (
-            setup_windows_event_loop,
-            load_and_prepare_config,
-            setup_output_directory,
-            sanitize_config_for_ui,
             configure_environment_variables,
+            delete_individual_outputs,
+            load_and_prepare_config,
+            load_report,
+            sanitize_config_for_ui,
+            setup_output_directory,
+            setup_windows_event_loop,
             write_batch_start_log,
             write_playwright_opened_log,
-            delete_individual_outputs,
-            load_report,
         )
-        
+
         # Setup
         setup_windows_event_loop()
 
         # Lazy imports to keep this module light and Streamlit-free
         from playwright.sync_api import sync_playwright  # type: ignore
+
         from dou_snaptrack.cli.batch.runner import run_batch
         from dou_snaptrack.cli.batch.summary_config import SummaryConfig
 
@@ -422,7 +422,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
             if not lock_ctx._locked:
                 other = detect_other_execution()
                 raise RuntimeError(f"Outra execução em andamento: {other}")
-        
+
         try:
             with sync_playwright() as p:
                 write_playwright_opened_log(run_log_path)
@@ -447,7 +447,7 @@ def run_batch_with_cfg(cfg_path: Path, parallel: int, fast_mode: bool = False, p
         # Load and post-process report
         rep = load_report(out_dir_path)
         rep = delete_individual_outputs(rep, out_dir_path)
-        
+
         return rep
     except Exception as e:
         print(f"[run_batch_with_cfg] Falha: {type(e).__name__}: {e}")

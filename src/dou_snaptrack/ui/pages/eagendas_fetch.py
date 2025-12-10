@@ -116,7 +116,7 @@ def main():
     import time as _t
     _timings = {}
     _start_total = _t.perf_counter()
-    
+
     # Usar headless=True (mais rapido e sem janela visivel)
     # E-Agendas NAO detecta headless, testado com sucesso
     LAUNCH_ARGS = [
@@ -124,10 +124,10 @@ def main():
         '--ignore-certificate-errors',
         '--disable-dev-shm-usage',
     ]
-    
+
     with sync_playwright() as p:
         browser = None
-        
+
         _start = _t.perf_counter()
         # Tentar Chrome primeiro, depois Edge
         for channel in ['chrome', 'msedge']:
@@ -138,7 +138,7 @@ def main():
                 break
             except Exception as e:
                 print(f'[DEBUG] {channel} falhou: {e}', file=sys.stderr, flush=True)
-        
+
         # Fallback: buscar executavel manualmente
         if not browser:
             exe_paths = [
@@ -155,12 +155,12 @@ def main():
                         break
                     except Exception:
                         pass
-        
+
         _timings['1_browser_launch'] = _t.perf_counter() - _start
-        
+
         if not browser:
             raise RuntimeError('Nenhum browser disponivel (Chrome/Edge)')
-        
+
         _start = _t.perf_counter()
         # Criar contexto NEGANDO permissoes de geolocalizacao
         # Isso evita o popup "Este site quer saber sua localizacao"
@@ -171,15 +171,15 @@ def main():
             geolocation=None,
         )
         context.set_default_timeout(30000)
-        
+
         page = context.new_page()
         _timings['2_context_page'] = _t.perf_counter() - _start
-        
+
         _start = _t.perf_counter()
         print('[DEBUG] Navegando para eagendas.cgu.gov.br...', file=sys.stderr, flush=True)
         page.goto('https://eagendas.cgu.gov.br/', wait_until='commit', timeout=15000)
         _timings['3_navigation'] = _t.perf_counter() - _start
-        
+
         # OTIMIZACAO: Espera condicional para AngularJS (era 5000ms fixo)
         _start = _t.perf_counter()
         angular_ready_js = "() => document.querySelector('[ng-app]') !== null"
@@ -189,7 +189,7 @@ def main():
         except Exception:
             print('[DEBUG] AngularJS timeout, continuando...', file=sys.stderr, flush=True)
         _timings['4_angular'] = _t.perf_counter() - _start
-        
+
         # Aguardar selectize de orgaos inicializar (timeout reduzido para performance)
         _start = _t.perf_counter()
         wait_orgao_js = "() => { const el = document.getElementById('" + DD_ORGAO_ID + "'); return el?.selectize && Object.keys(el.selectize.options||{}).length > 5; }"
@@ -202,14 +202,14 @@ def main():
             browser.close()
             return []
         _timings['5_selectize_orgao'] = _t.perf_counter() - _start
-        
+
         # PRINT TIMING
         print(f'[SUBPROCESS TIMING] Browser: {_timings.get("1_browser_launch", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING] Context: {_timings.get("2_context_page", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING] Navigate: {_timings.get("3_navigation", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING] Angular: {_timings.get("4_angular", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING] Selectize: {_timings.get("5_selectize_orgao", 0):.2f}s', file=sys.stderr, flush=True)
-        
+
         if LEVEL == 1:
             # Buscar lista de orgaos
             orgs = get_selectize_options(page, DD_ORGAO_ID)
@@ -218,13 +218,13 @@ def main():
             context.close()
             browser.close()
             return out
-        
+
         # LEVEL 2: Buscar agentes diretamente apos selecionar orgao
         _start = _t.perf_counter()
         print(f'[DEBUG] Selecionando orgao={N1V}...', file=sys.stderr, flush=True)
         set_selectize_value(page, DD_ORGAO_ID, N1V)
         _timings['6_select_orgao'] = _t.perf_counter() - _start
-        
+
         # OTIMIZACAO: Espera UNICA condicional para agentes (timeout reduzido)
         _start = _t.perf_counter()
         agentes_ready_js = "() => { const el = document.getElementById('" + DD_AGENTE_ID + "'); return el?.selectize && Object.keys(el.selectize.options||{}).length > 0; }"
@@ -234,24 +234,24 @@ def main():
         except Exception:
             print('[DEBUG] Agentes timeout (6s)', file=sys.stderr, flush=True)
         _timings['7_wait_agentes'] = _t.perf_counter() - _start
-        
+
         # Buscar agentes diretamente (pula cargo)
         _start = _t.perf_counter()
         agentes = get_selectize_options(page, DD_AGENTE_ID)
         out = [
-            o for o in agentes 
-            if o.get('value') not in ['-1', ''] 
+            o for o in agentes
+            if o.get('value') not in ['-1', '']
             and 'selecione' not in o['text'].lower()
             and 'todos os ocupantes' not in o['text'].lower()
         ]
         _timings['8_get_agentes'] = _t.perf_counter() - _start
         print(f'[DEBUG] Retornando {len(out)} agentes', file=sys.stderr, flush=True)
-        
+
         # PRINT TIMING LEVEL 2
         print(f'[SUBPROCESS TIMING L2] Select orgao: {_timings.get("6_select_orgao", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING L2] Wait agentes: {_timings.get("7_wait_agentes", 0):.2f}s', file=sys.stderr, flush=True)
         print(f'[SUBPROCESS TIMING L2] Get agentes: {_timings.get("8_get_agentes", 0):.2f}s', file=sys.stderr, flush=True)
-        
+
         context.close()
         browser.close()
         return out
@@ -286,7 +286,7 @@ except Exception as e:
 
 def _build_fetch_script(level: int, n1_value: str | None = None) -> str:
     """Build the Playwright script for fetching E-Agendas options.
-    
+
     Args:
         level: 1=Órgãos, 2=Agentes (direto pelo órgão)
         n1_value: ID do órgão selecionado (obrigatório para level 2)
@@ -306,7 +306,7 @@ def _build_fetch_script(level: int, n1_value: str | None = None) -> str:
 @st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_orgaos() -> dict[str, Any]:
     """Fetch lista de órgãos do E-Agendas.
-    
+
     Returns:
         dict: {"success": bool, "options": [{"label", "value"}], "error": str}
     """
@@ -316,10 +316,10 @@ def fetch_orgaos() -> dict[str, Any]:
 @st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_agentes(orgao_id: str) -> dict[str, Any]:
     """Fetch lista de agentes de um órgão (direto, sem cargo intermediário).
-    
+
     Args:
         orgao_id: ID do órgão selecionado
-        
+
     Returns:
         dict: {"success": bool, "options": [{"label", "value"}], "error": str}
     """
@@ -332,7 +332,7 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
     """Execute fetch script and return normalized results."""
     import time as _time
     _start_total = _time.perf_counter()
-    
+
     script_content = _build_fetch_script(level=level, n1_value=n1_value)
     _t_script = _time.perf_counter() - _start_total
 
@@ -366,13 +366,13 @@ def _execute_fetch(level: int, n1_value: str | None = None) -> dict[str, Any]:
         )
         _t_subprocess = _time.perf_counter() - _start_subprocess
         _t_total = _time.perf_counter() - _start_total
-        
+
         # LOG DE TIMING
         print(f"[TIMING] eagendas_fetch level={level}:", flush=True)
         print(f"  - Build script: {_t_script*1000:.1f}ms", flush=True)
         print(f"  - Subprocess:   {_t_subprocess:.2f}s", flush=True)
         print(f"  - TOTAL:        {_t_total:.2f}s", flush=True)
-        
+
         logger.debug("fetch stderr_len=%s", len(stderr or ""))
 
         if not data:
@@ -415,9 +415,9 @@ def fetch_hierarchy(
     _n2_value: str | None = None,  # Deprecated, ignored
 ) -> dict[str, Any]:
     """Backward compatibility wrapper.
-    
+
     DEPRECATED: Use fetch_orgaos() and fetch_agentes() instead.
-    
+
     Args:
         level: 1=Órgãos, 2=Agentes (n2_value is ignored)
         n1_value: ID do órgão

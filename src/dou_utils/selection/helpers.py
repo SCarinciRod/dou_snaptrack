@@ -5,8 +5,6 @@ Provides robust option selection for both native <select> and custom dropdowns.
 """
 from __future__ import annotations
 
-import contextlib
-import re
 import time
 from typing import Any
 
@@ -56,11 +54,11 @@ except ImportError:
 
 def is_sentinel(value: str | None, label: str | None) -> bool:
     """Check if value/label represents a placeholder sentinel.
-    
+
     Args:
         value: Option value
         label: Option label/text
-        
+
     Returns:
         True if this is a sentinel (placeholder) option
     """
@@ -73,11 +71,11 @@ def is_sentinel(value: str | None, label: str | None) -> bool:
 
 def read_rich_options(frame, root_handle) -> list[dict[str, Any]]:
     """Return a list of option dicts for either native <select> or custom dropdowns.
-    
+
     Args:
         frame: Playwright frame context
         root_handle: Element handle for the dropdown root
-        
+
     Returns:
         List of option dictionaries
     """
@@ -91,12 +89,12 @@ def read_rich_options(frame, root_handle) -> list[dict[str, Any]]:
 
 def _match_option(options: list[dict[str, Any]], key: str, key_type: str) -> dict[str, Any] | None:
     """Find an option matching the given key and type.
-    
+
     Args:
         options: List of option dictionaries
         key: Value to match
         key_type: Which field to match ("text", "value", "dataValue", "dataIndex")
-        
+
     Returns:
         Matching option dict or None
     """
@@ -118,24 +116,24 @@ def _match_option(options: list[dict[str, Any]], key: str, key_type: str) -> dic
 
 def select_option_robust(frame, root_handle, key: str | None, key_type: str | None) -> bool:
     """Select an option by key/key_type on either native select or custom dropdown.
-    
+
     Args:
         frame: Playwright frame context
         root_handle: Element handle for the dropdown
         key: Value to select by
         key_type: How to match ("text", "value", "dataValue", "dataIndex")
-        
+
     Returns:
         True when selection happened and the page stabilized
     """
     from .robust_helpers import (
-        select_native_by_type,
-        select_native_by_scan,
-        try_click_option_exact,
-        try_click_option_contains,
         close_dropdown,
+        select_native_by_scan,
+        select_native_by_type,
+        try_click_option_contains,
+        try_click_option_exact,
     )
-    
+
     if not root_handle or key is None or key_type is None:
         return False
     page = frame.page
@@ -144,7 +142,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
         # Try direct selection by type
         if select_native_by_type(root_handle, str(key), key_type, page):
             return True
-        
+
         # Fallback via options scan
         opts = _read_select_options_sync(root_handle)
         return select_native_by_scan(root_handle, str(key), key_type, opts, page, _match_option)
@@ -152,7 +150,7 @@ def select_option_robust(frame, root_handle, key: str | None, key_type: str | No
     # Custom dropdown
     if not open_dropdown_robust(frame, root_handle):
         return False
-    
+
     options = collect_open_list_options(frame)
     target = _match_option(options, str(key), key_type or "text")
     name = (target or {}).get("text") or str(key)
@@ -175,9 +173,9 @@ def wait_repopulation(
     poll_interval_ms: int = 250
 ) -> None:
     """Wait until the number of options for the target dropdown changes.
-    
+
     Used after selecting a parent dropdown to wait for child dropdown to repopulate.
-    
+
     Args:
         frame: Playwright frame context
         root_handle: Element handle for the dropdown to monitor

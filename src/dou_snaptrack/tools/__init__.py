@@ -3,7 +3,7 @@ Ferramentas internas de diagnóstico e análise do DOU SnapTrack.
 
 Uso como módulo:
     from dou_snaptrack.tools import run_dou_diagnostic
-    
+
 Uso como CLI:
     python -m dou_snaptrack.tools.fetch_diagnostics --target dou
 """

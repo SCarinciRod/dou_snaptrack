@@ -16,7 +16,7 @@ Main exports:
 
 Example usage:
     from dou_utils.selection import is_sentinel, select_option_robust
-    
+
     if not is_sentinel(value, label):
         select_option_robust(frame, handle, value, "value")
 """
@@ -49,14 +49,14 @@ __all__ = [
     "OPTION_SELECTORS",
     "SENTINELA_PREFIX",
     "all_selectors",
-    # Sync helpers
-    "is_sentinel",
-    "read_rich_options",
-    "select_option_robust",
-    "wait_repopulation",
     # Async helpers
     "collect_dropdowns",
+    # Sync helpers
+    "is_sentinel",
     "option_data",
+    "read_rich_options",
     "select_level",
     "select_option",
+    "select_option_robust",
+    "wait_repopulation",
 ]

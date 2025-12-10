@@ -73,7 +73,7 @@ class EAgendasSession:
 
 def _auto_fetch_n2_on_n1_change(fetch_func: Callable, n1_value: str, n2_options_key: str) -> None:
     """Auto-fetch N2 (Agentes) when N1 (Órgão) changes.
-    
+
     This function is called via on_change callback when user selects a different Órgão.
     It automatically loads the corresponding Agentes without requiring a button click.
     """
@@ -107,17 +107,17 @@ def render_hierarchy_selector(
     level: int,
     fetch_hierarchy_func: Callable | None = None,
     parent_value: str | None = None,
-    parent_label: str | None = None,  # noqa: ARG001 - kept for API compatibility
-    n2_value: str | None = None,  # noqa: ARG001 - deprecated, kept for API compatibility
+    parent_label: str | None = None,
+    n2_value: str | None = None,
     auto_fetch_child: bool = False,  # When True, auto-fetch next level on selection change
     child_options_key: str | None = None,  # Key for child options (used with auto_fetch_child)
 ) -> None:
     """Render a hierarchy selector for E-Agendas.
-    
+
     Modelo simplificado de 2 níveis:
     - Level 1: Órgão (N1)
     - Level 2: Agente (N2, direto do órgão, sem cargo intermediário)
-    
+
     Args:
         title: Display title for this level
         load_button_text: Text for the load button
@@ -135,14 +135,14 @@ def render_hierarchy_selector(
         child_options_key: Session state key for child options (required if auto_fetch_child=True)
     """
     from .eagendas_ui_helpers import (
-        show_auto_fetch_notifications,
         can_load_level,
-        load_hierarchy_options,
         get_current_selection_index,
+        load_hierarchy_options,
         set_selected_value,
         should_auto_fetch,
+        show_auto_fetch_notifications,
     )
-    
+
     if fetch_hierarchy_func is None:
         fetch_hierarchy_func = _get_default_fetch_hierarchy()
 
@@ -158,7 +158,7 @@ def render_hierarchy_selector(
     if st.button(load_button_text, key=load_key, disabled=not can_load):
         with st.spinner(f"Carregando {title.lower()}..."):
             result = load_hierarchy_options(level, fetch_hierarchy_func, parent_value, st)
-            
+
             if result.get("success"):
                 options = result.get("options", [])
                 st.session_state[options_key] = options
@@ -204,7 +204,7 @@ def render_hierarchy_selector(
         if should_auto_fetch(level, auto_fetch_child and bool(child_options_key), prev_value, selected_value):
             with st.spinner("Carregando agentes..."):
                 _auto_fetch_n2_on_n1_change(fetch_hierarchy_func, selected_value, child_options_key)
-        
+
         # Update previous value tracker
         if level == 1 and auto_fetch_child and child_options_key:
             st.session_state[prev_key] = selected_value
@@ -255,7 +255,7 @@ def render_date_period_selector() -> tuple[_date, _date]:
 @st.fragment
 def render_query_manager() -> None:
     """Render saved queries manager section.
-    
+
     This function is decorated with @st.fragment to enable isolated reruns,
     improving performance by not reloading the entire page when adding/managing queries.
     """
@@ -302,15 +302,15 @@ def render_query_manager() -> None:
             added_count = 0
             # Obter IDs já salvos para evitar duplicatas
             existing_ids = {q.get("n3_value") for q in state.saved_queries}
-            
+
             for option in n2_options:
                 agente_value = option.get("value", "")
                 agente_label = option.get("label", "")
-                
+
                 # Pular se já existe
                 if agente_value in existing_ids:
                     continue
-                
+
                 query = {
                     "n1_label": n1_label,
                     "n1_value": n1_value,
@@ -322,7 +322,7 @@ def render_query_manager() -> None:
                 }
                 EAgendasSession.add_query(query)
                 added_count += 1
-            
+
             if added_count > 0:
                 st.success(f"✅ {added_count} agentes adicionados!")
             else:
@@ -339,7 +339,7 @@ def render_query_manager() -> None:
 @st.fragment
 def render_lista_manager() -> None:
     """Render agent list save/load manager.
-    
+
     This function is decorated with @st.fragment to enable isolated reruns,
     improving performance when saving or loading agent lists.
     """
@@ -469,7 +469,7 @@ def render_execution_section(
     execute_script_func: Callable | None = None,
 ) -> None:
     """Render the execution section for running queries.
-    
+
     Args:
         date_start: Start date
         date_end: End date
@@ -593,7 +593,7 @@ def render_execution_section(
                             st.success(f"✅ Coleta PARALELA concluída! {len(agentes_data)} agentes em {tempo_execucao:.1f}s ({workers_usados} workers)")
                         else:
                             st.success(f"✅ Coleta concluída! {len(agentes_data)} agentes processados")
-                        
+
                         # Métricas expandidas
                         col_r1, col_r2, col_r3, col_r4 = st.columns(4)
                         with col_r1:
@@ -636,7 +636,7 @@ def render_execution_section(
 
 def render_document_generator(date_start: _date, date_end: _date) -> None:
     """Render the document generation section.
-    
+
     Args:
         date_start: Start date for document title
         date_end: End date for document title

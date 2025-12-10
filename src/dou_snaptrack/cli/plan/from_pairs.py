@@ -54,12 +54,12 @@ def _build_keys(opts: list[dict[str, Any]], key_type: str) -> list[str]:
 
 def build_plan_from_pairs(pairs_file: str, args) -> dict[str, Any]:
     """Build a plan configuration from a pairs file.
-    
+
     Reads N1-N2 pairs from a JSON file, filters them according to args,
     and generates a plan configuration with combos.
     """
-    from .from_pairs_helpers import create_combo_from_pair, build_config_from_pairs
-    
+    from .from_pairs_helpers import build_config_from_pairs, create_combo_from_pair
+
     # Load pairs data
     pf = Path(pairs_file)
     data_pairs = json.loads(pf.read_text(encoding="utf-8"))

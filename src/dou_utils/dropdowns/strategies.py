@@ -10,7 +10,6 @@ maintaining configurable order and logging.
 """
 from __future__ import annotations
 
-import contextlib
 from collections.abc import Iterable
 from typing import Any
 
@@ -80,14 +79,14 @@ def open_dropdown_robust(
     delay_ms: int = 120
 ) -> bool:
     """Try multiple strategies to open a dropdown-like widget.
-    
+
     Args:
         frame: Playwright frame context
         locator: Locator pointing to the dropdown trigger
         strategy_order: Sequence of strategy names to try. Supported:
             already_open, click, force_click, icon_click, keyboard, double_click
         delay_ms: Milliseconds to wait after each attempt
-        
+
     Returns:
         True if dropdown was successfully opened, False otherwise
     """
@@ -154,13 +153,13 @@ def open_dropdown_robust(
 
 def collect_open_list_options(frame) -> list[dict[str, Any]]:
     """Collect available visible option nodes with rich attributes.
-    
+
     Should be called after dropdown is confirmed open via open_dropdown_robust().
     Handles virtualized lists by scrolling to load all options.
-    
+
     Args:
         frame: Playwright frame context
-        
+
     Returns:
         List of option dictionaries with keys:
         - text: Option text content
@@ -171,13 +170,13 @@ def collect_open_list_options(frame) -> list[dict[str, Any]]:
         - dataId: data-id/data-key/data-code attribute
     """
     from .collection_helpers import (
-        find_listbox_container,
-        scroll_to_load_all_options,
+        close_dropdown,
         collect_options_from_container,
         deduplicate_options,
-        close_dropdown,
+        find_listbox_container,
+        scroll_to_load_all_options,
     )
-    
+
     # Find the listbox container
     container = find_listbox_container(frame, LISTBOX_SELECTORS)
     if not container:

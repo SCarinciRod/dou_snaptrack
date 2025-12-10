@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 
 def try_fast_async_mode(
@@ -77,7 +78,7 @@ def try_fast_async_mode(
             }
 
             elapsed = async_result.get("elapsed", 0)
-            log_fn(f"[FAST ASYNC] ✓ SUCESSO!")
+            log_fn("[FAST ASYNC] ✓ SUCESSO!")
             log_fn(f"[FAST ASYNC]   Tempo: {elapsed:.1f}s")
             log_fn(f"[FAST ASYNC]   Jobs OK: {report['ok']}/{report['total_jobs']}")
             log_fn(f"[FAST ASYNC]   Jobs FAIL: {report['fail']}/{report['total_jobs']}")
@@ -144,7 +145,7 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
 
         py = sys.executable or "python"
         cmd = [py, "-m", "dou_snaptrack.ui.collectors.dou_parallel"]
-        
+
         # O módulo usa variáveis de ambiente para input/output
         env = os.environ.copy()
         env["INPUT_JSON_PATH"] = input_path
@@ -163,7 +164,7 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
 
         # Sempre logar resultado do subprocess para diagnóstico
         log_fn(f"[FAST ASYNC] Subprocess retornou code={result.returncode}")
-        
+
         if output_data:
             log_fn(
                 f"[FAST ASYNC] Resultado: ok={output_data.get('ok')} fail={output_data.get('fail')} "
@@ -175,7 +176,7 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
                 log_fn(f"[FAST ASYNC] Traceback: {output_data.get('traceback')[:500]}")
         else:
             log_fn("[FAST ASYNC] Nenhum output_data encontrado no arquivo de resultado")
-        
+
         # Mostrar stderr/stdout se houver erro ou se debug estiver ativo
         debug_logs = os.environ.get("DOU_FAST_ASYNC_DEBUG", "0").lower() in ("1", "true", "yes")
         if result.returncode != 0 or debug_logs:
@@ -187,7 +188,7 @@ def _run_fast_async_subprocess(async_input: dict[str, Any], log_fn: Callable[[st
                     for line in stderr_lines[-20:]:
                         log_fn(f"  {line}")
                 else:
-                    log_fn(f"[FAST ASYNC] stderr:")
+                    log_fn("[FAST ASYNC] stderr:")
                     for line in stderr_lines:
                         log_fn(f"  {line}")
             if result.stdout:

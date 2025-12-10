@@ -50,10 +50,10 @@ class DedupState:
 
     def add_batch(self, hashes: list[str]) -> int:
         """Add multiple hashes in a single file operation.
-        
+
         Args:
             hashes: List of hash strings to add
-            
+
         Returns:
             Number of new hashes added
         """

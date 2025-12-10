@@ -58,7 +58,7 @@ OPTION_SELECTORS: tuple[str, ...] = (
 
 def all_selectors() -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     """Return all selector tuples (root, listbox, option).
-    
+
     Useful for debugging / introspection.
     """
     return DROPDOWN_ROOT_SELECTORS, LISTBOX_SELECTORS, OPTION_SELECTORS

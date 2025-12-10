@@ -29,7 +29,6 @@ Writes result to RESULT_JSON_PATH (contract with _execute_script_and_read_result
 """
 
 import asyncio
-import contextlib
 import json
 import os
 import sys
@@ -280,10 +279,10 @@ async def collect_for_agent(
                 # Wait for calendar month title to change (conditional wait)
                 try:
                     await page.wait_for_function(
-                        f"""(oldMonth) => {{
+                        """(oldMonth) => {
                             const title = document.querySelector('.fc-toolbar-title')?.textContent || '';
                             return title && title !== oldMonth;
-                        }}""",
+                        }""",
                         old_month,
                         timeout=5000,
                         polling=50
@@ -392,6 +391,7 @@ def distribute_queries_to_workers(queries: list[dict], num_workers: int) -> list
 async def main_async():
     """Função principal assíncrona."""
     import time
+
     from playwright.async_api import async_playwright
 
     start_time = time.perf_counter()
@@ -402,7 +402,7 @@ async def main_async():
         input_data = json.loads(Path(input_file).read_text(encoding="utf-8-sig"))
     else:
         input_data = json.loads(sys.stdin.read())
-    
+
     queries = input_data.get("queries", [])
     periodo = input_data.get("periodo", {})
     max_workers = input_data.get("max_workers", 4)

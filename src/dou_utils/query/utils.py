@@ -13,13 +13,13 @@ def apply_query(frame, query: str):
 def collect_links(frame, max_links: int = 100, max_scrolls: int = 30, scroll_pause_ms: int = 250, stable_rounds: int = 2):
     """Collect DOU links from frame with scrolling and load-more handling."""
     from .helpers import (
-        find_best_frame_and_locator,
-        try_load_more_button,
-        scroll_to_load_links,
+        extract_links_fallback,
         extract_links_vectorized,
-        extract_links_fallback
+        find_best_frame_and_locator,
+        scroll_to_load_links,
+        try_load_more_button,
     )
-    
+
     page = frame.page
     # Wait for brief stabilization
     with contextlib.suppress(Exception):

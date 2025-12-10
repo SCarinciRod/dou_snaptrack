@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import re
 from pathlib import Path
@@ -8,7 +7,6 @@ from typing import Any
 
 # CRÍTICO: Aplicar patch para corrigir bug de texto cortado em resumos
 import dou_utils.bulletin.patch  # noqa: F401
-from dou_utils.content_fetcher import Fetcher
 from dou_utils.log_utils import get_logger
 from dou_utils.text.summarize import summarize_text as _summarize_text
 
@@ -35,22 +33,22 @@ def consolidate_and_report(
     short_len_threshold: int = 800,
 ) -> None:
     from .consolidation import (
-        load_json_files,
-        should_enrich,
-        enrich_items,
-        log_enrich_skip_reason,
         add_title_fallback,
         create_result_dict,
+        enrich_items,
+        load_json_files,
+        log_enrich_skip_reason,
+        should_enrich,
     )
-    
+
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Load and normalize items
     agg = load_json_files(in_dir)
 
     # Enrich items if appropriate
     if should_enrich(summary_lines, agg):
-        enrich_items(agg, fetch_parallel, fetch_timeout_sec, fetch_force_refresh, 
+        enrich_items(agg, fetch_parallel, fetch_timeout_sec, fetch_force_refresh,
                     fetch_browser_fallback, short_len_threshold)
     else:
         log_enrich_skip_reason(summary_lines, enrich_missing, agg)
@@ -61,7 +59,7 @@ def consolidate_and_report(
     # Create result and generate bulletin
     result = create_result_dict(agg, date_label, secao_label)
     summarize = summary_lines > 0
-    
+
     def _summarizer(text: str, max_lines: int, mode: str, keywords: list[str] | None):
         if not _summarize_text:
             return text
@@ -102,14 +100,14 @@ def report_from_aggregated(
     Permite juntar agregados de dias diferentes em um único boletim.
     """
     from .helpers import (
-        load_aggregated_files,
-        sort_items_by_date_desc,
-        should_enrich_items,
-        enrich_items_with_fetcher,
         clean_enriched_items,
+        enrich_items_with_fetcher,
+        fallback_add_title_as_text,
+        load_aggregated_files,
         log_enrichment_debug_info,
         log_enrichment_skip_reason,
-        fallback_add_title_as_text,
+        should_enrich_items,
+        sort_items_by_date_desc,
     )
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -177,27 +175,27 @@ def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
     Returns the list of aggregated files written.
     """
     from .consolidation import (
-        collect_job_files,
         aggregate_jobs_by_date,
+        collect_job_files,
         write_aggregated_files,
     )
-    
+
     root = Path(in_dir)
     if root.is_file():
         root = root.parent
-    
+
     # Collect job files
     jobs = collect_job_files(root)
     if not jobs:
         return []
-    
+
     # Aggregate by date
     agg, secao_any = aggregate_jobs_by_date(jobs, plan_name)
-    
+
     # Determine target directory
     target_dir = root.parent if root.parent.name.lower() == "resultados" else root
     secao_label = (secao_any or "DO").strip()
-    
+
     # Write aggregated files
     return write_aggregated_files(agg, plan_name, secao_label, target_dir)
 
@@ -230,10 +228,10 @@ def split_and_report_by_n1(
         secao_label: rótulo de seção (opcional)
     """
     from .helpers import (
-        load_and_group_by_n1,
         enrich_groups_with_fetcher,
-        log_enrichment_skip_reason,
         fallback_add_title_as_text,
+        load_and_group_by_n1,
+        log_enrichment_skip_reason,
     )
 
     # Prepare output directory

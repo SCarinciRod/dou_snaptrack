@@ -14,10 +14,10 @@ from typing import Any
 
 def check_concurrent_execution(batch_funcs: dict) -> dict[str, Any] | None:
     """Check if another execution is running.
-    
+
     Args:
         batch_funcs: Dictionary of batch runner functions
-        
+
     Returns:
         Info about other execution or None
     """
@@ -26,23 +26,23 @@ def check_concurrent_execution(batch_funcs: dict) -> dict[str, Any] | None:
 
 def handle_concurrent_execution_ui(other: dict[str, Any], batch_funcs: dict, st_module) -> bool:
     """Handle UI for concurrent execution scenario.
-    
+
     Args:
         other: Info about other execution
         batch_funcs: Dictionary of batch runner functions
         st_module: Streamlit module
-        
+
     Returns:
         True if should proceed, False if should stop
     """
     st_module.warning(f"Outra execução detectada (PID={other.get('pid')} iniciada em {other.get('started')}).")
     colx = st_module.columns(2)
-    
+
     with colx[0]:
         kill_it = st_module.button("Encerrar outra execução (forçar)")
     with colx[1]:
         proceed_anyway = st_module.button("Prosseguir sem encerrar")
-    
+
     if kill_it:
         ok = batch_funcs["terminate_other_execution"](int(other.get("pid") or 0))
         if ok:
@@ -53,16 +53,16 @@ def handle_concurrent_execution_ui(other: dict[str, Any], batch_funcs: dict, st_
             return False
     elif not proceed_anyway:
         return False
-    
+
     return True
 
 
 def estimate_job_count(cfg: dict[str, Any]) -> int:
     """Estimate number of jobs from config.
-    
+
     Args:
         cfg: Configuration dictionary
-        
+
     Returns:
         Estimated job count
     """
@@ -78,26 +78,26 @@ def prepare_execution_config(
     sanitize_fn
 ) -> dict[str, Any]:
     """Prepare configuration for execution.
-    
+
     Args:
         cfg: Base configuration
         selected_path: Path to selected plan
         st_session_state: Streamlit session state
         sanitize_fn: Function to sanitize filenames
-        
+
     Returns:
         Prepared configuration dictionary
     """
     cfg_json = dict(cfg)
-    
+
     # Override date
     override_date = str(st_session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
     cfg_json["data"] = override_date
-    
+
     # Inject plan_name
     plan_name = determine_plan_name(cfg_json, selected_path, st_session_state, sanitize_fn)
     cfg_json["plan_name"] = plan_name
-    
+
     return cfg_json
 
 
@@ -108,13 +108,13 @@ def determine_plan_name(
     sanitize_fn
 ) -> str:
     """Determine plan name from various sources.
-    
+
     Args:
         cfg_json: Configuration dictionary
         selected_path: Path to selected plan
         st_session_state: Streamlit session state
         sanitize_fn: Function to sanitize filenames
-        
+
     Returns:
         Plan name string
     """
@@ -122,7 +122,7 @@ def determine_plan_name(
     _pname2 = st_session_state.get("plan_name_ui")
     if isinstance(_pname2, str) and _pname2.strip():
         return _pname2.strip()
-    
+
     # Fallback 1: filename
     try:
         if selected_path and selected_path.exists():
@@ -131,7 +131,7 @@ def determine_plan_name(
                 return sanitize_fn(base)
     except Exception:
         pass
-    
+
     # Fallback 2: first combo key1/label1
     try:
         combos_fallback = cfg_json.get("combos") or []
@@ -141,33 +141,33 @@ def determine_plan_name(
             return sanitize_fn(str(cand))
     except Exception:
         pass
-    
+
     return "Plano"
 
 
 def write_temp_config(cfg_json: dict[str, Any], override_date: str) -> Path:
     """Write temporary configuration file.
-    
+
     Args:
         cfg_json: Configuration dictionary
         override_date: Date string for output directory
-        
+
     Returns:
         Path to temporary config file
     """
     out_dir_tmp = Path("resultados") / override_date
     out_dir_tmp.mkdir(parents=True, exist_ok=True)
     pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"
-    
+
     with contextlib.suppress(Exception):
         pass_cfg_path.write_text(json.dumps(cfg_json, ensure_ascii=False, indent=2), encoding="utf-8")
-    
+
     return pass_cfg_path
 
 
 def show_execution_result(rep: dict[str, Any] | None, parallel: int, st_session_state, st_module) -> None:
     """Show execution result in UI.
-    
+
     Args:
         rep: Report dictionary
         parallel: Number of parallel workers
@@ -175,11 +175,11 @@ def show_execution_result(rep: dict[str, Any] | None, parallel: int, st_session_
         st_module: Streamlit module
     """
     st_module.write(rep or {"info": "Sem relatório"})
-    
+
     # Hint on where to find detailed run logs
     out_date = str(st_session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
     log_hint = Path("resultados") / out_date / "batch_run.log"
-    
+
     if log_hint.exists():
         st_module.caption(f"Execução concluída com {parallel} workers automáticos. Log detalhado em: {log_hint}")
     else:

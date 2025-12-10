@@ -46,22 +46,22 @@ def _write_result(data: dict) -> None:
 def main():
     """Executa coleta de eventos para múltiplos agentes (modelo 2 níveis: Órgão → Agente)."""
     from .eagendas_helpers import (
-        parse_input_and_periodo,
-        setup_playwright_env,
+        click_mostrar_agenda,
+        create_browser_context,
+        extract_query_info,
         launch_browser_with_channels,
         launch_browser_with_exe_paths,
-        create_browser_context,
-        wait_for_angular_and_selectize,
+        parse_input_and_periodo,
         select_orgao_and_agente,
-        click_mostrar_agenda,
-        extract_query_info,
+        setup_playwright_env,
+        wait_for_angular_and_selectize,
     )
-    
+
     try:
         # Read and parse input
         input_data = json.loads(sys.stdin.read())
         queries, start_date, end_date = parse_input_and_periodo(input_data)
-        
+
         if not queries:
             _write_result({"success": False, "error": "Nenhuma query fornecida"})
             return 1
@@ -142,7 +142,7 @@ def main():
                         continue
 
                     # Select orgao and agente
-                    if not select_orgao_and_agente(page, orgao_value, orgao_label, agente_value, agente_label, 
+                    if not select_orgao_and_agente(page, orgao_value, orgao_label, agente_value, agente_label,
                                                    DD_ORGAO_ID, DD_AGENTE_ID, set_selectize_value):
                         continue
 
@@ -165,20 +165,20 @@ def main():
                             const { startDate, endDate } = args;
                             const start = new Date(startDate);
                             const end = new Date(endDate);
-                            
+
                             const eventos = {};
                             const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
-                            
+
                             for (const cell of dayCells) {
                                 const dateStr = cell.getAttribute('data-date');
                                 if (!dateStr) continue;
-                                
+
                                 const cellDate = new Date(dateStr);
                                 if (cellDate < start || cellDate > end) continue;
-                                
+
                                 const eventsInCell = cell.querySelectorAll('.fc-event');
                                 if (eventsInCell.length === 0) continue;
-                                
+
                                 const eventList = [];
                                 for (const evt of eventsInCell) {
                                     const titleEl = evt.querySelector('.fc-event-title');
@@ -190,12 +190,12 @@ def main():
                                         details: ''
                                     });
                                 }
-                                
+
                                 if (eventList.length > 0) {
                                     eventos[dateStr] = eventList;
                                 }
                             }
-                            
+
                             return eventos;
                         }""", {'startDate': str(start_date), 'endDate': str(end_date)})
 
@@ -270,10 +270,14 @@ def main():
             browser.close()
 
         # Estrutura final
+        periodo_data = {
+            "inicio": start_date.isoformat() if start_date else "",
+            "fim": end_date.isoformat() if end_date else ""
+        }
         result = {
             "success": True,
             "data": {
-                "periodo": periodo,
+                "periodo": periodo_data,
                 "agentes": agentes_data,
                 "metadata": {
                     "data_coleta": datetime.now().isoformat(),

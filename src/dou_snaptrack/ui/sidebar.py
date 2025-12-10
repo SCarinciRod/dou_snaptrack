@@ -58,7 +58,7 @@ def render_pairs_maintenance() -> None:
 
 def _run_pairs_update(update_pairs_file_async) -> None:
     """Execute pairs file update with progress feedback.
-    
+
     Args:
         update_pairs_file_async: Async function to update pairs file
     """
@@ -122,14 +122,14 @@ def render_help_section() -> None:
     with st.expander("❓ Ajuda", expanded=False):
         st.markdown("""
         **Guia Rápido:**
-        
+
         1. **TAB DOU**: Monta planos de coleta do Diário Oficial
         2. **TAB E-Agendas**: Coleta agendas de servidores públicos
-        
+
         **Teclas de Atalho:**
         - `Ctrl+Enter`: Executa ação principal
         - `Esc`: Cancela operação atual
-        
+
         **Links Úteis:**
         - [DOU Imprensa Nacional](https://www.in.gov.br/web/dou/-/diario-oficial-da-uniao)
         - [E-Agendas](https://eagendas.cgu.gov.br/)

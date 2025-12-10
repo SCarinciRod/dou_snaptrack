@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import Any
-
 
 # Patterns for scoring (imported from summary_utils)
 _MONEY_PATTERN = re.compile(r"R\$\s*[\d.,]+|[\d.,]+\s*(?:reais?|milhões?|bilhões?)", re.IGNORECASE)
@@ -22,10 +20,10 @@ _ENUMERATION_PATTERN = re.compile(r"^\s*(?:\d+[.)\-]|[A-Z][.)\-]|[IVXLCDM]+[.)\-
 
 def tokenize_sentence(sentence: str) -> list[str]:
     """Tokenize a sentence into normalized tokens.
-    
+
     Args:
         sentence: Input sentence
-        
+
     Returns:
         List of tokens (3+ chars, lowercased, ascii-normalized)
     """
@@ -35,10 +33,10 @@ def tokenize_sentence(sentence: str) -> list[str]:
 
 def compute_lexical_diversity(sentences: list[str]) -> list[float]:
     """Compute lexical diversity score for each sentence.
-    
+
     Args:
         sentences: List of sentences
-        
+
     Returns:
         List of lexical diversity scores (unique tokens / total tokens)
     """
@@ -52,11 +50,11 @@ def compute_lexical_diversity(sentences: list[str]) -> list[float]:
 
 def compute_position_scores(n_sentences: int, mode: str) -> list[float]:
     """Compute position-based scores for sentences.
-    
+
     Args:
         n_sentences: Number of sentences
         mode: Scoring mode ('lead' or 'center')
-        
+
     Returns:
         List of position scores
     """
@@ -72,34 +70,34 @@ def compute_position_scores(n_sentences: int, mode: str) -> list[float]:
 
 def compute_keyword_scores(sentences: list[str], keywords: set[str]) -> list[int]:
     """Compute keyword match scores for sentences.
-    
+
     Args:
         sentences: List of sentences
         keywords: Set of keywords to match
-        
+
     Returns:
         List of keyword match counts
     """
     if not keywords:
         return [0] * len(sentences)
-    
+
     # OTIMIZAÇÃO: compilar regex uma vez em vez de O(s * k) substring checks
     valid_keywords = [k for k in keywords if k]
     if not valid_keywords:
         return [0] * len(sentences)
-    
+
     pattern = "|".join(re.escape(k) for k in valid_keywords)
     keyword_rx = re.compile(pattern, re.I)
-    
+
     return [len(keyword_rx.findall(s)) for s in sentences]
 
 
 def get_scoring_weights(mode: str) -> tuple[float, float, float]:
     """Get scoring weights based on mode.
-    
+
     Args:
         mode: Scoring mode
-        
+
     Returns:
         Tuple of (keyword_weight, lexical_weight, position_weight)
     """
@@ -113,12 +111,12 @@ def get_scoring_weights(mode: str) -> tuple[float, float, float]:
 
 def apply_length_penalties(score: float, sentence: str, keyword_hits: int) -> float:
     """Apply penalties based on sentence length.
-    
+
     Args:
         score: Current score
         sentence: Sentence text
         keyword_hits: Number of keyword matches
-        
+
     Returns:
         Adjusted score
     """
@@ -131,45 +129,45 @@ def apply_length_penalties(score: float, sentence: str, keyword_hits: int) -> fl
 
 def apply_content_bonuses(score: float, sentence: str, priority_idx: list[int] | None, current_idx: int) -> float:
     """Apply bonuses for priority content.
-    
+
     Args:
         score: Current score
         sentence: Sentence text
         priority_idx: Index of priority sentence (if any)
         current_idx: Current sentence index
-        
+
     Returns:
         Adjusted score
     """
     # Priority sentence bonus
     if priority_idx and current_idx == priority_idx[0]:
         score += 0.9
-    
+
     # Money/value bonus
     if _MONEY_PATTERN.search(sentence):
         score += 0.4
-    
+
     # Date bonus
     if _DATE_PATTERN.search(sentence):
         score += 0.2
-    
+
     return score
 
 
 def apply_metadata_penalties(score: float, sentence: str) -> float:
     """Apply penalties for DOU metadata and headers.
-    
+
     Args:
         score: Current score
         sentence: Sentence text
-        
+
     Returns:
         Adjusted score
     """
     # Strong penalty for DOU header patterns
     if _DOU_HEADER_SENTENCE.search(sentence):
         score -= 2.0
-    
+
     # Penalty for metadata terms
     s_low = sentence.lower()
     metadata_count = sum([
@@ -181,11 +179,11 @@ def apply_metadata_penalties(score: float, sentence: str) -> float:
     ])
     if metadata_count >= 2:
         score -= 1.5
-    
+
     # Penalty for enumeration/list items
     if _ENUMERATION_PATTERN.search(sentence):
         score -= 0.7
-    
+
     return score
 
 
@@ -198,7 +196,7 @@ def compute_sentence_scores(
     priority_idx: list[int] | None,
 ) -> list[tuple[float, int, str]]:
     """Compute final scores for all sentences.
-    
+
     Args:
         sentences: List of sentences
         lex_scores: Lexical diversity scores
@@ -206,28 +204,28 @@ def compute_sentence_scores(
         keyword_scores: Keyword match scores
         mode: Scoring mode
         priority_idx: Index of priority sentence (if any)
-        
+
     Returns:
         List of tuples (score, index, sentence)
     """
     w_k, w_l, w_p = get_scoring_weights(mode)
     scores = []
-    
+
     for i, s in enumerate(sentences):
         # Base score from weighted components
         score = (w_k * keyword_scores[i]) + (w_l * lex_scores[i]) + (w_p * pos_scores[i])
-        
+
         # Apply length penalties
         score = apply_length_penalties(score, s, keyword_scores[i])
-        
+
         # Apply content bonuses
         score = apply_content_bonuses(score, s, priority_idx, i)
-        
+
         # Apply metadata penalties
         score = apply_metadata_penalties(score, s)
-        
+
         scores.append((score, i, s))
-    
+
     return scores
 
 
@@ -238,24 +236,24 @@ def select_top_sentences(
     priority_idx: list[int] | None,
 ) -> list[int]:
     """Select top scoring sentences with priority inclusion.
-    
+
     Args:
         scores: List of (score, index, sentence) tuples
         n_sentences: Total number of sentences
         max_lines: Maximum lines to select
         priority_idx: Index of priority sentence (if any)
-        
+
     Returns:
         List of selected sentence indices
     """
     # Sort by score (descending), then by position
     scores.sort(key=lambda t: (-t[0], t[1]))
     picked_idx = sorted(i for _, i, _ in scores[:max_lines])
-    
+
     # Ensure priority sentence is included
     if priority_idx and priority_idx[0] not in picked_idx:
         picked_idx = sorted(([*picked_idx, priority_idx[0]])[:max_lines])
-    
+
     # Fill remaining slots with nearby sentences
     if len(picked_idx) < max_lines:
         need = max_lines - len(picked_idx)
@@ -264,17 +262,17 @@ def select_top_sentences(
         pool.sort(key=lambda i: abs(i - anchor))
         picked_idx.extend(pool[:need])
         picked_idx = sorted(set(picked_idx))[:max_lines]
-    
+
     return picked_idx
 
 
 def deduplicate_sentences(sentences: list[str], max_lines: int) -> list[str]:
     """Remove duplicate sentences while preserving order.
-    
+
     Args:
         sentences: List of sentences
         max_lines: Maximum lines to keep
-        
+
     Returns:
         Deduplicated list of sentences
     """

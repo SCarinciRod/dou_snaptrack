@@ -4,7 +4,7 @@ DEPRECATED: This module is deprecated. Use dou_utils.selection instead.
 Migration guide:
     # Old:
     from dou_utils.selectors import DROPDOWN_ROOT_SELECTORS, LISTBOX_SELECTORS, OPTION_SELECTORS
-    
+
     # New:
     from dou_utils.selection import DROPDOWN_ROOT_SELECTORS, LISTBOX_SELECTORS, OPTION_SELECTORS
 

@@ -11,11 +11,11 @@ from typing import Any
 
 def find_listbox_container(frame, listbox_selectors: tuple[str, ...]):
     """Find the listbox container element.
-    
+
     Args:
         frame: Playwright frame context
         listbox_selectors: Tuple of selector strings
-        
+
     Returns:
         Container element or None
     """
@@ -27,7 +27,7 @@ def find_listbox_container(frame, listbox_selectors: tuple[str, ...]):
                 return loc.first
         except Exception:
             continue
-    
+
     # Try page as fallback
     page = frame.page
     for sel in listbox_selectors:
@@ -37,13 +37,13 @@ def find_listbox_container(frame, listbox_selectors: tuple[str, ...]):
                 return loc.first
         except Exception:
             continue
-    
+
     return None
 
 
 def scroll_to_load_all_options(container, frame) -> None:
     """Scroll container to load all virtualized options.
-    
+
     Args:
         container: Container element
         frame: Playwright frame context
@@ -67,28 +67,28 @@ def scroll_to_load_all_options(container, frame) -> None:
 
 def extract_option_data(option_element, index: int) -> dict[str, Any]:
     """Extract data from a single option element.
-    
+
     Args:
         option_element: Playwright locator for option
         index: Option index
-        
+
     Returns:
         Dictionary with option data
     """
     if not option_element.is_visible():
         return {}
-    
+
     text = (option_element.text_content() or "").strip()
     val = option_element.get_attribute("value")
     dv = option_element.get_attribute("data-value")
-    di = (option_element.get_attribute("data-index") or 
-          option_element.get_attribute("data-option-index") or 
+    di = (option_element.get_attribute("data-index") or
+          option_element.get_attribute("data-option-index") or
           str(index))
     oid = option_element.get_attribute("id")
-    did = (option_element.get_attribute("data-id") or 
-           option_element.get_attribute("data-key") or 
+    did = (option_element.get_attribute("data-id") or
+           option_element.get_attribute("data-key") or
            option_element.get_attribute("data-code"))
-    
+
     # Only include if at least one attribute is present
     if text or val or dv or di or oid or did:
         return {
@@ -104,11 +104,11 @@ def extract_option_data(option_element, index: int) -> dict[str, Any]:
 
 def collect_options_from_container(container, option_selectors: tuple[str, ...]) -> list[dict[str, Any]]:
     """Collect all option elements from container.
-    
+
     Args:
         container: Container element
         option_selectors: Tuple of selector strings
-        
+
     Returns:
         List of option dictionaries
     """
@@ -119,7 +119,7 @@ def collect_options_from_container(container, option_selectors: tuple[str, ...])
             k = opts.count()
         except Exception:
             k = 0
-        
+
         for i in range(k):
             o = opts.nth(i)
             try:
@@ -128,23 +128,23 @@ def collect_options_from_container(container, option_selectors: tuple[str, ...])
                     options.append(option_data)
             except Exception:
                 continue
-    
+
     return options
 
 
 def deduplicate_options(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Remove duplicate options based on key attributes.
-    
+
     Args:
         options: List of option dictionaries
-        
+
     Returns:
         Deduplicated list
     """
     seen = set()
     uniq = []
     for o in options:
-        key = (o.get("id"), o.get("dataId"), o.get("text"), 
+        key = (o.get("id"), o.get("dataId"), o.get("text"),
                o.get("value"), o.get("dataValue"), o.get("dataIndex"))
         if key in seen:
             continue
@@ -155,7 +155,7 @@ def deduplicate_options(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def close_dropdown(frame) -> None:
     """Close dropdown by pressing Escape.
-    
+
     Args:
         frame: Playwright frame context
     """

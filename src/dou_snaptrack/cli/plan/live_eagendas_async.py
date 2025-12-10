@@ -17,8 +17,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import os
-from pathlib import Path
 from typing import Any
 
 from playwright.async_api import async_playwright
@@ -97,7 +95,7 @@ async def _open_selectize_dropdown_async(page, selectize_control: dict, wait_ms:
         # ESTRATÉGIA CORRETA: Focus + ArrowDown (funciona melhor que click)
         await inp.focus()
         await page.keyboard.press("ArrowDown")
-        
+
         # Espera condicional: aguardar dropdown ficar visível
         try:
             await page.wait_for_function(
@@ -229,7 +227,7 @@ async def _select_selectize_option_async(page, option: dict[str, Any], wait_afte
             return False
 
         await h.click(timeout=3000)
-        
+
         # Espera condicional: aguardar dropdown fechar (indica seleção completa)
         try:
             await page.wait_for_function(
@@ -375,16 +373,18 @@ async def build_plan_eagendas_async(p, args) -> dict[str, Any]:
         }
     """
     from ..eagendas_helpers import (
-        DD_ORGAO_ID, DD_CARGO_ID, DD_AGENTE_ID,
-        launch_browser_with_fallbacks,
-        initialize_page_and_wait,
+        DD_AGENTE_ID,
+        DD_CARGO_ID,
+        DD_ORGAO_ID,
+        build_config_dict,
+        create_combo,
+        filter_placeholder_options,
         get_selectize_options_js,
+        initialize_page_and_wait,
+        launch_browser_with_fallbacks,
+        save_plan,
         set_selectize_value_js,
         wait_for_selectize_repopulate,
-        filter_placeholder_options,
-        create_combo,
-        build_config_dict,
-        save_plan,
     )
 
     v = bool(getattr(args, "plan_verbose", False))

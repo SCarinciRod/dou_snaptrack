@@ -11,9 +11,10 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from ...constants import TIMEOUT_SUBPROCESS_LONG
 

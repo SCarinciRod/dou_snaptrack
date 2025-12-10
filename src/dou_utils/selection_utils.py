@@ -4,7 +4,7 @@ DEPRECATED: This module is deprecated. Use dou_utils.selection instead.
 Migration guide:
     # Old:
     from dou_utils.selection_utils import is_sentinel, select_option_robust, read_rich_options
-    
+
     # New:
     from dou_utils.selection import is_sentinel, select_option_robust, read_rich_options
 

@@ -21,10 +21,10 @@ logger = get_logger(__name__)
 
 def load_json_files(in_dir: str) -> list[dict[str, Any]]:
     """Load all JSON files from directory and aggregate items.
-    
+
     Args:
         in_dir: Input directory path
-        
+
     Returns:
         List of aggregated items
     """
@@ -42,7 +42,7 @@ def load_json_files(in_dir: str) -> list[dict[str, Any]]:
 
 def normalize_item_urls(items: list[dict[str, Any]]) -> None:
     """Normalize item URLs to absolute URLs.
-    
+
     Args:
         items: List of items to normalize (modified in place)
     """
@@ -61,11 +61,11 @@ def normalize_item_urls(items: list[dict[str, Any]]) -> None:
 
 def should_enrich(summary_lines: int, agg: list[dict[str, Any]]) -> bool:
     """Determine if items should be enriched.
-    
+
     Args:
         summary_lines: Number of summary lines
         agg: List of items
-        
+
     Returns:
         True if should enrich, False otherwise
     """
@@ -82,7 +82,7 @@ def enrich_items(
     short_len_threshold: int,
 ) -> None:
     """Enrich items with full text content.
-    
+
     Args:
         agg: List of items to enrich (modified in place)
         fetch_parallel: Number of parallel workers
@@ -106,7 +106,7 @@ def enrich_items(
 
 def log_enrich_skip_reason(summary_lines: int, enrich_missing: bool, agg: list[dict[str, Any]]) -> None:
     """Log reason for skipping enrichment.
-    
+
     Args:
         summary_lines: Number of summary lines
         enrich_missing: Enrich missing flag
@@ -125,7 +125,7 @@ def log_enrich_skip_reason(summary_lines: int, enrich_missing: bool, agg: list[d
 
 def add_title_fallback(agg: list[dict[str, Any]], summary_lines: int) -> None:
     """Add title as fallback text for items without text.
-    
+
     Args:
         agg: List of items (modified in place)
         summary_lines: Number of summary lines
@@ -140,12 +140,12 @@ def add_title_fallback(agg: list[dict[str, Any]], summary_lines: int) -> None:
 
 def create_result_dict(agg: list[dict[str, Any]], date_label: str, secao_label: str) -> dict[str, Any]:
     """Create result dictionary from aggregated items.
-    
+
     Args:
         agg: List of aggregated items
         date_label: Date label
         secao_label: Section label
-        
+
     Returns:
         Result dictionary
     """
@@ -159,28 +159,28 @@ def create_result_dict(agg: list[dict[str, Any]], date_label: str, secao_label: 
 
 def collect_job_files(root: Path) -> list[Path]:
     """Collect job JSON files from directory.
-    
+
     Args:
         root: Root directory path
-        
+
     Returns:
         List of job file paths
     """
     return [
-        p for p in root.glob("*.json") 
-        if p.name.lower().endswith(".json") 
-        and not p.name.lower().startswith("batch_report") 
+        p for p in root.glob("*.json")
+        if p.name.lower().endswith(".json")
+        and not p.name.lower().startswith("batch_report")
         and not p.name.startswith("_")
     ]
 
 
 def aggregate_jobs_by_date(jobs: list[Path], plan_name: str) -> tuple[dict[str, dict[str, Any]], str]:
     """Aggregate job files by date.
-    
+
     Args:
         jobs: List of job file paths
         plan_name: Plan name
-        
+
     Returns:
         Tuple of (aggregated_data_by_date, any_secao_value)
     """
@@ -188,50 +188,50 @@ def aggregate_jobs_by_date(jobs: list[Path], plan_name: str) -> tuple[dict[str, 
         lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []}
     )
     secao_any = ""
-    
+
     for jf in jobs:
         try:
             data = json.loads(jf.read_text(encoding="utf-8"))
         except Exception:
             continue
-        
+
         date = str(data.get("data") or "")
         secao = str(data.get("secao") or "")
-        
+
         if not agg[date]["data"]:
             agg[date]["data"] = date
         if not agg[date]["secao"]:
             agg[date]["secao"] = secao
         if not secao_any and secao:
             secao_any = secao
-        
+
         items = data.get("itens", []) or []
         normalize_item_urls(items)
         agg[date]["itens"].extend(items)
-    
+
     return agg, secao_any
 
 
 def write_aggregated_files(
-    agg: dict[str, dict[str, Any]], 
-    plan_name: str, 
-    secao_label: str, 
+    agg: dict[str, dict[str, Any]],
+    plan_name: str,
+    secao_label: str,
     target_dir: Path
 ) -> list[str]:
     """Write aggregated data to files.
-    
+
     Args:
         agg: Aggregated data by date
         plan_name: Plan name
         secao_label: Section label
         target_dir: Target directory
-        
+
     Returns:
         List of written file paths
     """
     written: list[str] = []
     safe_plan = sanitize_filename(plan_name)
-    
+
     for date, payload in agg.items():
         payload["total"] = len(payload.get("itens", []))
         date_lab = (date or "").replace("/", "-")
@@ -239,5 +239,5 @@ def write_aggregated_files(
         out_path = target_dir / out_name
         out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         written.append(str(out_path))
-    
+
     return written

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import contextlib
-import os
 import re
-from pathlib import Path
 from typing import Any
 
 from ...constants import DROPDOWN_ROOT_SELECTORS, LEVEL_IDS
-from ...utils.browser import fmt_date, goto
-from ...utils.dom import find_best_frame, is_select, label_for_control, read_select_options
+from ...utils.browser import fmt_date
+from ...utils.dom import is_select, read_select_options
 from ...utils.text import normalize_text
 from ...utils.wait_utils import wait_for_condition, wait_for_options_loaded
 
@@ -385,18 +383,18 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
     here to avoid cross-thread usage.
     """
     from .helpers import (
-        launch_browser_with_fallbacks,
-        setup_browser_and_page,
-        wait_after_selection,
+        build_plan_config_dict,
+        cleanup_browser_context,
         collect_n1_candidates,
         collect_n2_for_n1,
         ensure_n1_root,
-        try_select_n1,
         generate_combos_for_n1,
-        build_plan_config_dict,
-        cleanup_browser_context,
+        launch_browser_with_fallbacks,
+        setup_browser_and_page,
+        try_select_n1,
+        wait_after_selection,
     )
-    
+
     v = bool(getattr(args, "plan_verbose", False))
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)
@@ -406,7 +404,7 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
     pctx = None
     must_close_browser = False
     context = None
-    
+
     try:
         # Launch browser if not provided
         if browser is None:
@@ -424,13 +422,13 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
         r1, r2 = _select_roots(frame)
         if not r1 and not r2:
             raise RuntimeError("Nenhum dropdown detectado.")
-        
+
         # Ensure we have N1
         if not r1:
             r1 = ensure_n1_root(frame, v)
         if not r1:
             raise RuntimeError("Dropdown N1 não encontrado.")
-        
+
         # Collect N1 candidates
         k1_list = collect_n1_candidates(frame, r1, args, v)
 
@@ -451,7 +449,7 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
             # Select N1
             if not try_select_n1(frame, r1, k1, v):
                 continue
-            
+
             wait_after_selection(page, frame)
 
             # Collect N2 for this N1
@@ -461,7 +459,7 @@ def build_plan_live(p, args, browser=None) -> dict[str, Any]:
             # Generate combos for this N1
             new_combos = generate_combos_for_n1(k1, k2_list, args, frame, r1, r2, maxc, len(combos))
             combos.extend(new_combos)
-            
+
             if maxc and len(combos) >= maxc:
                 break
 

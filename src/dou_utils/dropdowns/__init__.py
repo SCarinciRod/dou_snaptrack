@@ -14,7 +14,7 @@ Main exports:
 
 Example usage:
     from dou_utils.dropdowns import open_dropdown_robust, collect_open_list_options
-    
+
     if open_dropdown_robust(frame, locator):
         options = collect_open_list_options(frame)
 """

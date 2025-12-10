@@ -35,7 +35,7 @@ logger = logging.getLogger("dou_snaptrack.ui.dou_fetch")
 
 def _get_venv_python() -> str:
     """Get the Python executable from the venv if available.
-    
+
     This ensures we use the venv's Playwright (which has working permissions)
     rather than a global installation that may have permission issues.
     """
@@ -102,15 +102,15 @@ def find_system_browser_exe() -> str | None:
 @st.cache_data(show_spinner=False, ttl=CACHE_TTL_MEDIUM)
 def fetch_n1_options(secao: str, date: str, refresh_token: float = 0.0) -> list[str]:
     """Fetch N1 (Órgão) dropdown options from DOU website.
-    
+
     Uses subprocess with sync_playwright for direct DOM operations.
     This approach is more reliable than async_playwright with build_plan_live_async.
-    
+
     Args:
         secao: Section code (e.g., "DO1", "DO2", "DO3")
         date: Date in DD-MM-YYYY format
         refresh_token: Cache busting token (change to force refresh)
-        
+
     Returns:
         List of N1 option strings
     """
@@ -180,7 +180,7 @@ try:
             pass
 
         frame = find_best_frame(context)
-        
+
         # Otimização: wait condicional em vez de timeout fixo
         # Aguarda até que dropdowns estejam prontos (max 3s)
         try:
@@ -303,14 +303,14 @@ def fetch_n2_options(secao: str, date: str, n1: str, limit2: int | None = None, 
 
     Uses subprocess with async_playwright via build_plan_live_async.
     Communication via stdout (last line JSON) for reliability.
-    
+
     Args:
         secao: Section code (e.g., "DO1", "DO2", "DO3")
         date: Date in DD-MM-YYYY format
         n1: Selected N1 (Órgão) value
         limit2: Optional limit on N2 results (None = no limit)
         refresh_token: Cache busting token (change to force refresh)
-        
+
     Returns:
         List of N2 option strings
     """

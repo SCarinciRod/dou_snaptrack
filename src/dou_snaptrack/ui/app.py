@@ -152,7 +152,7 @@ logger.setLevel(getattr(logging, _LOG_LEVEL.upper(), logging.INFO))
 # =============================================================================
 def _cleanup_on_exit():
     """Cleanup function called when UI process exits.
-    
+
     Kills orphaned batch subprocesses and removes lock files.
     """
     try:

@@ -60,14 +60,14 @@ def remove_dou_metadata(text: str) -> str:
 def split_doc_header(text: str) -> tuple[str | None, str]:
     """Localiza o cabeçalho do ato em qualquer ponto das primeiras linhas e retorna (header, body)."""
     from .helpers import (
-        prepare_text_window,
-        get_document_types,
+        extract_body_from_raw,
+        extract_header_lines,
         find_document_type_index,
         find_uppercase_line_header,
-        extract_header_lines,
-        extract_body_from_raw,
+        get_document_types,
+        prepare_text_window,
     )
-    
+
     if not text:
         return None, ""
 
@@ -78,7 +78,7 @@ def split_doc_header(text: str) -> tuple[str | None, str]:
     # Find document type
     doc_types = get_document_types()
     start_idx = find_document_type_index(blob, doc_types)
-    
+
     # Fallback to uppercase heuristic
     if start_idx is None:
         header, body = find_uppercase_line_header(head_candidates, raw)
@@ -93,7 +93,7 @@ def split_doc_header(text: str) -> tuple[str | None, str]:
 
     # Extract body
     body = extract_body_from_raw(header, raw)
-    
+
     return header, body
 
 

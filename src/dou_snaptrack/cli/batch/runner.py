@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import contextlib
 import json
-import multiprocessing as mp
 import os
 import subprocess
 import sys
-import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-from ...constants import TIMEOUT_PAGE_DEFAULT, TIMEOUT_SUBPROCESS_LONG
 from ...utils.text import sanitize_filename
 from .summary_config import SummaryConfig, apply_summary_overrides_from_job
+
 
 def render_out_filename(pattern: str, job: dict[str, Any]) -> str:
     date_str = job.get("data") or ""
@@ -46,7 +43,7 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     Returns:
         List of expanded job dictionaries
     """
-    from .config import expand_simple_jobs, expand_topic_combo_jobs, expand_combo_only_jobs
+    from .config import expand_combo_only_jobs, expand_simple_jobs, expand_topic_combo_jobs
 
     defaults = cfg.get("defaults", {})
     base_data = cfg.get("data")
@@ -73,9 +70,15 @@ def expand_batch_config(cfg: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     """Process-based worker to avoid Playwright sync threading issues."""
-    from .worker import setup_asyncio_for_windows, setup_worker_logging, launch_browser_with_fallback, setup_browser_context, cleanup_page_cache
-    from .job import process_single_job
     from ..runner import run_once
+    from .job import process_single_job
+    from .worker import (
+        cleanup_page_cache,
+        launch_browser_with_fallback,
+        setup_asyncio_for_windows,
+        setup_browser_context,
+        setup_worker_logging,
+    )
 
     # Setup async and logging
     setup_asyncio_for_windows()
@@ -120,7 +123,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         try:
             for j_idx in indices:
                 job = jobs[j_idx - 1]
-                
+
                 # Process job using extracted helper
                 job_result = process_single_job(
                     job=job,
@@ -139,7 +142,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                     render_out_filename_fn=render_out_filename,
                     apply_summary_overrides_fn=apply_summary_overrides_from_job,
                 )
-                
+
                 # Aggregate results
                 report["ok"] += job_result["ok"]
                 report["fail"] += job_result["fail"]
@@ -147,14 +150,14 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                 report["outputs"].extend(job_result["outputs"])
                 if job_result["job_metrics"]:
                     report["metrics"]["jobs"].append(job_result["job_metrics"])
-                    
+
         finally:
             cleanup_page_cache(page_cache)
             with contextlib.suppress(Exception):
                 context.close()
             with contextlib.suppress(Exception):
                 browser.close()
-                
+
     # Ensure file buffer is flushed before returning
     try:
         if _log_fp:
@@ -188,32 +191,32 @@ def _init_worker(log_file: str | None = None) -> None:
 def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
     """
     Executa o collector async via subprocess (para evitar conflitos de event loop).
-    
+
     Similar ao padrão usado em eagendas_collect_parallel.
     """
     import tempfile
-    
+
     try:
         # Escrever input em arquivo temporário
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
             json.dump(async_input, f, ensure_ascii=False)
             input_path = f.name
-        
+
         # Escrever resultado em arquivo temporário
         result_path = input_path.replace('.json', '_result.json')
-        
+
         # Encontrar script
         script_path = Path(__file__).parent.parent.parent / "ui" / "collectors" / "dou_parallel.py"
         if not script_path.exists():
             _log(f"[FAST ASYNC SUBPROCESS] Script não encontrado: {script_path}")
             return {"success": False, "error": f"Script não encontrado: {script_path}"}
-        
+
         # Executar subprocess
         env = os.environ.copy()
         env["INPUT_JSON_PATH"] = input_path
         env["RESULT_JSON_PATH"] = result_path
         env["PYTHONIOENCODING"] = "utf-8"
-        
+
         proc = subprocess.run(
             [sys.executable, str(script_path)],
             env=env,
@@ -221,7 +224,7 @@ def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
             timeout=600,  # 10 min timeout
             text=True
         )
-        
+
         # Ler resultado
         if Path(result_path).exists():
             result = json.loads(Path(result_path).read_text(encoding='utf-8'))
@@ -231,16 +234,16 @@ def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
                 result = json.loads(proc.stdout)
             except Exception:
                 result = {"success": False, "error": proc.stderr or "No output"}
-        
+
         # Cleanup
         try:
             Path(input_path).unlink(missing_ok=True)
             Path(result_path).unlink(missing_ok=True)
         except Exception:
             pass
-        
+
         return result
-        
+
     except subprocess.TimeoutExpired:
         return {"success": False, "error": "Subprocess timeout (10 min)"}
     except Exception as e:
@@ -252,9 +255,9 @@ def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
         plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
         if not plan_name:
             return
-        
+
         from collections import defaultdict
-        
+
         def _aggregate_outputs_by_date(paths: list[str], out_dir_p: Path, plan: str) -> list[str]:
             agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
             secao_any = ""
@@ -323,11 +326,11 @@ def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
 
 def run_batch(playwright, args, summary: SummaryConfig) -> None:
     """Execute batch processing with optional fast async mode.
-    
+
     This function coordinates batch execution with multiple strategies:
     1. Fast async mode (single browser, multiple contexts) - fastest
     2. Multi-browser fallback modes (subprocess, thread, or process pool)
-    
+
     Args:
         playwright: Playwright instance (may be unused if fast async succeeds)
         args: Command-line arguments
@@ -344,7 +347,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                     _fp.write(str(msg) + "\n")
         except Exception:
             pass
-    
+
     # Load and parse configuration
     cfg_path = Path(args.config)
     txt = cfg_path.read_text(encoding="utf-8-sig")
@@ -365,16 +368,16 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     # FAST ASYNC MODE: Try single-browser async collector first (2x faster)
     # ============================================================================
     from .async_runner import try_fast_async_mode
-    
+
     async_report = try_fast_async_mode(jobs, defaults, out_dir, out_pattern, args, cfg, _log)
     if async_report:
         # Fast async succeeded! Write report and finish
         report = async_report
-        from .helpers import write_report, finalize_with_aggregation
-        
+        from .helpers import finalize_with_aggregation, write_report
+
         rep_path = write_report(report, out_dir, cfg)
         _log(f"\n[REPORT] {rep_path} — jobs={report['total_jobs']} ok={report['ok']} fail={report['fail']} items={report['items_total']}")
-        
+
         finalize_with_aggregation(report, out_dir, cfg, rep_path, _log)
         return
 
@@ -384,29 +387,26 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     _log("[FALLBACK] Usando método multi-browser original...")
 
     # Import helper functions
-    from .helpers import (
-        load_state_file,
-        determine_parallelism,
-        distribute_jobs_into_buckets,
-        aggregate_report_metrics,
-        write_report,
-        finalize_with_aggregation,
-    )
     from .executor import (
-        execute_with_subprocess,
-        execute_with_threads,
         execute_inline_with_threads,
         execute_with_process_pool,
+        execute_with_subprocess,
+        execute_with_threads,
+    )
+    from .helpers import (
+        aggregate_report_metrics,
+        determine_parallelism,
+        distribute_jobs_into_buckets,
+        finalize_with_aggregation,
+        write_report,
     )
 
-    # Load deduplication state
+    # Load deduplication state (state_file_path passed to execute functions)
     state_file_path = None
     if cfg.get("state_file"):
         state_file_path = Path(cfg["state_file"])
     elif getattr(args, "state_file", None):
         state_file_path = Path(args.state_file)
-    
-    global_seen = load_state_file(state_file_path)
 
     # Determine parallelism
     parallel = determine_parallelism(args, len(jobs))
@@ -415,13 +415,10 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
 
     # Distribute jobs into buckets
     buckets, desired_size = distribute_jobs_into_buckets(jobs, cfg, parallel)
-    
+
     effective_parallel = min(parallel, int(os.environ.get("DOU_MAX_WORKERS", "4") or "4"))
     _log(f"[Parent] total_jobs={len(jobs)} parallel={parallel} (effective={effective_parallel}) reuse_page={reuse_page}")
     _log(f"[Parent] buckets={len(buckets)} desired_size={desired_size}")
-
-    # Prepare summary config for workers
-    summary_dict = {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords}
 
     # Execute batch with appropriate strategy
     try:
@@ -446,7 +443,7 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
                 args, state_file_path, reuse_page, summary, parallel, _log,
                 _worker_process, _init_worker, log_file
             )
-        
+
         # Update report with execution results
         report.update(exec_report)
     finally:

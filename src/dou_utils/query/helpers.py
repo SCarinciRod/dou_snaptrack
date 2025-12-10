@@ -8,7 +8,7 @@ def find_search_box(frame, query: str):
     """Find and fill search box with query, then submit."""
     if not query:
         return
-    
+
     locs = [
         lambda f: f.locator("#search-bar").first,
         lambda f: f.get_by_role("searchbox").first,
@@ -18,7 +18,7 @@ def find_search_box(frame, query: str):
         lambda f: f.locator('input[aria-label*="pesquis" i]').first,
         lambda f: f.locator('input[id*="pesquis" i], input[name*="pesquis" i]').first,
     ]
-    
+
     sb = None
     for get in locs:
         try:
@@ -29,14 +29,14 @@ def find_search_box(frame, query: str):
                 break
         except Exception:
             continue
-    
+
     if not sb:
         print("[Aviso] Campo de busca não encontrado; seguindo sem query.")
         return
-    
+
     with contextlib.suppress(Exception):
         sb.scroll_into_view_if_needed(timeout=1500)
-    
+
     _fill_search_box(sb, query)
     _submit_search(frame, sb)
     _wait_for_results(frame)
@@ -84,12 +84,12 @@ def find_best_frame_and_locator(page, frame):
         "a.card__link[href*='/web/dou/']",
         "a[href*='/web/dou/']",
     ]
-    
+
     frames = [frame] + [f for f in page.frames if f is not frame]
     best = None
     best_cnt = -1
     best_frame = frame
-    
+
     for fr in frames:
         for sel in selectors:
             try:
@@ -101,7 +101,7 @@ def find_best_frame_and_locator(page, frame):
                     best_frame = fr
             except Exception:
                 continue
-    
+
     anchors = best or frame.locator("a[href*='/web/dou/']")
     return anchors, best_frame
 
@@ -126,7 +126,7 @@ def scroll_to_load_links(active_frame, page, anchors, max_links, max_scrolls, sc
     last = -1
     stable = 0
     last_scroll_h = None
-    
+
     for _ in range(max_scrolls):
         # Get count and scrollHeight in single call
         try:
@@ -143,7 +143,7 @@ def scroll_to_load_links(active_frame, page, anchors, max_links, max_scrolls, sc
                 sh = active_frame.evaluate("document.body.scrollHeight")
             except Exception:
                 sh = None
-        
+
         if count >= max_links:
             break
         if count == last:
@@ -152,10 +152,10 @@ def scroll_to_load_links(active_frame, page, anchors, max_links, max_scrolls, sc
             stable = 0
         if stable >= stable_rounds or (sh is not None and last_scroll_h == sh):
             break
-        
+
         last = count
         last_scroll_h = sh
-        
+
         with contextlib.suppress(Exception):
             active_frame.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         with contextlib.suppress(Exception):
@@ -196,7 +196,7 @@ def extract_links_fallback(anchors, max_links):
         total = anchors.count()
     except Exception:
         total = 0
-    
+
     for i in range(min(total, max_links)):
         a = anchors.nth(i)
         try:

@@ -10,10 +10,10 @@ from typing import Any
 
 def is_select(locator) -> bool:
     """Check if the locator points to a native <select> element.
-    
+
     Args:
         locator: Playwright locator or element handle
-        
+
     Returns:
         True if the element is a <select>, False otherwise
     """
@@ -26,13 +26,13 @@ def is_select(locator) -> bool:
 
 def read_select_options(locator) -> list[dict[str, Any]]:
     """Read options from a native <select> element.
-    
+
     Returns a list of option dictionaries with rich metadata including
     disabled and selected states.
-    
+
     Args:
         locator: Playwright locator pointing to a <select> element
-        
+
     Returns:
         List of option dictionaries with keys:
         - text: Option text content

@@ -7,9 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import os
-import re
-from pathlib import Path
 from typing import Any
 
 from playwright.async_api import async_playwright
@@ -126,14 +123,15 @@ async def _select_roots_async(frame) -> tuple[dict[str, Any] | None, dict[str, A
 
 async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict[str, Any]]:
     """Versão async simplificada de _read_dropdown_options."""
-    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
     from dou_snaptrack.utils.text import normalize_text
+    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
+
     from ..async_dropdown_helpers import (
-        read_native_select_options_async,
         click_and_wait_dropdown,
-        find_listbox_container_async,
-        scroll_container_to_bottom_async,
         collect_options_from_container_async,
+        find_listbox_container_async,
+        read_native_select_options_async,
+        scroll_container_to_bottom_async,
     )
 
     if not root:
@@ -176,12 +174,13 @@ async def _read_dropdown_options_async(frame, root: dict[str, Any]) -> list[dict
 
 async def _select_by_text_async(frame, root: dict[str, Any], text: str) -> bool:
     """Versão async de _select_by_text."""
-    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
     from dou_snaptrack.utils.text import normalize_text
+    from dou_utils.selection import LISTBOX_SELECTORS, OPTION_SELECTORS
+
     from ..async_dropdown_helpers import (
-        select_native_dropdown_async,
         click_and_wait_dropdown,
         find_listbox_container_async,
+        select_native_dropdown_async,
         try_click_exact_match_async,
         try_click_normalized_match_async,
     )
@@ -296,16 +295,16 @@ async def wait_n2_repopulated_async(frame, n2_root: dict[str, Any], prev_count: 
 async def build_plan_live_async(p, args) -> dict[str, Any]:
     """Versão async de build_plan_live."""
     from .build_helpers import (
-        launch_browser_with_fallbacks,
-        setup_browser_context,
-        wait_for_dropdown_ready,
-        detect_dropdown_roots,
-        process_n1_option,
         build_combos_from_keys,
         build_config,
+        detect_dropdown_roots,
+        launch_browser_with_fallbacks,
+        process_n1_option,
         save_plan_if_requested,
+        setup_browser_context,
+        wait_for_dropdown_ready,
     )
-    
+
     v = bool(getattr(args, "plan_verbose", False))
     headful = bool(getattr(args, "headful", False))
     slowmo = int(getattr(args, "slowmo", 0) or 0)

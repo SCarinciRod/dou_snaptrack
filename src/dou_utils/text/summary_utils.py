@@ -149,12 +149,12 @@ def _find_priority_sentence(sents: list[str]) -> tuple[int, str] | None:
 def summarize_text(text: str, max_lines: int = 7, keywords: list[str] | None = None, mode: str = "center") -> str:
     """Sumariza texto removendo cabeçalhos DOU e selecionando sentenças relevantes."""
     from .summarization_scoring import (
+        compute_keyword_scores,
         compute_lexical_diversity,
         compute_position_scores,
-        compute_keyword_scores,
         compute_sentence_scores,
-        select_top_sentences,
         deduplicate_sentences,
+        select_top_sentences,
     )
 
     if not text:

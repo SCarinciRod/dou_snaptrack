@@ -64,7 +64,7 @@ def ensure_eagendas_state() -> None:
 
 def ensure_dirs() -> tuple[Path, Path]:
     """Ensure plans and results directories exist.
-    
+
     Returns:
         Tuple of (plans_dir, results_dir) paths.
     """

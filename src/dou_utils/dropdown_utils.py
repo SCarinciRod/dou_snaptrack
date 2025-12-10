@@ -4,7 +4,7 @@ DEPRECATED: This module is deprecated. Use dou_utils.dropdowns instead.
 Migration guide:
     # Old:
     from dou_utils.dropdown_utils import _is_select, _read_select_options
-    
+
     # New:
     from dou_utils.dropdowns import is_select, read_select_options
 

@@ -19,11 +19,11 @@ class UITimingEntry:
     name: str
     elapsed: float
     success: bool = True
-    
+
     @property
     def elapsed_ms(self) -> float:
         return self.elapsed * 1000
-    
+
     @property
     def color(self) -> str:
         if not self.success:
@@ -35,7 +35,7 @@ class UITimingEntry:
         return "⚡"
 
 
-@dataclass 
+@dataclass
 class UIPerformanceTracker:
     """Rastreador de performance para exibição na UI."""
     operation: str
@@ -43,16 +43,16 @@ class UIPerformanceTracker:
     _start: float = 0
     _current: str | None = None
     _current_start: float = 0
-    
+
     def start(self) -> None:
         """Inicia tracking total."""
         self._start = time.perf_counter()
-    
+
     def begin_step(self, name: str) -> None:
         """Inicia uma etapa."""
         self._current = name
         self._current_start = time.perf_counter()
-    
+
     def end_step(self, success: bool = True) -> float:
         """Finaliza etapa atual."""
         if not self._current:
@@ -65,20 +65,20 @@ class UIPerformanceTracker:
         ))
         self._current = None
         return elapsed
-    
+
     @property
     def total_elapsed(self) -> float:
         return time.perf_counter() - self._start if self._start else 0
-    
+
     def render_summary(self) -> None:
         """Renderiza resumo de performance no Streamlit."""
         if not self.timings:
             return
-        
+
         total = self.total_elapsed
-        
+
         st.markdown(f"**📊 Performance: {self.operation}** ({total:.1f}s total)")
-        
+
         cols = st.columns(min(len(self.timings), 4))
         for i, entry in enumerate(self.timings):
             col_idx = i % 4
@@ -89,7 +89,7 @@ class UIPerformanceTracker:
                     value=f"{entry.elapsed:.1f}s",
                     delta=f"{pct:.0f}%"
                 )
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "operation": self.operation,
@@ -105,12 +105,12 @@ def render_performance_expander(tracker: UIPerformanceTracker) -> None:
     """Renderiza os detalhes de performance em um expander."""
     with st.expander("📈 Detalhes de Performance", expanded=False):
         tracker.render_summary()
-        
+
         # Tabela detalhada
         if tracker.timings:
             st.markdown("---")
             st.markdown("**Breakdown detalhado:**")
-            
+
             total = tracker.total_elapsed
             for entry in sorted(tracker.timings, key=lambda x: x.elapsed, reverse=True):
                 pct = (entry.elapsed / total * 100) if total > 0 else 0
@@ -123,31 +123,31 @@ def render_performance_expander(tracker: UIPerformanceTracker) -> None:
 def parse_subprocess_timing(stderr: str) -> dict[str, float]:
     """Parse timings do formato [SUBPROCESS TIMING]."""
     import re
-    
+
     timings = {}
     patterns = [
         r'\[SUBPROCESS TIMING(?: L\d)?\]\s*(\w+):\s*([\d.]+)s',
         r'\[TIMING\]\s*([^:]+):\s*([\d.]+)s',
     ]
-    
+
     for pattern in patterns:
         for match in re.finditer(pattern, stderr):
             name = match.group(1).strip()
             time_val = float(match.group(2))
             timings[name] = time_val
-    
+
     return timings
 
 
 def show_timing_from_stderr(stderr: str, operation: str = "Fetch") -> None:
     """Mostra timing extraído de stderr no Streamlit."""
     timings = parse_subprocess_timing(stderr)
-    
+
     if not timings:
         return
-    
+
     tracker = UIPerformanceTracker(operation=operation)
     for name, elapsed in timings.items():
         tracker.timings.append(UITimingEntry(name=name, elapsed=elapsed))
-    
+
     render_performance_expander(tracker)

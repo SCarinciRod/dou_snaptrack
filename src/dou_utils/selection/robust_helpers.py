@@ -12,13 +12,13 @@ from typing import Any
 
 def select_native_by_type(root_handle, key: str, key_type: str, page) -> bool:
     """Select option in native select by key type.
-    
+
     Args:
         root_handle: Element handle for select
         key: Value to select
         key_type: Type of selection ("value", "dataIndex")
         page: Playwright page
-        
+
     Returns:
         True if selection succeeded
     """
@@ -29,7 +29,7 @@ def select_native_by_type(root_handle, key: str, key_type: str, page) -> bool:
             return True
         except Exception:
             pass
-    
+
     if key_type == "dataIndex":
         try:
             root_handle.select_option(index=int(key))
@@ -37,13 +37,13 @@ def select_native_by_type(root_handle, key: str, key_type: str, page) -> bool:
             return True
         except Exception:
             pass
-    
+
     return False
 
 
 def select_native_by_scan(root_handle, key: str, key_type: str, opts: list[dict[str, Any]], page, match_fn) -> bool:
     """Select option in native select by scanning options.
-    
+
     Args:
         root_handle: Element handle for select
         key: Value to select
@@ -51,14 +51,14 @@ def select_native_by_scan(root_handle, key: str, key_type: str, opts: list[dict[
         opts: List of option dictionaries
         page: Playwright page
         match_fn: Function to match option
-        
+
     Returns:
         True if selection succeeded
     """
     target = match_fn(opts, str(key), key_type)
     if target is None:
         return False
-    
+
     try:
         if key_type == "text":
             root_handle.select_option(label=target.get("text") or "")
@@ -70,17 +70,17 @@ def select_native_by_scan(root_handle, key: str, key_type: str, opts: list[dict[
         return True
     except Exception:
         pass
-    
+
     return False
 
 
 def try_click_option_exact(page, name: str) -> bool:
     """Try to click option by exact name match.
-    
+
     Args:
         page: Playwright page
         name: Option name to match
-        
+
     Returns:
         True if click succeeded
     """
@@ -97,11 +97,11 @@ def try_click_option_exact(page, name: str) -> bool:
 
 def try_click_option_contains(page, name: str) -> bool:
     """Try to click option by contains match.
-    
+
     Args:
         page: Playwright page
         name: Option name to match
-        
+
     Returns:
         True if click succeeded
     """
@@ -118,7 +118,7 @@ def try_click_option_contains(page, name: str) -> bool:
 
 def close_dropdown(page) -> None:
     """Close dropdown by pressing Escape.
-    
+
     Args:
         page: Playwright page
     """

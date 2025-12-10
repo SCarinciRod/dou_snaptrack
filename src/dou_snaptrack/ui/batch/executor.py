@@ -5,10 +5,8 @@ This module provides the UI components for TAB2 "Executar plano".
 """
 from __future__ import annotations
 
-import contextlib
 import json
 import time
-from datetime import date as _date
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -62,7 +60,7 @@ def _get_recommend_parallel():
 
 def _load_plan_config(path: Path) -> dict[str, Any]:
     """Load plan config from file with error handling.
-    
+
     OTIMIZAÇÃO: Esta função é o ponto único de leitura de config,
     evitando múltiplas leituras do mesmo arquivo.
     """
@@ -95,7 +93,7 @@ def render_batch_executor() -> None:
     st.subheader("Escolha o plano de pesquisa")
 
     # OTIMIZAÇÃO: Criação lazy de diretórios
-    plans_dir, _ = ensure_dirs()
+    _plans_dir, _ = ensure_dirs()
     refresh_token = st.session_state.get("plan_list_refresh_token", 0.0)
 
     header_cols = st.columns([3, 1])
@@ -140,13 +138,13 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
     """Execute the selected plan with concurrency management."""
     from .executor_helpers import (
         check_concurrent_execution,
-        handle_concurrent_execution_ui,
         estimate_job_count,
+        handle_concurrent_execution_ui,
         prepare_execution_config,
-        write_temp_config,
         show_execution_result,
+        write_temp_config,
     )
-    
+
     if not selected_path.exists():
         st.error("Plano não encontrado.")
         return
@@ -167,7 +165,7 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
     # Prepare execution config
     sanitize_fn = _get_sanitize_filename()
     cfg_json = prepare_execution_config(cfg, selected_path, st.session_state, sanitize_fn)
-    
+
     # Write temp config
     override_date = cfg_json["data"]
     pass_cfg_path = write_temp_config(cfg_json, override_date)

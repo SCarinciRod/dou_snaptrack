@@ -4,7 +4,7 @@ DEPRECATED: This module is deprecated. Use dou_utils.dropdowns instead.
 Migration guide:
     # Old:
     from dou_utils.dropdown_strategies import open_dropdown_robust, collect_open_list_options
-    
+
     # New:
     from dou_utils.dropdowns import open_dropdown_robust, collect_open_list_options
 

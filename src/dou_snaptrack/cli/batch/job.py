@@ -5,13 +5,11 @@ This module contains the job execution logic extracted from _worker_process.
 
 from __future__ import annotations
 
-import contextlib
 import os
 import time
 from pathlib import Path
 from typing import Any
 
-from ...constants import TIMEOUT_PAGE_DEFAULT
 from .summary_config import SummaryConfig
 
 
@@ -38,7 +36,7 @@ def process_single_job(
         job: Job configuration
         job_index: Index of job in batch
         jobs: All jobs
-        defaults: Default configuration  
+        defaults: Default configuration
         out_dir: Output directory
         out_pattern: Output filename pattern
         context: Browser context
@@ -55,8 +53,8 @@ def process_single_job(
         Dictionary with ok, fail, items_total, outputs, elapsed, job_metrics
     """
     from .worker import (
-        extract_job_parameters,
         apply_fast_mode_optimizations,
+        extract_job_parameters,
         get_or_create_page,
         recreate_page_after_failure,
     )

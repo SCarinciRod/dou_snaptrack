@@ -53,27 +53,27 @@ class DiagnosticResult:
 def parse_timing_output(stderr: str) -> dict[str, float]:
     """Extrai tempos do output stderr."""
     timings = {}
-    
+
     patterns = [
         r'\[SUBPROCESS TIMING(?: L\d)?\]\s*(\w+):\s*([\d.]+)s',
         r'\[PERF [✓✗]\]\s*([^:]+):\s*([\d.]+)s',
         r'\[TIMING\]\s*([^:]+):\s*([\d.]+)s',
         r'(\w+)_elapsed:\s*([\d.]+)',
     ]
-    
+
     for pattern in patterns:
         for match in re.finditer(pattern, stderr):
             name = match.group(1).strip()
             time_val = float(match.group(2))
             timings[name] = time_val
-    
+
     return timings
 
 
 def run_dou_diagnostic() -> DiagnosticResult:
     """Executa diagnóstico de fetch do DOU."""
     print("[DOU] Iniciando diagnóstico de fetch N1...", file=sys.stderr)
-    
+
     script = '''
 import sys
 import time
@@ -83,11 +83,11 @@ class TimingLogger:
     def __init__(self):
         self.timings = {}
         self.start_time = None
-    
+
     def start(self, name):
         self.start_time = time.perf_counter()
         self.current = name
-    
+
     def stop(self):
         if self.start_time:
             elapsed = time.perf_counter() - self.start_time
@@ -183,7 +183,7 @@ total = sum(timer.timings.values())
 print(f"[TIMING] total: {total:.2f}s", file=sys.stderr)
 print("SUCCESS")
 '''
-    
+
     start = time.perf_counter()
     try:
         result = subprocess.run(
@@ -194,13 +194,13 @@ print("SUCCESS")
             cwd=str(Path(__file__).parent.parent.parent.parent),
         )
         elapsed = time.perf_counter() - start
-        
+
         stderr = result.stderr
         stdout = result.stdout
         success = "SUCCESS" in stdout
-        
+
         breakdown = parse_timing_output(stderr)
-        
+
         recommendations = []
         if breakdown.get("browser_start", 0) > 2:
             recommendations.append("Browser start lento - verificar se Chrome está instalado")
@@ -208,7 +208,7 @@ print("SUCCESS")
             recommendations.append("Navegação lenta - verificar conexão ou usar cache")
         if breakdown.get("wait_content", 0) > 3:
             recommendations.append("Wait content lento - considerar wait_for_function em vez de wait_for_selector")
-        
+
         return DiagnosticResult(
             target="dou",
             operation="fetch_n1",
@@ -219,7 +219,7 @@ print("SUCCESS")
             error=None if success else "Fetch failed",
             recommendations=recommendations,
         )
-        
+
     except subprocess.TimeoutExpired:
         return DiagnosticResult(
             target="dou",
@@ -246,7 +246,7 @@ print("SUCCESS")
 def run_eagendas_diagnostic() -> DiagnosticResult:
     """Executa diagnóstico de fetch do E-Agendas."""
     print("[E-AGENDAS] Iniciando diagnóstico de fetch...", file=sys.stderr)
-    
+
     script = '''
 import sys
 import time
@@ -256,11 +256,11 @@ class TimingLogger:
         self.timings = {}
         self.start_time = None
         self.current = None
-    
+
     def start(self, name):
         self.start_time = time.perf_counter()
         self.current = name
-    
+
     def stop(self):
         if self.start_time and self.current:
             elapsed = time.perf_counter() - self.start_time
@@ -363,7 +363,7 @@ total = sum(timer.timings.values())
 print(f"[TIMING] total: {total:.2f}s", file=sys.stderr)
 print("SUCCESS")
 '''
-    
+
     start = time.perf_counter()
     try:
         result = subprocess.run(
@@ -374,13 +374,13 @@ print("SUCCESS")
             cwd=str(Path(__file__).parent.parent.parent.parent),
         )
         elapsed = time.perf_counter() - start
-        
+
         stderr = result.stderr
         stdout = result.stdout
         success = "SUCCESS" in stdout
-        
+
         breakdown = parse_timing_output(stderr)
-        
+
         recommendations = []
         if breakdown.get("wait_angular", 0) > 3:
             recommendations.append("Angular load lento - site pode estar sobrecarregado")
@@ -388,7 +388,7 @@ print("SUCCESS")
             recommendations.append("Selectize lento - considerar reduzir timeout se dados já carregados")
         if breakdown.get("navigation", 0) > 3:
             recommendations.append("Navegação lenta - verificar conectividade")
-        
+
         return DiagnosticResult(
             target="eagendas",
             operation="fetch_options",
@@ -399,7 +399,7 @@ print("SUCCESS")
             error=None if success else "Fetch failed",
             recommendations=recommendations,
         )
-        
+
     except subprocess.TimeoutExpired:
         return DiagnosticResult(
             target="eagendas",
@@ -429,31 +429,31 @@ def print_diagnostic_report(result: DiagnosticResult) -> None:
     print("=" * 70)
     print(f"📊 DIAGNÓSTICO: {result.target.upper()} - {result.operation}")
     print("=" * 70)
-    
+
     status = "✓ SUCESSO" if result.success else "✗ FALHA"
     print(f"Status: {status}")
     print(f"Tempo total: {result.elapsed_seconds:.2f}s ({result.elapsed_ms:.0f}ms)")
-    
+
     if result.error:
         print(f"Erro: {result.error}")
-    
+
     if result.breakdown:
         print()
         print("Breakdown de tempo:")
         print("-" * 40)
-        
+
         sorted_times = sorted(result.breakdown.items(), key=lambda x: x[1], reverse=True)
         for name, elapsed in sorted_times:
             pct = (elapsed / result.elapsed_seconds * 100) if result.elapsed_seconds > 0 else 0
             bar = "█" * int(pct / 5) + "░" * (20 - int(pct / 5))
             print(f"  {name:20s} {elapsed:6.2f}s  {bar} {pct:5.1f}%")
-    
+
     if result.recommendations:
         print()
         print("💡 Recomendações:")
         for rec in result.recommendations:
             print(f"  • {rec}")
-    
+
     print("=" * 70)
     print()
 
@@ -479,11 +479,11 @@ def main():
         default=1,
         help="Número de iterações para média (default: 1)"
     )
-    
+
     args = parser.parse_args()
-    
+
     results = []
-    
+
     if args.target in ("dou", "all"):
         for i in range(args.iterations):
             if args.iterations > 1:
@@ -492,7 +492,7 @@ def main():
             results.append(result)
             if not args.json:
                 print_diagnostic_report(result)
-    
+
     if args.target in ("eagendas", "all"):
         for i in range(args.iterations):
             if args.iterations > 1:
@@ -501,7 +501,7 @@ def main():
             results.append(result)
             if not args.json:
                 print_diagnostic_report(result)
-    
+
     if args.json:
         output = {
             "diagnostics": [r.to_dict() for r in results],
@@ -512,7 +512,7 @@ def main():
             }
         }
         print(json.dumps(output, indent=2, ensure_ascii=False))
-    
+
     return 0 if all(r.success for r in results) else 1
 
 
