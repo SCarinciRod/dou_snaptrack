@@ -96,12 +96,16 @@ async def collect_for_agent(
         }""", {'id': DD_ORGAO_ID, 'value': orgao_value})
 
         if not orgao_selected:
-            print(f"{prefix} Falha ao selecionar órgão", file=sys.stderr)
+            print(f"{prefix} Falha ao selecionar órgão (value={orgao_value})", file=sys.stderr)
             return None
 
         # IMPORTANTE: Pequeno delay para Angular processar o ng-change e disparar requisição
         # Sem isso, o wait_for_function abaixo pode começar antes do Angular processar
         await page.wait_for_timeout(300)
+
+        # Debug: verificar se órgão foi realmente selecionado
+        orgao_check = await page.evaluate(f"() => document.getElementById('{DD_ORGAO_ID}')?.selectize?.getValue()")
+        print(f"{prefix} Órgão selecionado: {orgao_check} (esperado: {orgao_value})", file=sys.stderr)
 
         # WAIT CONDICIONAL: Aguardar lista de agentes popular (substitui wait fixo de 2000ms)
         # NOTA: polling=500 é necessário para dar tempo ao Angular processar. Polling muito rápido
@@ -124,8 +128,12 @@ async def collect_for_agent(
         }""", {'id': DD_AGENTE_ID, 'value': agente_value})
 
         if not agente_selected:
-            print(f"{prefix} Falha ao selecionar agente", file=sys.stderr)
+            print(f"{prefix} Falha ao selecionar agente (value={agente_value})", file=sys.stderr)
             return None
+
+        # Debug: verificar se agente foi realmente selecionado
+        agente_check = await page.evaluate(f"() => document.getElementById('{DD_AGENTE_ID}')?.selectize?.getValue()")
+        print(f"{prefix} Agente selecionado: {agente_check} (esperado: {agente_value})", file=sys.stderr)
 
         # IMPORTANTE: Delay para Angular processar ng-change e auto-popular cargo
         # O site E-Agendas usa AngularJS que precisa de tempo para:
@@ -212,6 +220,21 @@ async def collect_for_agent(
         if not calendar_found:
             print(f"{prefix} Calendário não encontrado", file=sys.stderr)
             return None
+
+        # Debug: verificar estrutura do calendário
+        calendar_info = await page.evaluate("""() => {
+            const fc = document.querySelector('.fc');
+            const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
+            const events = document.querySelectorAll('.fc-event');
+            const title = document.querySelector('.fc-toolbar-title')?.textContent || 'sem título';
+            return {
+                hasFC: !!fc,
+                dayCellsCount: dayCells.length,
+                eventsCount: events.length,
+                title: title
+            };
+        }""")
+        print(f"{prefix} Calendário: {calendar_info['title']}, dias={calendar_info['dayCellsCount']}, eventos={calendar_info['eventsCount']}", file=sys.stderr)
 
         # Função para extrair eventos do calendário visível
         async def extract_events():
