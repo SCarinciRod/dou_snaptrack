@@ -309,10 +309,13 @@ def render_date_period_selector() -> tuple[_date, _date]:
 
 @st.fragment
 def render_query_manager() -> None:
-    """Render saved queries manager section.
+    """Render saved queries manager section with inline query list.
 
     This function is decorated with @st.fragment to enable isolated reruns,
     improving performance by not reloading the entire page when adding/managing queries.
+
+    Includes both the action buttons AND the query list in the same fragment
+    so that state changes trigger proper UI updates.
     """
     st.markdown("### 3️⃣ Consultas Salvas")
     st.caption("Salve combinações de servidores para executar múltiplas pesquisas")
@@ -325,13 +328,13 @@ def render_query_manager() -> None:
         can_add = all([state.current_n1, state.current_n2])
 
         def _add_single_agent():
-            """Callback to add single agent (avoids explicit st.rerun)."""
+            """Callback to add single agent."""
             n1_label = st.session_state.get("eagendas_current_n1_label", "")
             n2_label = st.session_state.get("eagendas_current_n2_label", "")
-            state = EAgendasSession.get_state()
+            current_state = EAgendasSession.get_state()
             query = {
                 "n1_label": n1_label,
-                "n1_value": state.current_n1,
+                "n1_value": current_state.current_n1,
                 "n2_label": "",
                 "n2_value": "",
                 "n3_label": n2_label,
@@ -346,48 +349,80 @@ def render_query_manager() -> None:
     with col_add_all:
         # Botão para adicionar TODOS os agentes do órgão atual de uma vez
         n2_options = st.session_state.get("eagendas_n2_options", [])
-        n1_label = st.session_state.get("eagendas_current_n1_label", "")
-        n1_value = state.current_n1
-        can_add_all = n1_value and len(n2_options) > 0
+        can_add_all = state.current_n1 and len(n2_options) > 0
 
-        if st.button(f"++ Todos ({len(n2_options)})", disabled=not can_add_all, use_container_width=True,
-                     help="Adiciona TODOS os agentes do órgão selecionado de uma vez"):
-            added_count = 0
+        def _add_all_agents():
+            """Callback to add all agents from current organ."""
+            options = st.session_state.get("eagendas_n2_options", [])
+            org_label = st.session_state.get("eagendas_current_n1_label", "")
+            current_state = EAgendasSession.get_state()
+            org_value = current_state.current_n1
+
             # Obter IDs já salvos para evitar duplicatas
-            existing_ids = {q.get("n3_value") for q in state.saved_queries}
+            existing_ids = {q.get("n3_value") for q in current_state.saved_queries}
+            added = 0
 
-            for option in n2_options:
+            for option in options:
                 agente_value = option.get("value", "")
                 agente_label = option.get("label", "")
 
-                # Pular se já existe
                 if agente_value in existing_ids:
                     continue
 
                 query = {
-                    "n1_label": n1_label,
-                    "n1_value": n1_value,
+                    "n1_label": org_label,
+                    "n1_value": org_value,
                     "n2_label": "",
                     "n2_value": "",
                     "n3_label": agente_label,
                     "n3_value": agente_value,
-                    "person_label": f"{agente_label} ({n1_label})",
+                    "person_label": f"{agente_label} ({org_label})",
                 }
                 EAgendasSession.add_query(query)
-                added_count += 1
+                added += 1
 
-            if added_count > 0:
-                st.success(f"✅ {added_count} agentes adicionados!")
-            else:
-                st.info("ℹ️ Todos os agentes já estão na lista")
-            st.rerun()
+            # Store count for feedback display
+            st.session_state["_eagendas_add_all_count"] = added
+            st.session_state["_eagendas_add_all_total"] = len(options)
+
+        st.button(f"++ Todos ({len(n2_options)})", disabled=not can_add_all, use_container_width=True,
+                  help="Adiciona TODOS os agentes do órgão selecionado de uma vez",
+                  on_click=_add_all_agents if can_add_all else None)
 
     with col_clear:
         def _clear_all_queries():
-            """Callback to clear all queries (avoids explicit st.rerun)."""
+            """Callback to clear all queries."""
             EAgendasSession.clear_queries()
 
         st.button("🗑️ Limpar Todas", use_container_width=True, on_click=_clear_all_queries)
+
+    # Show feedback for "add all" operation
+    if "_eagendas_add_all_count" in st.session_state:
+        added = st.session_state.pop("_eagendas_add_all_count")
+        st.session_state.pop("_eagendas_add_all_total", None)  # Clean up
+        if added > 0:
+            st.success(f"✅ {added} agentes adicionados!")
+        else:
+            st.info("ℹ️ Todos os agentes já estão na lista")
+
+    # === INLINE QUERY LIST (within same fragment for proper reactivity) ===
+    # Re-fetch state to get updated queries after callbacks
+    state = EAgendasSession.get_state()
+    queries = state.saved_queries
+
+    if queries:
+        st.metric("Total de consultas", len(queries))
+        with st.expander(f"📋 Ver todas ({len(queries)} consultas)", expanded=True):
+            for idx, q in enumerate(queries):
+                col1, col2 = st.columns([4, 1])
+                with col1:
+                    st.text(f"{idx + 1}. {q['person_label']}")
+                    st.caption(f"   Órgão: {q['n1_label']}")
+                with col2:
+                    st.button("❌", key=f"del_query_{idx}",
+                              on_click=lambda i=idx: EAgendasSession.remove_query(i))
+    else:
+        st.info("Nenhuma consulta salva. Selecione um servidor e clique em 'Adicionar Consulta Atual'")
 
 
 @st.fragment
@@ -471,14 +506,24 @@ def render_lista_manager() -> None:
 
             with col_load_btn:
                 def _load_selected_lista():
-                    """Callback to load selected lista."""
+                    """Callback to load selected lista.
+
+                    Sets a flag to trigger page rerun after loading,
+                    since this modifies state that affects render_query_manager fragment.
+                    """
                     selected_label = st.session_state.get("eagendas_lista_select")
                     options = st.session_state.get("_eagendas_lista_options", [])
                     selected_opt = next((opt for opt in options if opt["label"] == selected_label), None)
                     if selected_opt:
                         st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
+                        # Flag to trigger rerun (needed because query list is in different fragment)
+                        st.session_state["_eagendas_lista_loaded"] = True
 
                 st.button("📂 Carregar", use_container_width=True, on_click=_load_selected_lista)
+
+                # Check if we need to rerun after loading (cross-fragment update)
+                if st.session_state.pop("_eagendas_lista_loaded", False):
+                    st.rerun()
 
             with col_del_btn:
                 def _delete_selected_lista():
@@ -500,25 +545,15 @@ def render_lista_manager() -> None:
 
 
 def render_saved_queries_list() -> None:
-    """Render the list of saved queries."""
-    state = EAgendasSession.get_state()
-    queries = state.saved_queries
+    """Stub function for backward compatibility.
 
-    if queries:
-        st.metric("Total de consultas", len(queries))
-        with st.expander(f"📋 Ver todas ({len(queries)} consultas)", expanded=True):
-            for idx, q in enumerate(queries):
-                col1, col2 = st.columns([4, 1])
-                with col1:
-                    st.text(f"{idx + 1}. {q['person_label']}")
-                    # Modelo simplificado: mostra apenas órgão (cargo não existe mais)
-                    st.caption(f"   Órgão: {q['n1_label']}")
-                with col2:
-                    # Usa callback com argumento para evitar st.rerun() explícito
-                    st.button("❌", key=f"del_query_{idx}",
-                              on_click=lambda i=idx: EAgendasSession.remove_query(i))
-    else:
-        st.info("Nenhuma consulta salva. Selecione um servidor e clique em 'Adicionar Consulta Atual'")
+    The query list is now rendered inline within render_query_manager()
+    as part of the same @st.fragment for proper reactivity.
+
+    This function is kept as a no-op to maintain API compatibility with app.py.
+    """
+    # Query list is now rendered inside render_query_manager() fragment
+    pass
 
 
 # Lazy import for execute_script_and_read_result
