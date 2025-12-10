@@ -658,6 +658,11 @@ def render_execution_section(
                     "max_workers": max_workers
                 }
 
+                # Log the full input being sent to subprocess for debugging
+                logger.info("Subprocess input: periodo=%s, max_workers=%s", periodo_iso, max_workers)
+                logger.info("Queries JSON sample (first 2): %s",
+                           json.dumps(queries[:2], ensure_ascii=False)[:500] if queries else "[]")
+
                 progress_bar.progress(0.1)
                 status_text.text("🌐 Navegando no E-Agendas...")
 
