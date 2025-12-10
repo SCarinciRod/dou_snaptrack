@@ -332,13 +332,20 @@ def render_query_manager() -> None:
             n1_label = st.session_state.get("eagendas_current_n1_label", "")
             n2_label = st.session_state.get("eagendas_current_n2_label", "")
             current_state = EAgendasSession.get_state()
+
+            # Debug: log the values being captured
+            logger.info(
+                "Adding agent - n1_value=%s, n2_value=%s, n1_label=%s, n2_label=%s",
+                current_state.current_n1, current_state.current_n2, n1_label, n2_label
+            )
+
             query = {
                 "n1_label": n1_label,
                 "n1_value": current_state.current_n1,
                 "n2_label": "",
                 "n2_value": "",
                 "n3_label": n2_label,
-                "n3_value": state.current_n2,
+                "n3_value": current_state.current_n2,  # Use fresh state, not closure
                 "person_label": f"{n2_label} ({n1_label})",
             }
             EAgendasSession.add_query(query)
@@ -357,6 +364,12 @@ def render_query_manager() -> None:
             org_label = st.session_state.get("eagendas_current_n1_label", "")
             current_state = EAgendasSession.get_state()
             org_value = current_state.current_n1
+
+            # Debug: log the options structure
+            logger.info("Adding all agents - org_value=%s, org_label=%s, num_options=%d",
+                        org_value, org_label, len(options))
+            if options:
+                logger.info("First option sample: %s", options[0])
 
             # Obter IDs já salvos para evitar duplicatas
             existing_ids = {q.get("n3_value") for q in current_state.saved_queries}
@@ -380,6 +393,8 @@ def render_query_manager() -> None:
                 }
                 EAgendasSession.add_query(query)
                 added += 1
+
+            logger.info("Added %d agents", added)
 
             # Store count for feedback display
             st.session_state["_eagendas_add_all_count"] = added
@@ -612,6 +627,12 @@ def render_execution_section(
 
             queries = state.saved_queries
             num_queries = len(queries)
+
+            # Debug: log queries structure
+            logger.info("Executing %d queries", num_queries)
+            for i, q in enumerate(queries):
+                logger.info("Query %d: n1_value=%s, n3_value=%s, n3_label=%s",
+                            i, q.get("n1_value"), q.get("n3_value"), q.get("n3_label"))
 
             progress_bar = st.progress(0.0)
             status_text = st.empty()
