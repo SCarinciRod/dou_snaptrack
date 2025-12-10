@@ -389,21 +389,32 @@ def render_lista_manager() -> None:
         lista_files = sorted(listas_dir.glob("*.json"))
 
         if lista_files:
-            lista_options = []
-            for file_path in lista_files:
-                try:
-                    with open(file_path, encoding="utf-8") as f:
-                        data = json.load(f)
-                    nome = data.get("nome", file_path.stem)
-                    total = data.get("total_agentes", len(data.get("queries", [])))
-                    criado = data.get("criado_em", "")
-                    lista_options.append({
-                        "label": f"{nome} ({total} agentes) - {criado}",
-                        "path": file_path,
-                        "data": data
-                    })
-                except Exception:
-                    continue
+            # Construir opções apenas se não estiverem em cache ou se arquivos mudaram
+            cache_key = "_eagendas_lista_options_cache"
+            cache_files_key = "_eagendas_lista_files_hash"
+            files_hash = hash(tuple(str(f) for f in lista_files))
+
+            if (st.session_state.get(cache_files_key) != files_hash or
+                cache_key not in st.session_state):
+                lista_options = []
+                for file_path in lista_files:
+                    try:
+                        with open(file_path, encoding="utf-8") as f:
+                            data = json.load(f)
+                        nome = data.get("nome", file_path.stem)
+                        total = data.get("total_agentes", len(data.get("queries", [])))
+                        criado = data.get("criado_em", "")
+                        lista_options.append({
+                            "label": f"{nome} ({total} agentes) - {criado}",
+                            "path": str(file_path),  # Serializable
+                            "data": data
+                        })
+                    except Exception:
+                        continue
+                st.session_state[cache_key] = lista_options
+                st.session_state[cache_files_key] = files_hash
+            else:
+                lista_options = st.session_state[cache_key]
 
             if lista_options:
                 st.selectbox(
@@ -418,7 +429,8 @@ def render_lista_manager() -> None:
                     def _load_selected_lista():
                         """Callback to load selected lista (avoids explicit st.rerun)."""
                         selected_label = st.session_state.get("eagendas_lista_select")
-                        selected_opt = next((opt for opt in lista_options if opt["label"] == selected_label), None)
+                        cached_options = st.session_state.get("_eagendas_lista_options_cache", [])
+                        selected_opt = next((opt for opt in cached_options if opt["label"] == selected_label), None)
                         if selected_opt:
                             st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
 
@@ -428,10 +440,14 @@ def render_lista_manager() -> None:
                     def _delete_selected_lista():
                         """Callback to delete selected lista (avoids explicit st.rerun)."""
                         selected_label = st.session_state.get("eagendas_lista_select")
-                        selected_opt = next((opt for opt in lista_options if opt["label"] == selected_label), None)
+                        cached_options = st.session_state.get("_eagendas_lista_options_cache", [])
+                        selected_opt = next((opt for opt in cached_options if opt["label"] == selected_label), None)
                         if selected_opt:
                             try:
-                                selected_opt["path"].unlink()
+                                Path(selected_opt["path"]).unlink()
+                                # Invalidar cache para forçar reconstrução
+                                st.session_state.pop("_eagendas_lista_options_cache", None)
+                                st.session_state.pop("_eagendas_lista_files_hash", None)
                             except Exception:
                                 pass  # Will show error on next render
 
@@ -525,11 +541,13 @@ def render_execution_section(
             status_text = st.empty()
 
             # Determinar modo de execução e script
+            # Scripts estão em collectors/, não em pages/
+            collectors_dir = Path(__file__).parent.parent / "collectors"
             if use_sequential:
-                script_path = Path(__file__).parent / "eagendas_collect_subprocess.py"
+                script_path = collectors_dir / "eagendas_subprocess.py"
                 status_text.text(f"🔄 Iniciando coleta SEQUENCIAL ({num_queries} agentes)...")
             else:
-                script_path = Path(__file__).parent / "eagendas_collect_parallel.py"
+                script_path = collectors_dir / "eagendas_parallel.py"
                 actual_workers = min(max_workers, num_queries)
                 if actual_workers > 1:
                     status_text.text(f"🚀 Iniciando coleta PARALELA ({actual_workers} workers, {num_queries} agentes)...")
