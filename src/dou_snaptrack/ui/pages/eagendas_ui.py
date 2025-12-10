@@ -675,6 +675,10 @@ def render_execution_section(
                     timeout=collect_timeout
                 )
 
+                # Always log stderr for debugging (even on success)
+                if stderr:
+                    logger.info("E-Agendas subprocess stderr:\n%s", stderr[:2000])
+
                 if not data:
                     error_msg = stderr or "Erro ao executar coleta (sem saída JSON)"
                     logger.error("Coleta E-Agendas falhou: %s stderr_len=%s", error_msg, len(stderr or ""))
