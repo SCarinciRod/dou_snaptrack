@@ -159,13 +159,16 @@ async def collect_for_agent(
         }"""
 
         try:
-            # Esperar até 12s para cargo+botão ficarem prontos
+            # Esperar até 15s para cargo+botão ficarem prontos (aumentado de 12s)
             # NOTA: polling=500 é necessário para dar tempo ao Angular processar o ng-change
             # e auto-popular o campo cargo. Polling muito rápido bloqueia o Angular.
-            await page.wait_for_function(ready_js, timeout=12000, polling=500)
+            await page.wait_for_function(ready_js, timeout=15000, polling=500)
             print(f"{prefix} ✓ Cargo + Botão prontos", file=sys.stderr)
         except Exception:
             # Fallback: tentar selecionar cargo manualmente se não auto-populou
+            # Primeiro esperar um pouco mais para as opções carregarem
+            await page.wait_for_timeout(1000)
+
             cargo_options = await page.evaluate("""() => {
                 const cargo = document.getElementById('filtro_cargo');
                 if (!cargo || !cargo.selectize) return [];
@@ -173,7 +176,7 @@ async def collect_for_agent(
             }""")
 
             if cargo_options:
-                print(f"{prefix} ⚠ Selecionando cargo manualmente...", file=sys.stderr)
+                print(f"{prefix} ⚠ Selecionando cargo manualmente ({len(cargo_options)} opções)...", file=sys.stderr)
                 await page.evaluate("""() => {
                     const cargo = document.getElementById('filtro_cargo');
                     if (cargo && cargo.selectize) {
@@ -183,9 +186,31 @@ async def collect_for_agent(
                         }
                     }
                 }""")
-                # Wait handled by button check below
+                # Aguardar Angular processar a seleção manual
+                await page.wait_for_timeout(500)
             else:
-                print(f"{prefix} ⚠ Sem cargos disponíveis", file=sys.stderr)
+                print(f"{prefix} ⚠ Sem cargos disponíveis, tentando novamente...", file=sys.stderr)
+                # Última tentativa: esperar mais e verificar novamente
+                await page.wait_for_timeout(2000)
+                cargo_options = await page.evaluate("""() => {
+                    const cargo = document.getElementById('filtro_cargo');
+                    if (!cargo || !cargo.selectize) return [];
+                    return Object.keys(cargo.selectize.options || {});
+                }""")
+                if cargo_options:
+                    await page.evaluate("""() => {
+                        const cargo = document.getElementById('filtro_cargo');
+                        if (cargo && cargo.selectize) {
+                            const opts = Object.keys(cargo.selectize.options || {});
+                            if (opts.length > 0) {
+                                cargo.selectize.setValue(opts[0], false);
+                            }
+                        }
+                    }""")
+                    await page.wait_for_timeout(500)
+                    print(f"{prefix} ✓ Cargo encontrado na segunda tentativa", file=sys.stderr)
+                else:
+                    print(f"{prefix} ✗ Cargo não disponível após múltiplas tentativas", file=sys.stderr)
 
         # Verificar botão - já deve estar pronto após o wait acima, mas verificar novamente
         btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\"submit\"]'); return btn && !btn.disabled; }"
@@ -240,8 +265,11 @@ async def collect_for_agent(
         async def extract_events():
             return await page.evaluate("""(args) => {
                 const { startDate, endDate } = args;
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+                // Parse dates as strings (YYYY-MM-DD) to avoid timezone issues
+                const startParts = startDate.split('-').map(Number);
+                const endParts = endDate.split('-').map(Number);
+                const startNum = startParts[0] * 10000 + startParts[1] * 100 + startParts[2];
+                const endNum = endParts[0] * 10000 + endParts[1] * 100 + endParts[2];
 
                 const eventos = {};
                 const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
@@ -250,8 +278,10 @@ async def collect_for_agent(
                     const dateStr = cell.getAttribute('data-date');
                     if (!dateStr) continue;
 
-                    const cellDate = new Date(dateStr);
-                    if (cellDate < start || cellDate > end) continue;
+                    // Compare as numbers to avoid timezone issues
+                    const dateParts = dateStr.split('-').map(Number);
+                    const dateNum = dateParts[0] * 10000 + dateParts[1] * 100 + dateParts[2];
+                    if (dateNum < startNum || dateNum > endNum) continue;
 
                     const eventsInCell = cell.querySelectorAll('.fc-event');
                     if (eventsInCell.length === 0) continue;
