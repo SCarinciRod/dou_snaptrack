@@ -33,6 +33,56 @@ def _get_default_fetch_hierarchy():
     return fetch_hierarchy
 
 
+@st.cache_data(ttl=10)
+def _load_lista_files_cached(listas_dir_str: str, _files_mtime_hash: int) -> list[dict]:
+    """Load and parse all lista files from disk with caching.
+
+    Uses mtime-based hash for invalidation instead of reading all files.
+    TTL of 10 seconds ensures responsiveness while avoiding repeated I/O.
+
+    Args:
+        listas_dir_str: String path to listas directory.
+        _files_mtime_hash: Hash of file modification times for cache invalidation.
+
+    Returns:
+        List of dicts with label, path, and data for each lista file.
+    """
+    listas_dir = Path(listas_dir_str)
+    lista_files = sorted(listas_dir.glob("*.json"))
+    lista_options = []
+
+    for file_path in lista_files:
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                data = json.load(f)
+            nome = data.get("nome", file_path.stem)
+            total = data.get("total_agentes", len(data.get("queries", [])))
+            criado = data.get("criado_em", "")
+            lista_options.append({
+                "label": f"{nome} ({total} agentes) - {criado}",
+                "path": str(file_path),
+                "data": data
+            })
+        except Exception:
+            continue
+
+    return lista_options
+
+
+def _get_lista_files_mtime_hash(listas_dir: Path) -> int:
+    """Get a hash based on lista files presence and modification times.
+
+    This is much faster than reading file contents for cache invalidation.
+    """
+    try:
+        lista_files = sorted(listas_dir.glob("*.json"))
+        # Hash based on filenames and mtimes (fast stat calls)
+        hash_input = tuple((str(f), f.stat().st_mtime_ns) for f in lista_files)
+        return hash(hash_input)
+    except Exception:
+        return 0
+
+
 class EAgendasSession:
     """Manages E-Agendas session state."""
 
@@ -346,6 +396,8 @@ def render_lista_manager() -> None:
 
     This function is decorated with @st.fragment to enable isolated reruns,
     improving performance when saving or loading agent lists.
+
+    Uses @st.cache_data for file I/O operations to minimize disk reads.
     """
     st.markdown("#### 💾 Gerenciar Listas de Agentes")
 
@@ -357,103 +409,92 @@ def render_lista_manager() -> None:
 
     with col_save:
         st.caption("💾 Salvar lista atual")
-        lista_name = st.text_input(
+        st.text_input(
             "Nome da lista:",
             placeholder="Ex: Ministros_CADE",
             key="eagendas_lista_name",
             help="Nome para identificar esta lista de agentes"
         )
 
-        can_save = len(state.saved_queries) > 0 and lista_name.strip()
-        if st.button("💾 Salvar Lista", disabled=not can_save, use_container_width=True):
-            safe_name = "".join(c if c.isalnum() or c in "_ -" else "_" for c in lista_name.strip())
+        def _save_lista():
+            """Callback to save current lista."""
+            name = st.session_state.get("eagendas_lista_name", "").strip()
+            if not name:
+                return
+            safe_name = "".join(c if c.isalnum() or c in "_ -" else "_" for c in name)
             file_path = listas_dir / f"{safe_name}.json"
+            current_state = EAgendasSession.get_state()
 
             lista_data = {
-                "nome": lista_name.strip(),
+                "nome": name,
                 "criado_em": _date.today().strftime("%Y-%m-%d"),
-                "total_agentes": len(state.saved_queries),
-                "queries": state.saved_queries
+                "total_agentes": len(current_state.saved_queries),
+                "queries": current_state.saved_queries
             }
 
             try:
                 with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(lista_data, f, indent=2, ensure_ascii=False)
-                st.success(f"✅ Lista '{lista_name}' salva com sucesso!")
-                st.caption(f"📁 {file_path}")
+                # Clear cache to force reload
+                _load_lista_files_cached.clear()
+                st.session_state["_eagendas_save_success"] = f"✅ Lista '{name}' salva!"
             except Exception as e:
-                st.error(f"❌ Erro ao salvar lista: {e}")
+                st.session_state["_eagendas_save_error"] = str(e)
+
+        can_save = len(state.saved_queries) > 0 and st.session_state.get("eagendas_lista_name", "").strip()
+        st.button("💾 Salvar Lista", disabled=not can_save, use_container_width=True, on_click=_save_lista)
+
+        # Show save feedback
+        if "_eagendas_save_success" in st.session_state:
+            st.success(st.session_state.pop("_eagendas_save_success"))
+        if "_eagendas_save_error" in st.session_state:
+            st.error(f"❌ Erro: {st.session_state.pop('_eagendas_save_error')}")
 
     with col_load:
         st.caption("📂 Carregar lista salva")
-        lista_files = sorted(listas_dir.glob("*.json"))
 
-        if lista_files:
-            # Construir opções apenas se não estiverem em cache ou se arquivos mudaram
-            cache_key = "_eagendas_lista_options_cache"
-            cache_files_key = "_eagendas_lista_files_hash"
-            files_hash = hash(tuple(str(f) for f in lista_files))
+        # Use mtime-based hash for fast cache invalidation (stat is much faster than read)
+        mtime_hash = _get_lista_files_mtime_hash(listas_dir)
+        lista_options = _load_lista_files_cached(str(listas_dir), mtime_hash)
 
-            if (st.session_state.get(cache_files_key) != files_hash or
-                cache_key not in st.session_state):
-                lista_options = []
-                for file_path in lista_files:
-                    try:
-                        with open(file_path, encoding="utf-8") as f:
-                            data = json.load(f)
-                        nome = data.get("nome", file_path.stem)
-                        total = data.get("total_agentes", len(data.get("queries", [])))
-                        criado = data.get("criado_em", "")
-                        lista_options.append({
-                            "label": f"{nome} ({total} agentes) - {criado}",
-                            "path": str(file_path),  # Serializable
-                            "data": data
-                        })
-                    except Exception:
-                        continue
-                st.session_state[cache_key] = lista_options
-                st.session_state[cache_files_key] = files_hash
-            else:
-                lista_options = st.session_state[cache_key]
+        if lista_options:
+            # Store options in session for callbacks
+            st.session_state["_eagendas_lista_options"] = lista_options
 
-            if lista_options:
-                st.selectbox(
-                    "Selecione uma lista:",
-                    [opt["label"] for opt in lista_options],
-                    key="eagendas_lista_select"
-                )
+            st.selectbox(
+                "Selecione uma lista:",
+                [opt["label"] for opt in lista_options],
+                key="eagendas_lista_select"
+            )
 
-                col_load_btn, col_del_btn = st.columns(2)
+            col_load_btn, col_del_btn = st.columns(2)
 
-                with col_load_btn:
-                    def _load_selected_lista():
-                        """Callback to load selected lista (avoids explicit st.rerun)."""
-                        selected_label = st.session_state.get("eagendas_lista_select")
-                        cached_options = st.session_state.get("_eagendas_lista_options_cache", [])
-                        selected_opt = next((opt for opt in cached_options if opt["label"] == selected_label), None)
-                        if selected_opt:
-                            st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
+            with col_load_btn:
+                def _load_selected_lista():
+                    """Callback to load selected lista."""
+                    selected_label = st.session_state.get("eagendas_lista_select")
+                    options = st.session_state.get("_eagendas_lista_options", [])
+                    selected_opt = next((opt for opt in options if opt["label"] == selected_label), None)
+                    if selected_opt:
+                        st.session_state.eagendas.saved_queries = selected_opt["data"]["queries"]
 
-                    st.button("📂 Carregar", use_container_width=True, on_click=_load_selected_lista)
+                st.button("📂 Carregar", use_container_width=True, on_click=_load_selected_lista)
 
-                with col_del_btn:
-                    def _delete_selected_lista():
-                        """Callback to delete selected lista (avoids explicit st.rerun)."""
-                        selected_label = st.session_state.get("eagendas_lista_select")
-                        cached_options = st.session_state.get("_eagendas_lista_options_cache", [])
-                        selected_opt = next((opt for opt in cached_options if opt["label"] == selected_label), None)
-                        if selected_opt:
-                            try:
-                                Path(selected_opt["path"]).unlink()
-                                # Invalidar cache para forçar reconstrução
-                                st.session_state.pop("_eagendas_lista_options_cache", None)
-                                st.session_state.pop("_eagendas_lista_files_hash", None)
-                            except Exception:
-                                pass  # Will show error on next render
+            with col_del_btn:
+                def _delete_selected_lista():
+                    """Callback to delete selected lista."""
+                    selected_label = st.session_state.get("eagendas_lista_select")
+                    options = st.session_state.get("_eagendas_lista_options", [])
+                    selected_opt = next((opt for opt in options if opt["label"] == selected_label), None)
+                    if selected_opt:
+                        try:
+                            Path(selected_opt["path"]).unlink()
+                            # Clear cache to force reload
+                            _load_lista_files_cached.clear()
+                        except Exception:
+                            pass
 
-                    st.button("🗑️ Excluir", use_container_width=True, type="secondary", on_click=_delete_selected_lista)
-            else:
-                st.info("Nenhuma lista disponível")
+                st.button("🗑️ Excluir", use_container_width=True, type="secondary", on_click=_delete_selected_lista)
         else:
             st.info("Nenhuma lista salva ainda")
 
