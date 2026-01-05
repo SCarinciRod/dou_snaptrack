@@ -65,8 +65,18 @@ def execute_with_subprocess(
             f"[Parent] Scheduling (subproc) bucket {w_id+1}/{len(buckets)} size={len(bucket)} first_idx={bucket[0] if bucket else '-'}"
         )
 
+        bucket_jobs = []
+        for j_idx in bucket:
+            try:
+                job = jobs[j_idx - 1]
+            except Exception:
+                continue
+            bucket_jobs.append({"index": j_idx, "job": job})
+
         payload = {
-            "jobs": jobs,
+            "payload_schema": "bucket_jobs_v1",
+            "bucket_jobs": bucket_jobs,
+            "total_jobs": len(jobs),
             "defaults": defaults,
             "out_dir": str(out_dir),
             "out_pattern": out_pattern,
@@ -75,7 +85,6 @@ def execute_with_subprocess(
             "state_file": str(state_file_path) if state_file_path else None,
             "reuse_page": reuse_page,
             "summary": {"lines": summary.lines, "mode": summary.mode, "keywords": summary.keywords},
-            "indices": bucket,
             "log_file": getattr(args, "log_file", None),
         }
 

@@ -266,7 +266,9 @@ class Fetcher:
 
         Retorna quantidade de itens preenchidos.
         """
-        targets: list[tuple[dict, str]] = []
+        # Build targets and deduplicate by URL to avoid repeated fetches when multiple
+        # items point to the same detail page.
+        url_to_items: dict[str, list[dict]] = {}
         for it in items:
             if it.get("texto") or it.get("ementa"):
                 continue
@@ -277,17 +279,26 @@ class Fetcher:
                 url = f"https://www.in.gov.br{url}"
             if not url.startswith("http"):
                 continue
-            targets.append((it, url))
+            url_to_items.setdefault(url, []).append(it)
 
-        if not targets:
+        if not url_to_items:
             logger.info("[ENRICH] no targets without text")
             return 0
 
+        urls = list(url_to_items.keys())
         filled = 0
-        def _work(pair: tuple[dict, str]) -> tuple[dict, str, str]:
-            it, url = pair
+
+        def _work_url(url: str) -> tuple[str, str]:
             html = self.fetch_html(url)
             body = self.extract_text_from_html(html)
+
+            # Small retry for transient network issues
+            if not body:
+                html2 = self.fetch_html(url)
+                body2 = self.extract_text_from_html(html2)
+                if body2 and len(body2) > len(body):
+                    body = body2
+
             if self.use_browser_if_short and (not body or len(body) < self.short_len_threshold):
                 # Tentar texto direto via navegador (mais robusto para conteúdo dinâmico)
                 fetch_text = getattr(self, "fetch_text_browser", None)
@@ -300,19 +311,25 @@ class Fetcher:
                         body_b = self.extract_text_from_html(html_b)
                         if len(body_b) > len(body):
                             body = body_b
-            return it, url, body
+
+            return url, body
+
+        logger.info(f"[ENRICH] targets={sum(len(v) for v in url_to_items.values())} unique_urls={len(urls)}")
 
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            futs = {ex.submit(_work, pair): pair for pair in targets}
+            futs = {ex.submit(_work_url, url): url for url in urls}
             for fut in as_completed(futs):
                 try:
-                    it, url, body = fut.result()
-                    if body:
+                    url, body = fut.result()
+                    if not body:
+                        continue
+                    for it in url_to_items.get(url, []):
                         it["texto"] = body
                         filled += 1
                 except Exception:
                     continue
-        logger.info(f"[ENRICH] filled {filled}/{len(targets)} missing texts")
+
+        logger.info(f"[ENRICH] filled {filled}/{sum(len(v) for v in url_to_items.values())} missing texts")
         return filled
 
     def enrich_items(
@@ -330,14 +347,11 @@ class Fetcher:
 
         Retorna quantidade de itens que tiveram `texto` atualizado/preenchido.
         """
-        targets: list[tuple[dict, str]] = []
+        url_to_items: dict[str, list[dict]] = {}
+        total_targets = 0
         for it in items:
             txt = (it.get("texto") or it.get("ementa") or "").strip()
-            need = bool(
-                overwrite
-                or not txt
-                or (min_len is not None and len(txt) < min_len)
-            )
+            need = bool(overwrite or not txt or (min_len is not None and len(txt) < min_len))
             if not need:
                 continue
             url = it.get("detail_url") or it.get("link") or ""
@@ -347,16 +361,25 @@ class Fetcher:
                 url = f"https://www.in.gov.br{url}"
             if not url.startswith("http"):
                 continue
-            targets.append((it, url))
+            url_to_items.setdefault(url, []).append(it)
+            total_targets += 1
 
-        if not targets:
+        if not url_to_items:
             return 0
 
+        urls = list(url_to_items.keys())
         updated = 0
-        def _work(pair: tuple[dict, str]) -> tuple[dict, str, str]:
-            it, url = pair
+
+        def _work_url(url: str) -> tuple[str, str]:
             html = self.fetch_html(url)
             body = self.extract_text_from_html(html)
+
+            if not body:
+                html2 = self.fetch_html(url)
+                body2 = self.extract_text_from_html(html2)
+                if body2 and len(body2) > len(body):
+                    body = body2
+
             if self.use_browser_if_short and (not body or len(body) < self.short_len_threshold):
                 fetch_text = getattr(self, "fetch_text_browser", None)
                 text_b = str(fetch_text(url)) if callable(fetch_text) else ""
@@ -368,17 +391,25 @@ class Fetcher:
                         body_b = self.extract_text_from_html(html_b)
                         if len(body_b) > len(body):
                             body = body_b
-            return it, url, body
+
+            return url, body
+
+        logger.info(
+            f"[ENRICH] targets={total_targets} unique_urls={len(urls)} (overwrite={overwrite}, min_len={min_len})"
+        )
 
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            futs = {ex.submit(_work, pair): pair for pair in targets}
+            futs = {ex.submit(_work_url, url): url for url in urls}
             for fut in as_completed(futs):
                 try:
-                    it, url, body = fut.result()
-                    if body:
+                    url, body = fut.result()
+                    if not body:
+                        continue
+                    for it in url_to_items.get(url, []):
                         it["texto"] = body
                         updated += 1
                 except Exception:
                     continue
-        logger.info(f"[ENRICH] updated {updated}/{len(targets)} items (overwrite={overwrite}, min_len={min_len})")
+
+        logger.info(f"[ENRICH] updated {updated}/{total_targets} items (overwrite={overwrite}, min_len={min_len})")
         return updated

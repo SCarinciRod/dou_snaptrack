@@ -88,7 +88,10 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     from playwright.sync_api import sync_playwright  # type: ignore
 
     # Extract payload
-    jobs: list[dict[str, Any]] = payload["jobs"]
+    # Backward compatible formats:
+    # - legacy: payload has full `jobs` list + `indices`
+    # - optimized: payload has `bucket_jobs` (list of {index, job}) + `total_jobs`
+    jobs: list[dict[str, Any]] | None = payload.get("jobs")
     defaults: dict[str, Any] = payload["defaults"]
     out_dir = Path(payload["out_dir"])
     out_pattern: str = payload["out_pattern"]
@@ -97,7 +100,9 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     state_file: str | None = payload.get("state_file")
     reuse_page: bool = bool(payload.get("reuse_page", False))
     summary: SummaryConfig = SummaryConfig(**(payload.get("summary") or {}))
-    indices: list[int] = payload["indices"]
+    indices: list[int] | None = payload.get("indices")
+    bucket_jobs: list[dict[str, Any]] | None = payload.get("bucket_jobs")
+    total_jobs: int = int(payload.get("total_jobs") or (len(jobs) if jobs else 0) or (len(bucket_jobs) if bucket_jobs else 0))
     fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1", "true", "yes")
 
     report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
@@ -121,14 +126,21 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
         page_cache: dict[tuple[str, str], Any] = {}
 
         try:
-            for j_idx in indices:
-                job = jobs[j_idx - 1]
+            if bucket_jobs:
+                for entry in bucket_jobs:
+                    try:
+                        j_idx = int(entry.get("index") or 0)
+                    except Exception:
+                        j_idx = 0
+                    job = entry.get("job") or {}
+                    if not isinstance(job, dict) or j_idx <= 0:
+                        continue
 
                 # Process job using extracted helper
-                job_result = process_single_job(
-                    job=job,
-                    job_index=j_idx,
-                    jobs=jobs,
+                    job_result = process_single_job(
+                        job=job,
+                        job_index=j_idx,
+                        jobs=(jobs or []),
                     defaults=defaults,
                     out_dir=out_dir,
                     out_pattern=out_pattern,
@@ -150,6 +162,40 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
                 report["outputs"].extend(job_result["outputs"])
                 if job_result["job_metrics"]:
                     report["metrics"]["jobs"].append(job_result["job_metrics"])
+
+            else:
+                # Legacy mode: indices + full jobs list
+                if not jobs or not indices:
+                    return report
+
+                for j_idx in indices:
+                    job = jobs[j_idx - 1]
+
+                    job_result = process_single_job(
+                        job=job,
+                        job_index=j_idx,
+                        jobs=jobs,
+                        defaults=defaults,
+                        out_dir=out_dir,
+                        out_pattern=out_pattern,
+                        context=context,
+                        page_cache=page_cache,
+                        reuse_page=reuse_page,
+                        fast_mode=fast_mode,
+                        state_file=state_file,
+                        summary=summary,
+                        run_once_fn=run_once,
+                        render_out_filename_fn=render_out_filename,
+                        apply_summary_overrides_fn=apply_summary_overrides_from_job,
+                    )
+
+                    # Aggregate results
+                    report["ok"] += job_result["ok"]
+                    report["fail"] += job_result["fail"]
+                    report["items_total"] += job_result["items_total"]
+                    report["outputs"].extend(job_result["outputs"])
+                    if job_result["job_metrics"]:
+                        report["metrics"]["jobs"].append(job_result["job_metrics"])
 
         finally:
             cleanup_page_cache(page_cache)

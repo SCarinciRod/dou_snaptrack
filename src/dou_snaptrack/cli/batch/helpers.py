@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 import math
 import os
+import shutil
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -350,24 +352,128 @@ def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -
     Returns:
         List of aggregated output file paths
     """
-    agg: dict[str, dict[str, Any]] = defaultdict(
-        lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []}
-    )
-    secao_tracker = [""]  # Use list to allow modification in nested function
+    # Streaming-first aggregation to avoid holding all items in memory.
+    try:
+        safe_plan = sanitize_filename(plan_name)
+        tmp_dir = out_dir / "_agg_tmp"
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        run_id = uuid.uuid4().hex[:8]
 
-    # Load and aggregate all output files
-    for pth in paths or []:
-        _load_and_aggregate_output_file(pth, agg, secao_tracker)
+        writers: dict[str, dict[str, Any]] = {}
+        secao_tracker = [""]
+        secao_by_date: dict[str, str] = {}
 
-    # Write aggregated files
-    written: list[str] = []
-    secao_label = (secao_tracker[0] or "DO").strip()
+        def _get_writer(date: str) -> dict[str, Any]:
+            key = date or ""
+            w = writers.get(key)
+            if w:
+                return w
 
-    for date, payload in agg.items():
-        out_path = _write_aggregated_file(date, payload, out_dir, plan_name, secao_label)
-        written.append(out_path)
+            date_lab = (date or "").replace("/", "-") or "unknown"
+            tmp_path = tmp_dir / f"{safe_plan}_{date_lab}_{run_id}.items.json"
+            fh = tmp_path.open("w", encoding="utf-8")
+            fh.write("[")
+            w = {"path": tmp_path, "fh": fh, "first": True, "count": 0}
+            writers[key] = w
+            return w
 
-    return written
+        for pth in paths or []:
+            try:
+                data = json.loads(Path(pth).read_text(encoding="utf-8"))
+            except Exception:
+                continue
+
+            date = str(data.get("data") or "")
+            secao = str(data.get("secao") or "")
+            if secao and not secao_tracker[0]:
+                secao_tracker[0] = secao
+            if secao and not secao_by_date.get(date):
+                secao_by_date[date] = secao
+
+            items = data.get("itens", []) or []
+            w = _get_writer(date)
+            fh = w["fh"]
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                _normalize_item_detail_url(it)
+                if not w["first"]:
+                    fh.write(",")
+                else:
+                    w["first"] = False
+                fh.write(json.dumps(it, ensure_ascii=False))
+                w["count"] += 1
+
+        # Finalize tmp arrays
+        for w in writers.values():
+            try:
+                w["fh"].write("]")
+                w["fh"].close()
+            except Exception:
+                pass
+
+        # Write aggregated files
+        written: list[str] = []
+        secao_label = (secao_tracker[0] or "DO").strip()
+        for date, w in writers.items():
+            date_lab = (date or "").replace("/", "-")
+            out_name = f"{safe_plan}_{secao_label}_{date_lab or 'unknown'}.json"
+            out_path = out_dir / out_name
+
+            secao = secao_by_date.get(date, "")
+            total = int(w.get("count") or 0)
+            payload_prefix = {
+                "data": date,
+                "secao": secao,
+                "plan": plan_name,
+                "total": total,
+            }
+
+            with out_path.open("w", encoding="utf-8") as out_fh:
+                out_fh.write("{\n")
+                out_fh.write(f"  \"data\": {json.dumps(payload_prefix['data'], ensure_ascii=False)},\n")
+                out_fh.write(f"  \"secao\": {json.dumps(payload_prefix['secao'], ensure_ascii=False)},\n")
+                out_fh.write(f"  \"plan\": {json.dumps(payload_prefix['plan'], ensure_ascii=False)},\n")
+                out_fh.write(f"  \"total\": {payload_prefix['total']},\n")
+                out_fh.write("  \"itens\": ")
+                try:
+                    with Path(w["path"]).open("r", encoding="utf-8") as in_fh:
+                        shutil.copyfileobj(in_fh, out_fh, length=1024 * 1024)
+                except Exception:
+                    out_fh.write("[]")
+                out_fh.write("\n}")
+
+            written.append(str(out_path))
+
+        # Cleanup
+        for w in writers.values():
+            try:
+                Path(w["path"]).unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        try:
+            tmp_dir.rmdir()
+        except Exception:
+            pass
+
+        return written
+    except Exception:
+        # Fallback: legacy in-memory aggregation
+        agg: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {"data": "", "secao": "", "plan": plan_name, "itens": []}
+        )
+        secao_tracker = [""]  # Use list to allow modification in nested function
+
+        for pth in paths or []:
+            _load_and_aggregate_output_file(pth, agg, secao_tracker)
+
+        written: list[str] = []
+        secao_label = (secao_tracker[0] or "DO").strip()
+        for date, payload in agg.items():
+            out_path = _write_aggregated_file(date, payload, out_dir, plan_name, secao_label)
+            written.append(out_path)
+        return written
 
 
 def write_report(report: dict[str, Any], out_dir: Path, cfg: dict[str, Any]) -> Path:

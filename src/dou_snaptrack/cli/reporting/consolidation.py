@@ -31,7 +31,8 @@ def load_json_files(in_dir: str) -> list[dict[str, Any]]:
     agg = []
     for f in sorted(Path(in_dir).glob("*.json")):
         try:
-            data = json.loads(f.read_text(encoding="utf-8"))
+            with f.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
             items = data.get("itens", [])
             normalize_item_urls(items)
             agg.extend(items)
@@ -191,7 +192,8 @@ def aggregate_jobs_by_date(jobs: list[Path], plan_name: str) -> tuple[dict[str, 
 
     for jf in jobs:
         try:
-            data = json.loads(jf.read_text(encoding="utf-8"))
+            with jf.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
         except Exception:
             continue
 

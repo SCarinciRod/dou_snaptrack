@@ -127,6 +127,7 @@ def fetch_n1_options(secao: str, date: str, refresh_token: float = 0.0) -> list[
 import sys
 import json
 import os
+import time
 from pathlib import Path
 
 # Add src to path
@@ -138,6 +139,38 @@ from dou_snaptrack.cli.plan.live import _collect_dropdown_roots, _read_dropdown_
 from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
 from dou_snaptrack.utils.dom import find_best_frame
 from playwright.sync_api import sync_playwright, TimeoutError
+
+
+def _pick_ready_frame(context, timeout_s: float = 12.0):
+    """Pick the most likely frame containing DOU controls.
+
+    The DOU UI frequently renders dropdowns inside an iframe; if we pick the frame too early
+    we may end up on main_frame and fail to detect N1.
+    """
+    page = context.pages[0]
+    deadline = time.time() + max(1.0, float(timeout_s))
+    probe_sel = "#slcOrgs, select, [role=combobox], .selectize-input"
+
+    while time.time() < deadline:
+        # 1) Best-frame heuristic
+        fr = find_best_frame(context)
+        try:
+            if fr and fr.locator(probe_sel).count() > 0:
+                return fr
+        except Exception:
+            pass
+
+        # 2) Direct scan across frames (more robust)
+        for cand in page.frames:
+            try:
+                if cand.locator(probe_sel).count() > 0:
+                    return cand
+            except Exception:
+                continue
+
+        page.wait_for_timeout(250)
+
+    return find_best_frame(context)
 
 try:
     with sync_playwright() as p:
@@ -179,17 +212,14 @@ try:
         except Exception:
             pass
 
-        frame = find_best_frame(context)
+        # Escolher/aguardar o frame correto (DOU costuma renderizar dentro de iframe)
+        frame = _pick_ready_frame(context, timeout_s=12.0)
 
-        # Otimização: wait condicional em vez de timeout fixo
-        # Aguarda até que dropdowns estejam prontos (max 3s)
+        # Aguarda sinais mínimos de dropdown no frame escolhido (sem depender do main document)
         try:
-            page.wait_for_function(
-                "() => document.querySelector('select') !== null || document.querySelector('.selectize-input') !== null",
-                timeout=3000
-            )
-        except:
-            pass  # Continua mesmo se timeout - pode já estar pronto
+            frame.wait_for_selector("#slcOrgs, select, [role=combobox], .selectize-input", timeout=8_000)
+        except Exception:
+            pass
 
         try:
             r1, _r2 = _select_roots(frame)
@@ -201,7 +231,24 @@ try:
             r1 = roots[0] if roots else None
 
         if not r1:
-            print(json.dumps({{"success": False, "error": "Nenhum dropdown N1 detectado"}}))
+            # Debug info (compact) to help diagnose iframe/layout changes
+            try:
+                frame_url = frame.url
+            except Exception:
+                frame_url = None
+            try:
+                sel_cnt = frame.locator("select").count()
+            except Exception:
+                sel_cnt = None
+            print(
+                json.dumps(
+                    {{
+                        "success": False,
+                        "error": "Nenhum dropdown N1 detectado",
+                        "debug": {{"frame_url": frame_url, "select_count": sel_cnt}},
+                    }}
+                )
+            )
             context.close()
             browser.close()
             sys.exit(1)
@@ -318,51 +365,191 @@ def fetch_n2_options(secao: str, date: str, n1: str, limit2: int | None = None, 
 
     logger.info("[N2-SUBPROCESS] Iniciando fetch N2 para secao=%s date=%s n1=%s", secao, date, n1)
 
-    # Se limit2 é None, passar literal None (não aplicar corte no builder)
-    _limit2_literal = "None" if limit2 in (None, 0) else str(int(limit2))
+    # Se limit2 é None, não aplicar corte
+    _limit2_int = None if limit2 in (None, 0) else int(limit2)
+    _limit2_literal = "None" if _limit2_int is None else str(_limit2_int)
 
-    # IMPORTANTE: quando N1 contém vírgulas, usar select1 com regex ancorada
-    _select1_pattern = "^" + re.escape(str(n1)) + "$"
-    _select1_literal = json.dumps(_select1_pattern, ensure_ascii=False)
+    # Script usando sync_playwright: seleciona somente o N1 escolhido e lê N2
+    # (muito mais rápido do que gerar combos via build_plan_live_async)
+    src_path = str(SRC_ROOT).replace("\\", "\\\\")
+    _n1_literal = json.dumps(str(n1), ensure_ascii=False)
 
-    # Script usando async_playwright com build_plan_live_async (abordagem Nov 19)
     script_content = f'''
-import json
 import sys
-from playwright.async_api import async_playwright
-from types import SimpleNamespace
-from dou_snaptrack.cli.plan.live_async import build_plan_live_async
+import json
+import os
+import time
+from pathlib import Path
+
+src_root = "{src_path}"
+if src_root not in sys.path:
+    sys.path.insert(0, src_root)
+
+from dou_snaptrack.cli.plan.live import _collect_dropdown_roots, _read_dropdown_options, _select_by_text, _select_roots
+from dou_snaptrack.utils.browser import build_dou_url, goto, try_visualizar_em_lista
+from dou_snaptrack.utils.dom import find_best_frame, is_select, read_select_options
+from playwright.sync_api import sync_playwright, TimeoutError
+
+
+def _pick_ready_frame(context, timeout_s: float = 12.0):
+    page = context.pages[0]
+    deadline = time.time() + max(1.0, float(timeout_s))
+    probe_sel = "#slcOrgs, #slcOrgsSubs, select, [role=combobox], .selectize-input"
+    while time.time() < deadline:
+        fr = find_best_frame(context)
+        try:
+            if fr and fr.locator(probe_sel).count() > 0:
+                return fr
+        except Exception:
+            pass
+        for cand in page.frames:
+            try:
+                if cand.locator(probe_sel).count() > 0:
+                    return cand
+            except Exception:
+                continue
+        page.wait_for_timeout(250)
+    return find_best_frame(context)
+
+
+def _filter_texts(opts):
+    texts = []
+    for o in opts or []:
+        t = (o.get("text") or "").strip()
+        nt = t.lower().strip()
+        if not t or nt == "todos" or nt.startswith("selecionar ") or nt.startswith("selecione "):
+            continue
+        texts.append(t)
+    return texts
+
+
+def _wait_n2_ready(frame, r2, timeout_ms: int = 15_000):
+    start = time.time()
+    h = r2.get("handle") if r2 else None
+    if not h:
+        return
+
+    # Native <select>: wait for options length to be > 1 (typically includes placeholder)
+    if is_select(h):
+        while (time.time() - start) * 1000 < timeout_ms:
+            try:
+                cur = len(read_select_options(h) or [])
+                if cur >= 2:
+                    return
+            except Exception:
+                pass
+            frame.page.wait_for_timeout(200)
+        return
+
+    # Custom dropdown: open and wait until at least 1 option is visible
+    while (time.time() - start) * 1000 < timeout_ms:
+        try:
+            h.click(timeout=2000)
+        except Exception:
+            frame.page.wait_for_timeout(200)
+            continue
+        try:
+            # Look for Selectize or generic options
+            frame.wait_for_selector(".selectize-dropdown .option, [role=option]", timeout=1500)
+            frame.page.keyboard.press("Escape")
+            return
+        except Exception:
+            try:
+                frame.page.keyboard.press("Escape")
+            except Exception:
+                pass
+            frame.page.wait_for_timeout(200)
+
 
 try:
-    async def fetch_n2_options():
-        async with async_playwright() as p:
-            args = SimpleNamespace(
-                secao="{secao}",
-                data="{date}",
-                plan_out=None,
-                select1={_select1_literal},
-                select2=None,
-                pick1=None,
-                pick2=None,
-                limit1=None,
-                limit2={_limit2_literal},
-                headless=True,
-                slowmo=0,
-            )
+    with sync_playwright() as p:
+        browser = None
+        try:
+            browser = p.chromium.launch(channel='chrome', headless=True)
+        except Exception:
+            try:
+                browser = p.chromium.launch(channel='msedge', headless=True)
+            except Exception:
+                exe = os.environ.get('PLAYWRIGHT_CHROME_PATH') or os.environ.get('CHROME_PATH')
+                if not exe:
+                    for c in (
+                        r'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+                        r'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+                        r'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+                        r'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+                    ):
+                        if Path(c).exists():
+                            exe = c
+                            break
+                if exe and Path(exe).exists():
+                    browser = p.chromium.launch(executable_path=exe, headless=True)
 
-            cfg = await build_plan_live_async(p, args)
-            combos = cfg.get("combos", [])
-            n2_set = set()
-            for c in combos:
-                k1 = c.get("key1")
-                k2 = c.get("key2")
-                if k1 == "{n1}" and k2 and k2 != "Todos":
-                    n2_set.add(k2)
-            return sorted(n2_set)
+        if not browser:
+            browser = p.chromium.launch(headless=True)
 
-    import asyncio
-    result = asyncio.run(fetch_n2_options())
-    print(json.dumps({{"success": True, "options": result}}))
+        context = browser.new_context(ignore_https_errors=True, viewport={{"width": 1366, "height": 900}})
+        context.set_default_timeout(90_000)
+        page = context.new_page()
+
+        url = build_dou_url("{date}", "{secao}")
+        goto(page, url)
+        try:
+            try_visualizar_em_lista(page)
+        except Exception:
+            pass
+
+        frame = _pick_ready_frame(context, timeout_s=12.0)
+        try:
+            frame.wait_for_selector("#slcOrgs, #slcOrgsSubs, select, [role=combobox], .selectize-input", timeout=8_000)
+        except Exception:
+            pass
+
+        r1, r2 = None, None
+        try:
+            r1, r2 = _select_roots(frame)
+        except Exception:
+            r1, r2 = None, None
+        if not r1 or not r2:
+            roots = _collect_dropdown_roots(frame)
+            r1 = r1 or (roots[0] if roots else None)
+            r2 = r2 or (roots[1] if roots and len(roots) > 1 else None)
+
+        if not r1:
+            print(json.dumps({{"success": False, "error": "Dropdown N1 não encontrado"}}))
+            context.close(); browser.close(); sys.exit(1)
+        if not r2:
+            print(json.dumps({{"success": False, "error": "Dropdown N2 não encontrado"}}))
+            context.close(); browser.close(); sys.exit(1)
+
+        n1_text = {_n1_literal}
+        if not _select_by_text(frame, r1, n1_text):
+            print(json.dumps({{"success": False, "error": "Falha ao selecionar N1"}}))
+            context.close(); browser.close(); sys.exit(1)
+
+        # Re-resolve roots after selection (DOM may re-render)
+        try:
+            _r1b, r2b = _select_roots(frame)
+            if r2b:
+                r2 = r2b
+        except Exception:
+            pass
+
+        _wait_n2_ready(frame, r2, timeout_ms=15_000)
+
+        # Read N2 options
+        opts = _read_dropdown_options(frame, r2)
+        texts = _filter_texts(opts)
+        uniq = sorted(set(texts))
+        limit2 = {_limit2_literal}
+        if isinstance(limit2, int) and limit2 > 0:
+            uniq = uniq[:limit2]
+
+        print(json.dumps({{"success": True, "options": uniq}}))
+        context.close(); browser.close()
+
+except TimeoutError as te:
+    print(json.dumps({{"success": False, "error": f"Timeout: {{te}}"}}))
+    sys.exit(1)
 except Exception as e:
     print(json.dumps({{"success": False, "error": f"{{type(e).__name__}}: {{e}}"}}))
     sys.exit(1)

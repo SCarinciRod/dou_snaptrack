@@ -72,6 +72,17 @@ def _load_plan_config(path: Path) -> dict[str, Any]:
         return {}
 
 
+@st.cache_data(ttl=5, show_spinner=False)
+def _load_plan_config_cached(path_str: str, mtime_ns: int) -> dict[str, Any]:
+    """Cached plan config loader for Streamlit reruns.
+
+    The `mtime_ns` argument is only used to invalidate the cache when the file changes.
+    """
+    _ = mtime_ns
+    p = Path(path_str)
+    return _load_plan_config(p)
+
+
 def _run_batch_with_cfg(
     cfg_path: Path, parallel: int, fast_mode: bool = False, prefer_edge: bool = True
 ) -> dict[str, Any]:
@@ -128,7 +139,13 @@ def render_batch_executor() -> None:
 
     # Paralelismo adaptativo (heurística baseada em CPU e nº de jobs)
     # OTIMIZAÇÃO: Usar _load_plan_config (leitura única) ao invés de read_text()
-    cfg_preview = _load_plan_config(selected_path) if selected_path.exists() else {}
+    if selected_path.exists():
+        try:
+            cfg_preview = _load_plan_config_cached(str(selected_path), selected_path.stat().st_mtime_ns)
+        except Exception:
+            cfg_preview = _load_plan_config(selected_path)
+    else:
+        cfg_preview = {}
     combos_prev = cfg_preview.get("combos") or []
     topics_prev = cfg_preview.get("topics") or []
     est_jobs_prev = len(combos_prev) * max(1, len(topics_prev) or 1)
@@ -166,7 +183,13 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
             st.stop()
 
     # Load config and estimate jobs
-    cfg = _load_plan_config(selected_path)
+    if selected_path.exists():
+        try:
+            cfg = _load_plan_config_cached(str(selected_path), selected_path.stat().st_mtime_ns)
+        except Exception:
+            cfg = _load_plan_config(selected_path)
+    else:
+        cfg = {}
     est_jobs = estimate_job_count(cfg)
     parallel = int(recommend_parallel(est_jobs, prefer_process=True))
 

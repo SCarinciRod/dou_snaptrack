@@ -112,24 +112,84 @@ def collect_options_from_container(container, option_selectors: tuple[str, ...])
     Returns:
         List of option dictionaries
     """
-    options = []
-    for sel in option_selectors:
+        # Fast path: extract everything with a single JS evaluate to reduce Playwright round-trips.
+        # Fallback to the legacy per-option extraction if anything goes wrong.
         try:
-            opts = container.locator(sel)
-            k = opts.count()
+                options = container.evaluate(
+                        """
+                        (el, selectors) => {
+                            const out = [];
+                            const getAttr = (node, name) => {
+                                try { return node.getAttribute(name); } catch (e) { return null; }
+                            };
+                            const isVisible = (node) => {
+                                try {
+                                    // Similar to Playwright's visibility check but lighter.
+                                    const rects = node.getClientRects();
+                                    if (!rects || rects.length === 0) return false;
+                                    const style = window.getComputedStyle(node);
+                                    if (!style) return true;
+                                    if (style.visibility === 'hidden' || style.display === 'none') return false;
+                                    return true;
+                                } catch (e) {
+                                    return true;
+                                }
+                            };
+
+                            for (const sel of (selectors || [])) {
+                                let nodes = [];
+                                try { nodes = Array.from(el.querySelectorAll(sel)); } catch (e) { nodes = []; }
+                                for (let i = 0; i < nodes.length; i++) {
+                                    const n = nodes[i];
+                                    if (!isVisible(n)) continue;
+                                    const text = ((n.textContent || '') + '').trim();
+                                    const val = getAttr(n, 'value');
+                                    const dv = getAttr(n, 'data-value');
+                                    const di = getAttr(n, 'data-index') || getAttr(n, 'data-option-index') || ('' + i);
+                                    const oid = getAttr(n, 'id');
+                                    const did = getAttr(n, 'data-id') || getAttr(n, 'data-key') || getAttr(n, 'data-code');
+
+                                    if (text || val || dv || di || oid || did) {
+                                        out.push({
+                                            text,
+                                            value: val,
+                                            dataValue: dv,
+                                            dataIndex: di,
+                                            id: oid,
+                                            dataId: did,
+                                        });
+                                    }
+                                }
+                            }
+                            return out;
+                        }
+                        """,
+                        option_selectors,
+                )
+                if isinstance(options, list):
+                        return options
         except Exception:
-            k = 0
+                pass
 
-        for i in range(k):
-            o = opts.nth(i)
-            try:
-                option_data = extract_option_data(o, i)
-                if option_data:
-                    options.append(option_data)
-            except Exception:
-                continue
+        # Legacy slow path
+        options = []
+        for sel in option_selectors:
+                try:
+                        opts = container.locator(sel)
+                        k = opts.count()
+                except Exception:
+                        k = 0
 
-    return options
+                for i in range(k):
+                        o = opts.nth(i)
+                        try:
+                                option_data = extract_option_data(o, i)
+                                if option_data:
+                                        options.append(option_data)
+                        except Exception:
+                                continue
+
+        return options
 
 
 def deduplicate_options(options: list[dict[str, Any]]) -> list[dict[str, Any]]:

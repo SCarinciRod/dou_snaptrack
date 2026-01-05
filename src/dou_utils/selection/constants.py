@@ -17,6 +17,9 @@ DROPDOWN_ROOT_SELECTORS: tuple[str, ...] = (
     "div[class*=select]",
     "div[class*=dropdown]",
     "div[class*=combobox]",
+    # Selectize (DOU/in.gov.br)
+    ".selectize-control",
+    ".selectize-input",
     # Framework specific
     ".ant-select",           # Ant Design
     ".MuiAutocomplete-root", # Material UI
@@ -34,6 +37,9 @@ LISTBOX_SELECTORS: tuple[str, ...] = (
     ".p-dropdown-items",
     ".select2-results__options",
     ".rc-virtual-list",
+    # Selectize (DOU/in.gov.br)
+    ".selectize-dropdown",
+    ".selectize-dropdown-content",
     # Framework specific
     ".ant-select-dropdown",
     ".MuiAutocomplete-popper",
@@ -49,6 +55,8 @@ OPTION_SELECTORS: tuple[str, ...] = (
     ".select2-results__option",
     "[data-value]",
     "[data-index]",
+    # Selectize (scope to avoid generic .option)
+    ".selectize-dropdown .option",
     # Framework specific
     ".ant-select-item",
     ".MuiAutocomplete-option",

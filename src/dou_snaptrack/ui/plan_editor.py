@@ -12,6 +12,8 @@ from datetime import date as _date
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from dou_snaptrack.ui.fs_index import list_plan_entries
+
 import streamlit as st
 
 from dou_snaptrack.ui.state import PlanState, ensure_dirs, ensure_state
@@ -80,29 +82,8 @@ def _list_saved_plan_files(refresh_token: float = 0.0) -> list[dict[str, Any]]:
     Returns:
         List of dicts with plan metadata (path, stem, combos, data, secao, etc.)
     """
-    _ = refresh_token  # Used for cache invalidation
     plans_dir, _ = ensure_dirs()
-    entries = []
-
-    try:
-        for p in sorted(plans_dir.glob("*.json"), key=lambda x: x.stat().st_mtime, reverse=True):
-            try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-                combos = data.get("combos", [])
-                entries.append({
-                    "path": str(p),
-                    "stem": p.stem,
-                    "combos": len(combos),
-                    "data": data.get("data", ""),
-                    "secao": data.get("secaoDefault", ""),
-                    "size_kb": round(p.stat().st_size / 1024, 1),
-                })
-            except Exception:
-                continue
-    except Exception:
-        pass
-
-    return entries
+    return list_plan_entries(str(plans_dir), refresh_token)
 
 
 class PlanEditorSession:
@@ -168,6 +149,11 @@ def render_plan_discovery(
         date = str(st.session_state.plan.date or "")
 
     st.subheader("Monte sua Pesquisa")
+
+    # One-shot feedback message (used when an action triggers a full rerun)
+    flash = st.session_state.pop("_plan_flash", None)
+    if flash:
+        st.success(str(flash))
 
     # Callback para auto-carregar N2 quando N1 muda
     def _on_n1_change():
@@ -243,7 +229,8 @@ def render_plan_discovery(
         if st.button("Adicionar ao plano", disabled=not (n1 and sel_n2)):
             add = _build_combos(str(n1), sel_n2)
             PlanEditorSession.add_combos(add)
-            st.success(f"Adicionados {len(add)} combos ao plano.")
+            st.session_state["_plan_flash"] = f"Adicionados {len(add)} combos ao plano."
+            st.rerun()
 
     with cols_add[1]:
         # Permitir adicionar órgão completo (sem suborganização) sempre que houver N1 selecionado
@@ -251,7 +238,8 @@ def render_plan_discovery(
         if st.button("Órgão Completo", disabled=not n1, help="Adiciona o órgão inteiro sem filtrar por suborganização"):
             add = _build_combos(str(n1), ["Todos"])
             PlanEditorSession.add_combos(add)
-            st.success(f"Adicionado órgão '{n1}' completo (todas suborganizações).")
+            st.session_state["_plan_flash"] = f"Adicionado órgão '{n1}' completo (todas suborganizações)."
+            st.rerun()
 
 
 @st.fragment

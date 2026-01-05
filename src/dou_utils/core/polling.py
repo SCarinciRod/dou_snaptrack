@@ -74,17 +74,47 @@ def wait_for_options_change(
     base_len = len(before)
     base_hash = options_hash(before)
 
+    def _sig(opts: list[dict[str, Any]]) -> tuple[int, tuple[tuple[str, str], ...]]:
+        """Cheap signature to avoid hashing the whole list every poll.
+
+        Uses length + a few (value,text) samples from head/tail.
+        """
+        try:
+            n = len(opts)
+            if n == 0:
+                return 0, ()
+            sample = (opts[:3] + opts[-3:]) if n > 3 else opts
+            pairs = tuple((str(o.get("value") or ""), str(o.get("text") or "")) for o in sample)
+            return n, pairs
+        except Exception:
+            return len(opts) if opts else 0, ()
+
+    base_sig = _sig(before)
+    polls = 0
+    # Hashing every single poll can be expensive for large dropdowns.
+    # Hash periodically and whenever the cheap signature changes.
+    hash_every = 2
+
     reader = custom_reader or (lambda: snapshot_options(select_handle))
 
     while time.time() < deadline:
+        polls += 1
         try:
             current = reader()
         except Exception:
             current = []
-        curr_hash = options_hash(current)
 
-        grew = len(current) >= base_len + min_delta
-        changed = curr_hash != base_hash
+        curr_len = len(current)
+        grew = curr_len >= base_len + min_delta
+        # Fast heuristic: compare a small signature first.
+        sig_changed = _sig(current) != base_sig
+        # Only hash when we have a signal or periodically.
+        changed = False
+        if sig_changed or (polls % hash_every == 0):
+            try:
+                changed = options_hash(current) != base_hash
+            except Exception:
+                changed = False
 
         if require_growth:
             if grew:

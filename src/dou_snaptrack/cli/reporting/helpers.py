@@ -5,6 +5,7 @@ This module contains functions extracted from reporting.py.
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -47,7 +48,8 @@ def load_aggregated_files(files: list[str]) -> tuple[list[dict[str, Any]], str, 
 
     for fp in files:
         try:
-            data = __import__('json').loads(Path(fp).read_text(encoding="utf-8"))
+            with Path(fp).open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
         except Exception:
             continue
 
@@ -82,7 +84,8 @@ def load_and_group_by_n1(in_dir: str) -> tuple[dict[str, list[dict[str, Any]]], 
 
     for f in sorted(Path(in_dir).glob("*.json")):
         try:
-            data = __import__('json').loads(f.read_text(encoding="utf-8"))
+            with f.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
         except Exception:
             continue
 

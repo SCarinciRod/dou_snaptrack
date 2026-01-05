@@ -6,10 +6,19 @@ This module provides the UI components for TAB3 "Gerar boletim".
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import streamlit as st
+
+from dou_snaptrack.ui.fs_index import index_aggregates_by_day, list_result_days
+from dou_snaptrack.ui.jobs import (
+    finalize_subprocess_job,
+    python_module_cmd,
+    read_job_log_tail,
+    start_subprocess_job,
+)
 
 if TYPE_CHECKING:
     pass
@@ -78,19 +87,13 @@ def render_report_generator() -> None:
 def _render_manual_aggregation(results_root: Path) -> None:
     """Render the manual aggregation expander section."""
     with st.expander("Agregação manual (quando necessário)"):
-        day_dirs = []
-        try:
-            day_dirs = [d for d in results_root.iterdir() if d.is_dir()]
-        except Exception:
-            day_dirs = []
-        day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
+        day_labels = list_result_days(str(results_root))
 
-        if not day_dirs:
+        if not day_labels:
             st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar uma pasta do dia.")
         else:
-            labels = [p.name for p in day_dirs]
-            choice = st.selectbox("Pasta do dia para agregar", labels, index=0, key="agg_day_choice")
-            choice_str = str(choice) if isinstance(choice, str) and choice else str(labels[0])
+            choice = st.selectbox("Pasta do dia para agregar", day_labels, index=0, key="agg_day_choice")
+            choice_str = str(choice) if isinstance(choice, str) and choice else str(day_labels[0])
             chosen_dir = results_root / choice_str
 
             help_txt = "Use esta opção se a execução terminou sem gerar os arquivos agregados. Informe o nome do plano e agregue os JSONs da pasta escolhida."
@@ -124,29 +127,23 @@ def _render_manual_aggregation(results_root: Path) -> None:
 def _render_report_selection(results_root: Path) -> None:
     """Render the report selection and generation section."""
     # Seletor 1: escolher a pasta da data (resultados/<data>)
-    day_dirs: list[Path] = []
-    try:
-        day_dirs = [d for d in results_root.iterdir() if d.is_dir()]
-    except Exception:
-        day_dirs = []
-    day_dirs = sorted(day_dirs, key=lambda p: p.name, reverse=True)
+    day_labels = list_result_days(str(results_root))
 
-    if not day_dirs:
+    if not day_labels:
         st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano com 'Nome do plano' para gerar agregados.")
     else:
-        day_labels = [p.name for p in day_dirs]
         sel_day = st.selectbox("Data (pasta em resultados)", day_labels, index=0, key="agg_day_select")
         chosen_dir = results_root / str(sel_day)
 
-        day_idx = _index_aggregates_in_day(chosen_dir)
-        plan_names = sorted(day_idx.keys())
+        day_idx_names = index_aggregates_by_day(str(chosen_dir))
+        plan_names = sorted(day_idx_names.keys())
 
         if not plan_names:
             st.info("Nenhum agregado encontrado nessa data. Verifique se o plano foi executado com 'Nome do plano'.")
         else:
             # Seletor 2: escolher o plano dentro da pasta do dia
             sel_plan = st.selectbox("Plano (encontrado na data)", plan_names, index=0, key="agg_plan_select")
-            files = day_idx.get(sel_plan, [])
+            files = [chosen_dir / fn for fn in day_idx_names.get(sel_plan, [])]
             kind2 = st.selectbox("Formato (agregados)", ["docx", "md", "html"], index=1, key="kind_agg")
 
             # Nome sugerido (sem extensão)
@@ -204,27 +201,139 @@ def _generate_report(
         # Garantir deep-mode ligado para relatório (não offline)
         os.environ["DOU_OFFLINE_REPORT"] = "0"
 
-        # Browser fallback desabilitado no UI Streamlit (Playwright sync_api
-        # não funciona bem dentro do event loop do Streamlit)
-        report_from_aggregated(
-            [str(p) for p in files],
-            kind,
-            str(out_path),
-            date_label=sel_day,
-            secao_label=secao_label,
-            summary_lines=7,
-            summary_mode="center",
-            summary_keywords=None,
-            order_desc_by_date=True,
-            fetch_parallel=8,
-            fetch_timeout_sec=30,
-            fetch_force_refresh=True,
-            fetch_browser_fallback=False,
-            short_len_threshold=800,
-        )
+        # Preferir subprocesso para evitar travas no event loop do Streamlit
+        use_subproc = (os.environ.get("DOU_UI_REPORT_SUBPROCESS", "1") or "1").strip().lower() in ("1", "true", "yes")
+        timeout_env = os.environ.get("DOU_UI_REPORT_TIMEOUT_SEC", "900")
+        try:
+            timeout_sec = int(timeout_env) if str(timeout_env).strip() else 900
+        except Exception:
+            timeout_sec = 900
 
-        data = out_path.read_bytes()
+        if use_subproc:
+            repo_root = Path(__file__).resolve().parents[3]
+            src_dir = (repo_root / "src").resolve()
+            env = os.environ.copy()
+            existing_pp = env.get("PYTHONPATH", "")
+            sep = ";" if os.name == "nt" else ":"
+            if str(src_dir) not in (existing_pp.split(sep) if existing_pp else []):
+                env["PYTHONPATH"] = (str(src_dir) + sep + existing_pp) if existing_pp else str(src_dir)
+
+            args = [
+                "--kind",
+                str(kind),
+                "--out",
+                str(out_path),
+                "--files",
+                *[str(p) for p in files],
+                "--date",
+                str(sel_day),
+                "--secao",
+                str(secao_label or ""),
+                "--summary-lines",
+                "7",
+                "--summary-mode",
+                "center",
+                "--fetch-parallel",
+                "8",
+                "--fetch-timeout-sec",
+                "30",
+                "--short-len-threshold",
+                "800",
+            ]
+            cmd = python_module_cmd("dou_snaptrack.cli.reporting.entry", args)
+
+            running = start_subprocess_job(
+                results_root=results_root,
+                cmd=cmd,
+                env=env,
+                cwd=repo_root,
+                timeout_sec=max(30, timeout_sec),
+                meta={"op": "report", "kind": kind, "out": str(out_path), "day": str(sel_day)},
+            )
+
+            status_ph = st.empty()
+            log_ph = st.empty()
+            started = time.time()
+            poll_interval = 0.5
+            max_bytes = 16_384
+
+            while True:
+                rc = running.proc.poll()
+                elapsed = time.time() - started
+                status_ph.caption(
+                    f"Job {running.job_id} em execução… {elapsed:.1f}s | log: {running.log_path.name}"
+                )
+                tail = read_job_log_tail(running, max_bytes=max_bytes)
+                if tail:
+                    log_ph.code(tail)
+
+                if rc is not None:
+                    break
+
+                if elapsed > max(30, timeout_sec):
+                    try:
+                        running.proc.terminate()
+                    except Exception:
+                        pass
+                    break
+
+                time.sleep(poll_interval)
+
+            job = finalize_subprocess_job(running)
+            if not job.ok:
+                msg = job.stdout_tail or f"subprocess returncode={job.returncode}"
+                st.error(f"Falha ao gerar boletim (subprocess): {msg}")
+                return
+        else:
+            # Browser fallback desabilitado no UI Streamlit (Playwright sync_api
+            # não funciona bem dentro do event loop do Streamlit)
+            report_from_aggregated(
+                [str(p) for p in files],
+                kind,
+                str(out_path),
+                date_label=sel_day,
+                secao_label=secao_label,
+                summary_lines=7,
+                summary_mode="center",
+                summary_keywords=None,
+                order_desc_by_date=True,
+                fetch_parallel=8,
+                fetch_timeout_sec=30,
+                fetch_force_refresh=True,
+                fetch_browser_fallback=False,
+                short_len_threshold=800,
+            )
+
+        # Sempre confirmar geração antes de preparar download
         st.success(f"Boletim gerado: {out_path}")
+
+        # Preparar download com tolerância a arquivos grandes (evita travar o Streamlit)
+        max_mb_env = os.environ.get("DOU_UI_MAX_DOWNLOAD_MB", "25")
+        try:
+            max_mb = int(max_mb_env) if str(max_mb_env).strip() else 25
+        except Exception:
+            max_mb = 25
+
+        try:
+            size_bytes = out_path.stat().st_size
+        except Exception:
+            size_bytes = 0
+
+        if size_bytes and max_mb > 0 and size_bytes > max_mb * 1024 * 1024:
+            st.warning(
+                f"O arquivo é grande ({size_bytes/1024/1024:.1f} MB) e não será carregado para download automático. "
+                "Abra o arquivo diretamente na pasta 'resultados/'."
+            )
+            return
+
+        try:
+            data = out_path.read_bytes()
+        except Exception as e:
+            st.warning(
+                f"Não foi possível preparar o download automático ({e}). "
+                "Abra o arquivo diretamente na pasta 'resultados/'."
+            )
+            return
 
         # Guardar em memória para download e remoção posterior do arquivo físico
         try:
@@ -234,9 +343,7 @@ def _generate_report(
             st.info("Use o botão abaixo para baixar; o arquivo local será removido após o download.")
         except Exception:
             # Fallback: se sessão não aceitar, manter botão direto (sem remoção automática)
-            st.download_button(
-                "Baixar boletim (plano)", data=data, file_name=out_path.name, key="dl_fallback"
-            )
+            st.download_button("Baixar boletim (plano)", data=data, file_name=out_path.name, key="dl_fallback")
     except Exception as e:
         st.error(f"Falha ao gerar boletim por plano: {e}")
 

@@ -34,7 +34,10 @@ def main() -> int:
         result = _worker_process(payload)
     except Exception as e:
         print(f"[worker_entry] Execução do worker falhou: {e}")
-        result = {"ok": 0, "fail": len(payload.get("indices", [])), "items_total": 0, "outputs": [], "error": str(e)}
+        fail_count = len(payload.get("indices", []) or [])
+        if not fail_count:
+            fail_count = len(payload.get("bucket_jobs", []) or [])
+        result = {"ok": 0, "fail": fail_count, "items_total": 0, "outputs": [], "error": str(e)}
 
     try:
         out_path.parent.mkdir(parents=True, exist_ok=True)

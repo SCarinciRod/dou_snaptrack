@@ -58,12 +58,21 @@ def wait_for_options_loaded(frame, min_count: int = 1, timeout_ms: int = 500) ->
 
     Caso de uso comum: após abrir dropdown, esperar opções aparecerem.
     """
+    # Alguns dropdowns (ex.: Selectize) não usam [role=option].
+    # Preferir os seletores centrais quando disponíveis.
+    try:
+        from dou_utils.selection import OPTION_SELECTORS  # type: ignore
+
+        option_css = ", ".join(OPTION_SELECTORS)
+    except Exception:
+        option_css = "[role=option]"
+
     return wait_for_condition(
         frame,
-        lambda: len(frame.locator('[role=option]').all()) >= min_count,
+        lambda: frame.locator(option_css).count() >= min_count,
         timeout_ms=timeout_ms,
         poll_ms=50,
-        error_msg=f"Timeout esperando {min_count} opções"
+        error_msg=f"Timeout esperando {min_count} opções",
     )
 
 
