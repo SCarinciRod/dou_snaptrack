@@ -26,6 +26,7 @@ import json
 import os
 import sys
 from datetime import datetime
+from datetime import date as _date
 from pathlib import Path
 
 # IDs dos selectize do E-Agendas
@@ -135,7 +136,8 @@ def main():
 
                     # Navigate and wait
                     print("[DEBUG] Navegando para E-Agendas...", file=sys.stderr)
-                    page.goto(base_url, timeout=30000, wait_until="networkidle")
+                    # networkidle pode travar em alguns ambientes; domcontentloaded tende a ser mais previsível
+                    page.goto(base_url, timeout=30000, wait_until="domcontentloaded")
 
                     # Wait for initialization
                     if not wait_for_angular_and_selectize(page, DD_ORGAO_ID):
@@ -157,6 +159,48 @@ def main():
                         print(f"[WARNING] Calendário não encontrado para {agente_label}", file=sys.stderr)
                         continue
                     print("[DEBUG] ✓ Calendário encontrado", file=sys.stderr)
+
+                    def _get_visible_calendar_date_range() -> tuple[_date | None, _date | None]:
+                        """Retorna o intervalo (min,max) de datas visíveis na grade do calendário."""
+                        res = page.evaluate(
+                            """() => {
+                                const cells = Array.from(document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]'));
+                                const dates = cells.map(c => c.getAttribute('data-date')).filter(Boolean).sort();
+                                if (!dates.length) return { min: null, max: null };
+                                return { min: dates[0], max: dates[dates.length - 1] };
+                            }"""
+                        )
+                        try:
+                            min_s = (res or {}).get("min")
+                            max_s = (res or {}).get("max")
+                            return (
+                                _date.fromisoformat(min_s) if min_s else None,
+                                _date.fromisoformat(max_s) if max_s else None,
+                            )
+                        except Exception:
+                            return None, None
+
+                    def _goto_month_containing(target: _date) -> None:
+                        """Navega (prev/next) até o mês/grade que contenha a data alvo."""
+                        for _ in range(48):
+                            dmin, dmax = _get_visible_calendar_date_range()
+                            if dmin is None or dmax is None:
+                                return
+                            if target < dmin:
+                                btn = page.locator('.fc-prev-button').first
+                                if btn.count() > 0:
+                                    btn.click()
+                                    page.wait_for_timeout(1200)
+                                    continue
+                                return
+                            if target > dmax:
+                                btn = page.locator('.fc-next-button').first
+                                if btn.count() > 0:
+                                    btn.click()
+                                    page.wait_for_timeout(1200)
+                                    continue
+                                return
+                            return
 
                     # Função para extrair eventos do calendário visível
                     def extract_events_from_visible_calendar():
@@ -199,43 +243,26 @@ def main():
                             return eventos;
                         }""", {'startDate': str(start_date), 'endDate': str(end_date)})
 
-                    # Coletar eventos de todos os meses necessários
+                    # Coletar eventos em todas as grades necessárias para cobrir start_date..end_date
                     eventos_por_dia = {}
-                    meses_visitados = set()
+                    # 1) Ir para um mês que contenha o fim do período (mais robusto quando período não é o mês corrente)
+                    _goto_month_containing(end_date)
 
-                    # Obter mês atual do calendário
-                    def get_calendar_month():
-                        return page.evaluate("() => document.querySelector('.fc-toolbar-title')?.textContent || ''")
+                    # 2) Coletar mês corrente e voltar até cobrir o início do período
+                    for _ in range(48):
+                        dmin, _ = _get_visible_calendar_date_range()
+                        eventos = extract_events_from_visible_calendar()
+                        eventos_por_dia.update(eventos)
 
-                    current_month = get_calendar_month()
-                    meses_visitados.add(current_month)
-
-                    # Coletar eventos do mês atual
-                    eventos = extract_events_from_visible_calendar()
-                    eventos_por_dia.update(eventos)
-                    print(f"[DEBUG] {current_month}: {len(eventos)} dias com eventos", file=sys.stderr)
-
-                    # Determinar quantos meses precisamos navegar para trás
-                    # Para cobrir o período, precisamos ir até o mês de start_date
-                    months_to_go_back = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
-
-                    for _ in range(months_to_go_back):
-                        # Clicar no botão "anterior"
-                        try:
-                            prev_btn = page.locator('.fc-prev-button').first
-                            if prev_btn.count() > 0:
-                                prev_btn.click()
-                                page.wait_for_timeout(1500)
-
-                                current_month = get_calendar_month()
-                                if current_month and current_month not in meses_visitados:
-                                    meses_visitados.add(current_month)
-                                    eventos = extract_events_from_visible_calendar()
-                                    eventos_por_dia.update(eventos)
-                                    print(f"[DEBUG] {current_month}: {len(eventos)} dias com eventos", file=sys.stderr)
-                        except Exception as nav_err:
-                            print(f"[DEBUG] Erro navegando mês: {nav_err}", file=sys.stderr)
+                        # Se já cobrimos o mês do start_date, podemos parar
+                        if dmin is None or start_date >= dmin:
                             break
+
+                        prev_btn = page.locator('.fc-prev-button').first
+                        if prev_btn.count() == 0:
+                            break
+                        prev_btn.click()
+                        page.wait_for_timeout(1200)
 
                     # Contar total de eventos
                     eventos_count = sum(len(evts) for evts in eventos_por_dia.values())

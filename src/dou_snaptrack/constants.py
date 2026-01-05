@@ -82,8 +82,9 @@ LEVEL_IDS = {
 # E-AGENDAS SELECTORS AND IDS
 # =============================================================================
 EAGENDAS_LEVEL_IDS = {
-    1: [],  # A definir após mapeamento
-    2: [],  # A definir após mapeamento
+    # Modelo simplificado: Órgão (N1) -> Agente (N2)
+    1: ["filtro_orgao_entidade"],
+    2: ["filtro_servidor"],
 }
 
 EAGENDAS_SELECTORS = {

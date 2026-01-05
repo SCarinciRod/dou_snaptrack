@@ -765,11 +765,27 @@ if (-not $SkipSmoke) {
         }
       }
     }
-  # Temporariamente desabilitar verificação TLS para contornar proxies/certificados durante download dos browsers
+  # TLS bypass (NODE_TLS_REJECT_UNAUTHORIZED=0) é útil em ambientes com proxy/CA corporativa,
+  # mas deve ser opt-in e temporário.
   $prevNodeTls = $env:NODE_TLS_REJECT_UNAUTHORIZED
   $prevPwBrowsers = $env:PLAYWRIGHT_BROWSERS_PATH
-  $env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
-  Write-Host "[Playwright] NODE_TLS_REJECT_UNAUTHORIZED=0 (temporario para download)"
+  $tlsBypassApplied = $false
+  $allowTlsBypass = $false
+  try {
+    $v = ($env:DOU_UI_ALLOW_TLS_BYPASS)
+    if ($v) {
+      $vv = $v.Trim().ToLower()
+      if ($vv -in @('1','true','yes')) { $allowTlsBypass = $true }
+    }
+  } catch { $allowTlsBypass = $false }
+
+  function Enable-TlsBypassIfNeeded {
+    if (-not $tlsBypassApplied) {
+      $env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
+      $script:tlsBypassApplied = $true
+      Write-Host "[Playwright] NODE_TLS_REJECT_UNAUTHORIZED=0 (temporario para download)"
+    }
+  }
 
   # Direcionar cache de navegadores para dentro do projeto/venv quando possivel (evita pastas do Roaming)
   if ($usingVenv) {
@@ -786,6 +802,8 @@ if (-not $SkipSmoke) {
   # --with-deps é aplicável a Linux; em Windows pode causar falha.
   $installArgs = "install chromium"
   if (-not $onWindows) { $installArgs += " --with-deps" }
+
+  if ($allowTlsBypass) { Enable-TlsBypassIfNeeded }
 
   $cmd = "& `"$py`" -m playwright $installArgs"
   $browserInstall = Run-GetResult $cmd 600
@@ -824,6 +842,16 @@ if (-not $SkipSmoke) {
     Write-Warning "[Playwright] Falha ao instalar navegadores. Saída (resumo):"
     if ($browserInstall.Stdout) { Write-Warning ($browserInstall.Stdout | Select-Object -First 20) }
     if ($browserInstall.Stderr) { Write-Warning ($browserInstall.Stderr | Select-Object -First 20) }
+
+    # Se não foi opt-in, mas parece erro de TLS/certificado, tentar UMA vez com bypass
+    if (-not $allowTlsBypass) {
+      $tlsHints = ($browserInstall.Stdout + "`n" + $browserInstall.Stderr)
+      if ($tlsHints -match '(?i)certificate|self signed|unable to get local issuer|CERT_|SSL|TLS') {
+        Write-Warning "[Playwright] Sinais de erro TLS/certificado detectados. Retentando com TLS bypass (temporario)…"
+        Enable-TlsBypassIfNeeded
+      }
+    }
+
     # Segunda tentativa sem flags adicionais (fallback)
     $cmd = "& `"$py`" -m playwright install chromium"
     $browserInstall2 = Run-GetResult $cmd 600
@@ -838,14 +866,16 @@ if (-not $SkipSmoke) {
     }
   }
 
-  # Restaurar configuracao TLS (seguranca)
-  if ($null -ne $prevNodeTls -and $prevNodeTls -ne "") {
-    $env:NODE_TLS_REJECT_UNAUTHORIZED = $prevNodeTls
-  } else {
-    $env:NODE_TLS_REJECT_UNAUTHORIZED = "1"
+  # Restaurar configuracao TLS (seguranca) somente se alteramos
+  if ($tlsBypassApplied) {
+    if ($null -ne $prevNodeTls -and $prevNodeTls -ne "") {
+      $env:NODE_TLS_REJECT_UNAUTHORIZED = $prevNodeTls
+    } else {
+      $env:NODE_TLS_REJECT_UNAUTHORIZED = "1"
+    }
+    Write-Host "[Playwright] NODE_TLS_REJECT_UNAUTHORIZED restaurado para $($env:NODE_TLS_REJECT_UNAUTHORIZED)"
   }
   if ($prevPwBrowsers) { $env:PLAYWRIGHT_BROWSERS_PATH = $prevPwBrowsers } else { try { $env:PLAYWRIGHT_BROWSERS_PATH = $null } catch {} }
-  Write-Host "[Playwright] NODE_TLS_REJECT_UNAUTHORIZED restaurado para $($env:NODE_TLS_REJECT_UNAUTHORIZED)"
   } else {
     Write-Warning "[Playwright] Modulo ausente. Pulei instalacao de navegadores."
   }

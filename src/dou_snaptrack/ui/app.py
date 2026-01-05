@@ -202,7 +202,8 @@ def get_sanitize_filename():
 @lru_cache(maxsize=1)
 def get_plan_live_eagendas():
     """Lazy import of plan_live_eagendas_async module."""
-    from dou_snaptrack.cli import plan_live_eagendas_async
+    # Backward-compatible alias: historically this lived at dou_snaptrack.cli.plan_live_eagendas_async
+    from dou_snaptrack.cli.plan import live_eagendas_async as plan_live_eagendas_async
     return plan_live_eagendas_async
 
 

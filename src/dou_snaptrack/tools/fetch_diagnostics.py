@@ -310,7 +310,7 @@ except:
 # Fase 5: Navigate to E-Agendas
 timer.start("navigation")
 page = browser.new_page()
-page.goto("https://eagendas.planalto.gov.br/eagendas/index.asp", wait_until="domcontentloaded")
+page.goto("https://eagendas.cgu.gov.br/", wait_until="domcontentloaded")
 timer.stop()
 
 # Fase 6: Wait for Angular/Selectize
@@ -328,7 +328,7 @@ except:
 timer.start("wait_selectize")
 try:
     page.wait_for_function(
-        "() => document.querySelector('.selectize-input') !== null",
+        "() => { const el = document.getElementById('filtro_orgao_entidade'); return !!(el && el.selectize && Object.keys(el.selectize.options||{}).length > 5); }",
         timeout=8000
     )
     timer.stop()
@@ -341,9 +341,20 @@ timer.start("extract_options")
 try:
     options = page.evaluate("""
         () => {
-            const select = document.getElementById('selOrgao');
-            if (!select) return [];
-            return Array.from(select.options).slice(0, 5).map(o => ({value: o.value, text: o.text}));
+            const el = document.getElementById('filtro_orgao_entidade');
+            if (!el || !el.selectize) return [];
+            const s = el.selectize;
+            const out = [];
+            const opts = s.options || {};
+            for (const [val, raw] of Object.entries(opts)) {
+                const v = String(val ?? '');
+                const t = (raw && (raw.text || raw.label || raw.nome || raw.name)) || v;
+                if (!t) continue;
+                if (String(t).toLowerCase().includes('selecione')) continue;
+                out.push({ value: v, text: String(t) });
+                if (out.length >= 5) break;
+            }
+            return out;
         }
     """)
     timer.stop()
