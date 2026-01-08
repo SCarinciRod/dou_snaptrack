@@ -347,8 +347,19 @@ def _write_aggregated_file(
     payload["total"] = len(payload.get("itens", []))
     safe_plan = sanitize_filename(plan_name)
     date_lab = (date or "").replace("/", "-")
-    out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-    out_path = out_dir / out_name
+
+    # If the same plan is executed multiple times for the same day, do not overwrite.
+    # Keep the date as the last underscore part to preserve UI indexing.
+    base_name = f"{safe_plan}_{secao_label}_{date_lab}"
+    out_path = out_dir / f"{base_name}.json"
+    if out_path.exists():
+        n = 2
+        while True:
+            candidate = out_dir / f"{safe_plan}_{n}_{secao_label}_{date_lab}.json"
+            if not candidate.exists():
+                out_path = candidate
+                break
+            n += 1
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return str(out_path)
 
@@ -437,8 +448,18 @@ def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -
         secao_label = (secao_tracker[0] or "DO").strip()
         for date, w in writers.items():
             date_lab = (date or "").replace("/", "-")
-            out_name = f"{safe_plan}_{secao_label}_{date_lab or 'unknown'}.json"
-            out_path = out_dir / out_name
+            date_lab = date_lab or "unknown"
+
+            # Collision-safe naming: plan_2_DO1_<date>.json, plan_3_... etc
+            out_path = out_dir / f"{safe_plan}_{secao_label}_{date_lab}.json"
+            if out_path.exists():
+                n = 2
+                while True:
+                    candidate = out_dir / f"{safe_plan}_{n}_{secao_label}_{date_lab}.json"
+                    if not candidate.exists():
+                        out_path = candidate
+                        break
+                    n += 1
 
             secao = secao_by_date.get(date, "")
             total = int(w.get("count") or 0)

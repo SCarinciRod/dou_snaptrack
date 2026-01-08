@@ -629,9 +629,18 @@ if (-not $succ) {
   Write-Host "[Install] Pacote instalado com sucesso!"
     $succ = $true
   } else {
-    $msg = "[Install] Falha ao instalar o pacote em modo usuario.`n" +
-           "Exit Code: {0}`n`nSTDOUT:`n{1}`n`nSTDERR:`n{2}" -f $r.ExitCode, $r.Stdout, $r.Stderr
-    throw $msg
+    # Alguns ambientes retornam exit code não-zero por warnings/interceptação, mesmo com o pacote instalável.
+    # Antes de abortar, validar import do pacote.
+    Write-Warning "[Install] pip retornou exit code nao-zero. Validando import do pacote antes de abortar..."
+    $imp = Run-GetResult "& `"$py`" -c `"import dou_snaptrack, dou_utils; print('IMPORT_OK')`"" 30
+    if ($imp.ExitCode -eq 0 -and ($imp.Stdout -match 'IMPORT_OK')) {
+      Write-Host "[Install] Import OK. Prosseguindo apesar do exit code do pip."
+      $succ = $true
+    } else {
+      $msg = "[Install] Falha ao instalar o pacote em modo usuario.`n" +
+             "Exit Code: {0}`n`nSTDOUT:`n{1}`n`nSTDERR:`n{2}" -f $r.ExitCode, $r.Stdout, $r.Stderr
+      throw $msg
+    }
   }
 }
 

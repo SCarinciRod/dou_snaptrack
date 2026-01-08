@@ -398,6 +398,14 @@ def run_batch(playwright, args, summary: SummaryConfig) -> None:
     cfg_path = Path(args.config)
     txt = cfg_path.read_text(encoding="utf-8-sig")
     cfg = json.loads(txt)
+
+    # Prefer explicit plan name from config (UI injects it). Only default to filename stem if missing.
+    # This avoids temp configs like "_run_cfg.json" overriding the intended plan name.
+    existing_plan_name = (cfg.get("plan_name") or "").strip()
+    if not existing_plan_name:
+        plan_file_stem = (cfg_path.stem or "").strip()
+        if plan_file_stem:
+            cfg["plan_name"] = plan_file_stem
     out_dir = Path(args.out_dir or ".")
     out_dir.mkdir(parents=True, exist_ok=True)
 
