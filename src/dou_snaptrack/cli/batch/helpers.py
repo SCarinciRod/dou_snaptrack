@@ -309,10 +309,22 @@ def _load_and_aggregate_output_file(
     if not secao_tracker[0] and secao:
         secao_tracker[0] = secao
 
+    # Propagar metadados do job para cada item (para boletim por órgão/sub-organização)
+    job_key1 = str(data.get("key1") or "").strip()
+    job_key2 = str(data.get("key2") or "").strip()
+    if job_key2.lower().startswith("todos"):
+        job_key2 = ""
+
     # Process items
     items = data.get("itens", []) or []
     for it in items:
         _normalize_item_detail_url(it)
+        if not isinstance(it, dict):
+            continue
+        if job_key1 and not (it.get("orgao") or "").strip():
+            it["orgao"] = job_key1
+        if job_key2 and not (it.get("sub_orgao") or "").strip():
+            it["sub_orgao"] = job_key2
 
     agg[date]["itens"].extend(items)
 
@@ -391,12 +403,20 @@ def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -
                 secao_by_date[date] = secao
 
             items = data.get("itens", []) or []
+            job_key1 = str(data.get("key1") or "").strip()
+            job_key2 = str(data.get("key2") or "").strip()
+            if job_key2.lower().startswith("todos"):
+                job_key2 = ""
             w = _get_writer(date)
             fh = w["fh"]
             for it in items:
                 if not isinstance(it, dict):
                     continue
                 _normalize_item_detail_url(it)
+                if job_key1 and not (it.get("orgao") or "").strip():
+                    it["orgao"] = job_key1
+                if job_key2 and not (it.get("sub_orgao") or "").strip():
+                    it["sub_orgao"] = job_key2
                 if not w["first"]:
                     fh.write(",")
                 else:

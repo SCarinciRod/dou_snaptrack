@@ -714,7 +714,9 @@ def render_execution_section(
                         status_text.text("✅ Coleta concluída!")
 
                         timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
-                        json_path = Path("resultados") / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
+                        # Guardar o JSON apenas como artefato temporário (cache local),
+                        # pois após o usuário baixar o DOCX não há necessidade de reuso.
+                        json_path = Path("logs") / "_cache" / f"eagendas_eventos_{periodo_iso['inicio']}_{periodo_iso['fim']}_{timestamp}.json"
                         json_path.parent.mkdir(parents=True, exist_ok=True)
 
                         with open(json_path, "w", encoding="utf-8") as f:
@@ -740,7 +742,7 @@ def render_execution_section(
                             else:
                                 st.metric("Workers", workers_usados)
 
-                        st.info(f"📁 Dados salvos em: `{json_path.name}`")
+                        st.info("📊 Dados coletados prontos para gerar DOCX")
                         st.session_state["last_eagendas_json"] = str(json_path)
 
                         if stderr:
@@ -843,22 +845,52 @@ def render_document_generator(date_start: _date, date_end: _date) -> None:
                         st.metric("Eventos", result["events"])
                         st.caption(result["period"])
 
-                        with open(out_path, "rb") as f:
-                            st.download_button(
-                                label="⬇️ Baixar Documento DOCX",
-                                data=f,
-                                file_name=out_path.name,
-                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                use_container_width=True
-                            )
-
+                        doc_bytes = None
                         try:
                             with open(out_path, "rb") as _df:
-                                st.session_state["last_eagendas_doc_bytes"] = _df.read()
+                                doc_bytes = _df.read()
+                        except Exception:
+                            doc_bytes = None
+
+                        if doc_bytes is None:
+                            st.warning("Não foi possível ler o DOCX gerado para download")
+                        else:
+                            dl_clicked = st.download_button(
+                                label="⬇️ Baixar Documento DOCX",
+                                data=doc_bytes,
+                                file_name=out_path.name,
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                use_container_width=True,
+                                key="dl_eagendas_doc_immediate",
+                            )
+
+                            # Guardar em sessão para permitir re-download em reruns.
+                            st.session_state["last_eagendas_doc_bytes"] = doc_bytes
                             st.session_state["last_eagendas_doc_name"] = out_path.name
                             st.session_state["last_eagendas_doc_path"] = str(out_path)
-                        except Exception:
-                            pass
+
+                            # Ciclo de criação/eliminação: após baixar, remover DOCX e JSON.
+                            if dl_clicked:
+                                try:
+                                    Path(out_path).unlink(missing_ok=True)
+                                    st.toast("🗑️ Arquivo DOCX removido do servidor")
+                                except Exception as _e:
+                                    st.warning(f"Não foi possível remover o arquivo local: {out_path} — {_e}")
+
+                                if not is_example:
+                                    try:
+                                        if "last_eagendas_json" in st.session_state:
+                                            json_path_str = st.session_state["last_eagendas_json"]
+                                            json_p = Path(json_path_str)
+                                            if json_p.exists():
+                                                json_p.unlink(missing_ok=True)
+                                                st.toast(f"🗑️ JSON de dados ({json_p.name}) removido")
+                                        st.session_state.pop("last_eagendas_json", None)
+                                    except Exception:
+                                        pass
+
+                                for k in ("last_eagendas_doc_bytes", "last_eagendas_doc_name", "last_eagendas_doc_path"):
+                                    st.session_state.pop(k, None)
 
                     except Exception as e:
                         st.error(f"❌ Erro ao gerar documento: {e}")

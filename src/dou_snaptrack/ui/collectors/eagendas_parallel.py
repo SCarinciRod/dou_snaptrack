@@ -36,6 +36,13 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
+# Melhorar legibilidade de logs no Windows (evita '?' em acentos)
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 # IDs dos selectize do E-Agendas
 DD_ORGAO_ID = "filtro_orgao_entidade"
 DD_AGENTE_ID = "filtro_servidor"
@@ -71,11 +78,12 @@ async def collect_for_agent(
     orgao_value = query.get('n1_value', '')
 
     prefix = f"[W{worker_id}]"
+    base_url = "https://eagendas.cgu.gov.br/"
 
     try:
         # Sempre navegar para página inicial (cada coleta é independente)
         print(f"{prefix} Navegando para E-Agendas...", file=sys.stderr)
-        await page.goto("https://eagendas.cgu.gov.br/", timeout=30000, wait_until="domcontentloaded")
+        await page.goto(base_url, timeout=30000, wait_until="domcontentloaded")
 
         # WAIT CONDICIONAL: Aguardar selectize de órgãos inicializar (substitui wait fixo)
         wait_orgao_js = f"() => {{ const el = document.getElementById('{DD_ORGAO_ID}'); return el?.selectize && Object.keys(el.selectize.options||{{}}).length > 5; }}"
@@ -85,7 +93,9 @@ async def collect_for_agent(
             print(f"{prefix} Selectize não inicializou: {e}", file=sys.stderr)
             return None
 
-        # Selecionar órgão via JavaScript API (mesmo método que versão sync)
+        # Selecionar órgão via Selectize.
+        # IMPORTANTE: não disparar eventos adicionais aqui; isso pode atrapalhar
+        # o auto-preenchimento (cargo) no fluxo do site.
         print(f"{prefix} Selecionando órgão: {orgao_label[:30]}...", file=sys.stderr)
         orgao_selected = await page.evaluate("""(args) => {
             const { id, value } = args;
@@ -117,7 +127,9 @@ async def collect_for_agent(
             print(f"{prefix} Lista de agentes não populou", file=sys.stderr)
             return None
 
-        # Selecionar agente via JavaScript API
+        # Selecionar agente via Selectize.
+        # IMPORTANTE: não disparar eventos adicionais aqui; o site usa este
+        # onchange para auto-preencher cargo e habilitar o botão.
         print(f"{prefix} Selecionando agente: {agente_label[:30]}...", file=sys.stderr)
         agente_selected = await page.evaluate("""(args) => {
             const { id, value } = args;
@@ -135,90 +147,115 @@ async def collect_for_agent(
         agente_check = await page.evaluate(f"() => document.getElementById('{DD_AGENTE_ID}')?.selectize?.getValue()")
         print(f"{prefix} Agente selecionado: {agente_check} (esperado: {agente_value})", file=sys.stderr)
 
-        # IMPORTANTE: Delay para Angular processar ng-change e auto-popular cargo
-        # O site E-Agendas usa AngularJS que precisa de tempo para:
-        # 1. Processar o evento change do selectize
-        # 2. Executar ng-change="onUpdateServidor()"
-        # 3. Fazer requisição HTTP para buscar cargo do agente
-        # 4. Popular o selectize de cargo com o resultado
-        # 2000ms é necessário para cobrir a latência de rede
-        await page.wait_for_timeout(2000)
-
         # Remover cookie bar se presente (fazer logo para não atrapalhar)
         await page.evaluate("document.querySelector('.br-cookiebar')?.remove()")
 
-        # OTIMIZAÇÃO: Aguardar cargo E botão ficarem prontos em um único wait
-        # Isso combina a espera do cargo + espera do botão em uma operação
-        ready_js = """() => {
-            const cargo = document.getElementById('filtro_cargo');
+        # A partir daqui, NÃO interagir com o campo de cargo.
+        # O site auto-preenche cargo (quando aplicável) e habilita o botão.
+        # Nossa responsabilidade é apenas esperar passivamente.
+        btn_ready = False
+
+        btn_ready_js = """() => {
             const btn = document.querySelector('button[ng-click*="submit"]');
-            // Retorna true quando cargo tem valor E botão está habilitado
-            const cargoReady = cargo?.selectize?.getValue()?.length > 0;
-            const btnReady = btn && !btn.disabled;
-            return cargoReady && btnReady;
+            return !!(btn && !btn.disabled);
         }"""
 
-        try:
-            # Esperar até 15s para cargo+botão ficarem prontos (aumentado de 12s)
-            # NOTA: polling=500 é necessário para dar tempo ao Angular processar o ng-change
-            # e auto-popular o campo cargo. Polling muito rápido bloqueia o Angular.
-            await page.wait_for_function(ready_js, timeout=15000, polling=500)
-            print(f"{prefix} ✓ Cargo + Botão prontos", file=sys.stderr)
-        except Exception:
-            # Fallback: tentar selecionar cargo manualmente se não auto-populou
-            # Primeiro esperar um pouco mais para as opções carregarem
-            await page.wait_for_timeout(1000)
+        async def _dump_form_state() -> dict:
+            return await page.evaluate(
+                """() => {
+                    const out = {};
+                    const btns = Array.from(document.querySelectorAll('button[ng-click*="submit"]'));
+                    out.submitButtons = btns.map(b => ({
+                        text: (b.innerText || '').trim().slice(0, 80),
+                        disabled: !!b.disabled,
+                        display: (window.getComputedStyle(b).display || ''),
+                        visibility: (window.getComputedStyle(b).visibility || ''),
+                    }));
 
-            cargo_options = await page.evaluate("""() => {
-                const cargo = document.getElementById('filtro_cargo');
-                if (!cargo || !cargo.selectize) return [];
-                return Object.keys(cargo.selectize.options || {});
-            }""")
-
-            if cargo_options:
-                print(f"{prefix} ⚠ Selecionando cargo manualmente ({len(cargo_options)} opções)...", file=sys.stderr)
-                await page.evaluate("""() => {
+                    const org = document.getElementById('filtro_orgao_entidade');
+                    const srv = document.getElementById('filtro_servidor');
                     const cargo = document.getElementById('filtro_cargo');
-                    if (cargo && cargo.selectize) {
-                        const opts = Object.keys(cargo.selectize.options || {});
-                        if (opts.length > 0) {
-                            cargo.selectize.setValue(opts[0], false);
-                        }
+
+                    function sz(el) {
+                        if (!el || !el.selectize) return null;
+                        const s = el.selectize;
+                        let value = '';
+                        try { value = String((s.getValue && s.getValue()) || ''); } catch (e) { value = ''; }
+                        const optCount = Object.keys(s.options || {}).length;
+                        return { value, optCount };
                     }
-                }""")
-                # Aguardar Angular processar a seleção manual
-                await page.wait_for_timeout(500)
-            else:
-                print(f"{prefix} ⚠ Sem cargos disponíveis, tentando novamente...", file=sys.stderr)
-                # Última tentativa: esperar mais e verificar novamente
-                await page.wait_for_timeout(2000)
-                cargo_options = await page.evaluate("""() => {
-                    const cargo = document.getElementById('filtro_cargo');
-                    if (!cargo || !cargo.selectize) return [];
-                    return Object.keys(cargo.selectize.options || {});
-                }""")
-                if cargo_options:
-                    await page.evaluate("""() => {
-                        const cargo = document.getElementById('filtro_cargo');
-                        if (cargo && cargo.selectize) {
-                            const opts = Object.keys(cargo.selectize.options || {});
-                            if (opts.length > 0) {
-                                cargo.selectize.setValue(opts[0], false);
-                            }
-                        }
-                    }""")
-                    await page.wait_for_timeout(500)
-                    print(f"{prefix} ✓ Cargo encontrado na segunda tentativa", file=sys.stderr)
-                else:
-                    print(f"{prefix} ✗ Cargo não disponível após múltiplas tentativas", file=sys.stderr)
 
-        # Verificar botão - já deve estar pronto após o wait acima, mas verificar novamente
-        btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\"submit\"]'); return btn && !btn.disabled; }"
-        try:
-            await page.wait_for_function(btn_enabled_js, timeout=5000, polling=500)
-        except Exception:
-            print(f"{prefix} ⚠ Botão ainda desabilitado, pulando agente...", file=sys.stderr)
-            return None
+                    out.selectize = {
+                        orgao: sz(org),
+                        agente: sz(srv),
+                        cargo: sz(cargo),
+                        cargoExists: !!cargo,
+                        cargoHasSelectize: !!(cargo && cargo.selectize),
+                    };
+
+                    // Capturar possíveis mensagens/alertas visíveis (somente leitura)
+                    const alerts = Array.from(document.querySelectorAll('.alert, .text-danger, .invalid-feedback'))
+                        .map(el => (el.innerText || '').trim())
+                        .filter(t => t.length > 0)
+                        .slice(0, 5);
+                    out.alerts = alerts;
+
+                    // Indicadores de loading comuns
+                    out.loading = {
+                        hasSpinner: !!document.querySelector('.spinner, .loading, .br-loading, .ngx-spinner'),
+                    };
+
+                    return out;
+                }"""
+            )
+
+        async def _wait_for_button(timeout_ms: int) -> bool:
+            try:
+                await page.wait_for_function(btn_ready_js, timeout=timeout_ms, polling=500)
+                print(f"{prefix} ✓ Botão pronto", file=sys.stderr)
+                return True
+            except Exception:
+                return False
+
+        # 1) Espera passiva inicial
+        btn_ready = await _wait_for_button(60000)
+
+        # 2) Retry seguro (sem tocar em cargo): re-aplicar setValue do agente uma vez.
+        # Alguns casos parecem não disparar o fluxo de auto-preenchimento; repetir a seleção
+        # é o mais próximo possível da ação do usuário, sem sobrescrever cargo.
+        if not btn_ready:
+            try:
+                await page.evaluate(
+                    """(args) => {
+                        const { id, value } = args;
+                        const el = document.getElementById(id);
+                        if (!el || !el.selectize) return false;
+                        el.selectize.setValue(String(value), false);
+                        return true;
+                    }""",
+                    {"id": DD_AGENTE_ID, "value": agente_value},
+                )
+            except Exception:
+                pass
+            btn_ready = await _wait_for_button(30000)
+
+        # Se ainda não habilitou, registrar diagnóstico (somente leitura) e desistir.
+        if not btn_ready:
+            try:
+                diag = await _dump_form_state()
+                diag_str = json.dumps(diag, ensure_ascii=False)
+                print(f"{prefix} DIAG botão desabilitado: {diag_str[:2000]}", file=sys.stderr)
+            except Exception:
+                pass
+
+        # Verificar botão - deve estar pronto após as esperas acima
+        btn_enabled_js = "() => { const btn = document.querySelector('button[ng-click*=\\\"submit\\\"]'); return btn && !btn.disabled; }"
+        if not btn_ready:
+            try:
+                await page.wait_for_function(btn_enabled_js, timeout=5000, polling=500)
+            except Exception:
+                print(f"{prefix} ⚠ Botão ainda desabilitado, pulando agente...", file=sys.stderr)
+                return None
 
         # Clicar em "Mostrar agenda" via JavaScript com expect_navigation
         # IMPORTANTE: O clique via JavaScript + expect_navigation é a abordagem mais robusta
@@ -246,110 +283,291 @@ async def collect_for_agent(
             print(f"{prefix} Calendário não encontrado", file=sys.stderr)
             return None
 
+        # Evitar corrida: em alguns agentes o calendário aparece, mas os eventos
+        # ainda estão carregando/renderizando.
+        try:
+            await page.wait_for_timeout(400)
+            evt_count = await page.evaluate("() => document.querySelectorAll('.fc-event').length")
+            if evt_count == 0:
+                await page.wait_for_timeout(2500)
+        except Exception:
+            pass
+
         # Debug: verificar estrutura do calendário
         calendar_info = await page.evaluate("""() => {
             const fc = document.querySelector('.fc');
             const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
+            const timeCols = document.querySelectorAll('.fc-timegrid-col[data-date], .fc-timegrid-col-frame[data-date]');
             const events = document.querySelectorAll('.fc-event');
             const title = document.querySelector('.fc-toolbar-title')?.textContent || 'sem título';
             return {
                 hasFC: !!fc,
                 dayCellsCount: dayCells.length,
+                timeColsCount: timeCols.length,
                 eventsCount: events.length,
                 title: title
             };
         }""")
-        print(f"{prefix} Calendário: {calendar_info['title']}, dias={calendar_info['dayCellsCount']}, eventos={calendar_info['eventsCount']}", file=sys.stderr)
+        print(
+            f"{prefix} Calendário: {calendar_info['title']}, "
+            f"dayGrid={calendar_info['dayCellsCount']}, timeGrid={calendar_info['timeColsCount']}, "
+            f"eventos={calendar_info['eventsCount']}",
+            file=sys.stderr,
+        )
 
-        # Função para extrair eventos do calendário visível
-        async def extract_events():
-            return await page.evaluate("""(args) => {
-                const { startDate, endDate } = args;
-                // Parse dates as strings (YYYY-MM-DD) to avoid timezone issues
-                const startParts = startDate.split('-').map(Number);
-                const endParts = endDate.split('-').map(Number);
-                const startNum = startParts[0] * 10000 + startParts[1] * 100 + startParts[2];
-                const endNum = endParts[0] * 10000 + endParts[1] * 100 + endParts[2];
+        def _merge_events(dest: dict, date_str: str, new_events: list[dict]) -> None:
+            """Merge events lists with simple de-dup by (title,time)."""
+            if not new_events:
+                return
+            existing = dest.setdefault(date_str, [])
+            seen = {(e.get("title", ""), e.get("time", "")) for e in existing}
+            for e in new_events:
+                key = (e.get("title", ""), e.get("time", ""))
+                if key in seen:
+                    continue
+                seen.add(key)
+                existing.append(e)
 
-                const eventos = {};
-                const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
+        async def _get_visible_calendar_date_range() -> tuple[date | None, date | None]:
+            """Retorna o intervalo (min,max) de datas visíveis na grade do calendário."""
+            res = await page.evaluate(
+                """() => {
+                    const sel = [
+                        '.fc-daygrid-day[data-date]',
+                        '.fc-day[data-date]',
+                        '.fc-timegrid-col[data-date]',
+                        '.fc-timegrid-col-frame[data-date]',
+                    ].join(',');
+                    const cells = Array.from(document.querySelectorAll(sel));
+                    const dates = cells.map(c => c.getAttribute('data-date')).filter(Boolean).sort();
+                    if (!dates.length) return { min: null, max: null };
+                    return { min: dates[0], max: dates[dates.length - 1] };
+                }"""
+            )
+            try:
+                min_s = (res or {}).get("min")
+                max_s = (res or {}).get("max")
+                return (
+                    date.fromisoformat(min_s) if min_s else None,
+                    date.fromisoformat(max_s) if max_s else None,
+                )
+            except Exception:
+                return None, None
 
-                for (const cell of dayCells) {
-                    const dateStr = cell.getAttribute('data-date');
-                    if (!dateStr) continue;
+        async def _goto_month_containing(target: date) -> None:
+            """Navega (prev/next) até a grade que contenha a data alvo."""
+            for _ in range(48):
+                dmin, dmax = await _get_visible_calendar_date_range()
+                if dmin is None or dmax is None:
+                    return
+                if target < dmin:
+                    prev_btn = page.locator('.fc-prev-button').first
+                    if await prev_btn.count() == 0:
+                        return
+                    old_min, old_max = dmin.isoformat(), dmax.isoformat()
+                    await prev_btn.click(timeout=5000)
+                    try:
+                        await page.wait_for_function(
+                            """(args) => {
+                                const { oldMin, oldMax } = args;
+                                const cells = Array.from(document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date], .fc-timegrid-col[data-date], .fc-timegrid-col-frame[data-date]'));
+                                const dates = cells.map(c => c.getAttribute('data-date')).filter(Boolean).sort();
+                                if (!dates.length) return false;
+                                return dates[0] !== oldMin || dates[dates.length - 1] !== oldMax;
+                            }""",
+                            {"oldMin": old_min, "oldMax": old_max},
+                            timeout=5000,
+                            polling=100,
+                        )
+                    except Exception:
+                        return
+                    continue
+                if target > dmax:
+                    next_btn = page.locator('.fc-next-button').first
+                    if await next_btn.count() == 0:
+                        return
+                    old_min, old_max = dmin.isoformat(), dmax.isoformat()
+                    await next_btn.click(timeout=5000)
+                    try:
+                        await page.wait_for_function(
+                            """(args) => {
+                                const { oldMin, oldMax } = args;
+                                const cells = Array.from(document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date], .fc-timegrid-col[data-date], .fc-timegrid-col-frame[data-date]'));
+                                const dates = cells.map(c => c.getAttribute('data-date')).filter(Boolean).sort();
+                                if (!dates.length) return false;
+                                return dates[0] !== oldMin || dates[dates.length - 1] !== oldMax;
+                            }""",
+                            {"oldMin": old_min, "oldMax": old_max},
+                            timeout=5000,
+                            polling=100,
+                        )
+                    except Exception:
+                        return
+                    continue
+                return
 
-                    // Compare as numbers to avoid timezone issues
-                    const dateParts = dateStr.split('-').map(Number);
-                    const dateNum = dateParts[0] * 10000 + dateParts[1] * 100 + dateParts[2];
-                    if (dateNum < startNum || dateNum > endNum) continue;
+        async def _extract_events_visible_and_more() -> tuple[dict, list[str]]:
+            """Extrai eventos das células visíveis e retorna também dias com "+mais"."""
+            res = await page.evaluate(
+                """(args) => {
+                    const { startDate, endDate } = args;
+                    const startParts = startDate.split('-').map(Number);
+                    const endParts = endDate.split('-').map(Number);
+                    const startNum = startParts[0] * 10000 + startParts[1] * 100 + startParts[2];
+                    const endNum = endParts[0] * 10000 + endParts[1] * 100 + endParts[2];
 
-                    const eventsInCell = cell.querySelectorAll('.fc-event');
-                    if (eventsInCell.length === 0) continue;
+                    const eventos = {};
+                    const moreDates = [];
+                    const dayCells = document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date]');
 
-                    const eventList = [];
-                    for (const evt of eventsInCell) {
+                    function addEvent(dateStr, evt) {
+                        if (!dateStr) return;
+                        const dateParts = dateStr.split('-').map(Number);
+                        const dateNum = dateParts[0] * 10000 + dateParts[1] * 100 + dateParts[2];
+                        if (dateNum < startNum || dateNum > endNum) return;
+
                         const titleEl = evt.querySelector('.fc-event-title');
                         const timeEl = evt.querySelector('.fc-event-time');
-                        eventList.push({
+                        const rawTitle = (titleEl?.textContent || evt.textContent || 'Evento').trim();
+                        const rawTime = timeEl?.textContent?.trim() || '';
+                        const obj = { title: rawTitle, time: rawTime, type: 'Compromisso', details: '' };
+
+                        if (!eventos[dateStr]) eventos[dateStr] = [];
+                        eventos[dateStr].push(obj);
+                    }
+
+                    for (const cell of dayCells) {
+                        const dateStr = cell.getAttribute('data-date');
+                        if (!dateStr) continue;
+
+                        // Evento(s) visíveis na célula (dayGrid)
+                        const eventsInCell = cell.querySelectorAll('.fc-event');
+                        for (const evt of eventsInCell) addEvent(dateStr, evt);
+
+                        // Indicação de overflow ("+ mais") - eventos podem estar escondidos no popover
+                        const moreLink = cell.querySelector('.fc-daygrid-more-link, .fc-more-link');
+                        if (moreLink) moreDates.push(dateStr);
+                    }
+
+                    // timeGrid (agenda semanal/diária)
+                    const timeCols = document.querySelectorAll('.fc-timegrid-col[data-date]');
+                    for (const col of timeCols) {
+                        const dateStr = col.getAttribute('data-date');
+                        if (!dateStr) continue;
+                        const eventsInCol = col.querySelectorAll('.fc-event');
+                        for (const evt of eventsInCol) addEvent(dateStr, evt);
+                    }
+
+                    return { eventos, moreDates };
+                }""",
+                {"startDate": str(start_date), "endDate": str(end_date)},
+            )
+            eventos = (res or {}).get("eventos") or {}
+            more_dates = (res or {}).get("moreDates") or []
+            # Dedup e estabilidade
+            more_dates = sorted({d for d in more_dates if isinstance(d, str)})
+            return eventos, more_dates
+
+        async def _extract_events_from_popover() -> list[dict]:
+            return await page.evaluate(
+                """() => {
+                    const pop = document.querySelector('.fc-popover');
+                    if (!pop) return [];
+                    const items = pop.querySelectorAll('.fc-event');
+                    const out = [];
+                    for (const evt of items) {
+                        const titleEl = evt.querySelector('.fc-event-title');
+                        const timeEl = evt.querySelector('.fc-event-time');
+                        out.push({
                             title: (titleEl?.textContent || evt.textContent || 'Evento').trim(),
                             time: timeEl?.textContent?.trim() || '',
                             type: 'Compromisso',
                             details: ''
                         });
                     }
+                    return out;
+                }"""
+            )
 
-                    if (eventList.length > 0) {
-                        eventos[dateStr] = eventList;
-                    }
-                }
+        async def _collect_events_for_period() -> tuple[dict, int]:
+            """Coleta eventos cobrindo start_date..end_date a partir do calendário já aberto."""
+            eventos_por_dia: dict = {}
 
-                return eventos;
-            }""", {'startDate': str(start_date), 'endDate': str(end_date)})
+            # 1) Ir para uma grade que contenha o fim do período
+            await _goto_month_containing(end_date)
 
-        # Coletar eventos de todos os meses necessários
-        eventos_por_dia = {}
+            # 2) Coletar grade corrente e voltar até cobrir o início do período
+            for _ in range(48):
+                dmin, dmax = await _get_visible_calendar_date_range()
 
-        # Obter mês atual do calendário
-        async def get_calendar_month():
-            return await page.evaluate("() => document.querySelector('.fc-toolbar-title')?.textContent || ''")
+                visible_events, more_dates = await _extract_events_visible_and_more()
+                for date_str, evts in (visible_events or {}).items():
+                    if isinstance(date_str, str) and isinstance(evts, list):
+                        _merge_events(eventos_por_dia, date_str, evts)
 
-        meses_visitados = set()
-        current_month = await get_calendar_month()
-        meses_visitados.add(current_month)
+                # Buscar eventos escondidos no popover ("+ mais")
+                for date_str in more_dates:
+                    more_link = page.locator(
+                        f'.fc-daygrid-day[data-date="{date_str}"] .fc-daygrid-more-link, '
+                        f'.fc-day[data-date="{date_str}"] .fc-daygrid-more-link, '
+                        f'.fc-daygrid-day[data-date="{date_str}"] .fc-more-link, '
+                        f'.fc-day[data-date="{date_str}"] .fc-more-link'
+                    ).first
+                    if await more_link.count() == 0:
+                        continue
+                    try:
+                        await more_link.click(timeout=1500, force=True, no_wait_after=True)
+                        await page.wait_for_selector('.fc-popover', state='visible', timeout=5000)
+                        pop_events = await _extract_events_from_popover()
+                        _merge_events(eventos_por_dia, date_str, pop_events)
+                    except Exception:
+                        continue
+                    finally:
+                        close_btn = page.locator('.fc-popover .fc-popover-close').first
+                        if await close_btn.count() > 0:
+                            try:
+                                await close_btn.click(timeout=1500, force=True, no_wait_after=True)
+                            except Exception:
+                                pass
+                        else:
+                            try:
+                                await page.keyboard.press('Escape')
+                            except Exception:
+                                pass
+                        await page.wait_for_timeout(100)
 
-        # Coletar eventos do mês atual
-        eventos = await extract_events()
-        eventos_por_dia.update(eventos)
+                # Se já cobrimos o mês do start_date, podemos parar
+                if dmin is None or start_date >= dmin:
+                    break
 
-        # Calcular quantos meses navegar para trás
-        months_to_go_back = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+                prev_btn = page.locator('.fc-prev-button').first
+                if await prev_btn.count() == 0:
+                    break
 
-        for _ in range(months_to_go_back):
-            prev_btn = page.locator('.fc-prev-button').first
-            if await prev_btn.count() > 0:
-                old_month = current_month
-                await prev_btn.click()
-                # Wait for calendar month title to change (conditional wait)
+                # Click e aguardar a grade mudar (evita re-scrape do mesmo mês)
+                old_min = dmin.isoformat() if dmin else ""
+                old_max = dmax.isoformat() if dmax else ""
+                await prev_btn.click(timeout=5000)
                 try:
                     await page.wait_for_function(
-                        """(oldMonth) => {
-                            const title = document.querySelector('.fc-toolbar-title')?.textContent || '';
-                            return title && title !== oldMonth;
+                        """(args) => {
+                            const { oldMin, oldMax } = args;
+                            const cells = Array.from(document.querySelectorAll('.fc-daygrid-day[data-date], .fc-day[data-date], .fc-timegrid-col[data-date], .fc-timegrid-col-frame[data-date]'));
+                            const dates = cells.map(c => c.getAttribute('data-date')).filter(Boolean).sort();
+                            if (!dates.length) return false;
+                            return dates[0] !== oldMin || dates[dates.length - 1] !== oldMax;
                         }""",
-                        old_month,
+                        {"oldMin": old_min, "oldMax": old_max},
                         timeout=5000,
-                        polling=50
+                        polling=100,
                     )
                 except Exception:
-                    pass  # Continue even if timeout - month may already have changed
+                    break
 
-                current_month = await get_calendar_month()
-                if current_month and current_month not in meses_visitados:
-                    meses_visitados.add(current_month)
-                    eventos = await extract_events()
-                    eventos_por_dia.update(eventos)
+            eventos_count = sum(len(evts) for evts in eventos_por_dia.values())
+            return eventos_por_dia, eventos_count
 
-        eventos_count = sum(len(evts) for evts in eventos_por_dia.values())
+        eventos_por_dia, eventos_count = await _collect_events_for_period()
         print(f"{prefix} ✓ {agente_label[:25]}: {len(eventos_por_dia)} dias, {eventos_count} eventos", file=sys.stderr)
 
         return {
@@ -388,14 +606,24 @@ async def worker_task(
     prefix = f"[W{worker_id}]"
     print(f"{prefix} Iniciando com {len(queries)} agentes...", file=sys.stderr)
 
+    per_agent_timeout = int(os.environ.get("DOU_UI_EAGENDAS_AGENT_TIMEOUT", "180"))
+
     for query in queries:
-        result = await collect_for_agent(
-            page=page,
-            query=query,
-            start_date=start_date,
-            end_date=end_date,
-            worker_id=worker_id
-        )
+        try:
+            result = await asyncio.wait_for(
+                collect_for_agent(
+                    page=page,
+                    query=query,
+                    start_date=start_date,
+                    end_date=end_date,
+                    worker_id=worker_id,
+                ),
+                timeout=per_agent_timeout,
+            )
+        except asyncio.TimeoutError:
+            agent_label = query.get("n3_label") or query.get("n2_label") or query.get("person_label") or "Agente"
+            print(f"{prefix} ⏱ Timeout por agente ({per_agent_timeout}s): {agent_label}", file=sys.stderr)
+            continue
 
         if result:
             async with lock:

@@ -444,21 +444,19 @@ def _wait_n2_ready(frame, r2, timeout_ms: int = 15_000):
     # Custom dropdown: open and wait until at least 1 option is visible
     while (time.time() - start) * 1000 < timeout_ms:
         try:
-            h.click(timeout=2000)
+            # Try to read options using robust helper
+            # This helper handles open -> wait -> read -> close (escape) sequence
+            current = _read_dropdown_options(frame, r2)
+            valid = _filter_texts(current)
+            
+            # If we found valid options (not just "Selecione..."), we are ready
+            if len(valid) >= 1:
+                return
         except Exception:
-            frame.page.wait_for_timeout(200)
-            continue
-        try:
-            # Look for Selectize or generic options
-            frame.wait_for_selector(".selectize-dropdown .option, [role=option]", timeout=1500)
-            frame.page.keyboard.press("Escape")
-            return
-        except Exception:
-            try:
-                frame.page.keyboard.press("Escape")
-            except Exception:
-                pass
-            frame.page.wait_for_timeout(200)
+            pass
+        
+        # Wait before retrying
+        frame.page.wait_for_timeout(500)
 
 
 try:

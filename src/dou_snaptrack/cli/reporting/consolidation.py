@@ -207,8 +207,26 @@ def aggregate_jobs_by_date(jobs: list[Path], plan_name: str) -> tuple[dict[str, 
         if not secao_any and secao:
             secao_any = secao
 
+        # Preservar metadados do job (ex: órgão/sub-órgão) em cada item.
+        job_key1 = str(data.get("key1") or "").strip()
+        job_key2 = str(data.get("key2") or "").strip()
+        # Normalizar: se sub-nível não foi filtrado, evitar poluir o boletim com "Todos"
+        if job_key2.strip().lower().startswith("todos"):
+            job_key2 = ""
+
         items = data.get("itens", []) or []
         normalize_item_urls(items)
+
+        if items and (job_key1 or job_key2):
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                if job_key1 and not (it.get("orgao") or "").strip():
+                    it["orgao"] = job_key1
+                # Só preencher sub_orgao se existir (quando o plano tiver parâmetro de suborganização)
+                if job_key2 and not (it.get("sub_orgao") or "").strip():
+                    it["sub_orgao"] = job_key2
+
         agg[date]["itens"].extend(items)
 
     return agg, secao_any

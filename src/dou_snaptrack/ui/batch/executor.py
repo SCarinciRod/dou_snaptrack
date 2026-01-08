@@ -208,3 +208,23 @@ def _execute_plan(selected_path: Path, recommend_parallel) -> None:
 
     # Show result
     show_execution_result(rep, parallel, st.session_state, st)
+
+    # Forçar atualização do TAB3 (índice de resultados) sem precisar reiniciar o app.
+    try:
+        st.session_state["results_list_refresh_token"] = time.time()
+        st.session_state["results_idx_refresh_token"] = time.time()
+
+        from dou_snaptrack.ui import fs_index
+
+        # Limpar caches específicos (melhor que st.cache_data.clear() global)
+        with st.spinner("Atualizando índice de resultados…"):
+            try:
+                fs_index.list_result_days.clear()
+            except Exception:
+                pass
+            try:
+                fs_index.index_aggregates_by_day.clear()
+            except Exception:
+                pass
+    except Exception:
+        pass

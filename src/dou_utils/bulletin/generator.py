@@ -204,16 +204,23 @@ class BulletinGenerator(ABC):
         self.date = result.get("data", "")
         self.secao = result.get("secao", "")
 
-        # Agrupar itens por (órgão, tipo_ato)
+        # Agrupar itens por (órgão, sub_órgão)
         self.grouped = self._group_items()
 
     def _group_items(self) -> dict[tuple[str, str], list[dict[str, Any]]]:
-        """Agrupa itens por (órgão, tipo_ato)."""
+        """Agrupa itens por (órgão, sub_órgão).
+
+        Observação: nos agregados (link-only) nem sempre existe `tipo_ato`.
+        Para manter a estrutura útil do boletim, usamos órgão e sub-organização
+        (quando disponível).
+        """
         grouped = defaultdict(list)
         for it in self.result.get("itens", []):
-            org = it.get("orgao") or "Sem órgão"
-            tipo = it.get("tipo_ato") or "Sem tipo"
-            grouped[(org, tipo)].append(it)
+            org = (it.get("orgao") or "").strip() or "Sem órgão"
+            sub = (it.get("sub_orgao") or "").strip()
+            if sub.lower().startswith("todos"):
+                sub = ""
+            grouped[(org, sub)].append(it)
         return grouped
 
     def generate(self) -> dict[str, Any]:
@@ -308,9 +315,10 @@ class DocxBulletinGenerator(BulletinGenerator):
         # Contador de itens sumarizados
         summarized = 0
 
-        # Para cada grupo (orgao + tipo de ato)
-        for (org, tipo), arr in self.grouped.items():
-            doc.add_heading(f"{org} - {tipo}", level=1)
+        # Para cada grupo (órgão + sub-organização)
+        for (org, sub), arr in self.grouped.items():
+            heading = f"{org} — {sub}" if sub else f"{org}"
+            doc.add_heading(heading, level=1)
 
             # Para cada item no grupo
             for it in arr:
@@ -364,8 +372,9 @@ class MarkdownBulletinGenerator(BulletinGenerator):
         lines = [f"# Boletim DOU — {self.date} ({self.secao})", ""]
         summarized = 0
 
-        for (org, tipo), arr in self.grouped.items():
-            lines.append(f"## {org} — {tipo}")
+        for (org, sub), arr in self.grouped.items():
+            heading = f"{org} — {sub}" if sub else f"{org}"
+            lines.append(f"## {heading}")
             lines.append("")
 
             for it in arr:
@@ -412,8 +421,9 @@ class HtmlBulletinGenerator(BulletinGenerator):
         parts = [f"<h1>Boletim DOU — {html_lib.escape(self.date)} ({html_lib.escape(self.secao)})</h1>"]
         summarized = 0
 
-        for (org, tipo), arr in self.grouped.items():
-            parts.append(f"<h2>{html_lib.escape(org)} — {html_lib.escape(tipo)}</h2>")
+        for (org, sub), arr in self.grouped.items():
+            heading = f"{org} — {sub}" if sub else f"{org}"
+            parts.append(f"<h2>{html_lib.escape(heading)}</h2>")
             parts.append("<ul>")
 
             for it in arr:

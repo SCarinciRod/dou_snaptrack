@@ -87,7 +87,7 @@ def render_report_generator() -> None:
 def _render_manual_aggregation(results_root: Path) -> None:
     """Render the manual aggregation expander section."""
     with st.expander("Agregação manual (quando necessário)"):
-        day_labels = list_result_days(str(results_root))
+        day_labels = list_result_days(str(results_root), refresh_token=st.session_state.get("results_list_refresh_token", 0.0))
 
         if not day_labels:
             st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano para gerar uma pasta do dia.")
@@ -111,7 +111,7 @@ def _render_manual_aggregation(results_root: Path) -> None:
                     st.warning("Informe o nome do plano.")
                 else:
                     try:
-                        from dou_snaptrack.cli.reporting.consolidation import aggregate_outputs_by_plan
+                        from dou_snaptrack.cli.reporting.reporter import aggregate_outputs_by_plan
 
                         written = aggregate_outputs_by_plan(str(chosen_dir), _mp.strip())
                         if written:
@@ -127,7 +127,7 @@ def _render_manual_aggregation(results_root: Path) -> None:
 def _render_report_selection(results_root: Path) -> None:
     """Render the report selection and generation section."""
     # Seletor 1: escolher a pasta da data (resultados/<data>)
-    day_labels = list_result_days(str(results_root))
+    day_labels = list_result_days(str(results_root), refresh_token=st.session_state.get("results_list_refresh_token", 0.0))
 
     if not day_labels:
         st.info("Nenhuma pasta encontrada em 'resultados'. Execute um plano com 'Nome do plano' para gerar agregados.")
@@ -135,7 +135,10 @@ def _render_report_selection(results_root: Path) -> None:
         sel_day = st.selectbox("Data (pasta em resultados)", day_labels, index=0, key="agg_day_select")
         chosen_dir = results_root / str(sel_day)
 
-        day_idx_names = index_aggregates_by_day(str(chosen_dir))
+        day_idx_names = index_aggregates_by_day(
+            str(chosen_dir),
+            refresh_token=st.session_state.get("results_idx_refresh_token", 0.0),
+        )
         plan_names = sorted(day_idx_names.keys())
 
         if not plan_names:

@@ -92,6 +92,8 @@ def prepare_execution_config(
 
     # Override date
     override_date = str(st_session_state.plan.date or "").strip() or _date.today().strftime("%d-%m-%Y")
+    # Normalizar para evitar criar subpastas acidentalmente (ex: 08/01/2026)
+    override_date = override_date.replace("/", "-")
     cfg_json["data"] = override_date
 
     # Inject plan_name
@@ -155,6 +157,7 @@ def write_temp_config(cfg_json: dict[str, Any], override_date: str) -> Path:
     Returns:
         Path to temporary config file
     """
+    override_date = (override_date or "").replace("/", "-")
     out_dir_tmp = Path("resultados") / override_date
     out_dir_tmp.mkdir(parents=True, exist_ok=True)
     pass_cfg_path = out_dir_tmp / "_run_cfg.from_ui.json"

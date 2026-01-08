@@ -46,14 +46,101 @@ def load_aggregated_files(files: list[str]) -> tuple[list[dict[str, Any]], str, 
     date = ""
     secao = ""
 
+    def _backfill_orgao_from_batch_report(agg_items: list[dict[str, Any]], agg_file: Path) -> None:
+        """Best-effort backfill de orgao/sub_orgao para agregados antigos.
+
+        Heurística:
+        - Se o agregado foi criado concatenando os outputs individuais em ordem,
+          usamos batch_report.json (deleted_outputs + metrics.jobs) para fatiar a lista
+          de itens e atribuir (key1,key2) por segmento.
+        """
+        try:
+            if not agg_items:
+                return
+
+            # Se já tem órgão, não mexer
+            any_org = any((isinstance(it, dict) and (it.get("orgao") or "").strip()) for it in agg_items[:10])
+            if any_org:
+                return
+
+            rep_path = agg_file.parent / "batch_report.json"
+            if not rep_path.exists():
+                return
+
+            rep = json.loads(rep_path.read_text(encoding="utf-8"))
+            deleted = rep.get("deleted_outputs")
+            jobs = ((rep.get("metrics") or {}).get("jobs") or [])
+            if not (isinstance(deleted, list) and isinstance(jobs, list) and deleted and jobs):
+                return
+
+            # Map job_index -> (key1, key2, items)
+            meta_by_idx: dict[int, tuple[str, str, int]] = {}
+            for j in jobs:
+                if not isinstance(j, dict):
+                    continue
+                try:
+                    idx = int(j.get("job_index") or 0)
+                except Exception:
+                    continue
+                key1 = str(j.get("key1") or "").strip()
+                key2 = str(j.get("key2") or "").strip()
+                if key2.lower().startswith("todos"):
+                    key2 = ""
+                try:
+                    cnt = int(j.get("items") or 0)
+                except Exception:
+                    cnt = 0
+                if idx > 0 and cnt >= 0:
+                    meta_by_idx[idx] = (key1, key2, cnt)
+
+            # Walk deleted_outputs in order and assign sequential slices
+            pos = 0
+            for pth in deleted:
+                try:
+                    name = Path(str(pth)).name
+                    m = __import__("re").search(r"_(\d+)\.json$", name)
+                    if not m:
+                        continue
+                    idx = int(m.group(1))
+                except Exception:
+                    continue
+
+                meta = meta_by_idx.get(idx)
+                if not meta:
+                    continue
+                key1, key2, cnt = meta
+                if cnt <= 0:
+                    continue
+
+                end = min(len(agg_items), pos + cnt)
+                seg = agg_items[pos:end]
+                for it in seg:
+                    if not isinstance(it, dict):
+                        continue
+                    if key1 and not (it.get("orgao") or "").strip():
+                        it["orgao"] = key1
+                    if key2 and not (it.get("sub_orgao") or "").strip():
+                        it["sub_orgao"] = key2
+                pos = end
+
+                if pos >= len(agg_items):
+                    break
+        except Exception:
+            return
+
     for fp in files:
         try:
-            with Path(fp).open("r", encoding="utf-8") as fh:
+            p = Path(fp)
+            with p.open("r", encoding="utf-8") as fh:
                 data = json.load(fh)
         except Exception:
             continue
 
         items = data.get("itens", [])
+
+        # Backfill orgao/sub_orgao for legacy aggregates if possible
+        if isinstance(items, list):
+            _backfill_orgao_from_batch_report(items, p)
 
         # Normalize URLs
         for it in items:
