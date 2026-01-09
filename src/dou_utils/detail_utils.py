@@ -29,6 +29,16 @@ from .models import DetailData
 
 logger = get_logger(__name__)
 
+# Regex pré-compilados para performance
+_RE_WHITESPACE = re.compile(r"\s+")
+_RE_DATE_ISO = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+_RE_DATE_BR = re.compile(r"(\d{2})/(\d{2})/(\d{4})")
+_RE_ORGAO_TIPO = re.compile(r"^\s*(Órgão|Orgao|Tipo|Tipo do Ato)\s*:\s*", re.I)
+_RE_EDICAO = re.compile(r"Edi[cç][aã]o\s*:\s*(\d+)", re.I)
+_RE_PAGINA = re.compile(r"P[aá]gina\s*:\s*(\d+)", re.I)
+_RE_SECAO = re.compile(r"DO[123]")
+_RE_PDF_CERTIFICADA = re.compile(r"VERS[ÃA]O CERTIFICADA", re.I)
+
 
 # ---------------- Helpers básicos ----------------
 def abs_url(base_or_page_url: str, href: str) -> str:
@@ -44,7 +54,7 @@ def text_of(locator) -> str:
     try:
         if locator and locator.count() > 0 and locator.first.is_visible():
             t = locator.first.text_content() or ""
-            return re.sub(r"\s+", " ", t).strip()
+            return _RE_WHITESPACE.sub(" ", t).strip()
     except Exception:
         pass
     return ""
@@ -66,10 +76,10 @@ def _normalize_date(raw: str | None) -> str | None:
     if not raw:
         return None
     raw = raw.strip()
-    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", raw)
+    m = _RE_DATE_ISO.match(raw)
     if m:
         return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
-    m = re.match(r"(\d{2})/(\d{2})/(\d{4})", raw)
+    m = _RE_DATE_BR.match(raw)
     if m:
         return f"{m.group(3)}-{m.group(2)}-{m.group(1)}"
     return raw
@@ -164,7 +174,7 @@ def find_dt_dd_value(page, labels_regex: str, max_scan: int = 400) -> str | None
             parent = c.locator("xpath=..")
             val = text_of(parent)
             if val:
-                val2 = re.sub(r"^\s*(Órgão|Orgao|Tipo|Tipo do Ato)\s*:\s*", "", val, flags=re.I).strip()
+                val2 = _RE_ORGAO_TIPO.sub("", val).strip()
                 if val2:
                     return val2
         except Exception:
@@ -192,7 +202,7 @@ def _collect_article_text(page, max_chars: int = 8000) -> str | None:
                 for i in range(n):
                     t = (ps.nth(i).text_content() or "").strip()
                     if t:
-                        buf.append(re.sub(r"\s+", " ", t))
+                        buf.append(_RE_WHITESPACE.sub(" ", t))
                 if buf:
                     break
         except Exception:
@@ -200,7 +210,7 @@ def _collect_article_text(page, max_chars: int = 8000) -> str | None:
     if not buf:
         return None
     text = " ".join(buf)
-    text = re.sub(r"\s+", " ", text).strip()
+    text = _RE_WHITESPACE.sub(" ", text).strip()
     if len(text) > max_chars:
         trunc = text[:max_chars]
         if "." in trunc:
@@ -227,7 +237,7 @@ def _extract_pdf(page, advanced: bool) -> str | None:
             continue
     if not pdf and advanced:
         try:
-            vc = page.get_by_role("link", name=re.compile("VERS(Ã|A)O CERTIFICADA", re.I)).first
+            vc = page.get_by_role("link", name=_RE_PDF_CERTIFICADA).first
             if vc and vc.count() > 0 and vc.is_visible():
                 hv = vc.get_attribute("href")
                 if hv:
@@ -241,8 +251,8 @@ def _extract_edicao_pagina(page) -> dict[str, str | None]:
     result: dict[str, str | None] = {"edicao": None, "pagina": None}
     try:
         body_text = text_of(page.locator("article")) or text_of(page.locator("main")) or (page.inner_text("body") or "")
-        m_ed = re.search(r"Edi[cç][aã]o\s*:\s*(\d+)", body_text, re.I)
-        m_pg = re.search(r"P[aá]gina\s*:\s*(\d+)", body_text, re.I)
+        m_ed = _RE_EDICAO.search(body_text)
+        m_pg = _RE_PAGINA.search(body_text)
         if m_ed:
             result["edicao"] = m_ed.group(1)
         if m_pg:
@@ -301,7 +311,7 @@ def scrape_detail_structured(
             pass
         if advanced and not detail.secao:
             alt = meta_content(page, 'meta[name="dc.subject"]')
-            if alt and re.search(r"DO[123]", alt):
+            if alt and _RE_SECAO.search(alt):
                 detail.secao = alt
 
         # Ementa / texto

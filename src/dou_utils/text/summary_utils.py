@@ -28,6 +28,15 @@ _DOU_HEADER_SENTENCE = re.compile(
     r"(brasão.*?diário oficial|publicado em.*?edição.*?seção|órgão.*?ministério.*?publicado)",
     re.IGNORECASE
 )
+# Padrão para remoção de cabeçalho DOU inline
+_DOU_HEADER_INLINE = re.compile(
+    r"^.*?(?:Brasão|Diário Oficial da União).*?(?:Publicado em|Edição).*?(?:Seção|Página).*?Órgão:[^\n]*?\s*(?=(?:PORTARIA|DECRETO|DESPACHO|RESOLUÇÃO|ATO|EXTRATO|PAUTA|DELIBERAÇÃO|ALVARÁ|RETIFICAÇÃO|SÚMULA|DECISÃO|ORDEM|EDITAL|AVISO|INSTRUÇÃO|Portaria|Decreto|Despacho|Decisão|MENSAGEM|Mensagem|Retificação|Súmula)(?:\s|$))",
+    re.I | re.DOTALL
+)
+_DOU_HEADER_RESIDUE = re.compile(r"^(?:do|da|de)\s+\w+\s+", re.I)
+_DOU_METADATA_CHECK = re.compile(r"(?:Brasão|Publicado em|Edição|Órgão).*?(?:Seção|Página)", re.I | re.DOTALL)
+_ESTE_CONTEUDO = re.compile(r"Este conteúdo não substitui.*?$", re.I | re.DOTALL)
+_IMPRENSA_NACIONAL = re.compile(r"Imprensa Nacional.*?$", re.I | re.DOTALL)
 
 def normalize_text(s: str) -> str:
     if s is None:
@@ -74,23 +83,17 @@ def clean_text_for_summary(text: str) -> str:
     # Captura múltiplos níveis de órgão (ex: Ministério/Universidade/Pró-Reitoria/Departamento)
     # Lookahead aceita tipo do ato COM ou SEM qualificador (PORTARIA Nº ou só RETIFICAÇÃO)
     # Expandido para incluir DECISÃO e outros tipos comuns
-    t = re.sub(
-        r"^.*?(?:Brasão|Diário Oficial da União).*?(?:Publicado em|Edição).*?(?:Seção|Página).*?Órgão:[^\n]*?\s*(?=(?:PORTARIA|DECRETO|DESPACHO|RESOLUÇÃO|ATO|EXTRATO|PAUTA|DELIBERAÇÃO|ALVARÁ|RETIFICAÇÃO|SÚMULA|DECISÃO|ORDEM|EDITAL|AVISO|INSTRUÇÃO|Portaria|Decreto|Despacho|Decisão|MENSAGEM|Mensagem|Retificação|Súmula)(?:\s|$))",
-        "",
-        text,
-        count=1,
-        flags=re.I | re.DOTALL
-    )
+    t = _DOU_HEADER_INLINE.sub("", text, count=1)
 
     # Limpar resíduo comum "do Ministro" após remoção do cabeçalho
     if len(t) < len(text):  # Apenas se regex removeu algo
-        t = re.sub(r"^(?:do|da|de)\s+\w+\s+", "", t, count=1, flags=re.I)
+        t = _DOU_HEADER_RESIDUE.sub("", t, count=1)
 
     # Se a regex não encontrou padrão DOU, tentar fallback conservador
     # MAS APENAS se o texto tem múltiplas linhas E contém padrões típicos de cabeçalho
     if t == text:  # Regex não removeu nada
         lines_count = len(t.split('\n'))
-        has_metadata_pattern = bool(re.search(r"(?:Brasão|Publicado em|Edição|Órgão).*?(?:Seção|Página)", t, re.I | re.DOTALL))
+        has_metadata_pattern = bool(_DOU_METADATA_CHECK.search(t))
         # Só aplicar remove_dou_metadata se há múltiplas linhas E padrões de metadata
         if lines_count > 3 and has_metadata_pattern:
             t = remove_dou_metadata(t)
@@ -99,13 +102,9 @@ def clean_text_for_summary(text: str) -> str:
     t = strip_legalese_preamble(t)
     t = _WHITESPACE_PATTERN.sub(" ", t).strip()
 
-    # Padrões adicionais para limpeza
-    patterns = [
-        r"Este conteúdo não substitui.*?$",
-        r"Imprensa Nacional.*?$",
-    ]
-    for pat in patterns:
-        t = re.sub(pat, "", t, flags=re.I | re.DOTALL)
+    # Padrões adicionais para limpeza (já pré-compilados)
+    t = _ESTE_CONTEUDO.sub("", t)
+    t = _IMPRENSA_NACIONAL.sub("", t)
 
     t = _DOC_TYPE_PREFIX_PATTERN.sub("", t)
     t = t.strip()

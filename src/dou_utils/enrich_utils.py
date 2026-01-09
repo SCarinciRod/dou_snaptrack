@@ -4,6 +4,15 @@ import re
 from typing import Any
 from urllib.parse import unquote, urlparse
 
+# Pre-compiled regex patterns (performance)
+_RE_LETTERS = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
+_RE_DIGITS = re.compile(r"\d")
+_RE_NUMERO = re.compile(r"\bn[ºo°]\b", re.I)
+_RE_HASH_SUFFIX = re.compile(r"-[a-f0-9]{6,}$", re.I)
+_RE_WHITESPACE = re.compile(r"\s+")
+_RE_ARTIGO = re.compile(r"\b(art|artigo|capitulo|capítulo|secao|seção)\b\.?", re.I)
+_RE_NUM_VARIANTS = re.compile(r"\b(n|no|nº|n°|numero|núm|num)\b\.?", re.I)
+
 _ACT_TYPES = [
     "decreto", "portaria", "instrução normativa", "instrucao normativa",
     "resolução", "resolucao", "despacho", "edital", "aviso", "ato",
@@ -16,9 +25,9 @@ def _looks_numeric_title(t: str) -> bool:
     if not s:
         return True
     # Poucas letras e muitos dígitos/sinais
-    letters = len(re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿ]", s))
-    digits = len(re.findall(r"\d", s))
-    return (digits >= letters and digits >= 3) or bool(re.search(r"\bn[ºo°]\b", s, re.I))
+    letters = len(_RE_LETTERS.findall(s))
+    digits = len(_RE_DIGITS.findall(s))
+    return (digits >= letters and digits >= 3) or bool(_RE_NUMERO.search(s))
 
 
 def _slug_from_url(url: str) -> str:
@@ -27,7 +36,7 @@ def _slug_from_url(url: str) -> str:
         seg = path.strip("/").split("/")[-1]
         seg = unquote(seg or "")
         # remover ids hash longos no final
-        seg = re.sub(r"-[a-f0-9]{6,}$", "", seg, flags=re.I)
+        seg = _RE_HASH_SUFFIX.sub("", seg)
         seg = seg.replace("_", "-")
         return seg
     except Exception:
@@ -38,9 +47,9 @@ def _humanize_slug(seg: str) -> str:
     s = (seg or "").strip("-/")
     s = s.replace("-", " ")
     # limpar múltiplos espaços e tokens técnicos
-    s = re.sub(r"\s+", " ", s)
-    s = re.sub(r"\b(art|artigo|capitulo|capítulo|secao|seção)\b\.?", "", s, flags=re.I)
-    s = re.sub(r"\b(n|no|nº|n°|numero|núm|num)\b\.?", "nº", s, flags=re.I)
+    s = _RE_WHITESPACE.sub(" ", s)
+    s = _RE_ARTIGO.sub("", s)
+    s = _RE_NUM_VARIANTS.sub("nº", s)
     s = s.strip()
     # capitalização leve (preserva siglas inteiras)
     words = []
@@ -78,7 +87,7 @@ def make_friendly_title(item: dict[str, Any], date: str | None = None, secao: st
 
     # Se o título já parece descritivo, apenas limpar e truncar
     def _clean_title(t: str) -> str:
-        t2 = re.sub(r"\s+", " ", t).strip()
+        t2 = _RE_WHITESPACE.sub(" ", t).strip()
         return t2[:max_len]
 
     if raw_title and not _looks_numeric_title(raw_title):
@@ -94,9 +103,12 @@ def make_friendly_title(item: dict[str, Any], date: str | None = None, secao: st
 
     # Fallback: combinar tipo + número do título, se existir
     num = None
-    m = re.search(r"(\d{1,6}[./]?\d{0,4})", raw_title)
+    m = _RE_DIGITS.search(raw_title)
     if m:
-        num = m.group(1)
+        # Tentar capturar número completo
+        m2 = re.search(r"(\d{1,6}[./]?\d{0,4})", raw_title)
+        if m2:
+            num = m2.group(1)
     if act_type and num:
         return _clean_title(f"{act_type} nº {num}")
     if act_type:

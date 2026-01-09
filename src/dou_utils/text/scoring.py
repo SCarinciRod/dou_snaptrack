@@ -16,6 +16,7 @@ _DOU_HEADER_SENTENCE = re.compile(
     re.IGNORECASE
 )
 _ENUMERATION_PATTERN = re.compile(r"^\s*(?:\d+[.)\-]|[A-Z][.)\-]|[IVXLCDM]+[.)\-])\s+", re.MULTILINE)
+_ALPHANUM_PATTERN = re.compile(r"[a-z0-9]+")
 
 
 def tokenize_sentence(sentence: str) -> list[str]:
@@ -28,7 +29,7 @@ def tokenize_sentence(sentence: str) -> list[str]:
         List of tokens (3+ chars, lowercased, ascii-normalized)
     """
     raw = unicodedata.normalize("NFKD", sentence).encode("ascii", "ignore").decode("ascii")
-    return [w for w in re.findall(r"[a-z0-9]+", raw.lower()) if len(w) >= 3]
+    return [w for w in _ALPHANUM_PATTERN.findall(raw.lower()) if len(w) >= 3]
 
 
 def compute_lexical_diversity(sentences: list[str]) -> list[float]:

@@ -14,6 +14,18 @@ from .log_utils import get_logger
 
 logger = get_logger(__name__)
 
+# Pre-compiled regex for HTML parsing (performance)
+_RE_SCRIPT = re.compile(r"<script[\s\S]*?</script>", re.I)
+_RE_STYLE = re.compile(r"<style[\s\S]*?</style>", re.I)
+_RE_ARTICLE = re.compile(r"<article[^>]*>([\s\S]*?)</article>", re.I)
+_RE_MAIN = re.compile(r"<main[^>]*>([\s\S]*?)</main>", re.I)
+_RE_BODY = re.compile(r"<body[^>]*>([\s\S]*?)</body>", re.I)
+_RE_DOU_CLASS = re.compile(r'<(div|section|article)[^>]*class="[^"]*(texto-dou|publicacao-conteudo|single-full|materia)[^"]*"[^>]*>([\s\S]*?)</\1>', re.I)
+_RE_DOU_ID = re.compile(r'<(div|section|article)[^>]*id="(materia|content|conteudo)"[^>]*>([\s\S]*?)</\1>', re.I)
+_RE_PARAGRAPH = re.compile(r"<p[^>]*>([\s\S]*?)</p>", re.I)
+_RE_TAG = re.compile(r"<[^>]+>")
+_RE_WHITESPACE = re.compile(r"\s+")
+
 
 class Fetcher:
     """Pequeno utilitário para buscar HTML com cache em disco, com opção de forçar atualização e fallback via navegador."""
@@ -229,35 +241,35 @@ class Fetcher:
     def extract_text_from_html(html: str) -> str:
         if not html:
             return ""
-        # Remover scripts/styles
-        html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
-        html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
+        # Remover scripts/styles (usando regex pré-compilados)
+        html = _RE_SCRIPT.sub(" ", html)
+        html = _RE_STYLE.sub(" ", html)
         # Tentar article, depois main, depois body
-        m = re.search(r"<article[^>]*>([\s\S]*?)</article>", html, flags=re.I)
+        m = _RE_ARTICLE.search(html)
         if not m:
-            m = re.search(r"<main[^>]*>([\s\S]*?)</main>", html, flags=re.I)
+            m = _RE_MAIN.search(html)
         if not m:
-            m = re.search(r"<body[^>]*>([\s\S]*?)</body>", html, flags=re.I)
+            m = _RE_BODY.search(html)
         chunk = m.group(1) if m else html
         # Heurística legacy: tentar blocos com classes/ids típicos do DOU
         if len(chunk) < 800:
             # classes comuns
-            m_cls = re.search(r"<(div|section|article)[^>]*class=\"[^\"]*(texto-dou|publicacao-conteudo|single-full|materia)[^\"]*\"[^>]*>([\s\S]*?)</\\1>", html, flags=re.I)
+            m_cls = _RE_DOU_CLASS.search(html)
             if m_cls and len(m_cls.group(3)) > len(chunk):
                 chunk = m_cls.group(3)
             # ids comuns
-            m_id = re.search(r"<(div|section|article)[^>]*id=\"(materia|content|conteudo)\"[^>]*>([\s\S]*?)</\\1>", html, flags=re.I)
+            m_id = _RE_DOU_ID.search(html)
             if m_id and len(m_id.group(3)) > len(chunk):
                 chunk = m_id.group(3)
         # Se o chunk ainda for muito genérico, tentar concatenar parágrafos <p>
         if len(chunk) < 500:
-            ps = re.findall(r"<p[^>]*>([\s\S]*?)</p>", html, flags=re.I)
+            ps = _RE_PARAGRAPH.findall(html)
             if ps:
                 chunk = "\n".join(ps)
         # Remover tags
-        text = re.sub(r"<[^>]+>", " ", chunk)
+        text = _RE_TAG.sub(" ", chunk)
         # Normalizar espaços e reduzir tamanho
-        text = re.sub(r"\s+", " ", text).strip()
+        text = _RE_WHITESPACE.sub(" ", text).strip()
         # Aumentar limite para capturar atos longos
         return text[:20000]
 

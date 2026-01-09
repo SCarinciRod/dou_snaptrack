@@ -20,6 +20,13 @@ _WHITESPACE_PATTERN = re.compile(r"\s+")
 _MULTI_DOT_PATTERN = re.compile(r"\.+")
 _TRAILING_WORD_PATTERN = re.compile(r"\s+\S*$")
 _ORDINAL_PREFIX_PATTERN = re.compile(r"^\d+º\s+")
+_NUMERO_PATTERN = re.compile(r"\bN[ºO]\s*[\w\-./]+", re.I)
+_ARTIGO_1_PATTERN = re.compile(r"\b(?:Art\.?|Artigo)\s*1(º|o)?\b[:\-]?", re.I)
+_ARTIGO_2_PATTERN = re.compile(r"\b(?:Art\.?|Artigo)\s*2(º|o)?\b", re.I)
+_LEADING_PUNCT_PATTERN = re.compile(r"^[\s\-:;—]+")
+_BOTH_PUNCT_PATTERN = re.compile(r"^[\s\-:;—]+|[\s\-:;—]+$")
+_SENTENCE_SPLIT_PATTERN = re.compile(r"[.!?]\s+")
+_WORDS_PATTERN = re.compile(r"\w+[\w-]*")
 
 
 def remove_dou_metadata(text: str) -> str:
@@ -114,7 +121,7 @@ def extract_doc_header_line(it: dict[str, Any]) -> str | None:
 
     tipo = (it.get("tipo_ato") or "").strip()
     if tipo:
-        m = re.search(r"\bN[ºO]\s*[\w\-./]+", blob, flags=re.I)
+        m = _NUMERO_PATTERN.search(blob)
         if m:
             return f"{tipo.upper()} {m.group(0)}"[:200]
         return tipo.upper()[:200]
@@ -127,17 +134,17 @@ def extract_article1_section(text: str) -> str:
         return ""
     t = text
     # normalizar espaços para facilitar o recorte
-    t = re.sub(r"\s+", " ", t).strip()
+    t = _WHITESPACE_PATTERN.sub(" ", t).strip()
 
     # localizar início do art. 1º (com ou sem o prefixo "Art." ou "Artigo")
-    m1 = re.search(r"\b(?:Art\.?|Artigo)\s*1(º|o)?\b[:\-]?", t, flags=re.I)
+    m1 = _ARTIGO_1_PATTERN.search(t)
     if not m1:
         return ""
     start = m1.start()
 
     # localizar início do art. 2º a partir do fim do match 1 (com ou sem prefixo)
     rest = t[m1.end():]
-    m2 = re.search(r"\b(?:Art\.?|Artigo)\s*2(º|o)?\b", rest, flags=re.I)
+    m2 = _ARTIGO_2_PATTERN.search(rest)
     if m2:
         end = m1.end() + m2.start()
     else:
@@ -153,7 +160,7 @@ def strip_legalese_preamble(text: str) -> str:
 
     t = text
     # Normalizar quebras para facilitar recortes
-    t = re.sub(r"\s+", " ", t).strip()
+    t = _WHITESPACE_PATTERN.sub(" ", t).strip()
 
     low = t.lower()
     markers = [
@@ -167,7 +174,7 @@ def strip_legalese_preamble(text: str) -> str:
             cut_idx = max(cut_idx, i + len(m))
             break
     if cut_idx >= 0:
-        t = re.sub(r'^[\s\-:;—]+', '', t[cut_idx:])
+        t = _LEADING_PUNCT_PATTERN.sub('', t[cut_idx:])
         low = t.lower()
 
     # Remover preâmbulos comuns no início
@@ -182,7 +189,7 @@ def strip_legalese_preamble(text: str) -> str:
     ]
     for pat in preambles:
         t = re.sub(pat, "", t, flags=re.I)
-        t = re.sub(r'^[\s\-:;—]+|[\s\-:;—]+$', '', t)
+        t = _BOTH_PUNCT_PATTERN.sub('', t)
 
     # Importante: preservar marcadores "Art."/"Artigo" para permitir recorte posterior do Art. 1º
     # (a normalização que removia "Art." impedia extract_article1_section de localizar os artigos)
@@ -190,7 +197,7 @@ def strip_legalese_preamble(text: str) -> str:
 
 
 def first_sentences(text: str, max_sents: int = 2) -> str:
-    sents = [s.strip() for s in re.split(r"[.!?]\s+", text) if s.strip()]
+    sents = [s.strip() for s in _SENTENCE_SPLIT_PATTERN.split(text) if s.strip()]
     if not sents:
         return ""
     out = ". ".join(sents[:max_sents])
@@ -201,10 +208,10 @@ def cap_sentences(text: str, max_sents: int) -> str:
     """Corta o texto para no máximo N frases simples, preservando ponto final."""
     if max_sents <= 0 or not text:
         return text or ""
-    sents = [s.strip() for s in re.split(r"[.!?]\s+", text) if s.strip()]
+    sents = [s.strip() for s in _SENTENCE_SPLIT_PATTERN.split(text) if s.strip()]
     if not sents:
         # Fallback quando não há pontuação: sintetizar a partir das primeiras palavras
-        words = re.findall(r"\w+[\w-]*", text)
+        words = _WORDS_PATTERN.findall(text)
         if not words:
             return ""
         # Aproximar "max_sents" por blocos de ~12 palavras cada
@@ -217,7 +224,7 @@ def cap_sentences(text: str, max_sents: int) -> str:
     if len(out) > char_limit:
         # cortar em limite de palavra
         cut = out[:char_limit]
-        cut = re.sub(r"\s+\S*$", "", cut).strip()
+        cut = _TRAILING_WORD_PATTERN.sub("", cut).strip()
         out = cut or out[:char_limit].strip()
     return out + ("" if out.endswith(".") else ".")
 
@@ -227,8 +234,8 @@ def final_clean_snippet(snippet: str) -> str:
     if not snippet:
         return ""
     s = remove_dou_metadata(snippet)
-    s = re.sub(r"\s+", " ", s).strip()
-    s = re.sub(r"\.+", ".", s)
+    s = _WHITESPACE_PATTERN.sub(" ", s).strip()
+    s = _MULTI_DOT_PATTERN.sub(".", s)
     return s
 
 
@@ -239,5 +246,5 @@ def make_bullet_title_from_text(text: str, max_len: int = 140) -> str | None:
     head = first_sentences(text, 1)
     if not head:
         return None
-    head = re.sub(r"^\d+º\s+", "", head).strip()  # remove ordinal inicial
+    head = _ORDINAL_PREFIX_PATTERN.sub("", head).strip()  # remove ordinal inicial
     return head[:max_len]
