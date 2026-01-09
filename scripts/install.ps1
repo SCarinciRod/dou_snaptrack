@@ -10,6 +10,28 @@ param(
   [switch]$Quiet
 )
 
+# ==============================================================================
+# IMPORTANTE: Garantir que estamos na raiz do repositório (onde está pyproject.toml)
+# O script pode ser invocado de qualquer lugar; precisamos navegar para a raiz.
+# ==============================================================================
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$repoRoot = Split-Path -Parent $scriptDir  # scripts/ está um nível abaixo da raiz
+
+# Verificar se pyproject.toml existe na raiz detectada
+if (-not (Test-Path (Join-Path $repoRoot "pyproject.toml"))) {
+  # Fallback: talvez já estejamos na raiz
+  $cwd = (Get-Location).Path
+  if (Test-Path (Join-Path $cwd "pyproject.toml")) {
+    $repoRoot = $cwd
+  } else {
+    Write-Error "[Install] Nao foi possivel encontrar pyproject.toml. Execute o script a partir da raiz do repositorio ou da pasta scripts/."
+    exit 1
+  }
+}
+
+Write-Host "[Install] Raiz do repositorio: $repoRoot"
+Push-Location $repoRoot
+
 # Normalize console encoding to UTF-8 for consistent output (best effort)
 try {
   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -595,7 +617,6 @@ Write-Host "[Install] Instalando pacote em modo editavel (desenvolvimento)..."
 if ($usingVenv) { Write-Host "  Modo: venv local ($VenvDir)" } else { Write-Host "  Modo: --user (sem necessidade de admin)" }
 
 $succ = $false
-try { $repoPath = (Resolve-Path ".").Path } catch { $repoPath = (Get-Location).Path }
 
 # Verificar se já está instalado em modo editável neste local
 $cmd = "& `"$py`" -m pip show dou-snaptrack"
@@ -607,7 +628,7 @@ if ($rshow.ExitCode -eq 0 -and ($rshow.Stdout)) {
   }
   if ($editableLoc) {
     $a = ($editableLoc -replace '/', '\\').TrimEnd('\\')
-    $b = ($repoPath -replace '/', '\\').TrimEnd('\\')
+    $b = ($repoRoot -replace '/', '\\').TrimEnd('\\')
     if ($a.ToLowerInvariant() -eq $b.ToLowerInvariant()) {
     Write-Host "[Install] Pacote ja instalado em modo editavel neste repositorio."
       Write-Host "  Localizacao: $editableLoc"
@@ -915,8 +936,7 @@ Write-Host "  3. Duplo clique em: launch_ui.vbs"
 
 # Criar atalho na área de trabalho ao final
 try {
-  $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-  $shortcutScript = Join-Path $scriptDir 'create-desktop-shortcut.ps1'
+  $shortcutScript = Join-Path $repoRoot 'scripts\create-desktop-shortcut.ps1'
   if (Test-Path $shortcutScript) {
     Write-Host "[Install] Criando atalho na Area de Trabalho"
     $r = Run-GetResult "& `"$shortcutScript`"" 30
@@ -936,3 +956,6 @@ try {
 } catch {
   Write-Warning "[Install] Falha ao criar atalho: $_"
 }
+
+# Restaurar diretorio original
+Pop-Location
