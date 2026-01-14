@@ -24,7 +24,6 @@ Escreve resultado em RESULT_JSON_PATH.
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import json
 import os
 import sys
@@ -38,41 +37,6 @@ GOTO_TIMEOUT = 60000
 SELECT_TIMEOUT = 30000
 REPOP_WAIT_MS = 2000
 CONTENT_TIMEOUT = 10000
-
-
-async def _goto_with_retry(page, url: str, *, timeout_ms: int, retries: int, prefix: str, job_id: str) -> None:
-    """Navega com retry/backoff para erros transitórios (ex.: HTTP2/proxy)."""
-    last_err: Exception | None = None
-    wait_untils = ["domcontentloaded", "commit"]
-    for attempt in range(retries + 1):
-        for wait_until in wait_untils:
-            try:
-                await page.goto(url, wait_until=wait_until, timeout=timeout_ms)
-                return
-            except Exception as e:
-                last_err = e
-                msg = str(e)
-                transient = (
-                    "ERR_HTTP2_PROTOCOL_ERROR" in msg
-                    or "net::ERR_" in msg
-                    or "timeout" in msg.lower()
-                    or ("Navigation" in msg and "failed" in msg.lower())
-                )
-                if not transient:
-                    raise
-
-        # Backoff + reset leve do documento
-        if attempt < retries:
-            _log(f"{prefix} [{job_id}] goto falhou, retry {attempt + 1}/{retries}...", "WARN")
-            try:
-                await page.wait_for_timeout(500)
-                with contextlib.suppress(Exception):
-                    await page.goto("about:blank", timeout=5_000)
-                await page.wait_for_timeout(400)
-            except Exception:
-                pass
-
-    raise last_err if last_err else RuntimeError("Falha ao navegar")
 
 
 @dataclass
@@ -149,8 +113,29 @@ async def collect_dou_job(
         _log(f"{prefix} [{job_id}] Navegando para {url}", "DEBUG")
 
         t0 = time.perf_counter()
-        retries = int(os.environ.get("DOU_DOU_GOTO_RETRIES", "2") or "2")
-        await _goto_with_retry(page, url, timeout_ms=GOTO_TIMEOUT, retries=max(0, retries), prefix=prefix, job_id=job_id)
+        # Alguns ambientes corporativos/proxies podem causar erros HTTP/2 intermitentes.
+        # Fallback: retry com wait_until alternativo e pequena espera.
+        goto_err: Exception | None = None
+        for attempt in range(3):
+            wait_until = "domcontentloaded" if attempt == 0 else "load"
+            try:
+                await page.goto(url, wait_until=wait_until, timeout=GOTO_TIMEOUT)
+                goto_err = None
+                break
+            except Exception as e:
+                goto_err = e
+                msg = str(e)
+                if "ERR_HTTP2_PROTOCOL_ERROR" in msg:
+                    _log(
+                        f"{prefix} [{job_id}] HTTP2 error no goto (tentativa {attempt+1}/3). "
+                        "Dica: setar DOU_DISABLE_HTTP2=1 e/ou DOU_DISABLE_QUIC=1.",
+                        "WARN",
+                    )
+                # backoff curto antes de tentar novamente
+                await page.wait_for_timeout(500 * (attempt + 1))
+
+        if goto_err is not None:
+            raise goto_err
         timings["goto"] = round(time.perf_counter() - t0, 2)
 
         # Aguardar dropdowns carregarem
@@ -204,6 +189,7 @@ async def collect_dou_job(
 
         # Aguardar conteúdo carregar
         t0 = time.perf_counter()
+        import contextlib
         with contextlib.suppress(Exception):
             await page.wait_for_selector("a[href*='/web/dou/']", timeout=CONTENT_TIMEOUT)
         timings["wait_content"] = round(time.perf_counter() - t0, 2)
