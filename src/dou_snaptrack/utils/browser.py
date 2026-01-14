@@ -4,10 +4,9 @@ import contextlib
 import os
 import re
 from datetime import datetime
-from typing import Any
 
 # use import absoluto para maior robustez
-from dou_snaptrack.constants import BASE_DOU, EAGENDAS_URL
+from dou_snaptrack.constants import BASE_DOU
 
 # Delegar helpers para dou_utils.page_utils (fonte única de verdade)
 try:
@@ -30,38 +29,6 @@ def fmt_date(date_str: str | None = None) -> str:
 
 def build_dou_url(date_dd_mm_yyyy: str, secao: str) -> str:
     return f"{BASE_DOU}?data={date_dd_mm_yyyy}&secao={secao}"
-
-def build_url(site: str, path: str | None = None, **params) -> str:
-    """Constrói URL para diferentes sites do projeto.
-
-    Args:
-        site: Nome do site ('dou' ou 'eagendas')
-        path: Caminho adicional na URL (opcional)
-        **params: Parâmetros de query string
-
-    Returns:
-        URL completa
-
-    Examples:
-        build_url('dou', date='01-01-2025', secao='DO1')
-        build_url('eagendas', path='/agendas/list')
-    """
-    if site.lower() in ('dou', 'diario'):
-        base = BASE_DOU
-    elif site.lower() in ('eagendas', 'e-agendas', 'agendas'):
-        base = EAGENDAS_URL
-    else:
-        raise ValueError(f"Site desconhecido: {site}")
-
-    url = base.rstrip('/')
-    if path:
-        url = f"{url}/{path.lstrip('/')}"
-
-    if params:
-        query = '&'.join(f"{k}={v}" for k, v in params.items() if v is not None)
-        url = f"{url}?{query}" if '?' not in url else f"{url}&{query}"
-
-    return url
 
 
 # ============================================================================
@@ -129,62 +96,6 @@ def try_visualizar_em_lista(page) -> bool:
     except Exception:
         pass
     return False
-
-def launch_browser(headful: bool = False, slowmo: int = 0):
-    """Lança Chromium priorizando o Chrome instalado no sistema (channel),
-    evitando download de browsers em ambientes com SSL restrito.
-
-    Ordem de tentativa:
-    1) channel="chrome" (usa Chrome estável instalado no Windows)
-    2) executable_path via env PLAYWRIGHT_CHROME_PATH ou CHROME_PATH
-    3) fallback padrão (usa binário do ms-playwright, pode exigir download)
-    """
-    from pathlib import Path
-
-    from playwright.sync_api import sync_playwright  # type: ignore
-
-    p = sync_playwright().start()
-    launch_args: dict[str, Any] = {"headless": not headful, "slow_mo": slowmo}
-
-    # 1) Tentar canais do sistema na ordem preferida
-    prefer_edge = (os.environ.get("DOU_PREFER_EDGE", "").strip() or "0").lower() in ("1","true","yes")
-    channels = ("msedge","chrome") if prefer_edge else ("chrome","msedge")
-    for ch in channels:
-        try:
-            browser = p.chromium.launch(channel=ch, **launch_args)  # type: ignore
-            return p, browser
-        except Exception:
-            continue
-
-    # 2) Tentar usar caminho explícito do Chrome via env
-    exe = os.environ.get("PLAYWRIGHT_CHROME_PATH") or os.environ.get("CHROME_PATH")
-    if not exe:
-        # caminhos comuns no Windows
-        candidates = [
-            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        ] if prefer_edge else [
-            r"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            r"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-            r"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-            r"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-        ]
-        for c in candidates:
-            if Path(c).exists():
-                exe = c
-                break
-    if exe and Path(exe).exists():
-        try:
-            browser = p.chromium.launch(executable_path=exe, **launch_args)  # type: ignore
-            return p, browser
-        except Exception:
-            pass
-
-    # 3) Fallback padrão (pode exigir download do ms-playwright)
-    browser = p.chromium.launch(**launch_args)  # type: ignore
-    return p, browser
 
 def new_context(browser, viewport=(1366, 900)):
     return browser.new_context(ignore_https_errors=True, viewport={"width": viewport[0], "height": viewport[1]})

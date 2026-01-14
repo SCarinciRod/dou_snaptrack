@@ -28,7 +28,6 @@ class DiagnosticResult:
     operation: str
     elapsed_seconds: float
     breakdown: dict[str, float]
-    raw_stderr: str
     success: bool
     error: str | None = None
     recommendations: list[str] | None = None
@@ -214,7 +213,6 @@ print("SUCCESS")
             operation="fetch_n1",
             elapsed_seconds=elapsed,
             breakdown=breakdown,
-            raw_stderr=stderr,
             success=success,
             error=None if success else "Fetch failed",
             recommendations=recommendations,
@@ -226,7 +224,6 @@ print("SUCCESS")
             operation="fetch_n1",
             elapsed_seconds=60,
             breakdown={},
-            raw_stderr="",
             success=False,
             error="Timeout (60s)",
             recommendations=["Verificar conectividade", "Verificar se browser está acessível"],
@@ -237,7 +234,6 @@ print("SUCCESS")
             operation="fetch_n1",
             elapsed_seconds=0,
             breakdown={},
-            raw_stderr="",
             success=False,
             error=str(e),
         )
@@ -405,7 +401,6 @@ print("SUCCESS")
             operation="fetch_options",
             elapsed_seconds=elapsed,
             breakdown=breakdown,
-            raw_stderr=stderr,
             success=success,
             error=None if success else "Fetch failed",
             recommendations=recommendations,
@@ -417,7 +412,6 @@ print("SUCCESS")
             operation="fetch_options",
             elapsed_seconds=60,
             breakdown={},
-            raw_stderr="",
             success=False,
             error="Timeout (60s)",
             recommendations=["Site E-Agendas pode estar offline"],
@@ -428,7 +422,6 @@ print("SUCCESS")
             operation="fetch_options",
             elapsed_seconds=0,
             breakdown={},
-            raw_stderr="",
             success=False,
             error=str(e),
         )

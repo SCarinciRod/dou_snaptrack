@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-from typing import Any
 
 # Prefer dou_utils implementations when available, fallback to local
 try:
@@ -150,28 +149,6 @@ def compute_xpath(frame, locator) -> str | None:
         }""")
     except Exception:
         return None
-
-def elem_common_info(frame, locator) -> dict[str, Any]:
-    info = {"visible": None, "box": None, "attrs": {}, "text": None, "cssPath": None, "xpath": None}
-    with contextlib.suppress(Exception):
-        info["visible"] = locator.is_visible()
-    with contextlib.suppress(Exception):
-        info["box"] = locator.bounding_box()
-    for a in ["id","name","class","role","placeholder","aria-label","aria-haspopup","aria-expanded",
-              "value","data-value","data-index","data-option-index"]:
-        try:
-            v = locator.get_attribute(a)
-            if v is not None:
-                info["attrs"][a] = v
-        except Exception:
-            pass
-    with contextlib.suppress(Exception):
-        t = locator.text_content()
-        if t:
-            info["text"] = t.strip()
-    info["cssPath"] = compute_css_path(frame, locator)
-    info["xpath"] = compute_xpath(frame, locator)
-    return info
 
 def is_select(locator) -> bool:
     if _du_is_select:

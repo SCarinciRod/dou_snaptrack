@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 from pathlib import Path
 from typing import Any
 
@@ -160,14 +159,6 @@ def report_from_aggregated(
         mode=summary_mode,
     )
     print(f"[OK] Boletim (de agregados) gerado: {out_path}")
-
-
-def find_aggregated_by_plan(in_dir: str, plan_name: str) -> list[str]:
-    """Lista arquivos agregados do padrão {plan}_{secao}_{data}.json do plano indicado."""
-    plan_safe = re.sub(r'[\\/:*?"<>\|\r\n\t]+', "_", plan_name).strip(" _")
-    return [str(f) for f in sorted(Path(in_dir).glob(f"{plan_safe}_*_*_.json"))]
-
-
 def aggregate_outputs_by_plan(in_dir: str, plan_name: str) -> list[str]:
     """Aggregate all job JSON outputs inside a day-folder into a single per-date
     file at the resultados root, named {plan}_paginadoDOU_{date}.json.
@@ -300,7 +291,4 @@ def split_and_report_by_n1(
     print(f"[REPORT] Gerados {total_files} arquivos por N1 em: {out_dir}")
 
 
-# ----------------- helpers -----------------
-def _enrich_missing_texts(*args, **_kwargs):
-    # Legacy compat: mantido para evitar import breaks; não usado após refactor
-    logger.info("[ENRICH] legacy function not used; using dou_utils.content_fetcher.Fetcher instead")
+

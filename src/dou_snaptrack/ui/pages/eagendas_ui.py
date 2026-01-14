@@ -193,6 +193,9 @@ def render_hierarchy_selector(
         show_auto_fetch_notifications,
     )
 
+    # Mantidos por compatibilidade (modelo antigo com cargo), mas intencionalmente não usados.
+    _ = (parent_label, n2_value)
+
     if fetch_hierarchy_func is None:
         fetch_hierarchy_func = _get_default_fetch_hierarchy()
 
@@ -651,6 +654,10 @@ def render_execution_section(
                 else:
                     status_text.text("🚀 Iniciando coleta de eventos via Playwright...")
 
+            # Timeout total do subprocess (segundos). Para 18 agentes, 5 minutos é curto.
+            # Pode ser ajustado via env var DOU_UI_EAGENDAS_COLLECT_TIMEOUT.
+            collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "2400"))
+
             try:
                 subprocess_input = {
                     "queries": queries,
@@ -665,8 +672,6 @@ def render_execution_section(
 
                 progress_bar.progress(0.1)
                 status_text.text("🌐 Navegando no E-Agendas...")
-
-                collect_timeout = int(os.environ.get("DOU_UI_EAGENDAS_COLLECT_TIMEOUT", "600"))
                 logger.debug("Executando coleta E-Agendas subprocess %s (timeout=%s)", script_path, collect_timeout)
 
                 data, stderr = execute_script_func(
@@ -752,7 +757,8 @@ def render_execution_section(
             except subprocess.TimeoutExpired:
                 progress_bar.empty()
                 status_text.empty()
-                st.error("❌ Timeout: A coleta demorou mais de 5 minutos")
+                mins = max(1, int(round(collect_timeout / 60)))
+                st.error(f"❌ Timeout: A coleta demorou mais de {mins} minutos (ajuste via DOU_UI_EAGENDAS_COLLECT_TIMEOUT)")
             except Exception as e:
                 progress_bar.empty()
                 status_text.empty()

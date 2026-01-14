@@ -229,13 +229,11 @@ async def _select_selectize_option_async(page, option: dict[str, Any], wait_afte
         await h.click(timeout=3000)
 
         # Espera condicional: aguardar dropdown fechar (indica seleção completa)
-        try:
+        with contextlib.suppress(Exception):
             await page.wait_for_function(
                 "() => { const dd = document.querySelector('.selectize-dropdown'); return !dd || dd.offsetParent === null; }",
                 timeout=wait_after_ms
             )
-        except Exception:
-            pass  # Timeout ok, prosseguir
 
         # Aguardar AJAX
         with contextlib.suppress(Exception):
@@ -246,64 +244,7 @@ async def _select_selectize_option_async(page, option: dict[str, Any], wait_afte
         return False
 
 
-async def _read_selectize_options_for_label_async(frame, label: str) -> list[dict[str, Any]]:
-    """Wrapper: encontra controle, abre dropdown, lê opções (async)."""
-    ctrl = await _find_selectize_by_label_async(frame, label)
-    if not ctrl:
-        return []
 
-    if await _is_selectize_disabled_async(ctrl):
-        return []
-
-    if not await _open_selectize_dropdown_async(frame.page, ctrl, wait_ms=1500):
-        return []
-
-    opts = await _get_selectize_options_async(frame, include_empty=False)
-
-    # Fechar dropdown
-    with contextlib.suppress(Exception):
-        await frame.page.keyboard.press("Escape")
-        await frame.page.wait_for_timeout(200)
-
-    return opts
-
-
-async def _select_by_label_and_text_async(frame, label: str, text: str) -> bool:
-    """Seleciona opção específica em dropdown Selectize (async)."""
-    ctrl = await _find_selectize_by_label_async(frame, label)
-    if not ctrl:
-        return False
-
-    if await _is_selectize_disabled_async(ctrl):
-        return False
-
-    if not await _open_selectize_dropdown_async(frame.page, ctrl, wait_ms=1500):
-        return False
-
-    opts = await _get_selectize_options_async(frame, include_empty=False)
-    picked = None
-    tnorm = text.lower().strip()
-
-    # Match exato
-    for o in opts:
-        if o["text"].lower().strip() == tnorm:
-            picked = o
-            break
-
-    # Match por prefixo (fallback)
-    if not picked and len(tnorm) >= 5:
-        for o in opts:
-            if o["text"].lower().strip().startswith(tnorm[:5]):
-                picked = o
-                break
-
-    if not picked:
-        # Fechar dropdown
-        with contextlib.suppress(Exception):
-            await frame.page.keyboard.press("Escape")
-        return False
-
-    return await _select_selectize_option_async(frame.page, picked, wait_after_ms=800)
 
 
 # ============================================================================

@@ -6,92 +6,17 @@ to improve maintainability and testability.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import math
 import os
 import shutil
 import uuid
 from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from ...utils.text import sanitize_filename
-
-
-@dataclass
-class BatchConfig:
-    """Configuration for batch processing."""
-
-    jobs: list[dict[str, Any]]
-    defaults: dict[str, Any]
-    out_dir: Path
-    out_pattern: str
-    state_file_path: Path | None
-    headful: bool
-    slowmo: int
-    reuse_page: bool
-    summary: dict[str, Any]
-    log_file: str | None
-
-
-@dataclass
-class BatchReport:
-    """Batch processing report."""
-
-    total_jobs: int
-    ok: int = 0
-    fail: int = 0
-    items_total: int = 0
-    outputs: list[str] = None
-    metrics: dict[str, Any] = None
-    mode: str = "fallback"
-
-    def __post_init__(self):
-        if self.outputs is None:
-            self.outputs = []
-        if self.metrics is None:
-            self.metrics = {}
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert report to dictionary."""
-        return {
-            "total_jobs": self.total_jobs,
-            "ok": self.ok,
-            "fail": self.fail,
-            "items_total": self.items_total,
-            "outputs": self.outputs,
-            "metrics": self.metrics,
-            "mode": self.mode,
-        }
-
-
-def load_state_file(state_file_path: Path | None) -> set[str]:
-    """Load global deduplication state from file.
-
-    Args:
-        state_file_path: Path to state file or None
-
-    Returns:
-        Set of seen hashes
-    """
-    global_seen = set()
-    if not state_file_path or not state_file_path.exists():
-        return global_seen
-
-    try:
-        for line in state_file_path.read_text(encoding="utf-8").splitlines():
-            try:
-                obj = json.loads(line)
-                h = obj.get("hash")
-                if h:
-                    global_seen.add(h)
-            except Exception:
-                pass
-    except Exception:
-        pass
-
-    return global_seen
 
 
 def determine_parallelism(args, jobs_count: int) -> int:
@@ -185,48 +110,6 @@ def distribute_jobs_into_buckets(
                 buckets[gi % bucket_count].extend(chunk)
 
     return buckets, desired_size
-
-
-def create_worker_payload(
-    jobs: list[dict[str, Any]],
-    defaults: dict[str, Any],
-    out_dir: Path,
-    out_pattern: str,
-    args,
-    state_file_path: Path | None,
-    reuse_page: bool,
-    summary: dict[str, Any],
-    bucket: list[int],
-) -> dict[str, Any]:
-    """Create payload for a worker process.
-
-    Args:
-        jobs: All jobs
-        defaults: Default configuration
-        out_dir: Output directory
-        out_pattern: Output filename pattern
-        args: Command-line arguments
-        state_file_path: Path to state file
-        reuse_page: Whether to reuse browser page
-        summary: Summary configuration
-        bucket: List of job indices for this worker
-
-    Returns:
-        Worker payload dictionary
-    """
-    return {
-        "jobs": jobs,
-        "defaults": defaults,
-        "out_dir": str(out_dir),
-        "out_pattern": out_pattern,
-        "headful": bool(args.headful),
-        "slowmo": int(args.slowmo),
-        "state_file": str(state_file_path) if state_file_path else None,
-        "reuse_page": reuse_page,
-        "summary": summary,
-        "indices": bucket,
-        "log_file": getattr(args, "log_file", None),
-    }
 
 
 def aggregate_report_metrics(report: dict[str, Any]) -> None:
@@ -488,15 +371,11 @@ def aggregate_outputs_by_date(paths: list[str], out_dir: Path, plan_name: str) -
 
         # Cleanup
         for w in writers.values():
-            try:
+            with contextlib.suppress(Exception):
                 Path(w["path"]).unlink(missing_ok=True)
-            except Exception:
-                pass
 
-        try:
+        with contextlib.suppress(Exception):
             tmp_dir.rmdir()
-        except Exception:
-            pass
 
         return written
     except Exception:

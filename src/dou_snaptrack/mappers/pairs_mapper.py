@@ -6,7 +6,6 @@ from typing import Any
 
 from dou_utils.dropdowns import collect_open_list_options, open_dropdown_robust
 
-from ..constants import LEVEL_IDS
 from ..utils.dom import read_select_options
 from ..utils.text import normalize_text
 
@@ -190,74 +189,3 @@ def _scroll_listbox_to_end(page) -> None:
     except Exception:
         pass
 
-def map_pairs(page, secao: str, data: str,
-              label1: str | None, label2: str | None,
-              select1: str | None, pick1: str | None, limit1: int | None,
-              select2: str | None, pick2: str | None, limit2_per_n1: int | None,
-              verbose: bool) -> dict[str, Any]:
-
-    n1 = find_dropdown_by_id_or_label(page, LEVEL_IDS[1], label1)
-    n2 = find_dropdown_by_id_or_label(page, LEVEL_IDS[2], label2)
-    if not n1:
-        raise RuntimeError("Não consegui localizar o dropdown de N1.")
-
-    n1_opts = read_select_options(n1["handle"]) if is_select_root(n1) else (open_dropdown_robust(page, n1["handle"]) and collect_open_list_options(page)) or []
-    n1_opts = remove_placeholders(n1_opts)
-    n1_filtered = filter_opts(n1_opts, select1, pick1, limit1)
-
-    if verbose:
-        print(f"[N1] total={len(n1_opts)} filtrado={len(n1_filtered)}")
-
-    mapped = []
-    for idx, o1 in enumerate(n1_filtered, 1):
-        prev_n2_count = 0
-        if n2:
-            if is_select_root(n2):
-                prev_n2_count = len(read_select_options(n2["handle"]))
-            else:
-                opened = open_dropdown_robust(page, n2["handle"])
-                prev_n2_count = len(collect_open_list_options(page)) if opened else 0
-
-        ok = select_by_text_or_attrs(page, n1, o1)
-        if not ok:
-            if verbose:
-                print(f"[skip] N1 não selecionado: {o1.get('text')}")
-            continue
-
-        # Re-resolve N2 after selecting N1 (DOM may re-render) and repopulate
-        n2 = find_dropdown_by_id_or_label(page, LEVEL_IDS[2], label2) or n2
-        if n2:
-            wait_n2_repopulated(page, n2, prev_n2_count, timeout_ms=15_000)
-            if is_select_root(n2):
-                o2_all = read_select_options(n2["handle"]) or []
-            else:
-                opened = open_dropdown_robust(page, n2["handle"])  # open to collect
-                if opened:
-                    _scroll_listbox_to_end(page)
-                    o2_all = collect_open_list_options(page)
-                    with contextlib.suppress(Exception):
-                        page.keyboard.press('Escape')
-                else:
-                    o2_all = []
-            o2_all = remove_placeholders(o2_all)
-            o2_filtered = filter_opts(o2_all, select2, pick2, limit2_per_n1)
-
-            if verbose:
-                print(f"[N1:{idx}/{len(n1_filtered)}] '{o1.get('text')}' -> N2 total={len(o2_all)} filtrado={len(o2_filtered)}")
-
-            mapped.append({"n1": o1, "n2_options": o2_filtered})
-        else:
-            # N1-only context
-            if verbose:
-                print(f"[N1:{idx}/{len(n1_filtered)}] '{o1.get('text')}' -> sem N2 (contexto N1-only)")
-            mapped.append({"n1": o1, "n2_options": []})
-
-    return {
-        "date": data,
-        "secao": secao,
-        "controls": {
-            "n1_id": n1.get("id") if n1 else None,
-            "n2_id": n2.get("id") if n2 else None,
-        },
-        "n1_options": mapped
-    }

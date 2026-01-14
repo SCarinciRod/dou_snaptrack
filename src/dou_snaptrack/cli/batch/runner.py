@@ -105,7 +105,7 @@ def _worker_process(payload: dict[str, Any]) -> dict[str, Any]:
     total_jobs: int = int(payload.get("total_jobs") or (len(jobs) if jobs else 0) or (len(bucket_jobs) if bucket_jobs else 0))
     fast_mode = (os.environ.get("DOU_FAST_MODE", "").strip() or "0").lower() in ("1", "true", "yes")
 
-    report = {"ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
+    report = {"total_jobs": total_jobs, "ok": 0, "fail": 0, "items_total": 0, "outputs": [], "metrics": {"jobs": [], "summary": {}}}
 
     with sync_playwright() as p:
         # Launch browser with fallbacks
@@ -295,80 +295,6 @@ def _run_fast_async_subprocess(async_input: dict, _log) -> dict:
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-def _run_plan_aggregation(cfg: dict, report: dict, out_dir: Path, _log) -> None:
-    """Agregação de outputs por plano (extraída para evitar duplicação)."""
-    try:
-        plan_name = (cfg.get("plan_name") or (cfg.get("defaults", {}) or {}).get("plan_name") or "").strip()
-        if not plan_name:
-            return
-
-        from collections import defaultdict
-
-        def _aggregate_outputs_by_date(paths: list[str], out_dir_p: Path, plan: str) -> list[str]:
-            agg: dict[str, dict[str, Any]] = defaultdict(lambda: {"data": "", "secao": "", "plan": plan, "itens": []})
-            secao_any = ""
-            for pth in paths or []:
-                try:
-                    data = json.loads(Path(pth).read_text(encoding="utf-8"))
-                except Exception:
-                    continue
-                date = str(data.get("data") or "")
-                secao = str(data.get("secao") or "")
-                if not agg[date]["data"]:
-                    agg[date]["data"] = date
-                if not agg[date]["secao"]:
-                    agg[date]["secao"] = secao
-                if not secao_any and secao:
-                    secao_any = secao
-                items = data.get("itens", []) or []
-                # Normalize detail_url (absolute)
-                for it in items:
-                    try:
-                        durl = it.get("detail_url") or ""
-                        if not durl:
-                            link = it.get("link") or ""
-                            if link:
-                                if link.startswith("http"):
-                                    durl = link
-                                elif link.startswith("/"):
-                                    durl = f"https://www.in.gov.br{link}"
-                        if durl:
-                            it["detail_url"] = durl
-                    except Exception:
-                        pass
-                agg[date]["itens"].extend(items)
-            written: list[str] = []
-            secao_label = (secao_any or "DO").strip()
-            for date, payload in agg.items():
-                payload["total"] = len(payload.get("itens", []))
-                safe_plan = sanitize_filename(plan)
-                date_lab = (date or "").replace("/", "-")
-                out_name = f"{safe_plan}_{secao_label}_{date_lab}.json"
-                out_path_f = out_dir_p / out_name
-                out_path_f.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-                written.append(str(out_path_f))
-            return written
-
-        prev_outputs = list(report.get("outputs", []))
-        agg_files = _aggregate_outputs_by_date(prev_outputs, out_dir, plan_name)
-        if agg_files:
-            deleted = []
-            for pth in prev_outputs:
-                try:
-                    Path(pth).unlink(missing_ok=True)
-                    deleted.append(pth)
-                except Exception:
-                    pass
-            report["deleted_outputs"] = deleted
-            report["outputs"] = []
-            report["aggregated"] = agg_files
-            report["aggregated_only"] = True
-            # Re-write report with aggregation info
-            rep_path = out_dir / (((cfg.get("output", {}) or {}).get("report")) or "batch_report.json")
-            rep_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-            _log(f"[AGG] {len(agg_files)} arquivo(s) agregado(s) por plano: {plan_name}; removidos {len(deleted)} JSON(s) individuais")
-    except Exception as e:
-        _log(f"[AGG][WARN] Falha ao agregar por plano: {e}")
 
 def run_batch(playwright, args, summary: SummaryConfig) -> None:
     """Execute batch processing with optional fast async mode.

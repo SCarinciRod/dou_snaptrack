@@ -233,27 +233,6 @@ def update_pairs_file(
     )
 
 
-def update_pairs_file_if_stale(
-    file_path: Path = DEFAULT_PAIRS_FILE,
-    max_age_days: int = MAX_AGE_DAYS,
-    **kwargs,
-) -> dict[str, Any] | None:
-    """Atualiza o arquivo de pares apenas se estiver obsoleto.
-
-    Args:
-        file_path: Caminho do arquivo JSON
-        max_age_days: Idade máxima em dias antes de considerar obsoleto
-        **kwargs: Argumentos passados para update_pairs_file()
-
-    Returns:
-        Dict com resultado da atualização, ou None se arquivo ainda estava válido
-    """
-    if not is_pairs_file_stale(file_path, max_age_days):
-        return None  # Arquivo ainda está fresco
-
-    return update_pairs_file(file_path, **kwargs)
-
-
 def get_pairs_file_info(file_path: Path = DEFAULT_PAIRS_FILE) -> dict[str, Any]:
     """Retorna informações sobre o arquivo de pares atual.
 

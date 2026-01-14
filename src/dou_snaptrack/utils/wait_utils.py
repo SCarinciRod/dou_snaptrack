@@ -76,33 +76,6 @@ def wait_for_options_loaded(frame, min_count: int = 1, timeout_ms: int = 500) ->
     )
 
 
-def wait_for_element_stable(frame, selector: str, timeout_ms: int = 500) -> bool:
-    """Espera até elemento parar de mudar (útil para dropdowns dinâmicos).
-
-    Verifica se count do elemento permanece estável por 100ms.
-    """
-    stable_count = 0
-    last_count = -1
-    start = time.time()
-
-    while (time.time() - start) * 1000 < timeout_ms:
-        try:
-            current_count = frame.locator(selector).count()
-            if current_count == last_count and current_count > 0:
-                stable_count += 1
-                if stable_count >= 2:  # Estável por 100ms (2x50ms)
-                    return True
-            else:
-                stable_count = 0
-                last_count = current_count
-        except Exception:
-            pass
-
-        frame.wait_for_timeout(50)
-
-    return last_count > 0  # Pelo menos algo foi encontrado
-
-
 def wait_for_network_idle(frame, timeout_ms: int = 2000) -> bool:
     """Espera até não haver requests de rede por 500ms.
 

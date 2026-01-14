@@ -46,12 +46,7 @@ ANGULAR_READY_SELECTORS = [
 ]
 
 # Seletores para detectar que Selectize inicializou
-SELECTIZE_READY_JS = """
-(selector) => {
-    const el = document.querySelector(selector);
-    return el && el.selectize && Object.keys(el.selectize.options || {}).length > 0;
-}
-"""
+
 
 
 # =============================================================================

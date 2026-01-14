@@ -446,7 +446,13 @@ async def collect_for_agent(
 
                         // Indicação de overflow ("+ mais") - eventos podem estar escondidos no popover
                         const moreLink = cell.querySelector('.fc-daygrid-more-link, .fc-more-link');
-                        if (moreLink) moreDates.push(dateStr);
+                        if (moreLink) {
+                            const dateParts = dateStr.split('-').map(Number);
+                            const dateNum = dateParts[0] * 10000 + dateParts[1] * 100 + dateParts[2];
+                            if (!(dateNum < startNum || dateNum > endNum)) {
+                                moreDates.push(dateStr);
+                            }
+                        }
                     }
 
                     // timeGrid (agenda semanal/diária)
@@ -507,6 +513,12 @@ async def collect_for_agent(
 
                 # Buscar eventos escondidos no popover ("+ mais")
                 for date_str in more_dates:
+                    try:
+                        d = date.fromisoformat(date_str)
+                        if d < start_date or d > end_date:
+                            continue
+                    except Exception:
+                        continue
                     more_link = page.locator(
                         f'.fc-daygrid-day[data-date="{date_str}"] .fc-daygrid-more-link, '
                         f'.fc-day[data-date="{date_str}"] .fc-daygrid-more-link, '

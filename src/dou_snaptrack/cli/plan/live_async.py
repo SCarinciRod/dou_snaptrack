@@ -5,11 +5,8 @@ MIGRAÇÃO PLAYWRIGHT SYNC → ASYNC
 
 from __future__ import annotations
 
-import asyncio
 import contextlib
 from typing import Any
-
-from playwright.async_api import async_playwright
 
 # ============================================================================
 # FUNÇÕES AUXILIARES ASYNC
@@ -381,14 +378,6 @@ async def build_plan_live_async(p, args) -> dict[str, Any]:
 
     return cfg
 
-    return cfg
 
 
-# Wrapper síncrono para compatibilidade
-def build_plan_live_sync_wrapper(p, args) -> dict[str, Any]:
-    """Wrapper que roda async via asyncio.run()."""
-    async def run():
-        async with async_playwright() as p_async:
-            return await build_plan_live_async(p_async, args)
 
-    return asyncio.run(run())
