@@ -24,8 +24,12 @@ async def launch_browser_with_channels(p, prefer_edge: bool, log_fn) -> Any | No
     """
     channels = ("msedge", "chrome") if prefer_edge else ("chrome", "msedge")
 
+    # Defaults: QUIC e HTTP/2 desligados para reduzir erros intermitentes em ambientes com proxy/inspeção SSL.
+    # Override:
+    # - DOU_DISABLE_QUIC=0 para permitir QUIC
+    # - DOU_DISABLE_HTTP2=0 para permitir HTTP/2
     disable_quic = (os.environ.get("DOU_DISABLE_QUIC", "1").strip() or "1").lower() in ("1", "true", "yes")
-    disable_http2 = (os.environ.get("DOU_DISABLE_HTTP2", "0").strip() or "0").lower() in ("1", "true", "yes")
+    disable_http2 = (os.environ.get("DOU_DISABLE_HTTP2", "1").strip() or "1").lower() in ("1", "true", "yes")
 
     base_args = [
         "--disable-blink-features=AutomationControlled",
@@ -36,6 +40,11 @@ async def launch_browser_with_channels(p, prefer_edge: bool, log_fn) -> Any | No
         base_args.append("--disable-quic")
     if disable_http2:
         base_args.append("--disable-http2")
+
+    if disable_quic or disable_http2:
+        log_fn(
+            f"[DOU] browser flags: disable_quic={int(disable_quic)} disable_http2={int(disable_http2)}"
+        )
 
     for channel in channels:
         try:
