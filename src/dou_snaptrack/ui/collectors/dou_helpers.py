@@ -6,6 +6,7 @@ This module contains extracted functions from main_async to reduce complexity.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -23,15 +24,23 @@ async def launch_browser_with_channels(p, prefer_edge: bool, log_fn) -> Any | No
     """
     channels = ("msedge", "chrome") if prefer_edge else ("chrome", "msedge")
 
+    disable_http2 = (os.environ.get("DOU_DISABLE_HTTP2", "").strip() or "0").lower() in ("1", "true", "yes")
+    extra_args = [
+        "--disable-blink-features=AutomationControlled",
+        "--disable-background-timer-throttling",
+        "--disable-renderer-backgrounding",
+        "--disable-quic",
+    ]
+    if disable_http2:
+        extra_args.append("--disable-http2")
+
     for channel in channels:
         try:
             browser = await p.chromium.launch(
                 channel=channel,
                 headless=True,
                 args=[
-                    '--disable-blink-features=AutomationControlled',
-                    '--disable-background-timer-throttling',
-                    '--disable-renderer-backgrounding',
+                    *extra_args,
                 ]
             )
             log_fn(f"✓ Browser {channel} iniciado")
@@ -209,6 +218,21 @@ def build_final_result(stats: dict[str, Any], outputs: list[str], elapsed: float
     has_successes = len(stats["successful"]) > 0
     all_success = len(stats["failed"]) == 0
 
+    failed_jobs = [
+        {
+            "job_index": r.job_index,
+            "topic": r.topic,
+            "date": r.date,
+            "secao": r.secao,
+            "key1": r.key1,
+            "key2": r.key2,
+            "elapsed_sec": r.elapsed,
+            "error": r.error,
+            "timings": r.timings,
+        }
+        for r in stats["failed"]
+    ]
+
     return {
         "success": has_successes,  # True se há pelo menos um sucesso
         "all_success": all_success,  # True somente se todos foram ok
@@ -217,6 +241,11 @@ def build_final_result(stats: dict[str, Any], outputs: list[str], elapsed: float
         "items_total": stats["total_items"],
         "outputs": outputs,
         "elapsed": round(elapsed, 1),
+        "warnings": [
+            "Partial success: existem jobs com falha; ver metrics.failed_jobs"
+        ]
+        if failed_jobs and has_successes
+        else [],
         "metrics": {
             "jobs": [
                 {
@@ -232,6 +261,7 @@ def build_final_result(stats: dict[str, Any], outputs: list[str], elapsed: float
                 }
                 for r in stats["successful"]
             ],
+            "failed_jobs": failed_jobs,
             "summary": {}
         }
     }
