@@ -734,6 +734,8 @@ async def main_async():
         '--ignore-certificate-errors',
         '--disable-dev-shm-usage',
         '--no-sandbox',
+        '--disable-quic',
+        '--disable-http2',
     ]
 
     results: list[dict] = []
